@@ -1,6 +1,28 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/rates",
+      "destination": "/api/rates.js"
+    },
+    {
+      "source": "/api/auth",
+      "destination": "/api/auth.js"
+    },
+    {
+      "source": "/CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx",
+      "destination": "/CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

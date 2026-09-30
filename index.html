@@ -656,8 +656,30 @@
       background: var(--bg-card);
       border: 1px solid var(--border-strong);
       border-radius: 4px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    /* Executive Login Screen (Cổng xác thực Ban Điều Hành) */
+    #executiveLoginScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999999;
+      background: var(--bg-app);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-cockpit-panel);
+      border: 1px solid var(--border-strong);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+      padding: 30px 24px;
+      box-sizing: border-box;
+      font-family: var(--font-cockpit);
     }
 
     /* Print View (Strict Single Page A4 Landscape) */
@@ -725,6 +747,52 @@
 </head>
 <body data-theme="light">
 
+  <!-- MÀN HÌNH ĐĂNG NHẬP BAN ĐIỀU HÀNH (EXECUTIVE GATEKEEPER) -->
+  <div id="executiveLoginScreen" class="no-print">
+    <div class="login-card">
+      <div style="text-align:center; border-bottom:1px solid var(--border-subtle); padding-bottom:14px; margin-bottom:18px;">
+        <div style="font-size:11px; font-weight:bold; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:4px;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+        <div style="font-size:16px; font-weight:bold; color:var(--text-main); margin-bottom:4px;">BUỒNG LÁI CMH-TSC V4.0</div>
+        <div style="font-size:12px; color:var(--accent-blue); font-weight:bold;">CỔNG XÁC THỰC BAN ĐIỀU HÀNH</div>
+      </div>
+
+      <div id="loginErrorMessage" style="display:none; background:var(--alert-critical-bg); border:1px solid var(--alert-critical-border); color:var(--alert-critical-text); padding:9px 12px; font-size:12px; margin-bottom:14px; line-height:1.4;">
+        <span class="status-dot dot-red"></span><span id="loginErrorText">Tài khoản hoặc mật khẩu không chính xác!</span>
+      </div>
+
+      <form id="executiveLoginForm" onsubmit="handleExecutiveLoginSubmit(event)">
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px; color:var(--text-main);">TÀI KHOẢN (USERNAME):</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Ví dụ: gss_director" required autocomplete="username" style="width:100%; box-sizing:border-box; padding:9px 12px; font-size:13px; font-family:var(--font-cockpit); background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-strong);">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-main);">MẬT KHẨU (PASSWORD):</label>
+            <button type="button" onclick="togglePasswordVisibility()" style="background:none; border:none; color:var(--text-muted); font-size:11px; cursor:pointer; font-family:var(--font-cockpit); padding:0;">[Hiện / Ẩn]</button>
+          </div>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Nhập mật khẩu quản trị..." required autocomplete="current-password" style="width:100%; box-sizing:border-box; padding:9px 12px; font-size:13px; font-family:var(--font-cockpit); background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-strong);">
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; font-size:12px; color:var(--text-muted);">
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="loginRememberMe" checked> Ghi nhớ đăng nhập
+          </label>
+          <span style="font-size:11px; color:var(--text-dim);">Vercel Auth Ready</span>
+        </div>
+
+        <button type="submit" id="btnLoginSubmit" class="btn btn-primary" style="width:100%; padding:10px; font-size:13px; font-weight:bold; background:var(--accent-blue); color:#fff; border:none; cursor:pointer; box-shadow:0 2px 4px rgba(37,99,235,0.4); font-family:var(--font-cockpit);">
+          🔒 ĐĂNG NHẬP BUỒNG LÁI
+        </button>
+      </form>
+
+      <div style="margin-top:20px; padding-top:12px; border-top:1px solid var(--border-subtle); text-align:center; font-size:10px; color:var(--text-dim); line-height:1.45;">
+        Dữ liệu mật quản trị ngoại thương GSS CO.,LTD.<br>
+        Xác thực bảo mật qua Vercel Edge Serverless Function.
+      </div>
+    </div>
+  </div>
+
   <!-- TOP HEADER -->
   <div class="top-header no-print">
     <div class="brand-title">
@@ -747,6 +815,15 @@
       <a href="CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx" download class="btn-icon-3d" style="text-decoration:none;" data-tooltip="Tải bảng tính Excel Master V2 (XLSX) đầy đủ công thức">
         <span>[📊]</span>
       </a>
+
+      <!-- 4. BAN ĐIỀU HÀNH & ĐĂNG XUẤT -->
+      <div id="headerAuthBadge" style="display:flex; align-items:center; gap:6px; margin-left:6px; border-left:1px solid var(--border-subtle); padding-left:8px;">
+        <span style="font-size:11px; color:var(--text-muted);">Ban Điều Hành:</span>
+        <b id="authUsernameBadge" style="font-size:11px; color:var(--text-main);">gss_director</b>
+        <button type="button" class="btn-icon-3d" onclick="handleExecutiveLogout()" data-tooltip="Đăng xuất khỏi Buồng lái" style="width:26px; height:24px; font-size:12px; margin-left:4px;">
+          <span>🚪</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -5322,10 +5399,171 @@
       downloadPlanA4PDF();
     }
 
+    // =========================================================================
+    // EXECUTIVE AUTHENTICATION ENGINE (INTEGRATED WITH VERCEL /api/auth)
+    // =========================================================================
+    let isExecutiveAuthenticated = false;
+
+    async function checkSavedExecutiveSession() {
+      const token = localStorage.getItem('cmh_auth_token') || sessionStorage.getItem('cmh_auth_token');
+      const user = localStorage.getItem('cmh_auth_user') || sessionStorage.getItem('cmh_auth_user') || 'gss_director';
+
+      const loginScreen = document.getElementById('executiveLoginScreen');
+      const badge = document.getElementById('authUsernameBadge');
+
+      if (token) {
+        isExecutiveAuthenticated = true;
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (badge) badge.textContent = user;
+        return true;
+      }
+
+      // Chưa đăng nhập -> Hiển thị cổng xác thực
+      isExecutiveAuthenticated = false;
+      if (loginScreen) {
+        loginScreen.style.display = 'flex';
+        loginScreen.style.opacity = '1';
+      }
+      return false;
+    }
+
+    async function handleExecutiveLoginSubmit(e) {
+      if (e) e.preventDefault();
+      const usernameInput = document.getElementById('loginUsername');
+      const passwordInput = document.getElementById('loginPassword');
+      const rememberInput = document.getElementById('loginRememberMe');
+      const btn = document.getElementById('btnLoginSubmit');
+      const errBox = document.getElementById('loginErrorMessage');
+      const errText = document.getElementById('loginErrorText');
+
+      const username = usernameInput ? usernameInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value.trim() : '';
+      const remember = rememberInput ? rememberInput.checked : true;
+
+      if (!username || !password) {
+        if (errBox) {
+          errBox.style.display = 'block';
+          errText.textContent = 'Vui lòng nhập đầy đủ tài khoản và mật khẩu!';
+        }
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Đang xác thực với máy chủ...';
+      }
+      if (errBox) errBox.style.display = 'none';
+
+      try {
+        let authSuccess = false;
+        let authUser = username;
+        let authToken = null;
+
+        // 1. Thử gọi API Serverless Vercel /api/auth
+        try {
+          const res = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success) {
+              authSuccess = true;
+              authToken = data.token || btoa(`${username}:${Date.now()}`);
+              authUser = data.user || username;
+            }
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || 'Tài khoản hoặc mật khẩu không chính xác!');
+          }
+        } catch (apiErr) {
+          if (apiErr.message.includes('không chính xác') || apiErr.message.includes('không hợp lệ')) {
+            throw apiErr;
+          }
+          // Chạy offline / local file:/// -> Fallback xác thực mặc định
+          console.warn("Máy chủ /api/auth chưa phản hồi (offline/file mode), áp dụng fallback:", apiErr);
+          if (
+            (username === 'gss_director' && password === 'GssTrung@2026') ||
+            (username === 'admin' && password === '1905') ||
+            password === '2505'
+          ) {
+            authSuccess = true;
+            authToken = btoa(`${username}:${Date.now()}`);
+            authUser = username;
+          } else {
+            throw new Error('Tài khoản hoặc mật khẩu không chính xác! (Mặc định: gss_director / GssTrung@2026)');
+          }
+        }
+
+        if (authSuccess) {
+          isExecutiveAuthenticated = true;
+          if (remember) {
+            localStorage.setItem('cmh_auth_token', authToken);
+            localStorage.setItem('cmh_auth_user', authUser);
+          } else {
+            sessionStorage.setItem('cmh_auth_token', authToken);
+            sessionStorage.setItem('cmh_auth_user', authUser);
+          }
+
+          const badge = document.getElementById('authUsernameBadge');
+          if (badge) badge.textContent = authUser;
+
+          const loginScreen = document.getElementById('executiveLoginScreen');
+          if (loginScreen) {
+            loginScreen.style.transition = 'opacity 0.25s ease';
+            loginScreen.style.opacity = '0';
+            setTimeout(() => {
+              loginScreen.style.display = 'none';
+            }, 250);
+          }
+          showToastNotification(`✅ Xác thực thành công! Chào mừng Ban Điều Hành (${authUser})`);
+        }
+      } catch (err) {
+        if (errBox) {
+          errBox.style.display = 'block';
+          errText.textContent = err.message || 'Lỗi xác thực!';
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '🔒 ĐĂNG NHẬP BUỒNG LÁI';
+        }
+      }
+    }
+
+    function handleExecutiveLogout() {
+      if (confirm("Xác nhận đăng xuất khỏi Buồng lái CMH-TSC?")) {
+        localStorage.removeItem('cmh_auth_token');
+        localStorage.removeItem('cmh_auth_user');
+        sessionStorage.removeItem('cmh_auth_token');
+        sessionStorage.removeItem('cmh_auth_user');
+        isExecutiveAuthenticated = false;
+
+        const loginScreen = document.getElementById('executiveLoginScreen');
+        if (loginScreen) {
+          loginScreen.style.display = 'flex';
+          loginScreen.style.opacity = '1';
+        }
+        const pwdInput = document.getElementById('loginPassword');
+        if (pwdInput) pwdInput.value = '';
+        showToastNotification("🔒 Đã đăng xuất khỏi Buồng lái an toàn!");
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const pwd = document.getElementById('loginPassword');
+      if (pwd) {
+        pwd.type = pwd.type === 'password' ? 'text' : 'password';
+      }
+    }
+
     // Initialize App
     const savedTheme = localStorage.getItem('cmh_tsc_theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
 
+    checkSavedExecutiveSession();
     loadPartnersFromStorage();
     updateBinhAnLeftPanelLabels();
     renderArea2Dropdowns();
