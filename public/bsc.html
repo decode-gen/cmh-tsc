@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>CMH-BSC V2.0 — Buồng Lái Quản Trị & Quyết Toán Lợi Nhuận Môi Giới (G-SS & CTV)</title>
+  <style>
+    :root {
+      --font-cockpit: "Times New Roman", Times, serif;
+      --font-mono-numbers: "JetBrains Mono", Consolas, "Courier New", monospace;
+      --font-size-base: 13px;
+      --font-size-h1: 17px;
+      --font-size-h2: 14px;
+      --line-height-base: 1.45;
+
+      --btn-press-displacement: translateY(1px);
+      --btn-3d-bevel-light: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      --btn-3d-bevel-shadow: 0 2px 0 #000000;
+      --input-sunken-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.6);
+      --transition-tactile: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* DARK THEME (MẶC ĐỊNH) */
+    html[data-theme="dark"] {
+      --bg-app: #09090b;
+      --bg-cockpit-panel: #121215;
+      --bg-card: #18181b;
+      --bg-card-hover: #202024;
+      --bg-input: #101014;
+      --bg-locked: #1c1c21;
+
+      --border-subtle: #27272a;
+      --border-strong: #3f3f46;
+      --border-active: #ffffff;
+
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+
+      --btn-bg: #27272a;
+      --btn-text: #f4f4f5;
+      --btn-border: #3f3f46;
+      --btn-hover-bg: #3f3f46;
+
+      --tooltip-bg: #000000;
+      --tooltip-text: #ffffff;
+      --tooltip-border: #52525b;
+
+      --accent-gss: #38bdf8;
+      --accent-tung: #a78bfa;
+      --accent-hien: #34d399;
+      --accent-tax: #fbbf24;
+      --accent-save: #4ade80;
+      --progress-bg: #27272a;
+      --progress-bar: #38bdf8;
+    }
+
+    /* LIGHT THEME — PURE BLACK RULE R13 */
+    html[data-theme="light"] {
+      --bg-app: #fcfcfc;
+      --bg-cockpit-panel: #f4f4f5;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fafafa;
+      --bg-input: #ffffff;
+      --bg-locked: #eaeaea;
+
+      --border-subtle: #000000;
+      --border-strong: #000000;
+      --border-active: #000000;
+
+      --text-main: #000000;
+      --text-muted: #000000;
+      --text-dim: #222222;
+
+      --btn-bg: #ffffff;
+      --btn-text: #000000;
+      --btn-border: #000000;
+      --btn-hover-bg: #f0f0f0;
+
+      --tooltip-bg: #000000;
+      --tooltip-text: #ffffff;
+      --tooltip-border: #000000;
+
+      --accent-gss: #000000;
+      --accent-tung: #000000;
+      --accent-hien: #000000;
+      --accent-tax: #000000;
+      --accent-save: #000000;
+      --progress-bg: #e4e4e7;
+      --progress-bar: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-cockpit);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-base);
+    }
+
+    body {
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      padding: 12px;
+      min-height: 100vh;
+    }
+
+    .cockpit-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--bg-cockpit-panel);
+      border: 1px solid var(--border-strong);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-title-box h1 {
+      font-size: var(--font-size-h1);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .header-sub {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* BUTTON 3D */
+    .btn-3d {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid var(--btn-border);
+      box-shadow: var(--btn-3d-bevel-shadow);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-tactile);
+      user-select: none;
+    }
+
+    .btn-3d:hover {
+      background: var(--btn-hover-bg);
+    }
+
+    .btn-3d:active {
+      transform: var(--btn-press-displacement);
+      box-shadow: none;
+    }
+
+    /* PROGRESS TRACKER 300M */
+    .vat-tracker-banner {
+      background: var(--bg-cockpit-panel);
+      border: 1px solid var(--border-strong);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .vat-tracker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .vat-tracker-title {
+      font-weight: bold;
+      font-size: 13.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 14px;
+      background: var(--progress-bg);
+      border: 1px solid var(--border-strong);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--progress-bar);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .vat-tracker-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-family: var(--font-mono-numbers);
+    }
+
+    /* PRIVACY TOGGLE BAR */
+    .privacy-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* GRID LAYOUT (3 CỘT) */
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr 380px;
+      gap: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .cockpit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-cockpit-panel);
+      border: 1px solid var(--border-strong);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-header {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-size: var(--font-size-h2);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-tag {
+      border: 1px solid var(--border-strong);
+      padding: 1px 6px;
+      font-size: 11px;
+      font-family: var(--font-mono-numbers);
+      text-transform: uppercase;
+    }
+
+    /* FORM INPUTS */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-main);
+    }
+
+    .form-group label span.unit {
+      color: var(--text-dim);
+      font-weight: normal;
+      font-family: var(--font-mono-numbers);
+    }
+
+    .input-3d {
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--input-sunken-shadow);
+      padding: 6px 8px;
+      font-family: var(--font-mono-numbers);
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .input-3d:focus {
+      outline: none;
+      border-color: var(--border-active);
+    }
+
+    .input-locked {
+      background: var(--bg-locked);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* CARD BLOCK */
+    .card-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-box:hover {
+      background: var(--bg-card-hover);
+    }
+
+    /* SWITCH TOGGLE */
+    .switch-container {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-app);
+      border: 1px solid var(--border-strong);
+      padding: 3px;
+    }
+
+    .switch-btn {
+      flex: 1;
+      padding: 6px 8px;
+      text-align: center;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      transition: var(--transition-tactile);
+    }
+
+    .switch-btn.active {
+      background: var(--btn-bg);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+      box-shadow: var(--btn-3d-bevel-shadow);
+    }
+
+    /* METRIC TABLE */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border-subtle);
+      padding: 6px 8px;
+      font-size: 12.5px;
+    }
+
+    table.data-table th {
+      background: var(--bg-card);
+      text-align: left;
+      font-weight: bold;
+    }
+
+    table.data-table td.num {
+      text-align: right;
+      font-family: var(--font-mono-numbers);
+    }
+
+    .highlight-row {
+      background: rgba(255, 255, 255, 0.05);
+      font-weight: bold;
+    }
+
+    /* PERSON CARDS (ZONE 3) */
+    .person-card {
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .person-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 4px;
+    }
+
+    .person-name {
+      font-weight: bold;
+      font-size: 13.5px;
+      text-transform: uppercase;
+    }
+
+    .person-role {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .person-net-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border-subtle);
+    }
+
+    .person-net-amount {
+      font-family: var(--font-mono-numbers);
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+
+    /* SAVINGS BANNER */
+    .savings-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .savings-title {
+      font-weight: bold;
+    }
+
+    .savings-val {
+      font-family: var(--font-mono-numbers);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg-cockpit-panel);
+      border: 1px solid var(--border-strong);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--bg-cockpit-panel);
+      border: 2px solid var(--border-strong);
+      width: 92vw;
+      max-width: 820px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    textarea.copy-box {
+      width: 100%;
+      height: 250px;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      font-family: var(--font-mono-numbers);
+      font-size: 12px;
+      padding: 8px;
+      resize: vertical;
+    }
+
+    /* PRINT RULES */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0;
+      }
+      .header-actions, .switch-container, footer, .btn-3d, .modal-overlay, .vat-tracker-banner, .privacy-banner {
+        display: none !important;
+      }
+      .cockpit-grid {
+        display: block !important;
+      }
+      .panel {
+        border: 1px solid #000000 !important;
+        background: #ffffff !important;
+        margin-bottom: 12px !important;
+        page-break-inside: avoid;
+      }
+      table.data-table th, table.data-table td {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+      }
+      .admin-only-item {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cockpit-container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-title-box">
+      <h1>CMH-BSC V2.0 — BUỒNG LÁI QUẢN TRỊ & QUYẾT TOÁN LỢI NHUẬN MÔI GIỚI</h1>
+      <div class="header-sub">
+        Hệ sinh thái CMH Monorepo · G-SS CO.,LTD · Nghiệm thu dồn tích lũy & Thanh toán theo Quý / Mốc Hoàn thuế 300 Triệu
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-3d" id="btn-theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀</span> Giao diện
+      </button>
+      <button class="btn-3d" id="btn-pull-tsc" onclick="pullDataFromTsc()" title="Kéo đồng bộ dữ liệu chi phí & phát sinh mới nhất từ CMH-TSC" style="border-color: var(--accent-save); color: var(--accent-save);">
+        🔄 Kéo từ CMH-TSC
+      </button>
+      <button class="btn-3d" onclick="loadSample269901()" title="Nạp mẫu số liệu thực tế Đơn hàng 269901">
+        🔒 Nạp Đơn 269901
+      </button>
+      <button class="btn-3d" onclick="openContractModal()" title="Mở mẫu Hợp đồng & Biên bản Nghiệm thu Bảo mật">
+        📄 Mẫu HĐ Môi Giới
+      </button>
+      <button class="btn-3d" onclick="openZaloModal()" title="Copy nhanh nội dung bảng kê gửi Zalo">
+        📋 Báo Cáo Zalo
+      </button>
+      <button class="btn-3d" onclick="window.print()" title="In Bảng kê thanh toán A4 Monochrome">
+        🖨 In Bảng Kê A4
+      </button>
+    </div>
+  </header>
+
+  <!-- THANH TIẾN ĐỘ TÍCH LŨY HOÀN THUẾ GTGT 300 TRIỆU ĐỒNG -->
+  <div class="vat-tracker-banner">
+    <div class="vat-tracker-header">
+      <div class="vat-tracker-title">
+        <span>🏛️ MỐC TÍCH LŨY HOÀN THUẾ GTGT 300.000.000 ĐỒNG (THEO LUẬT THUẾ GTGT)</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span style="font-size: 12px; color: var(--text-dim);">Lũy kế thuế GTGT các đơn trước:</span>
+        <input type="number" id="priorVatAccumulated" class="input-3d" value="0" style="width: 140px; text-align: right;" oninput="calculate()">
+        <span style="font-size: 12px; font-weight: bold;">VNĐ</span>
+      </div>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="vatProgressFill"></div>
+    </div>
+    <div class="vat-tracker-stats">
+      <span>Đơn 269901: <b id="vatThisOrderDisplay">37.237.630 đ</b></span>
+      <span>Tổng Lũy Kế: <b id="vatTotalAccumulatedDisplay">37.237.630 đ</b> / <b>300.000.000 đ</b> (<span id="vatPercentDisplay">12.4%</span>)</span>
+      <span id="vatStatusBadge" class="badge-tag" style="border-color: var(--accent-tax);">⏳ ĐANG TÍCH LŨY QUÝ</span>
+    </div>
+  </div>
+
+  <!-- PRIVACY DUAL-VIEW TOGGLE BANNER -->
+  <div class="privacy-banner">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-weight: bold;">CHẾ ĐỘ HIỂN THỊ DỮ LIỆU (PRIVACY CONTROL):</span>
+      <span style="font-size: 12px; color: var(--text-dim);">
+        Kiểm soát Chinese Wall — Bảo mật hoàn toàn lợi nhuận nội bộ và số thuế TNDN tiết kiệm của G-SS
+      </span>
+    </div>
+    <div class="switch-container" style="flex: none; width: 360px;">
+      <button class="switch-btn active" id="btn-view-admin" onclick="setViewMode('admin')">
+        🔒 G-SS Admin View (Nội Bộ)
+      </button>
+      <button class="switch-btn" id="btn-view-broker" onclick="setViewMode('broker')">
+        📋 Broker View (Xuất Cho CTV)
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN 3-ZONE GRID -->
+  <div class="cockpit-grid">
+
+    <!-- KHU VỰC 1: DỮ LIỆU ĐƠN HÀNG & DÒNG TIỀN GỐC -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">1. Dữ Liệu Đơn Hàng</span>
+        <span class="badge-tag">Inputs</span>
+      </div>
+
+      <div class="form-group">
+        <label>Mã Đơn hàng / Hợp đồng <span class="unit">SSOT</span></label>
+        <input type="text" id="orderId" class="input-3d input-locked" value="269901 (GSSDIX_FCA_269901)" readonly>
+      </div>
+
+      <div class="form-group">
+        <label>Doanh thu xuất khẩu <span class="unit">USD</span></label>
+        <input type="number" id="revenueUsd" class="input-3d" value="20540" oninput="calculate()">
+      </div>
+
+      <div class="form-group">
+        <label>Tỷ giá MB Bank hạch toán <span class="unit">VND/USD</span></label>
+        <input type="number" id="exchangeRate" class="input-3d" value="25797.45" step="0.01" oninput="calculate()">
+        <div style="display: flex; gap: 4px; margin-top: 4px;">
+          <button type="button" class="btn-3d" style="font-size: 11px; padding: 2px 6px;" onclick="setRate(25797.45)" title="Tỷ giá bình quân thực tế bán USD qua MB Bank (Tổng 527.401.013đ)">
+            💵 Tỷ giá Thực Tế: 25.797,45
+          </button>
+          <button type="button" class="btn-3d" style="font-size: 11px; padding: 2px 6px;" onclick="setRate(26008)" title="Tỷ giá danh nghĩa ghi nhận trên Hóa đơn xuất khẩu MISA">
+            📄 Tỷ giá HĐ MISA: 26.008
+          </button>
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px; line-height: 1.35;">
+          • Lần 1 (16/09): 8.484,5$ × <b>25.815</b> = 219.027.368 đ<br>
+          • Lần 2 (28/09): 11.959,42$ × <b>25.785</b> = 308.373.645 đ<br>
+          ➔ <b>Tổng tiền mặt thực nhận: 527.401.013 VNĐ</b>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Doanh thu quy đổi <span class="unit">VNĐ</span></label>
+        <input type="text" id="revenueVndDisplay" class="input-3d input-locked" readonly>
+      </div>
+
+      <div class="form-group admin-only-item">
+        <label>Giá vốn mua hàng Thiên Long <span class="unit">VNĐ (chưa VAT)</span></label>
+        <input type="number" id="costFactory" class="input-3d" value="438100000" oninput="calculate()">
+      </div>
+
+      <div class="form-group admin-only-item">
+        <label>Cước xe Vận tải Vĩnh Thành <span class="unit">VNĐ (chưa VAT)</span></label>
+        <input type="number" id="costTransport" class="input-3d" value="22000000" oninput="calculate()">
+      </div>
+
+      <div class="form-group admin-only-item">
+        <label>Hải quan & C/O Bình An Logistics <span class="unit">VNĐ (chưa VAT)</span></label>
+        <input type="number" id="costCustoms" class="input-3d" value="8200000" oninput="calculate()">
+      </div>
+
+      <div class="form-group admin-only-item">
+        <label>Lệ phí nhà nước & Cửa khẩu <span class="unit">VNĐ</span></label>
+        <input type="number" id="costFees" class="input-3d" value="270000" oninput="calculate()">
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+          <label style="margin-bottom: 0;">Phát sinh thực tế Cửa khẩu Lao Bảo <span class="unit">VNĐ</span></label>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <span id="tscSyncStatusBadge" style="font-size: 10px; color: var(--accent-save); font-weight: bold;">[📡 Đã đồng bộ từ CMH-TSC]</span>
+            <button class="btn-3d" type="button" onclick="openExpenseDetailsModal()" style="font-size: 10.5px; padding: 2px 6px;" title="Xem danh sách chi tiết các khoản chi thực tế">
+              🔍 Xem Chi Tiết (<span id="borderExpCountBadge">8 khoản</span>)
+            </button>
+          </div>
+        </div>
+        <input type="number" id="costBorderExtra" class="input-3d" value="19320370" oninput="calculate()"
+               title="Gồm các khoản chi thực địa được đồng bộ từ CMH-TSC hoặc chỉnh sửa tự do">
+      </div>
+      <div style="font-size: 11px; color: var(--text-dim); margin-top: -4px; margin-bottom: 8px; line-height: 1.4;">
+        ⚠️ <span id="unforeseenSubnote"><i>Đã tính đủ 4 khoản không HĐ (11.950.000đ): Bốc xếp (2,5M) + Ăn ở Tùng & Hiên (6M) + Transit Lào (2M) + Ngoài (1,45M).</i></span>
+      </div>
+
+      <div class="form-group">
+        <label>Thuế GTGT 8% đầu vào đơn này <span class="unit">VNĐ (TK 1331)</span></label>
+        <input type="number" id="vatRefund" class="input-3d" value="37237630" oninput="calculate()">
+      </div>
+
+      <div class="form-group admin-only-item">
+        <label>Tỷ lệ Chi phí Quản trị Hệ thống & Dự phòng G-SS <span class="unit">%</span></label>
+        <input type="number" id="contingencyRate" class="input-3d" value="3.0" step="0.5" oninput="calculate()">
+      </div>
+    </div>
+
+    <!-- KHU VỰC 2: BỘ MÁY TÍNH TOÁN KÉP & ĐỐI SÁNH THUẾ -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">2. Bộ Máy Tính Toán Kép</span>
+        <span class="badge-tag">Dual Engine</span>
+      </div>
+
+      <!-- TOGGLE CƠ CHẾ TÍNH TOÁN (ADMIN ONLY) -->
+      <div class="card-box admin-only-item">
+        <div style="font-weight: bold; margin-bottom: 4px;">CƠ CHẾ PHÂN BỔ THUẾ & LỢI NHUẬN (CHINESE WALL):</div>
+        <div class="switch-container">
+          <button class="switch-btn" id="btn-engine-user" onclick="setEngine('user')">
+            Kịch bản 1: Theo thỏa thuận miệng (Chia sau TNDN 20%)
+          </button>
+          <button class="switch-btn active" id="btn-engine-opt" onclick="setEngine('optimized')">
+            Kịch bản 2: Kế toán Tối ưu Thuế (Chi phí CTV trước TNDN) ★
+          </button>
+        </div>
+      </div>
+
+      <!-- TOGGLE CƠ SỞ TÍNH DỰ PHÒNG 3% (ADMIN ONLY) -->
+      <div class="card-box admin-only-item">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: bold;">Cơ sở tính Chi phí Hệ thống 3%:</span>
+          <div class="switch-container" style="flex: none; width: 220px;">
+            <button class="switch-btn active" id="btn-contingency-rev" onclick="setContingencyBase('revenue')">
+              3% Doanh thu
+            </button>
+            <button class="switch-btn" id="btn-contingency-ebt" onclick="setContingencyBase('ebt')">
+              3% Lợi nhuận
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KỲ HẠN THANH TOÁN (PAYOUT TRIGGER) -->
+      <div class="card-box">
+        <div style="font-weight: bold; margin-bottom: 4px;">ĐIỀU KIỆN KÍCH HOẠT GIẢI NGÂN THÙ LAO (PAYOUT POLICY):</div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          • <b>Nghiệm thu:</b> Chốt số liệu theo từng đơn hàng độc lập ngay sau khi giao hàng.<br>
+          • <b>Giải ngân:</b> Thù lao được <b>dồn tích lũy</b> và chi trả chuyển khoản khi: <b>(1) Thanh toán dứt điểm theo Quý</b>, HOẶC <b>(2) Khi mốc hoàn thuế GTGT tích lũy đạt từ 300.000.000 VNĐ trở lên</b> và Cục Thuế đã giải ngân.
+        </div>
+      </div>
+
+      <!-- BẢNG ĐỐI SOÁT TÀI CHÍNH CHI TIẾT -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Hạng mục tài chính</th>
+            <th style="width: 140px; text-align: right;">Giá trị (VNĐ)</th>
+            <th style="width: 160px;">Căn cứ hạch toán</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tổng Doanh thu Xuất bán (A)</td>
+            <td class="num" id="td-rev">0</td>
+            <td>HĐ Ngoại thương FCA Lao Bảo</td>
+          </tr>
+          <tr class="admin-only-item">
+            <td>Tổng Chi phí Giá vốn & Logistics (B)</td>
+            <td class="num" id="td-cost">0</td>
+            <td>HĐ Thiên Long + Vĩnh Thành + Bình An</td>
+          </tr>
+          <tr class="highlight-row admin-only-item">
+            <td>Lợi nhuận Gộp thực tế (EBT = A - B)</td>
+            <td class="num" id="td-ebt">0</td>
+            <td>Đã trừ toàn bộ 19,32M phát sinh Lao Bảo</td>
+          </tr>
+          <tr class="admin-only-item">
+            <td id="td-tax-corp-label">Thuế TNDN 20% doanh nghiệp</td>
+            <td class="num" id="td-tax-corp" style="color: var(--accent-tax);">0</td>
+            <td id="td-tax-corp-note">Hạch toán nghĩa vụ NSNN</td>
+          </tr>
+          <tr>
+            <td>Thuế GTGT 8% đầu vào đưa vào rổ chia</td>
+            <td class="num" id="td-vat-refund">0</td>
+            <td id="td-vat-note">TK 1331 tích lũy mốc 300M</td>
+          </tr>
+          <tr class="admin-only-item">
+            <td id="td-contingency-label">Phí Quản trị hệ thống & Dự phòng (3%)</td>
+            <td class="num" id="td-contingency">0</td>
+            <td>G-SS lưu giữ bảo toàn rủi ro</td>
+          </tr>
+          <tr class="highlight-row" style="background: rgba(255, 255, 255, 0.08); font-size: 13.5px;">
+            <td>TỔNG RỔ GIÁ TRỊ CHIA 3 PHẦN</td>
+            <td class="num" id="td-total-pool" style="font-weight: bold;">0</td>
+            <td>1/3 GSS, 1/3 Tùng, 1/3 Hiên</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- THẺ SO SÁNH TIẾT KIỆM THUẾ (ADMIN ONLY) -->
+      <div class="savings-card admin-only-item" id="taxSavingsCard">
+        <div>
+          <div class="savings-title">HIỆU QUẢ KẾ TOÁN TỐI ƯU CỦA G-SS CO.,LTD:</div>
+          <div style="font-size: 11.5px; color: var(--text-muted);">
+            Thù lao 2 CTV được trừ thuế TNDN mà CTV không can thiệp vào lợi nhuận nội bộ
+          </div>
+        </div>
+        <div class="savings-val" id="taxSavingsVal" style="color: var(--accent-save);">
+          +0 VNĐ
+        </div>
+      </div>
+    </div>
+
+    <!-- KHU VỰC 3: QUYẾT TOÁN 3 BÊN & XUẤT LỆNH CHUYỂN KHOẢN -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">3. Bảng Kê Quyết Toán 3 Bên</span>
+        <span class="badge-tag">Settlement</span>
+      </div>
+
+      <!-- CARD 1: ĐỒNG THANH TÙNG -->
+      <div class="person-card">
+        <div class="person-header">
+          <div>
+            <div class="person-name">1. ĐỒNG THANH TÙNG</div>
+            <div class="person-role">Cộng tác viên Xúc tiến & Áp tải hiện trường (1/3)</div>
+          </div>
+          <span class="badge-tag" style="border-color: var(--accent-tung);">CTV 1</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+          <span>Thù lao môi giới gộp:</span>
+          <span class="num" id="tung-gross">0 đ</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-tax);">
+          <span>Thuế TNCN 10% (G-SS nộp NSNN thay):</span>
+          <span class="num" id="tung-tax">-0 đ</span>
+        </div>
+        <div class="person-net-row">
+          <span style="font-weight: bold;">THỰC NHẬN CHUYỂN KHOẢN (NET):</span>
+          <span class="person-net-amount" id="tung-net">0 đ</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+          Kỳ giải ngân: Tích lũy Quý hoặc khi hoàn thuế đạt 300M
+        </div>
+      </div>
+
+      <!-- CARD 2: NGUYỄN THÀNH HIÊN -->
+      <div class="person-card">
+        <div class="person-header">
+          <div>
+            <div class="person-name">2. NGUYỄN THÀNH HIÊN</div>
+            <div class="person-role">Cộng tác viên Xúc tiến & Kết nối đối tác (1/3)</div>
+          </div>
+          <span class="badge-tag" style="border-color: var(--accent-hien);">CTV 2</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+          <span>Thù lao môi giới gộp:</span>
+          <span class="num" id="hien-gross">0 đ</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-tax);">
+          <span>Thuế TNCN 10% (G-SS nộp NSNN thay):</span>
+          <span class="num" id="hien-tax">-0 đ</span>
+        </div>
+        <div class="person-net-row">
+          <span style="font-weight: bold;">THỰC NHẬN CHUYỂN KHOẢN (NET):</span>
+          <span class="person-net-amount" id="hien-net">0 đ</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+          Kỳ giải ngân: Tích lũy Quý hoặc khi hoàn thuế đạt 300M
+        </div>
+      </div>
+
+      <!-- CARD 3: G-SS CO.,LTD (ADMIN ONLY) -->
+      <div class="person-card admin-only-item" style="border-width: 2px;">
+        <div class="person-header">
+          <div>
+            <div class="person-name">3. CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+            <div class="person-role">Pháp nhân Doanh nghiệp xuất khẩu (1/3)</div>
+          </div>
+          <span class="badge-tag" style="border-color: var(--accent-gss);">G-SS SSOT</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+          <span>Lợi nhuận ròng doanh nghiệp:</span>
+          <span class="num" id="gss-share">0 đ</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+          <span>Phí quản trị hệ thống 3% lưu giữ:</span>
+          <span class="num" id="gss-contingency">0 đ</span>
+        </div>
+        <div class="person-net-row">
+          <span style="font-weight: bold;">TỔNG DÒNG TIỀN G-SS GIỮ LẠI:</span>
+          <span class="person-net-amount" id="gss-total">0 đ</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+          Tài khoản MB Bank: 2991116668888 (VND)
+        </div>
+      </div>
+
+      <!-- TỔNG KẾT NGHĨA VỤ THUẾ NSNN (ADMIN ONLY) -->
+      <div class="card-box admin-only-item" style="border-top: 2px solid var(--border-strong);">
+        <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">TỔNG NGHĨA VỤ THUẾ NỘP NSNN:</div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+          <span>Thuế TNDN 20% (Công ty nộp):</span>
+          <span class="num" id="total-tax-corp">0 đ</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px;">
+          <span>Thuế TNCN 10% (Nộp hộ 2 CTV):</span>
+          <span class="num" id="total-tax-pit">0 đ</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 4px; padding-top: 4px; border-top: 1px dashed var(--border-subtle);">
+          <span>TỔNG TIỀN THUẾ NỘP NHÀ NƯỚC:</span>
+          <span class="num" id="total-tax-all" style="color: var(--accent-tax);">0 đ</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div style="font-size: 12px; color: var(--text-muted);">
+      Hệ sinh thái CMH Monorepo · CÔNG TY TNHH GLOBAL SOLUTION SERVICE (MST: 0109469047) · CEO Tower, Phạm Hùng, Hà Nội
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="btn-3d" onclick="openContractModal()">
+        📄 Mẫu HĐ Môi Giới Bảo Mật
+      </button>
+      <button class="btn-3d" onclick="openLegalModal()">
+        ⚖ Căn Cứ Pháp Lý & Thuế
+      </button>
+      <button class="btn-3d" onclick="openZaloModal()">
+        📋 Lấy Báo Cáo Zalo
+      </button>
+    </div>
+  </footer>
+
+</div>
+
+<!-- MODAL BÁO CÁO ZALO -->
+<div class="modal-overlay" id="zaloModal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="font-weight: bold; font-size: 14px; text-transform: uppercase;">
+        📋 Bản Báo Cáo Quyết Toán Nghiệm Thu Gửi Zalo Cho Môi Giới (Tùng & Hiên)
+      </div>
+      <button class="btn-3d" onclick="closeZaloModal()">✕ Đóng</button>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted);">
+      Nội dung minh bạch số liệu thù lao, thuế TNCN 10% khấu trừ tại nguồn và tiến độ thanh toán theo Quý/300M:
+    </p>
+    <textarea class="copy-box" id="zaloText" readonly></textarea>
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button class="btn-3d" onclick="copyZaloText()">
+        📋 Copy Toàn Bộ Nội Dung
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MẪU HỢP ĐỒNG BẢO MẬT -->
+<div class="modal-overlay" id="contractModal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="font-weight: bold; font-size: 14px; text-transform: uppercase;">
+        📄 Dự Thảo Điều Khoản Hợp Đồng Môi Giới Bảo Mật & Hợp Pháp Hóa Chi Phí (/cmh-law)
+      </div>
+      <button class="btn-3d" onclick="closeContractModal()">✕ Đóng</button>
+    </div>
+    <div style="font-size: 12.5px; display: flex; flex-direction: column; gap: 10px; line-height: 1.55;">
+      <p style="color: var(--accent-save); font-weight: bold;">
+        ★ NGHỆ THUẬT SOẠN THẢO CHINESE WALL: ĐẢM BẢO THỎA THUẬN VỚI CTV — HỢP LỆ VỚI CƠ QUAN THUẾ — BẢO MẬT TUYỆT ĐỐI LỢI NHUẬN G-SS:
+      </p>
+      
+      <div class="card-box">
+        <b>ĐIỀU 1: ĐIỀU KHOẢN THÙ LAO MÔI GIỚI (TRÁNH BẪY CHIA LÃI SAU THUẾ)</b>
+        <p><i>"1.1. Thù lao của Bên B được xác định theo tỷ lệ hoa hồng hiệu quả kinh doanh của từng đơn hàng cụ thể, căn cứ theo Bảng xác nhận nghiệm thu dịch vụ xúc tiến xuất khẩu do Bên A ban hành sau khi đã khấu trừ định mức chi phí quản trị hệ thống, chi phí rủi ro kỹ thuật (3%) và định mức nghĩa vụ tài chính doanh nghiệp liên quan đến thương vụ."</i></p>
+        <p><i>"1.2. Mức thù lao chính thức bằng số tiền cụ thể ghi nhận tại Biên bản nghiệm thu thương vụ độc lập do hai bên ký kết."</i></p>
+      </div>
+
+      <div class="card-box">
+        <b>ĐIỀU 2: ĐIỀU KHOẢN KHẤU TRỪ THUẾ TNCN 10% TẠI NGUỒN</b>
+        <p><i>"Căn cứ Điểm i Khoản 1 Điều 25 Thông tư 111/2013/TT-BTC, Bên A có trách nhiệm khấu trừ 10% thuế Thu nhập cá nhân (TNCN) tại nguồn trên tổng số tiền thù lao trước khi chi trả để kê khai và nộp vào Ngân sách Nhà nước thay cho Bên B, đồng thời cấp Chứng từ khấu trừ thuế TNCN điện tử theo quy định."</i></p>
+      </div>
+
+      <div class="card-box">
+        <b>ĐIỀU 3: KỲ HẠN VÀ ĐIỀU KIỆN THANH TOÁN (KHÓA CHẶT MỐC 300 TRIỆU HOÀN THUẾ)</b>
+        <p><i>"Do tính chất chu kỳ thanh toán quốc tế và quy định về điều kiện hoàn thuế GTGT hàng hóa xuất khẩu (đạt mốc lũy kế từ 300.000.000 VNĐ trở lên theo Luật Thuế GTGT 48/2024/QH15), thù lao của Bên B được lập Biên bản nghiệm thu dồn tích lũy theo từng đơn hàng nhưng thời điểm thanh toán thực tế sẽ được thực hiện: <b>(i) Định kỳ theo Quý tài chính</b>, HOẶC <b>(ii) Tại thời điểm Cơ quan Thuế có Quyết định hoàn thuế GTGT chính thức và giải ngân vào tài khoản Bên A</b>."</i></p>
+      </div>
+      
+      <div style="font-size: 11.5px; color: var(--text-dim);">
+        ✔ Kỹ thuật này giúp G-SS đưa 100% thù lao CTV vào Chi phí được trừ (TK 641), tiết kiệm 20% thuế TNDN, bảo vệ vốn lưu động cho đến khi có tiền hoàn thuế 300 triệu, và CTV không bao giờ can thiệp vào lợi nhuận nội bộ của công ty.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CĂN CỨ PHÁP LÝ -->
+<div class="modal-overlay" id="legalModal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="font-weight: bold; font-size: 14px; text-transform: uppercase;">
+        ⚖ Căn Cứ Pháp Lý, Thuế & Điều Kiện Bảo Vệ G-SS (/cmh-law)
+      </div>
+      <button class="btn-3d" onclick="closeLegalModal()">✕ Đóng</button>
+    </div>
+    <div style="font-size: 12.5px; display: flex; flex-direction: column; gap: 8px; line-height: 1.5;">
+      <p><b>1. Quy Định Mốc Hoàn Thuế GTGT 300 Triệu:</b> Căn cứ Khoản 4 Điều 18 Thông tư 219/2013/TT-BTC và Luật Thuế GTGT 48/2024/QH15, cơ sở kinh doanh có hàng hóa xuất khẩu có số thuế GTGT đầu vào chưa được khấu trừ từ 300.000.000 VNĐ trở lên mới được nộp hồ sơ hoàn thuế. Do đó, việc dồn tích lũy thanh toán thù lao theo Quý hoặc khi đủ mốc 300 triệu hoàn thuế là hoàn toàn phù hợp và bảo vệ tuyệt đối vốn lưu động của G-SS.</p>
+      <p><b>2. Về Thuế Thu Nhập Cá Nhân (TNCN 10%):</b> Căn cứ Điểm i Khoản 1 Điều 25 Thông tư 111/2013/TT-BTC, tổ chức chi trả thù lao, tiền hoa hồng môi giới từ 2.000.000 VNĐ/lần trở lên cho cá nhân vãng lai không ký hợp đồng lao động bắt buộc phải khấu trừ 10% thuế TNCN trước khi chi trả.</p>
+      <p><b>3. Về Chi Phí Được Trừ Khi Tính Thuế TNDN:</b> Căn cứ Điều 4 Thông tư 96/2015/TT-BTC, để khoản chi thù lao môi giới được tính vào chi phí hợp lý được trừ, G-SS bắt buộc phải có: (1) Hợp đồng môi giới thương mại; (2) Biên bản xác nhận kết quả & nghiệm thu đơn hàng; (3) Chứng từ chuyển khoản ngân hàng (UNC) từ tài khoản MB Bank công ty sang tài khoản cá nhân; (4) Chứng từ khấu trừ thuế TNCN điện tử Mẫu 03/TNCN.</p>
+      <p><b>4. Cảnh Báo Tuyệt Đối:</b> Không chi tiền mặt trao tay không chứng từ. Nếu không có chứng từ, thuế sẽ loại khỏi chi phí được trừ và phạt truy thu 20% TNDN.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CHI TIẾT CHI PHÍ PHÁT SINH THỰC TẾ HẬU KIỂM TỪ CMH-TSC -->
+<div class="modal-overlay" id="unforeseenModal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-content" style="max-width: 780px;">
+    <div class="modal-header">
+      <div style="font-weight: bold; font-size: 14px; text-transform: uppercase;">
+        🛡️ Bảng Kê Chi Tiết Chi Phí Phát Sinh Thực Tế Tại Cửa Khẩu (Đồng Bộ Từ CMH-TSC)
+      </div>
+      <button class="btn-3d" onclick="closeExpenseDetailsModal()">✕ Đóng</button>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted);">
+      Các khoản chi phát sinh thực tế ngoài kế hoạch trong quá trình thực hiện thông quan xuất khẩu và chuyển tải:
+    </p>
+    <div style="max-height: 320px; overflow-y: auto; border: 1px solid var(--border-subtle); margin: 6px 0;">
+      <table class="data-table" style="width: 100%; font-size: 11.5px;">
+        <thead>
+          <tr>
+            <th style="width: 32px; text-align: center;">STT</th>
+            <th>Hạng Mục Chi Phí Thực Tế</th>
+            <th style="width: 95px;">Phân Loại</th>
+            <th style="width: 110px; text-align: right;">Số Tiền (VNĐ)</th>
+            <th style="width: 130px;">Chứng Từ / HĐ</th>
+            <th>Ghi Chú Nghiệp Vụ</th>
+          </tr>
+        </thead>
+        <tbody id="unforeseenTableBody">
+          <!-- Render động bằng JS -->
+        </tbody>
+      </table>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: var(--bg-card); border: 1px solid var(--border-subtle); font-size: 12px; font-weight: bold;">
+      <span>TỔNG CHI PHÍ PHÁT SINH THỰC TẾ:</span>
+      <span class="num" id="modalUnforeseenTotal" style="color: var(--accent-gss); font-size: 13px;">0 đ</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-top: 4px;">
+      <span>Có hóa đơn hợp lệ (trừ thuế TNDN): <b id="modalUnforeseenVat" style="color: var(--text-main);">0 đ</b></span>
+      <span>Chi phí nội bộ không HĐ: <b id="modalUnforeseenNonVat" style="color: var(--text-main);">0 đ</b></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // STATE CỦA ỨNG DỤNG CMH-BSC V2.0
+  let currentEngine = 'optimized'; // 'user' hoặc 'optimized'
+  let contingencyBase = 'revenue'; // 'revenue' hoặc 'ebt'
+  let viewMode = 'admin';          // 'admin' (nội bộ G-SS) hoặc 'broker' (xuất cho CTV)
+  const VAT_REFUND_THRESHOLD = 300000000; // 300 Triệu VNĐ
+
+  // CẦU NỐI ĐỒNG BỘ DỮ LIỆU VỚI BUỒNG LÁI CMH-TSC
+  const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS';
+  const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V1';
+  let syncedUnforeseenExpenses = [
+    { id: 'EXP-269901-01', name: 'Ca chờ / lưu xe chờ đối tác (Vĩnh Thành)', amount: 4629630, category: 'CARRIER', hasInvoice: true, invoiceNo: '00000217', note: 'Bkav eHoadon 24/09/2026' },
+    { id: 'EXP-269901-02', name: 'Bốc hàng sang xe đối tác Thái/Lào bãi Lao Bảo', amount: 2500000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Không HĐ, cửu vạn bãi kiểm hóa' },
+    { id: 'EXP-269901-03', name: 'Xử lý hồ sơ hủy xuất cảnh xe & xin sang hàng', amount: 2000000, category: 'CUSTOMS', hasInvoice: false, invoiceNo: '15/CV-GSS', note: 'Công văn 15/CV-GSS' },
+    { id: 'EXP-269901-04', name: 'Khách sạn NV hiện trường Tùng (Dư Hùng Phát)', amount: 740740, category: 'ACCOMMODATION', hasInvoice: true, invoiceNo: '00001188', note: 'MISA meInvoice 24/09/2026' },
+    { id: 'EXP-269901-05', name: 'Lệ phí nhà nước & tác nghiệp cửa khẩu Lao Bảo', amount: 270000, category: 'BORDER', hasInvoice: true, invoiceNo: 'Biên lai', note: 'Biên lai hạ tầng/HQ' },
+    { id: 'EXP-269901-06', name: 'Ăn uống, đi lại hiện trường (Tùng & Hiên)', amount: 6000000, category: 'ACCOMMODATION', hasInvoice: false, invoiceNo: 'Khoán chi', note: 'Khoán chi công tác phí 4 ngày' },
+    { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
+    { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
+  ];
+
+  function openExpenseDetailsModal() {
+    renderSyncedExpenseTable();
+    document.getElementById('unforeseenModal').style.display = 'flex';
+  }
+
+  function closeExpenseDetailsModal() {
+    document.getElementById('unforeseenModal').style.display = 'none';
+  }
+
+  function renderSyncedExpenseTable() {
+    const tbody = document.getElementById('unforeseenTableBody');
+    if (!tbody) return;
+
+    if (!syncedUnforeseenExpenses || syncedUnforeseenExpenses.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:10px; color:var(--text-dim);">Chưa có chi tiết phát sinh nào được đồng bộ.</td></tr>';
+      return;
+    }
+
+    let html = '';
+    let total = 0, totalVat = 0, totalNonVat = 0;
+
+    syncedUnforeseenExpenses.forEach((exp, idx) => {
+      const amt = parseFloat(exp.amount) || 0;
+      total += amt;
+      if (exp.hasInvoice) totalVat += amt; else totalNonVat += amt;
+
+      const catMap = {
+        BORDER: 'Cửa khẩu',
+        CARRIER: 'Vận tải/Lưu xe',
+        CUSTOMS: 'Hải quan/Hồ sơ',
+        ACCOMMODATION: 'Lưu trú/Đi lại',
+        OTHER: 'Chi khác'
+      };
+      const cat = catMap[exp.category] || exp.category || 'Phát sinh';
+
+      const invTag = exp.hasInvoice 
+        ? `<span style="color:var(--accent-save); font-weight:bold;">[Có HĐ ${exp.invoiceNo ? exp.invoiceNo : ''}]</span>`
+        : `<span style="color:var(--accent-tax);">[⛔ Không HĐ]</span>`;
+
+      html += `
+        <tr>
+          <td style="text-align:center;">${idx + 1}</td>
+          <td><b>${exp.name}</b></td>
+          <td>${cat}</td>
+          <td class="num font-bold">${formatVnd(amt)}</td>
+          <td>${invTag}</td>
+          <td style="font-size:11px; color:var(--text-dim);">${exp.note || ''}</td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+    document.getElementById('modalUnforeseenTotal').textContent = formatVnd(total);
+    document.getElementById('modalUnforeseenVat').textContent = formatVnd(totalVat);
+    document.getElementById('modalUnforeseenNonVat').textContent = formatVnd(totalNonVat);
+
+    const countBadge = document.getElementById('borderExpCountBadge');
+    if (countBadge) countBadge.textContent = `${syncedUnforeseenExpenses.length} khoản`;
+  }
+
+  function applySyncedDataFromTsc(payload) {
+    if (!payload) return;
+    if (payload.revenueUsd !== undefined && document.getElementById('revenueUsd')) {
+      document.getElementById('revenueUsd').value = payload.revenueUsd;
+    }
+    if (payload.exchangeRate !== undefined && document.getElementById('exchangeRate')) {
+      document.getElementById('exchangeRate').value = payload.exchangeRate;
+    }
+    if (payload.costFactory !== undefined && document.getElementById('costFactory')) {
+      document.getElementById('costFactory').value = payload.costFactory;
+    }
+    if (payload.costTransport !== undefined && document.getElementById('costTransport')) {
+      document.getElementById('costTransport').value = payload.costTransport;
+    }
+    if (payload.costCustoms !== undefined && document.getElementById('costCustoms')) {
+      document.getElementById('costCustoms').value = payload.costCustoms;
+    }
+    if (payload.costFees !== undefined && document.getElementById('costFees')) {
+      document.getElementById('costFees').value = payload.costFees;
+    }
+    if (payload.costBorderExtra !== undefined && document.getElementById('costBorderExtra')) {
+      document.getElementById('costBorderExtra').value = payload.costBorderExtra;
+    }
+    if (payload.vatRefund !== undefined && document.getElementById('vatRefund')) {
+      document.getElementById('vatRefund').value = payload.vatRefund;
+    }
+
+    if (Array.isArray(payload.unforeseenExpenses)) {
+      syncedUnforeseenExpenses = payload.unforeseenExpenses;
+    }
+
+    const countBadge = document.getElementById('borderExpCountBadge');
+    if (countBadge) countBadge.textContent = `${syncedUnforeseenExpenses.length} khoản`;
+
+    const statusBadge = document.getElementById('tscSyncStatusBadge');
+    if (statusBadge) {
+      statusBadge.textContent = `[📡 Đã đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}]`;
+      statusBadge.style.color = 'var(--accent-save)';
+    }
+
+    const subnote = document.getElementById('unforeseenSubnote');
+    if (subnote && payload.totalUnforeseenNoInvoice !== undefined) {
+      subnote.innerHTML = `<i>Đã cập nhật ${syncedUnforeseenExpenses.length} khoản từ CMH-TSC (Trong đó không HĐ: ${formatVnd(payload.totalUnforeseenNoInvoice)}).</i>`;
+    }
+
+    calculate();
+  }
+
+  function pullDataFromTsc() {
+    try {
+      const stored = localStorage.getItem(CMH_STORAGE_KEY);
+      if (stored) {
+        const payload = JSON.parse(stored);
+        applySyncedDataFromTsc(payload);
+        alert(`✅ Đã kéo thành công dữ liệu từ CMH-TSC:\n- Tổng phát sinh thực tế: ${formatVnd(payload.costBorderExtra || 0)}\n- Số khoản chi: ${(payload.unforeseenExpenses || []).length} khoản`);
+      } else {
+        alert("⚠️ Chưa tìm thấy dữ liệu phát sinh được phát từ CMH-TSC trong LocalStorage. Vui lòng mở CMH-TSC và bấm '📡 ĐỒNG BỘ SANG BUỒNG LÁI MÔI GIỚI'!");
+      }
+    } catch (e) {
+      alert("Lỗi khi đọc dữ liệu đồng bộ: " + e.message);
+    }
+  }
+
+  function initTscSyncListener() {
+    // 1. BroadcastChannel (tức thời giữa các tab)
+    try {
+      const channel = new BroadcastChannel(CMH_SYNC_CHANNEL_NAME);
+      channel.onmessage = function(event) {
+        if (event.data && event.data.type === 'SYNC_EXPENSES_FROM_TSC') {
+          applySyncedDataFromTsc(event.data.payload);
+        }
+      };
+    } catch (e) {}
+
+    // 2. Storage event fallback
+    window.addEventListener('storage', function(e) {
+      if (e.key === CMH_STORAGE_KEY && e.newValue) {
+        try {
+          const payload = JSON.parse(e.newValue);
+          applySyncedDataFromTsc(payload);
+        } catch (err) {}
+      }
+    });
+
+    // 3. Kiểm tra query param hoặc dữ liệu lưu sẵn lúc boot
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('sync') === 'auto' || localStorage.getItem(CMH_STORAGE_KEY)) {
+      try {
+        const stored = localStorage.getItem(CMH_STORAGE_KEY);
+        if (stored) {
+          applySyncedDataFromTsc(JSON.parse(stored));
+        }
+      } catch (err) {}
+    }
+  }
+
+  function formatVnd(val) {
+    return Math.round(val).toLocaleString('vi-VN') + ' đ';
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀';
+  }
+
+  function setViewMode(mode) {
+    viewMode = mode;
+    document.getElementById('btn-view-admin').classList.toggle('active', mode === 'admin');
+    document.getElementById('btn-view-broker').classList.toggle('active', mode === 'broker');
+
+    // Ẩn/Hiện các thành phần nhạy cảm nội bộ
+    const adminItems = document.querySelectorAll('.admin-only-item');
+    adminItems.forEach(el => {
+      el.style.display = (mode === 'admin') ? '' : 'none';
+    });
+
+    calculate();
+  }
+
+  function setEngine(engine) {
+    currentEngine = engine;
+    document.getElementById('btn-engine-user').classList.toggle('active', engine === 'user');
+    document.getElementById('btn-engine-opt').classList.toggle('active', engine === 'optimized');
+    calculate();
+  }
+
+  function setContingencyBase(base) {
+    contingencyBase = base;
+    document.getElementById('btn-contingency-rev').classList.toggle('active', base === 'revenue');
+    document.getElementById('btn-contingency-ebt').classList.toggle('active', base === 'ebt');
+    calculate();
+  }
+
+  function loadSample269901() {
+    document.getElementById('revenueUsd').value = 20540;
+    document.getElementById('exchangeRate').value = 26008;
+    document.getElementById('costFactory').value = 438100000;
+    document.getElementById('costTransport').value = 22000000;
+    document.getElementById('costCustoms').value = 8200000;
+    document.getElementById('costFees').value = 270000;
+    document.getElementById('costBorderExtra').value = 19320370;
+    document.getElementById('vatRefund').value = 37237630;
+    document.getElementById('contingencyRate').value = 3.0;
+    document.getElementById('priorVatAccumulated').value = 0;
+    calculate();
+  }
+
+  function calculate() {
+    // 1. Inputs
+    const revUsd = parseFloat(document.getElementById('revenueUsd').value) || 0;
+    const rate = parseFloat(document.getElementById('exchangeRate').value) || 0;
+    const revVnd = revUsd * rate;
+    document.getElementById('revenueVndDisplay').value = revVnd.toLocaleString('vi-VN') + ' VNĐ';
+
+    const costFac = parseFloat(document.getElementById('costFactory').value) || 0;
+    const costTrans = parseFloat(document.getElementById('costTransport').value) || 0;
+    const costCust = parseFloat(document.getElementById('costCustoms').value) || 0;
+    const costFee = parseFloat(document.getElementById('costFees').value) || 0;
+    const costBorder = parseFloat(document.getElementById('costBorderExtra').value) || 0;
+
+    const totalCost = costFac + costTrans + costCust + costFee + costBorder;
+    const ebt = revVnd - totalCost;
+
+    const vatRefThisOrder = parseFloat(document.getElementById('vatRefund').value) || 0;
+    const priorVat = parseFloat(document.getElementById('priorVatAccumulated').value) || 0;
+    const totalVatAccumulated = priorVat + vatRefThisOrder;
+
+    // Cập nhật Thanh Tiến Độ 300M
+    const vatPct = Math.min(100, (totalVatAccumulated / VAT_REFUND_THRESHOLD) * 100);
+    document.getElementById('vatProgressFill').style.width = vatPct.toFixed(1) + '%';
+    document.getElementById('vatThisOrderDisplay').textContent = formatVnd(vatRefThisOrder);
+    document.getElementById('vatTotalAccumulatedDisplay').textContent = formatVnd(totalVatAccumulated);
+    document.getElementById('vatPercentDisplay').textContent = vatPct.toFixed(1) + '%';
+
+    const statusBadge = document.getElementById('vatStatusBadge');
+    if (totalVatAccumulated >= VAT_REFUND_THRESHOLD) {
+      statusBadge.textContent = '🟢 ĐẠT ĐIỀU KIỆN HOÀN THUẾ 300M (SẴN SÀNG GIẢI NGÂN)';
+      statusBadge.style.borderColor = 'var(--accent-save)';
+      statusBadge.style.color = 'var(--accent-save)';
+    } else {
+      statusBadge.textContent = '⏳ ĐANG TÍCH LŨY QUÝ (THANH TOÁN THEO QUÝ HOẶC KHI ĐỦ 300M)';
+      statusBadge.style.borderColor = 'var(--accent-tax)';
+      statusBadge.style.color = 'var(--accent-tax)';
+    }
+
+    const contRate = (parseFloat(document.getElementById('contingencyRate').value) || 0) / 100;
+    const contingencyAmount = (contingencyBase === 'revenue') ? (revVnd * contRate) : (ebt * contRate);
+
+    // 2. Dual Engine Computation
+    let poolForDivision = 0;
+    let corpTaxPayable = 0;
+    let tungGross = 0, hienGross = 0, gssGross = 0;
+    let tungTax = 0, hienTax = 0;
+    let tungNet = 0, hienNet = 0;
+    let gssFinalProfit = 0;
+    let taxSaved = 0;
+
+    if (currentEngine === 'user') {
+      // KỊCH BẢN 1: Chia sau thuế TNDN (Thỏa thuận ban đầu)
+      corpTaxPayable = ebt * 0.20;
+      const profitAfterTax = ebt - corpTaxPayable;
+      poolForDivision = profitAfterTax + vatRefThisOrder - contingencyAmount;
+
+      const oneThird = poolForDivision / 3;
+      tungGross = oneThird;
+      hienGross = oneThird;
+      gssGross = oneThird;
+
+      tungTax = tungGross * 0.10;
+      hienTax = hienGross * 0.10;
+
+      tungNet = tungGross - tungTax;
+      hienNet = hienGross - hienTax;
+
+      gssFinalProfit = gssGross;
+      taxSaved = 0;
+
+      document.getElementById('td-tax-corp-label').textContent = 'Thuế TNDN 20% nộp trên toàn bộ EBT';
+      document.getElementById('td-tax-corp-note').textContent = 'Nộp trên tổng lãi trước khi chia';
+      document.getElementById('taxSavingsCard').style.display = 'none';
+
+    } else {
+      // KỊCH BẢN 2: Kế toán Tối ưu Hợp pháp (Thù lao CTV là Chi phí được trừ trước thuế)
+      const netBaseNumerator = (ebt * 0.80) + vatRefThisOrder - contingencyAmount;
+      tungGross = netBaseNumerator / 2.6;
+      hienGross = tungGross;
+
+      const gssTaxableIncome = ebt - (2 * tungGross);
+      corpTaxPayable = Math.max(0, gssTaxableIncome * 0.20);
+
+      gssFinalProfit = (ebt - (2 * tungGross) - corpTaxPayable) + vatRefThisOrder - contingencyAmount;
+      poolForDivision = tungGross + hienGross + gssFinalProfit;
+
+      tungTax = tungGross * 0.10;
+      hienTax = hienGross * 0.10;
+
+      tungNet = tungGross - tungTax;
+      hienNet = hienGross - hienTax;
+
+      const taxUserTotal = (ebt * 0.20) + (2 * ((ebt * 0.80 + vatRefThisOrder - contingencyAmount) / 3 * 0.10));
+      const taxOptTotal = corpTaxPayable + tungTax + hienTax;
+      taxSaved = taxUserTotal - taxOptTotal;
+
+      document.getElementById('td-tax-corp-label').textContent = 'Thuế TNDN 20% (Sau khi trừ chi phí 2 CTV)';
+      document.getElementById('td-tax-corp-note').textContent = 'GSS chỉ nộp trên phần lãi giữ lại';
+      if (viewMode === 'admin') {
+        document.getElementById('taxSavingsCard').style.display = 'flex';
+        document.getElementById('taxSavingsVal').textContent = '+' + formatVnd(taxSaved);
+      }
+    }
+
+    // 3. Render bảng dữ liệu
+    document.getElementById('td-rev').textContent = formatVnd(revVnd);
+    document.getElementById('td-cost').textContent = formatVnd(totalCost);
+    document.getElementById('td-ebt').textContent = formatVnd(ebt);
+    document.getElementById('td-tax-corp').textContent = '-' + formatVnd(corpTaxPayable);
+    document.getElementById('td-vat-refund').textContent = '+' + formatVnd(vatRefThisOrder);
+    document.getElementById('td-vat-note').textContent = 'Tích lũy mốc 300M hoàn thuế';
+    document.getElementById('td-contingency-label').textContent = 'Phí Quản trị hệ thống & Dự phòng (' + (contRate * 100).toFixed(1) + '% ' + (contingencyBase === 'revenue' ? 'Doanh thu' : 'Lợi nhuận') + ')';
+    document.getElementById('td-contingency').textContent = '-' + formatVnd(contingencyAmount);
+    document.getElementById('td-total-pool').textContent = formatVnd(poolForDivision);
+
+    // 4. Render Person Cards
+    document.getElementById('tung-gross').textContent = formatVnd(tungGross);
+    document.getElementById('tung-tax').textContent = '-' + formatVnd(tungTax);
+    document.getElementById('tung-net').textContent = formatVnd(tungNet);
+
+    document.getElementById('hien-gross').textContent = formatVnd(hienGross);
+    document.getElementById('hien-tax').textContent = '-' + formatVnd(hienTax);
+    document.getElementById('hien-net').textContent = formatVnd(hienNet);
+
+    document.getElementById('gss-share').textContent = formatVnd(gssFinalProfit);
+    document.getElementById('gss-contingency').textContent = '+' + formatVnd(contingencyAmount);
+    document.getElementById('gss-total').textContent = formatVnd(gssFinalProfit + contingencyAmount);
+
+    // 5. Render Thuế tổng cộng
+    document.getElementById('total-tax-corp').textContent = formatVnd(corpTaxPayable);
+    document.getElementById('total-tax-pit').textContent = formatVnd(tungTax + hienTax);
+    document.getElementById('total-tax-all').textContent = formatVnd(corpTaxPayable + tungTax + hienTax);
+
+    // 6. Build Text Zalo
+    buildZaloText({
+      revVnd, totalCost, ebt, corpTaxPayable, vatRefThisOrder, contingencyAmount,
+      tungGross, tungTax, tungNet,
+      hienGross, hienTax, hienNet,
+      gssFinalProfit, totalVatAccumulated
+    });
+  }
+
+  function buildZaloText(data) {
+    const text = 
+`BẢNG KÊ NGHIỆM THU THÙ LAO MÔI GIỚI XÚC TIẾN XUẤT KHẨU
+ĐƠN HÀNG: 269901 (HĐ GSSDIX_FCA_269901)
+Đơn vị ủy thác: CÔNG TY TNHH GLOBAL SOLUTION SERVICE
+--------------------------------------------------
+1. KẾT QUẢ NGHIỆM THU ĐƠN HÀNG 269901:
+- Doanh thu xuất bán hoàn tất: ${Math.round(data.revVnd).toLocaleString('vi-VN')} đ ($20,540 USD)
+- Lô hàng đã thông quan thực xuất B11 tại Cửa khẩu Quốc tế Lao Bảo
+- Thuế GTGT đầu vào tích lũy đơn hàng: ${Math.round(data.vatRefThisOrder).toLocaleString('vi-VN')} đ
+- Tiến độ hoàn thuế tích lũy toàn hệ thống: ${Math.round(data.totalVatAccumulated).toLocaleString('vi-VN')} đ / 300.000.000 đ
+
+2. THÙ LAO MÔI GIỚI ĐƯỢC HƯỞNG (ĐÃ NGHIỆM THU):
+--------------------------------------------------
+A. ÔNG ĐỒNG THANH TÙNG:
+- Thù lao môi giới gộp: ${Math.round(data.tungGross).toLocaleString('vi-VN')} đ
+- Thuế TNCN 10% (G-SS nộp vào NSNN thay): -${Math.round(data.tungTax).toLocaleString('vi-VN')} đ
+👉 THÙ LAO THỰC NHẬN TÍCH LŨY (NET): ${Math.round(data.tungNet).toLocaleString('vi-VN')} đ
+
+B. ÔNG NGUYỄN THÀNH HIÊN:
+- Thù lao môi giới gộp: ${Math.round(data.hienGross).toLocaleString('vi-VN')} đ
+- Thuế TNCN 10% (G-SS nộp vào NSNN thay): -${Math.round(data.hienTax).toLocaleString('vi-VN')} đ
+👉 THÙ LAO THỰC NHẬN TÍCH LŨY (NET): ${Math.round(data.hienNet).toLocaleString('vi-VN')} đ
+
+3. KỲ HẠN VÀ ĐIỀU KIỆN THANH TOÁN CHUYỂN KHOẢN:
+- Số tiền thù lao trên được ghi nhận dồn tích lũy chính thức vào sổ theo dõi CTV.
+- Thời điểm giải ngân thực tế: Thực hiện chuyển khoản qua Ngân hàng (kèm Chứng từ khấu trừ thuế TNCN điện tử) theo kỳ thanh toán QUÝ hoặc tại thời điểm số thuế GTGT hoàn lũy kế đạt từ 300.000.000 VNĐ theo Luật Thuế GTGT.
+--------------------------------------------------
+CÔNG TY TNHH GLOBAL SOLUTION SERVICE trân trọng thông báo!`;
+
+    document.getElementById('zaloText').value = text;
+  }
+
+  function openZaloModal() {
+    document.getElementById('zaloModal').style.display = 'flex';
+  }
+
+  function closeZaloModal() {
+    document.getElementById('zaloModal').style.display = 'none';
+  }
+
+  function openContractModal() {
+    document.getElementById('contractModal').style.display = 'flex';
+  }
+
+  function closeContractModal() {
+    document.getElementById('contractModal').style.display = 'none';
+  }
+
+  function openLegalModal() {
+    document.getElementById('legalModal').style.display = 'flex';
+  }
+
+  function closeLegalModal() {
+    document.getElementById('legalModal').style.display = 'none';
+  }
+
+  function closeModalOnOverlay(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+      e.target.style.display = 'none';
+    }
+  }
+
+  function copyZaloText() {
+    const copyText = document.getElementById("zaloText");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value).then(() => {
+      alert("Đã sao chép nội dung thông báo Zalo thành công!");
+    });
+  }
+
+  // Khởi chạy khi nạp trang
+  window.onload = function() {
+    loadSample269901();
+    initTscSyncListener();
+  };
+</script>
+
+</body>
+</html>

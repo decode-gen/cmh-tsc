@@ -2,7 +2,15 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/((?!api/|CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx|robots.txt).*)",
+      "source": "/bsc",
+      "destination": "/CMH-BROKER-SHARE-COCKPIT.html"
+    },
+    {
+      "source": "/broker",
+      "destination": "/CMH-BROKER-SHARE-COCKPIT.html"
+    },
+    {
+      "source": "/((?!api/|CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx|CMH-BROKER-SHARE-COCKPIT.html|bsc.html|robots.txt).*)",
       "destination": "/index.html"
     }
   ],

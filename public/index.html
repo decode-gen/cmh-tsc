@@ -1124,6 +1124,69 @@
           </label>
         </div>
 
+        <!-- KHỐI QUẢN TRỊ CHI PHÍ PHÁT SINH THỰC TẾ HẬU KIỂM ĐƠN HÀNG (DYNAMIC POST-EXECUTION ACTUAL COSTS) -->
+        <div class="contingency-box" id="unforeseenExpensesContainer" style="border: 1px solid var(--accent-gold); background: rgba(234, 179, 8, 0.03); margin-top: 10px;">
+          <div class="contingency-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:bold; color:var(--text-main);">🛡️ PHÁT SINH THỰC TẾ HẬU KIỂM:</span>
+            <span id="unforeseenCountBadge" style="font-size:10px; background:var(--bg-card); border:1px solid var(--border-subtle); padding:1px 6px; border-radius:3px;">0 khoản</span>
+          </div>
+
+          <!-- BẢNG DANH SÁCH CÁC KHOẢN CHI PHÍ PHÁT SINH -->
+          <div id="unforeseenList" style="display:flex; flex-direction:column; gap:4px; margin-top:6px; max-height:180px; overflow-y:auto; padding-right:2px;">
+            <!-- Render động bằng JS -->
+          </div>
+
+          <!-- TỔNG CỘNG PHÁT SINH -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-subtle); font-size:11.5px;">
+            <span>Tổng phát sinh thực tế:</span>
+            <b id="unforeseenTotalDisplay" style="color:var(--accent-gold); font-size:12px;">0 đ</b>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-bottom:6px;">
+            <span>Có HĐ trừ thuế: <b id="unforeseenVatDisplay" style="color:var(--text-main);">0 đ</b></span>
+            <span>Không HĐ (nội bộ): <b id="unforeseenNonVatDisplay" style="color:var(--text-main);">0 đ</b></span>
+          </div>
+
+          <!-- FORM NHẬP NHANH KHOẢN PHÁT SINH MỚI -->
+          <div style="background:var(--bg-cockpit-panel); border:1px solid var(--border-subtle); padding:6px 8px; border-radius:3px; display:flex; flex-direction:column; gap:5px;">
+            <div style="font-size:10.5px; font-weight:bold; color:var(--text-dim); text-transform:uppercase;">
+              + Thêm khoản chi phát sinh mới:
+            </div>
+            <input type="text" id="newExpName" class="form-control" placeholder="Tên khoản chi (VD: Bốc xếp sang xe bãi Lao Bảo...)" style="font-size:11px; padding:4px 6px;">
+            <div style="display:flex; gap:6px;">
+              <input type="number" id="newExpAmount" class="form-control" placeholder="Số tiền (VNĐ)" style="font-size:11px; padding:4px 6px; flex:1;">
+              <select id="newExpCategory" class="form-control" style="font-size:11px; padding:4px 6px; width:110px;">
+                <option value="BORDER">Cửa khẩu</option>
+                <option value="CARRIER">Vận tải / Lưu xe</option>
+                <option value="CUSTOMS">Hải quan / Hồ sơ</option>
+                <option value="ACCOMMODATION">Lưu trú / Đi lại</option>
+                <option value="OTHER">Chi khác</option>
+              </select>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px;">
+              <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;">
+                <input type="checkbox" id="newExpHasInvoice">
+                <span>Có HĐ GTGT</span>
+              </label>
+              <input type="text" id="newExpInvoiceNo" class="form-control" placeholder="Số HĐ (nếu có)" style="font-size:10.5px; width:100px; padding:2px 4px;">
+            </div>
+            <div style="display:flex; gap:6px; margin-top:2px;">
+              <button class="btn-3d" type="button" onclick="addUnforeseenExpense()" style="flex:1; justify-content:center; font-size:11px; padding:4px 8px; background:var(--bg-card);">
+                ➕ Thêm Khoản Chi
+              </button>
+              <button class="btn-3d" type="button" onclick="loadSampleBorderExpenses269901()" style="font-size:10px; padding:4px 6px; background:var(--bg-card); color:var(--accent-gold);" title="Nạp nhanh 8 khoản phát sinh Đơn 269901 tại Lao Bảo">
+                ⚡ Nạp 8 Khoản 269901
+              </button>
+            </div>
+          </div>
+
+          <!-- NÚT ĐỒNG BỘ SANG BUỒNG LÁI MÔI GIỚI (CMH-BSC) -->
+          <div style="margin-top:8px;">
+            <button class="btn-3d" type="button" onclick="dispatchTscToBscSync(true)" style="width:100%; justify-content:center; font-size:11px; padding:6px; background:var(--accent-gold); color:#000; font-weight:bold; border-color:var(--accent-gold);">
+              📡 ĐỒNG BỘ SANG BUỒNG LÁI MÔI GIỚI (CMH-BSC)
+            </button>
+          </div>
+        </div>
+
         <!-- THÔNG TIN SẢN PHẨM HIỆN TẠI -->
         <div id="supplierInfoBox" style="padding:8px 10px; background:var(--bg-cockpit-panel); border-radius:3px; font-size:11px; color:var(--text-muted); border:1px solid var(--border-subtle);">
           <div><b>Sản phẩm:</b> <span id="infoProdName">Snack Quẩy Giòn Giòn</span> (HS: 1905.90.80)</div>
@@ -2012,7 +2075,17 @@
         chkCrossDock: false,
         chkWeighbridge: false,
         chkPhyto: false,
-        baselineOverrides: {}
+        baselineOverrides: {},
+        unforeseenExpenses: [
+          { id: 'EXP-269901-01', name: 'Ca chờ / lưu xe chờ đối tác (Vĩnh Thành)', amount: 4629630, category: 'CARRIER', hasInvoice: true, invoiceNo: '00000217', note: 'Bkav eHoadon 24/09/2026' },
+          { id: 'EXP-269901-02', name: 'Bốc hàng sang xe đối tác Thái/Lào bãi Lao Bảo', amount: 2500000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Không HĐ, cửu vạn bãi kiểm hóa' },
+          { id: 'EXP-269901-03', name: 'Xử lý hồ sơ hủy xuất cảnh xe & xin sang hàng', amount: 2000000, category: 'CUSTOMS', hasInvoice: false, invoiceNo: '15/CV-GSS', note: 'Công văn 15/CV-GSS' },
+          { id: 'EXP-269901-04', name: 'Khách sạn NV hiện trường Tùng (Dư Hùng Phát)', amount: 740740, category: 'ACCOMMODATION', hasInvoice: true, invoiceNo: '00001188', note: 'MISA meInvoice 24/09/2026' },
+          { id: 'EXP-269901-05', name: 'Lệ phí nhà nước & tác nghiệp cửa khẩu Lao Bảo', amount: 270000, category: 'BORDER', hasInvoice: true, invoiceNo: 'Biên lai', note: 'Biên lai hạ tầng/HQ' },
+          { id: 'EXP-269901-06', name: 'Ăn uống, đi lại hiện trường (Tùng & Hiên)', amount: 6000000, category: 'ACCOMMODATION', hasInvoice: false, invoiceNo: 'Khoán chi', note: 'Khoán chi công tác phí 4 ngày' },
+          { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
+          { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
+        ]
       },
       {
         id: "SCN-CPT_SVN-HOWO-1300T-VT-DIX-260902-LAO",
@@ -2155,6 +2228,224 @@
     let scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
     let activeScenarioId = "SCN-FCA_LB-CONT40-800T-VT-DIX-269901";
     let isDraftMode = false;
+    let currentUnforeseenExpenses = [];
+    const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS';
+    const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V1';
+
+    // =========================================================================
+    // KHỐI QUẢN TRỊ CHI PHÍ PHÁT SINH THỰC TẾ & ĐỒNG BỘ SANG CMH-BSC (V2.0)
+    // =========================================================================
+    function renderUnforeseenExpensesList() {
+      const container = document.getElementById('unforeseenList');
+      if (!container) return;
+
+      if (!currentUnforeseenExpenses || currentUnforeseenExpenses.length === 0) {
+        container.innerHTML = `
+          <div style="font-size:11px; color:var(--text-dim); text-align:center; padding:8px 4px; font-style:italic;">
+            Chưa có chi phí phát sinh thực tế. Bấm "+ Thêm Khoản Chi" hoặc "⚡ Nạp 8 Khoản 269901" để bắt đầu.
+          </div>
+        `;
+      } else {
+        let html = '';
+        currentUnforeseenExpenses.forEach((exp, idx) => {
+          const catLabelMap = {
+            BORDER: 'Cửa khẩu',
+            CARRIER: 'Vận tải/Lưu xe',
+            CUSTOMS: 'Hải quan/Hồ sơ',
+            ACCOMMODATION: 'Lưu trú/Đi lại',
+            OTHER: 'Chi khác'
+          };
+          const catLabel = catLabelMap[exp.category] || exp.category || 'Phát sinh';
+          const invTag = exp.hasInvoice 
+            ? `<span style="font-size:9.5px; background:rgba(16, 185, 129, 0.15); color:var(--alert-success-text); border:1px solid rgba(16, 185, 129, 0.3); padding:1px 4px; border-radius:2px;" title="${exp.invoiceNo ? 'Số HĐ: ' + exp.invoiceNo : 'Có HĐ GTGT'}">Có HĐ${exp.invoiceNo ? ' (' + exp.invoiceNo + ')' : ''}</span>`
+            : `<span style="font-size:9.5px; background:rgba(239, 68, 68, 0.15); color:var(--alert-critical-text); border:1px solid rgba(239, 68, 68, 0.3); padding:1px 4px; border-radius:2px;" title="Chi phí nội bộ không HĐ - Không được trừ thuế">Không HĐ</span>`;
+
+          html += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); border:1px solid var(--border-subtle); padding:4px 6px; border-radius:2px; font-size:11px; gap:6px;">
+              <div style="flex:1; overflow:hidden;">
+                <div style="font-weight:bold; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;" title="${exp.name}">
+                  ${idx + 1}. ${exp.name}
+                </div>
+                <div style="font-size:9.5px; color:var(--text-dim); display:flex; gap:6px; align-items:center; margin-top:1px;">
+                  <span>[${catLabel}]</span>
+                  ${invTag}
+                  ${exp.note ? `<span style="font-style:italic;" title="${exp.note}">${exp.note}</span>` : ''}
+                </div>
+              </div>
+              <div style="text-align:right; font-family:var(--font-mono-numbers); font-weight:bold; font-size:11px; white-space:nowrap;">
+                ${formatVnd(exp.amount)}
+              </div>
+              <button type="button" onclick="removeUnforeseenExpense(${idx})" style="background:transparent; border:none; color:var(--alert-critical-text); cursor:pointer; font-size:12px; padding:0 3px;" title="Xóa khoản chi này">
+                ✕
+              </button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      // Tính tổng cộng
+      const total = currentUnforeseenExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const totalVat = currentUnforeseenExpenses.filter(e => e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const totalNonVat = currentUnforeseenExpenses.filter(e => !e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+
+      const elTotal = document.getElementById('unforeseenTotalDisplay');
+      if (elTotal) elTotal.textContent = formatVnd(total);
+
+      const elVat = document.getElementById('unforeseenVatDisplay');
+      if (elVat) elVat.textContent = formatVnd(totalVat);
+
+      const elNonVat = document.getElementById('unforeseenNonVatDisplay');
+      if (elNonVat) elNonVat.textContent = formatVnd(totalNonVat);
+
+      const elBadge = document.getElementById('unforeseenCountBadge');
+      if (elBadge) elBadge.textContent = `${currentUnforeseenExpenses.length} khoản`;
+
+      recalculate();
+    }
+
+    function addUnforeseenExpense() {
+      const nameInput = document.getElementById('newExpName');
+      const amtInput = document.getElementById('newExpAmount');
+      const catInput = document.getElementById('newExpCategory');
+      const invCheck = document.getElementById('newExpHasInvoice');
+      const invNoInput = document.getElementById('newExpInvoiceNo');
+
+      const name = nameInput ? nameInput.value.trim() : '';
+      const amount = amtInput ? parseFloat(amtInput.value) : 0;
+      const category = catInput ? catInput.value : 'BORDER';
+      const hasInvoice = invCheck ? invCheck.checked : false;
+      const invoiceNo = invNoInput ? invNoInput.value.trim() : '';
+
+      if (!name) {
+        alert('Vui lòng nhập tên khoản chi phí phát sinh!');
+        if (nameInput) nameInput.focus();
+        return;
+      }
+      if (!amount || amount <= 0) {
+        alert('Vui lòng nhập số tiền chi phí phát sinh lớn hơn 0!');
+        if (amtInput) amtInput.focus();
+        return;
+      }
+
+      const newExp = {
+        id: 'EXP-' + Date.now(),
+        name: name,
+        amount: amount,
+        category: category,
+        hasInvoice: hasInvoice,
+        invoiceNo: invoiceNo,
+        createdAt: new Date().toISOString()
+      };
+
+      currentUnforeseenExpenses.push(newExp);
+
+      // Lưu vào scenario hiện tại
+      const curScn = scenariosMaster.find(s => s.id === activeScenarioId);
+      if (curScn) {
+        curScn.unforeseenExpenses = JSON.parse(JSON.stringify(currentUnforeseenExpenses));
+        saveScenariosToStorage();
+      }
+
+      // Reset form
+      if (nameInput) nameInput.value = '';
+      if (amtInput) amtInput.value = '';
+      if (invCheck) invCheck.checked = false;
+      if (invNoInput) invNoInput.value = '';
+
+      renderUnforeseenExpensesList();
+      showToastNotification(`➕ Đã thêm: ${name} (${formatVnd(amount)})`);
+      dispatchTscToBscSync(false);
+    }
+
+    function removeUnforeseenExpense(idx) {
+      if (idx < 0 || idx >= currentUnforeseenExpenses.length) return;
+      const removed = currentUnforeseenExpenses.splice(idx, 1)[0];
+
+      const curScn = scenariosMaster.find(s => s.id === activeScenarioId);
+      if (curScn) {
+        curScn.unforeseenExpenses = JSON.parse(JSON.stringify(currentUnforeseenExpenses));
+        saveScenariosToStorage();
+      }
+
+      renderUnforeseenExpensesList();
+      showToastNotification(`🗑 Đã xóa: ${removed ? removed.name : 'Khoản chi'}`);
+      dispatchTscToBscSync(false);
+    }
+
+    function loadSampleBorderExpenses269901() {
+      currentUnforeseenExpenses = [
+        { id: 'EXP-269901-01', name: 'Ca chờ / lưu xe chờ đối tác (Vĩnh Thành)', amount: 4629630, category: 'CARRIER', hasInvoice: true, invoiceNo: '00000217', note: 'Bkav eHoadon 24/09/2026' },
+        { id: 'EXP-269901-02', name: 'Bốc hàng sang xe đối tác Thái/Lào bãi Lao Bảo', amount: 2500000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Không HĐ, cửu vạn bãi' },
+        { id: 'EXP-269901-03', name: 'Xử lý hồ sơ hủy xuất cảnh xe & xin sang hàng', amount: 2000000, category: 'CUSTOMS', hasInvoice: false, invoiceNo: '15/CV-GSS', note: 'Công văn 15/CV-GSS' },
+        { id: 'EXP-269901-04', name: 'Khách sạn NV hiện trường Tùng (Dư Hùng Phát)', amount: 740740, category: 'ACCOMMODATION', hasInvoice: true, invoiceNo: '00001188', note: 'MISA meInvoice 24/09/2026' },
+        { id: 'EXP-269901-05', name: 'Lệ phí nhà nước & tác nghiệp cửa khẩu Lao Bảo', amount: 270000, category: 'BORDER', hasInvoice: true, invoiceNo: 'Biên lai', note: 'Biên lai hạ tầng/HQ' },
+        { id: 'EXP-269901-06', name: 'Ăn uống, đi lại hiện trường (Tùng & Hiên)', amount: 6000000, category: 'ACCOMMODATION', hasInvoice: false, invoiceNo: 'Khoán chi', note: 'Khoán chi công tác phí 4 ngày' },
+        { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
+        { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
+      ];
+
+      const curScn = scenariosMaster.find(s => s.id === activeScenarioId);
+      if (curScn) {
+        curScn.unforeseenExpenses = JSON.parse(JSON.stringify(currentUnforeseenExpenses));
+        saveScenariosToStorage();
+      }
+
+      renderUnforeseenExpensesList();
+      showToastNotification("⚡ Đã nạp thành công 8 khoản chi phí phát sinh thực tế Lao Bảo (19.320.370 VNĐ)!");
+      dispatchTscToBscSync(false);
+    }
+
+    function dispatchTscToBscSync(openWindow = false) {
+      const qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
+      const quotePrice = parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 17.50) || 17.50;
+      const fxRate = parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25790) || 25790;
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : 'SUP_THIEN_LONG';
+      const supplier = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+
+      const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : (qty * supplier.pricePreVat);
+      const vatRefund = cogsPreVat * supplier.vatRate;
+      const revUsd = qty * quotePrice;
+      const revVnd = revUsd * fxRate;
+
+      const totalUnforeseen = currentUnforeseenExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const totalUnforeseenVat = currentUnforeseenExpenses.filter(e => e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const totalUnforeseenNonVat = currentUnforeseenExpenses.filter(e => !e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+
+      const payload = {
+        orderId: '269901',
+        scenarioId: activeScenarioId,
+        timestamp: new Date().toISOString(),
+        revenueUsd: revUsd,
+        exchangeRate: fxRate,
+        revenueVnd: revVnd,
+        costFactory: cogsPreVat,
+        costTransport: 22000000,
+        costCustoms: 8200000,
+        costFees: 270000,
+        costBorderExtra: totalUnforeseen,
+        vatRefund: vatRefund,
+        unforeseenExpenses: currentUnforeseenExpenses,
+        totalUnforeseenWithInvoice: totalUnforeseenVat,
+        totalUnforeseenNoInvoice: totalUnforeseenNonVat
+      };
+
+      try {
+        localStorage.setItem(CMH_STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {}
+
+      try {
+        const channel = new BroadcastChannel(CMH_SYNC_CHANNEL_NAME);
+        channel.postMessage({ type: 'SYNC_EXPENSES_FROM_TSC', payload: payload });
+        channel.close();
+      } catch (e) {}
+
+      showToastNotification(`📡 Đã đồng bộ sang Buồng Lái Môi Giới (CMH-BSC): Tổng phát sinh ${formatVnd(totalUnforeseen)}!`);
+
+      if (openWindow) {
+        window.open('CMH-BROKER-SHARE-COCKPIT.html?order=269901&sync=auto', 'CMH_BSC_WINDOW');
+      }
+    }
 
     function loadScenariosFromStorage() {
       try {
@@ -2167,6 +2458,13 @@
             const cleaned = parsed.filter(s => s && s.id && !s.id.includes('CUSTOM') && !s.id.includes('SSOT-CPT') && !s.id.includes('SSOT-FCA'));
             if (cleaned.length > 0) {
               scenariosMaster = cleaned;
+              // Đồng bộ unforeseenExpenses cho các kịch bản đã lưu
+              scenariosMaster.forEach(s => {
+                if (!s.unforeseenExpenses) {
+                  const def = DEFAULT_SCENARIOS_MASTER.find(d => d.id === s.id);
+                  s.unforeseenExpenses = (def && def.unforeseenExpenses) ? JSON.parse(JSON.stringify(def.unforeseenExpenses)) : [];
+                }
+              });
             } else {
               scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
               saveScenariosToStorage();
@@ -2270,7 +2568,8 @@
         chkCrossDock: document.getElementById('chkCrossDock') ? document.getElementById('chkCrossDock').checked : false,
         chkWeighbridge: document.getElementById('chkWeighbridge') ? document.getElementById('chkWeighbridge').checked : false,
         chkPhyto: document.getElementById('chkPhyto') ? document.getElementById('chkPhyto').checked : false,
-        baselineOverrides: JSON.parse(JSON.stringify(partnersMaster.baselineOverrides || {}))
+        baselineOverrides: JSON.parse(JSON.stringify(partnersMaster.baselineOverrides || {})),
+        unforeseenExpenses: JSON.parse(JSON.stringify(currentUnforeseenExpenses || []))
       };
     }
 
@@ -2314,6 +2613,12 @@
 
       // 4. Overrides
       partnersMaster.baselineOverrides = scn.baselineOverrides ? JSON.parse(JSON.stringify(scn.baselineOverrides)) : {};
+
+      // 4b. Khối chi phí phát sinh thực tế động
+      currentUnforeseenExpenses = (scn.unforeseenExpenses && Array.isArray(scn.unforeseenExpenses))
+        ? JSON.parse(JSON.stringify(scn.unforeseenExpenses))
+        : [];
+      renderUnforeseenExpensesList();
 
       // 5. Cập nhật UI & tính toán
       updateBinhAnLeftPanelLabels();
@@ -3602,11 +3907,17 @@
       const weighFee = isWeigh ? (200000 * tripCount) : 0;
       const phytoFee = isPhyto ? 1500000 : 0;
 
+      // 9c. Chi phí phát sinh thực tế động hậu kiểm
+      const unforeseenTotal = (currentUnforeseenExpenses && currentUnforeseenExpenses.length > 0)
+        ? currentUnforeseenExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0)
+        : 0;
+
       const totalDirectLogistics = freightBase + demurrageFee + loloFee + 
                                   customsFee + coFee + borderGuardFee + transitLaoFee + 
                                   inspFee + inspOtFee + coExpressFee + 
                                   laoTransit + yardFee + bankFee + 
-                                  insuranceFee + dunnageFee + crossDockFee + weighFee + phytoFee;
+                                  insuranceFee + dunnageFee + crossDockFee + weighFee + phytoFee +
+                                  unforeseenTotal;
       const totalCostVnd = cogsPreVat + totalDirectLogistics;
       const costPerBoxVnd = qty > 0 ? (totalDirectLogistics / qty) : 0;
       const costPerBoxUsd = costPerBoxVnd / fxRate;
@@ -3858,6 +4169,21 @@
       if (isCrossDock) costRows.push({ key: "crossDock", name: "18. Sang xe chuyển tải Cảng cạn Savannakhet", nameEn: "Cross-Docking Transshipment Fee (Savannakhet)", provider: "Đội bãi Savannakhet", providerEn: "Savannakhet Dry Port", amount: crossDockFee, note: `Rút ruột sang xe tải Thái Lan [x${tripCount} xe]`, noteEn: `Transloading to Thai Trucks [x${tripCount} units]` });
       if (isWeigh) costRows.push({ key: "weighbridge", name: "19. Phí Cân xe tải trọng bãi Lao Bảo", nameEn: "Weighbridge Fee at Border Yard", provider: "Trạm cân Lao Bảo", providerEn: "Lao Bao Weigh Station", amount: weighFee, note: `Phiếu cân xe nộp HQ & Biên phòng [x${tripCount} xe]`, noteEn: `Weight Certificate [x${tripCount} units]` });
       if (isPhyto) costRows.push({ key: "phyto", name: "20. Phí Chứng thư Kiểm dịch Thực vật / CFS", nameEn: "Phytosanitary Certificate / CFS Fee", provider: "Chi cục Kiểm dịch TV Vùng III", providerEn: "Plant Quarantine Dept", amount: phytoFee, note: "Chứng nhận ATTP & Phytosanitary", noteEn: "Food Safety & Phytosanitary Inspection" });
+
+      if (currentUnforeseenExpenses && currentUnforeseenExpenses.length > 0) {
+        currentUnforeseenExpenses.forEach((exp, eIdx) => {
+          costRows.push({
+            key: "unforeseen_" + (exp.id || eIdx),
+            name: `${21 + eIdx}. [Phát sinh] ${exp.name}`,
+            nameEn: `Actual Incurred Expense (${exp.category || 'Ops'})`,
+            provider: exp.hasInvoice ? `Có HĐ GTGT (${exp.invoiceNo || 'Hợp lệ'})` : 'Chi phí nội bộ (Không HĐ)',
+            providerEn: exp.hasInvoice ? 'Tax Deductible' : 'Internal Non-Deductible',
+            amount: parseFloat(exp.amount) || 0,
+            note: exp.note || (exp.hasInvoice ? 'Hóa đơn GTGT trừ thuế TNDN' : 'Chi phí tác nghiệp hiện trường'),
+            noteEn: exp.hasInvoice ? 'Tax Deductible' : 'Non-Deductible'
+          });
+        });
+      }
 
       let tableHtml = '';
       costRows.forEach((r, idx) => {
