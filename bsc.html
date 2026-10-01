@@ -673,6 +673,9 @@
       <div class="form-group admin-only-item">
         <label>Giá vốn mua hàng Thiên Long <span class="unit">VNĐ (chưa VAT)</span></label>
         <input type="number" id="costFactory" class="input-3d" value="438100000" oninput="calculate()">
+        <div id="costFactorySubnote" style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+          (Quy cách: <b>1.300 thùng</b> × <b>337.000 đ/thùng</b> = <b>438.100.000 đ</b>)
+        </div>
       </div>
 
       <div class="form-group admin-only-item">
@@ -1190,6 +1193,13 @@
     const subnote = document.getElementById('unforeseenSubnote');
     if (subnote && payload.totalUnforeseenNoInvoice !== undefined) {
       subnote.innerHTML = `<i>Đã cập nhật ${syncedUnforeseenExpenses.length} khoản từ CMH-TSC (Trong đó không HĐ: ${formatVnd(payload.totalUnforeseenNoInvoice)}).</i>`;
+    }
+
+    const factorySubnote = document.getElementById('costFactorySubnote');
+    if (factorySubnote) {
+      const bQty = payload.boxQty || 1300;
+      const uPrice = payload.unitPriceVnd || 337000;
+      factorySubnote.innerHTML = `(Quy cách: <b>${bQty.toLocaleString('vi-VN')} thùng</b> × <b>${uPrice.toLocaleString('vi-VN')} đ/thùng</b> = <b>${formatVnd(payload.costFactory || (bQty * uPrice))}</b>)`;
     }
 
     calculate();

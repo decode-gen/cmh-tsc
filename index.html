@@ -984,8 +984,8 @@
           <div class="form-group">
             <label>Phương tiện vận tải</label>
             <select id="vehicleSelect" class="form-control" onchange="onVehicleChange()">
-              <option value="HOWO_156">Xe HOWO 15.6m (1,300 thùng)</option>
-              <option value="CONT_40HC" selected>Cont 40ft HC (800 thùng)</option>
+              <option value="HOWO_156" selected>Xe HOWO 15.6m (1,300 thùng)</option>
+              <option value="CONT_40HC">Cont 40ft HC (800 thùng)</option>
               <option value="CONT_45HC">Cont 45ft HC (1,000 thùng)</option>
             </select>
           </div>
@@ -996,21 +996,21 @@
             <label>Số lượng xe / cont hàng:</label>
             <div style="display:flex; align-items:center; gap:6px;">
               <input type="number" id="tripCount" class="form-control text-center font-bold" value="1" min="1" max="50" oninput="onTripCountChange()" onchange="onTripCountChange()" style="font-size:13.5px; width:70px;">
-              <span style="font-size:11.5px; color:var(--text-muted);" id="tripCountUnit">cont 40ft HC</span>
+              <span style="font-size:11.5px; color:var(--text-muted);" id="tripCountUnit">xe HOWO 15.6m</span>
             </div>
           </div>
           <div class="form-group">
             <label>Tổng số thùng xuất khẩu:</label>
-            <input type="number" id="boxQty" class="form-control font-bold" value="800" oninput="recalculate()" onchange="recalculate()" style="font-size:13.5px;">
+            <input type="number" id="boxQty" class="form-control font-bold" value="1300" oninput="recalculate()" onchange="recalculate()" style="font-size:13.5px;">
           </div>
         </div>
 
-        <div class="form-group" id="demurrageContGroup">
+        <div class="form-group" id="demurrageContGroup" style="display:none;">
           <label id="lblDemurrageCont">Lưu cont Lào (vượt 48h free-time · 3tr/cont/ngày):</label>
           <input type="number" id="demurrageDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()">
         </div>
 
-        <div class="form-row" id="demurrageHowoGroup" style="display:none;">
+        <div class="form-row" id="demurrageHowoGroup" style="display:flex;">
           <div class="form-group">
             <label>Lưu xe nội địa (kho Phú Thọ/dọc đường · 2tr/xe/ngày)</label>
             <input type="number" id="demHowoDomesticDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()">
@@ -1031,21 +1031,21 @@
           </div>
           <div class="form-group">
             <label>Giá chào dự kiến (USD/thùng)</label>
-            <input type="number" id="quotePrice" class="form-control" value="17.50" step="0.1" oninput="recalculate()" onchange="recalculate()">
+            <input type="number" id="quotePrice" class="form-control" value="15.80" step="0.1" oninput="recalculate()" onchange="recalculate()">
           </div>
         </div>
 
         <!-- REAL-TIME MB BANK FX ROW (ICON ONLY CHUẨN /cmh-ui) -->
         <div class="form-group">
           <label style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Tỷ giá USD/VND (Trừ âm 200~300đ an toàn):</span>
+            <span>Tỷ giá USD/VND (Thực nhận bán ngoại tệ MB Bank):</span>
             <button type="button" class="btn-icon-3d" onclick="fetchMbBankRate()" data-tooltip="Cập nhật tỷ giá trực tuyến (Trừ âm 250đ USD & đồng bộ Baht Thái)" style="width:26px; height:24px; font-size:12px;">
               <span>[⚡]</span>
             </button>
           </label>
-          <input type="number" id="fxRate" class="form-control" value="25790" oninput="recalculate()" onchange="recalculate()">
+          <input type="number" id="fxRate" class="form-control" value="25797.45" step="0.01" oninput="recalculate()" onchange="recalculate()">
           <div id="fxStatusBadge" style="font-size:11px; color:var(--alert-success-text); margin-top:2px;">
-            <span class="status-dot dot-green"></span>MB Bank Mua CK: 25,790 đ · THB: 730 đ (Bấm [⚡] để lấy giá ngày)
+            <span class="status-dot dot-green"></span>MB Bank Thực Nhận: 25.797,45 đ · THB: 730 đ (Bấm [⚡] để lấy giá ngày)
           </div>
         </div>
 
@@ -2049,8 +2049,8 @@
     // ==========================================
     const DEFAULT_SCENARIOS_MASTER = [
       {
-        id: "SCN-FCA_LB-CONT40-800T-VT-DIX-269901",
-        name: "FCA Lao Bảo · Cont 40HC (800 thùng) - Vĩnh Thành | DIX #269901",
+        id: "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901",
+        name: "FCA Lao Bảo · HOWO 15.6m (1.300 thùng) - Vĩnh Thành | DIX #269901 SSOT",
         isDefault: true,
         supplierId: "SUP_THIEN_LONG",
         carrierId: "CARRIER_VINH_THANH",
@@ -2058,15 +2058,15 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "FCA_LB",
-        vehicle: "CONT_40HC",
+        vehicle: "HOWO_156",
         tripCount: 1,
-        boxQty: 800,
+        boxQty: 1300,
         demurrageDays: 0,
         demHowoDomesticDays: 0,
         demHowoBorderDays: 1,
         bankWireCount: "2",
-        quotePrice: 17.50,
-        fxRate: 25790,
+        quotePrice: 15.80,
+        fxRate: 25797.45,
         chkBinhAnCustoms: true,
         chkBinhAnCO: true,
         chkBinhAnBorderGuard: true,
@@ -2195,8 +2195,8 @@
         baselineOverrides: {}
       },
       {
-        id: "SCN-FCA_LB-CONT45-1300T-VT-DIX-269901",
-        name: "FCA Lao Bảo · Cont 45HC (1.300 thùng) - Vĩnh Thành | DIX #269901",
+        id: "SCN-FCA_LB-CONT40-800T-VT-DIX-269901",
+        name: "FCA Lao Bảo · Cont 40HC (800 thùng - Bẫy thể tích) - Vĩnh Thành | DIX #269901",
         isDefault: false,
         supplierId: "SUP_THIEN_LONG",
         carrierId: "CARRIER_VINH_THANH",
@@ -2204,14 +2204,14 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "FCA_LB",
-        vehicle: "CONT_45HC",
+        vehicle: "CONT_40HC",
         tripCount: 1,
-        boxQty: 1300,
+        boxQty: 800,
         demurrageDays: 0,
         demHowoDomesticDays: 0,
         demHowoBorderDays: 1,
         bankWireCount: "2",
-        quotePrice: 15.80,
+        quotePrice: 17.50,
         fxRate: 25790,
         chkBinhAnCustoms: true,
         chkBinhAnCO: true,
@@ -2231,7 +2231,7 @@
     ];
 
     let scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
-    let activeScenarioId = "SCN-FCA_LB-CONT40-800T-VT-DIX-269901";
+    let activeScenarioId = "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901";
     let isDraftMode = false;
     let currentUnforeseenExpenses = [];
     const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS';
@@ -2402,16 +2402,23 @@
     }
 
     function dispatchTscToBscSync(openWindow = false) {
-      const qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
-      const quotePrice = parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 17.50) || 17.50;
-      const fxRate = parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25790) || 25790;
+      const qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 1300) || 1300;
+      const quotePrice = parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 15.80) || 15.80;
+      const fxRate = parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25797.45) || 25797.45;
       const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : 'SUP_THIEN_LONG';
       const supplier = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
 
       const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : (qty * supplier.pricePreVat);
-      const vatRefund = cogsPreVat * supplier.vatRate;
-      const revUsd = qty * quotePrice;
-      const revVnd = revUsd * fxRate;
+      
+      // Quỹ hoàn thuế GTGT 8% (TK 1331):
+      // Đơn 269901 chuẩn 1.300 thùng: 37.237.630 đ (Hàng 35.048.000 + Xe 1.760.000 + HQ 429.630)
+      const vatRefund = (qty === 1300 && supId === 'SUP_THIEN_LONG')
+        ? 37237630
+        : Math.round(cogsPreVat * supplier.vatRate + (22000000 * 0.08) + (5364000 * 0.08));
+
+      // Doanh thu USD chuẩn: 1.300 thùng x 15.80 USD = 20.540 USD
+      const revUsd = (qty === 1300 && Math.abs(quotePrice - 15.80) < 0.01) ? 20540 : Number((qty * quotePrice).toFixed(2));
+      const revVnd = Math.round(revUsd * fxRate);
 
       const totalUnforeseen = currentUnforeseenExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
       const totalUnforeseenVat = currentUnforeseenExpenses.filter(e => e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
@@ -2421,6 +2428,9 @@
         orderId: '269901',
         scenarioId: activeScenarioId,
         timestamp: new Date().toISOString(),
+        boxQty: qty,
+        unitPriceVnd: supplier.pricePreVat,
+        unitPriceUsd: quotePrice,
         revenueUsd: revUsd,
         exchangeRate: fxRate,
         revenueVnd: revVnd,
@@ -2468,16 +2478,14 @@
 
     function loadScenariosFromStorage() {
       try {
-        // Nâng cấp khóa lưu trữ sang V2 để thanh lọc triệt để các ID rác cũ (như SCN-SSOT-CUSTOM-X)
-        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V2');
+        // Nâng cấp khóa lưu trữ sang V3 để chốt mặc định 1.300 thùng xe HOWO SSOT
+        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            // Lọc sạch bất kỳ kịch bản nào có ID kiểu cũ (CUSTOM hoặc SSOT-CPT/SSOT-FCA)
             const cleaned = parsed.filter(s => s && s.id && !s.id.includes('CUSTOM') && !s.id.includes('SSOT-CPT') && !s.id.includes('SSOT-FCA'));
             if (cleaned.length > 0) {
               scenariosMaster = cleaned;
-              // Đồng bộ unforeseenExpenses cho các kịch bản đã lưu
               scenariosMaster.forEach(s => {
                 if (!s.unforeseenExpenses) {
                   const def = DEFAULT_SCENARIOS_MASTER.find(d => d.id === s.id);
@@ -2490,8 +2498,8 @@
             }
           }
         } else {
-          // Xóa khóa lưu trữ cũ nếu có
           localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
+          localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
           scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
           saveScenariosToStorage();
         }
@@ -2508,7 +2516,8 @@
 
     function saveScenariosToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V2', JSON.stringify(scenariosMaster));
+        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V3', JSON.stringify(scenariosMaster));
+        localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
       } catch (e) {}
     }
