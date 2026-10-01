@@ -637,9 +637,38 @@
         <span class="badge-tag">Inputs</span>
       </div>
 
+      <!-- BỘ CHỌN & QUẢN TRỊ ĐA ĐƠN HÀNG / KỊCH BẢN (MULTI-ORDER & SCENARIO ENGINE) -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 4px; padding: 8px 10px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="font-weight: bold; font-size: 11.5px; margin-bottom: 0; text-transform: uppercase; letter-spacing: 0.3px;">
+            📁 HỒ SƠ ĐƠN HÀNG / KỊCH BẢN:
+          </label>
+          <span id="orderTypeBadge" class="badge-tag" style="border-color: var(--accent-save); color: var(--accent-save); font-size: 10px;">
+            📜 ĐƠN THỰC TẾ (SSOT)
+          </span>
+        </div>
+        <div style="display: flex; gap: 5px; margin-bottom: 6px;">
+          <select id="orderSelect" class="input-3d font-bold" onchange="onOrderSelectChange()" style="flex: 1; height: 28px; font-size: 12px;">
+            <!-- Render động từ ordersMaster -->
+          </select>
+          <button type="button" class="btn-3d" onclick="openNewOrderModal()" title="Thêm Đơn hàng thực tế mới hoặc Dự toán mô phỏng mới" style="padding: 2px 8px; font-size: 11px; white-space: nowrap; border-color: var(--accent-tax); color: var(--accent-tax); font-weight: bold;">
+            ➕ Tạo Mới
+          </button>
+          <button type="button" class="btn-3d" onclick="saveActiveOrderChanges()" title="Lưu số liệu chỉnh sửa của Đơn / Dự toán này vào bộ nhớ" style="padding: 2px 8px; font-size: 11px; white-space: nowrap; border-color: var(--accent-save); color: var(--accent-save); font-weight: bold;">
+            💾 Lưu Đơn
+          </button>
+          <button type="button" class="btn-3d" onclick="deleteActiveOrder()" title="Xóa Đơn / Dự toán đang chọn (Đơn 269901 được bảo vệ vĩnh viễn)" style="padding: 2px 6px; font-size: 11px; color: #ef4444;">
+            🗑️
+          </button>
+        </div>
+        <div id="orderMetaSummary" style="font-size: 11px; color: var(--text-dim); line-height: 1.35;">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
       <div class="form-group">
-        <label>Mã Đơn hàng / Hợp đồng <span class="unit">SSOT</span></label>
-        <input type="text" id="orderId" class="input-3d input-locked" value="269901 (GSSDIX_FCA_269901)" readonly>
+        <label>Mã Đơn hàng / Hợp đồng <span class="unit">SSOT Key</span></label>
+        <input type="text" id="orderId" class="input-3d font-bold" value="269901 (GSSDIX_FCA_269901)" onchange="onOrderIdInputChange()">
       </div>
 
       <div class="form-group">
@@ -1066,11 +1095,96 @@
       <span>Có hóa đơn hợp lệ (trừ thuế TNDN): <b id="modalUnforeseenVat" style="color: var(--text-main);">0 đ</b></span>
       <span>Chi phí nội bộ không HĐ: <b id="modalUnforeseenNonVat" style="color: var(--text-main);">0 đ</b></span>
     </div>
+<!-- MODAL TẠO MỚI ĐƠN HÀNG HOẶC DỰ TOÁN MÔ PHỎNG (MULTI-ORDER LEDGER ENGINE) -->
+<div class="modal-overlay" id="modalNewOrder" onclick="closeModalOnOverlay(event)">
+  <div class="modal-content" style="max-width: 680px;">
+    <div class="modal-header">
+      <div style="font-weight: bold; font-size: 14px; text-transform: uppercase;">
+        ➕ Tạo Mới Hồ Sơ Đơn Hàng / Kịch Bản Mô Phỏng
+      </div>
+      <button class="btn-3d" onclick="closeNewOrderModal()">✕ Đóng</button>
+    </div>
+    <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+      Khởi tạo phương án tài chính riêng biệt. Đơn hàng thực tế đã hoàn thành sẽ được lưu giữ độc lập số liệu thực xuất; Kịch bản mô phỏng dùng để tính toán biên lãi và thù lao CTV trước khi chốt hợp đồng.
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px;">
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Loại Hồ Sơ Nghiệp Vụ:</label>
+        <select id="newOrderType" class="input-3d font-bold" onchange="onNewOrderTypeChange()" style="width: 100%;">
+          <option value="COMPLETED">📜 Đơn hàng thực tế đã hoàn thành (Quyết toán chi phí & Thù lao)</option>
+          <option value="SIMULATION">🔮 Dự toán mô phỏng lợi nhuận (Kịch bản giả định / Báo giá)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Mã Đơn hàng / Mã Dự toán:</label>
+        <input type="text" id="newOrderId" class="input-3d font-bold" placeholder="VD: 269902 hoặc SIM_CPT_1300T">
+        <div style="font-size: 10.5px; color: var(--text-dim); margin-top: 2px;">Khóa định danh duy nhất (SSOT Key)</div>
+      </div>
+
+      <div class="form-group">
+        <label>Số lượng thùng hàng (Boxes):</label>
+        <input type="number" id="newOrderBoxQty" class="input-3d" value="1300">
+      </div>
+
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Tên gợi nhớ / Tiêu đề hồ sơ:</label>
+        <input type="text" id="newOrderName" class="input-3d" placeholder="VD: Đơn 269902 — Snack Quẩy 1.300 thùng (HOWO 15.6m · CPT Savannakhet)">
+      </div>
+
+      <div class="form-group">
+        <label>Giá mua nhà máy (VNĐ/thùng chưa VAT):</label>
+        <input type="number" id="newOrderUnitPriceVnd" class="input-3d" value="337000">
+      </div>
+
+      <div class="form-group">
+        <label>Giá chào xuất khẩu (USD/thùng):</label>
+        <input type="number" id="newOrderUnitPriceUsd" class="input-3d" value="15.80" step="0.1">
+      </div>
+
+      <div class="form-group">
+        <label>Tỷ giá bán USD MB Bank (VNĐ/USD):</label>
+        <input type="number" id="newOrderExchangeRate" class="input-3d" value="25797.45" step="0.01">
+      </div>
+
+      <div class="form-group">
+        <label>Cước vận tải đường bộ (VNĐ):</label>
+        <input type="number" id="newOrderCostTransport" class="input-3d" value="22000000">
+      </div>
+
+      <div class="form-group">
+        <label>Hải quan & C/O Logistics (VNĐ):</label>
+        <input type="number" id="newOrderCostCustoms" class="input-3d" value="8200000">
+      </div>
+
+      <div class="form-group">
+        <label>Lệ phí nhà nước & Cửa khẩu (VNĐ):</label>
+        <input type="number" id="newOrderCostFees" class="input-3d" value="270000">
+      </div>
+
+      <div class="form-group">
+        <label>Chi phí phát sinh thực tế ban đầu (VNĐ):</label>
+        <input type="number" id="newOrderCostBorderExtra" class="input-3d" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>Lũy kế hoàn thuế các đơn trước (VNĐ):</label>
+        <input type="number" id="newOrderPriorVat" class="input-3d" value="37237630">
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+      <button type="button" class="btn-3d" onclick="closeNewOrderModal()">✕ Hủy Bỏ</button>
+      <button type="button" class="btn-3d" onclick="confirmCreateNewOrder()" style="border-color: var(--accent-save); color: var(--accent-save); font-weight: bold;">
+        ✅ Tạo & Nạp Vào Buồng Lái Ngay
+      </button>
+    </div>
   </div>
 </div>
 
 <script>
-  // STATE CỦA ỨNG DỤNG CMH-BSC V2.0
+  // STATE CỦA ỨNG DỤNG CMH-BSC V2.0 (MULTI-ORDER & SCENARIO LEDGER)
   let currentEngine = 'optimized'; // 'user' hoặc 'optimized'
   let contingencyBase = 'revenue'; // 'revenue' hoặc 'ebt'
   let viewMode = 'admin';          // 'admin' (nội bộ G-SS) hoặc 'broker' (xuất cho CTV)
@@ -1079,16 +1193,404 @@
   // CẦU NỐI ĐỒNG BỘ DỮ LIỆU VỚI BUỒNG LÁI CMH-TSC
   const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
   const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
-  let syncedUnforeseenExpenses = [
-    { id: 'EXP-269901-01', name: 'Ca chờ / lưu xe chờ đối tác (Vĩnh Thành)', amount: 4629630, category: 'CARRIER', hasInvoice: true, invoiceNo: '00000217', note: 'Bkav eHoadon 24/09/2026' },
-    { id: 'EXP-269901-02', name: 'Bốc hàng sang xe đối tác Thái/Lào bãi Lao Bảo', amount: 2500000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Không HĐ, cửu vạn bãi kiểm hóa' },
-    { id: 'EXP-269901-03', name: 'Xử lý hồ sơ hủy xuất cảnh xe & xin sang hàng', amount: 2000000, category: 'CUSTOMS', hasInvoice: false, invoiceNo: '15/CV-GSS', note: 'Công văn 15/CV-GSS' },
-    { id: 'EXP-269901-04', name: 'Khách sạn NV hiện trường Tùng (Dư Hùng Phát)', amount: 740740, category: 'ACCOMMODATION', hasInvoice: true, invoiceNo: '00001188', note: 'MISA meInvoice 24/09/2026' },
-    { id: 'EXP-269901-05', name: 'Lệ phí nhà nước & tác nghiệp cửa khẩu Lao Bảo', amount: 270000, category: 'BORDER', hasInvoice: true, invoiceNo: 'Biên lai', note: 'Biên lai hạ tầng/HQ' },
-    { id: 'EXP-269901-06', name: 'Ăn uống, đi lại hiện trường (Tùng & Hiên)', amount: 6000000, category: 'ACCOMMODATION', hasInvoice: false, invoiceNo: 'Khoán chi', note: 'Khoán chi công tác phí 4 ngày' },
-    { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
-    { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
-  ];
+  const CMH_BSC_STORAGE_ORDERS_KEY = 'CMH_BSC_ORDERS_MASTER_V1';
+
+  const DEFAULT_ORDERS_MASTER = {
+    '269901': {
+      id: '269901',
+      name: 'Đơn 269901 — 1.300 thùng Snack Quẩy (HOWO 15.6m · Lao Bảo) [CHỐT THỰC TẾ]',
+      type: 'COMPLETED',
+      boxQty: 1300,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 15.80,
+      revenueUsd: 20540,
+      exchangeRate: 25797.45,
+      costFactory: 438100000,
+      costTransport: 22000000,
+      costCustoms: 8200000,
+      costFees: 270000,
+      costBorderExtra: 19320370,
+      vatRefund: 37237630,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 0,
+      unforeseenExpenses: [
+        { id: 'EXP-269901-01', name: 'Ca chờ / lưu xe chờ đối tác (Vĩnh Thành)', amount: 4629630, category: 'CARRIER', hasInvoice: true, invoiceNo: '00000217', note: 'Bkav eHoadon 24/09/2026' },
+        { id: 'EXP-269901-02', name: 'Bốc hàng sang xe đối tác Thái/Lào bãi Lao Bảo', amount: 2500000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Không HĐ, cửu vạn bãi kiểm hóa' },
+        { id: 'EXP-269901-03', name: 'Xử lý hồ sơ hủy xuất cảnh xe & xin sang hàng', amount: 2000000, category: 'CUSTOMS', hasInvoice: false, invoiceNo: '15/CV-GSS', note: 'Công văn 15/CV-GSS' },
+        { id: 'EXP-269901-04', name: 'Khách sạn NV hiện trường Tùng (Dư Hùng Phát)', amount: 740740, category: 'ACCOMMODATION', hasInvoice: true, invoiceNo: '00001188', note: 'MISA meInvoice 24/09/2026' },
+        { id: 'EXP-269901-05', name: 'Lệ phí nhà nước & tác nghiệp cửa khẩu Lao Bảo', amount: 270000, category: 'BORDER', hasInvoice: true, invoiceNo: 'Biên lai', note: 'Biên lai hạ tầng/HQ' },
+        { id: 'EXP-269901-06', name: 'Ăn uống, đi lại hiện trường (Tùng & Hiên)', amount: 6000000, category: 'ACCOMMODATION', hasInvoice: false, invoiceNo: 'Khoán chi', note: 'Khoán chi công tác phí 4 ngày' },
+        { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
+        { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
+      ]
+    },
+    '269902': {
+      id: '269902',
+      name: 'Đơn 269902 — 1.300 thùng Snack Quẩy (HOWO 15.6m · CPT Savannakhet) [MẪU HOÀN THÀNH]',
+      type: 'COMPLETED',
+      boxQty: 1300,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 16.50,
+      revenueUsd: 21450,
+      exchangeRate: 25790,
+      costFactory: 438100000,
+      costTransport: 26000000,
+      costCustoms: 9200000,
+      costFees: 350000,
+      costBorderExtra: 5000000,
+      vatRefund: 37557630,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 37237630,
+      unforeseenExpenses: []
+    },
+    'SIM_CONT40_800T': {
+      id: 'SIM_CONT40_800T',
+      name: 'Dự toán Cont 40ft (800 thùng - Thử nghiệm bẫy thể tích)',
+      type: 'SIMULATION',
+      boxQty: 800,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 17.50,
+      revenueUsd: 14000,
+      exchangeRate: 25790,
+      costFactory: 269600000,
+      costTransport: 22000000,
+      costCustoms: 8200000,
+      costFees: 270000,
+      costBorderExtra: 2000000,
+      vatRefund: 23748000,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 0,
+      unforeseenExpenses: []
+    },
+    'SIM_CPT_SVN_1300T': {
+      id: 'SIM_CPT_SVN_1300T',
+      name: 'Dự toán CPT Savannakhet HOWO 15.6m (1.300 thùng - Chào giá mới)',
+      type: 'SIMULATION',
+      boxQty: 1300,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 16.80,
+      revenueUsd: 21840,
+      exchangeRate: 25800,
+      costFactory: 438100000,
+      costTransport: 25000000,
+      costCustoms: 8800000,
+      costFees: 300000,
+      costBorderExtra: 3500000,
+      vatRefund: 37477630,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 0,
+      unforeseenExpenses: []
+    },
+    'SIM_CONT45_1000T': {
+      id: 'SIM_CONT45_1000T',
+      name: 'Dự toán Cont 45ft (1.000 thùng - Xuất khẩu đường bộ)',
+      type: 'SIMULATION',
+      boxQty: 1000,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 18.00,
+      revenueUsd: 18000,
+      exchangeRate: 25790,
+      costFactory: 337000000,
+      costTransport: 24000000,
+      costCustoms: 8500000,
+      costFees: 280000,
+      costBorderExtra: 2500000,
+      vatRefund: 29240000,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 0,
+      unforeseenExpenses: []
+    }
+  };
+
+  let ordersMaster = {};
+  let activeOrderId = '269901';
+  let syncedUnforeseenExpenses = [];
+
+  function initOrdersMaster() {
+    try {
+      const stored = localStorage.getItem(CMH_BSC_STORAGE_ORDERS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+          ordersMaster = parsed;
+          // Luôn đảm bảo 269901 chuẩn SSOT tồn tại
+          if (!ordersMaster['269901']) {
+            ordersMaster['269901'] = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER['269901']));
+          }
+        } else {
+          ordersMaster = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER));
+          saveOrdersToStorage();
+        }
+      } else {
+        ordersMaster = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER));
+        saveOrdersToStorage();
+      }
+    } catch (e) {
+      console.warn("Lỗi load ordersMaster:", e);
+      ordersMaster = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER));
+    }
+
+    // Kiểm tra query parameter ?order=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderParam = urlParams.get('order');
+    if (orderParam && ordersMaster[orderParam]) {
+      activeOrderId = orderParam;
+    } else {
+      activeOrderId = '269901';
+    }
+
+    renderOrderDropdown();
+    applyOrderRecord(ordersMaster[activeOrderId] || ordersMaster['269901']);
+  }
+
+  function saveOrdersToStorage() {
+    try {
+      localStorage.setItem(CMH_BSC_STORAGE_ORDERS_KEY, JSON.stringify(ordersMaster));
+    } catch (e) {}
+  }
+
+  function renderOrderDropdown() {
+    const sel = document.getElementById('orderSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+
+    const groupCompleted = document.createElement('optgroup');
+    groupCompleted.label = '📜 ĐƠN HÀNG THỰC TẾ ĐÃ HOÀN THÀNH (SETTLEMENT)';
+
+    const groupSim = document.createElement('optgroup');
+    groupSim.label = '🔮 DỰ TOÁN MÔ PHỎNG LỢI NHUẬN (SIMULATION)';
+
+    Object.keys(ordersMaster).forEach(k => {
+      const ord = ordersMaster[k];
+      const opt = document.createElement('option');
+      opt.value = ord.id;
+      const typeIcon = (ord.type === 'COMPLETED') ? '📜' : '🔮';
+      opt.textContent = `${typeIcon} ${ord.id} — ${ord.name || ord.id}`;
+      if (ord.type === 'COMPLETED') {
+        groupCompleted.appendChild(opt);
+      } else {
+        groupSim.appendChild(opt);
+      }
+    });
+
+    sel.appendChild(groupCompleted);
+    sel.appendChild(groupSim);
+    sel.value = activeOrderId;
+
+    updateOrderBadgeAndMeta(ordersMaster[activeOrderId] || ordersMaster['269901']);
+  }
+
+  function updateOrderBadgeAndMeta(ord) {
+    if (!ord) return;
+    const badge = document.getElementById('orderTypeBadge');
+    if (badge) {
+      if (ord.type === 'COMPLETED') {
+        badge.textContent = (ord.id === '269901') ? '📜 ĐƠN THỰC TẾ SSOT' : '📜 ĐƠN THỰC TẾ';
+        badge.style.borderColor = 'var(--accent-save)';
+        badge.style.color = 'var(--accent-save)';
+      } else {
+        badge.textContent = '🔮 DỰ TOÁN MÔ PHỎNG';
+        badge.style.borderColor = 'var(--accent-tax)';
+        badge.style.color = 'var(--accent-tax)';
+      }
+    }
+
+    const meta = document.getElementById('orderMetaSummary');
+    if (meta) {
+      const isComp = ord.type === 'COMPLETED';
+      meta.innerHTML = `Quy cách: <b>${(ord.boxQty || 1300).toLocaleString('vi-VN')} thùng</b> × <b>${formatVnd(ord.unitPriceVnd || 337000)}</b> | Doanh thu: <b>$${(ord.revenueUsd || 0).toLocaleString('vi-VN')} USD</b> | <span style="color:${isComp ? 'var(--accent-save)' : 'var(--accent-tax)'}; font-weight:bold;">${isComp ? 'Đã nghiệm thu thực xuất' : 'Mô phỏng đàm phán'}</span>`;
+    }
+  }
+
+  function applyOrderRecord(ord) {
+    if (!ord) return;
+    activeOrderId = ord.id;
+
+    if (document.getElementById('orderId')) {
+      document.getElementById('orderId').value = `${ord.id} (${ord.name || ord.id})`;
+    }
+    if (document.getElementById('revenueUsd')) document.getElementById('revenueUsd').value = ord.revenueUsd || 0;
+    if (document.getElementById('exchangeRate')) document.getElementById('exchangeRate').value = ord.exchangeRate || 25797.45;
+    if (document.getElementById('costFactory')) document.getElementById('costFactory').value = ord.costFactory || 0;
+    if (document.getElementById('costTransport')) document.getElementById('costTransport').value = ord.costTransport || 0;
+    if (document.getElementById('costCustoms')) document.getElementById('costCustoms').value = ord.costCustoms || 0;
+    if (document.getElementById('costFees')) document.getElementById('costFees').value = ord.costFees || 0;
+    if (document.getElementById('costBorderExtra')) document.getElementById('costBorderExtra').value = ord.costBorderExtra || 0;
+    if (document.getElementById('vatRefund')) document.getElementById('vatRefund').value = ord.vatRefund || 0;
+    if (document.getElementById('contingencyRate')) document.getElementById('contingencyRate').value = ord.contingencyRate !== undefined ? ord.contingencyRate : 3.0;
+    if (document.getElementById('priorVatAccumulated')) document.getElementById('priorVatAccumulated').value = ord.priorVatAccumulated || 0;
+
+    syncedUnforeseenExpenses = Array.isArray(ord.unforeseenExpenses) ? ord.unforeseenExpenses : [];
+
+    const countBadge = document.getElementById('borderExpCountBadge');
+    if (countBadge) countBadge.textContent = `${syncedUnforeseenExpenses.length} khoản`;
+
+    const factorySubnote = document.getElementById('costFactorySubnote');
+    if (factorySubnote) {
+      const curCost = ord.costFactory || 0;
+      const uPrice = ord.unitPriceVnd || 337000;
+      const bQty = ord.boxQty || (uPrice > 0 ? Math.round(curCost / uPrice) : 1300);
+      if (ord.id === '269901') {
+        factorySubnote.innerHTML = `(Quy cách SSOT: <b>1.300 thùng</b> × <b>337.000 đ/thùng</b> = <b>438.100.000 đ</b>)`;
+      } else {
+        factorySubnote.innerHTML = `(Quy cách: <b>${bQty.toLocaleString('vi-VN')} thùng</b> × <b>${formatVnd(uPrice)}</b> = <b>${formatVnd(curCost)}</b>)`;
+      }
+    }
+
+    const tscBadge = document.getElementById('tscSyncStatusBadge');
+    if (tscBadge) {
+      if (ord.id === '269901') {
+        tscBadge.textContent = `[🔒 Số liệu thực tế Đơn 269901 SSOT]`;
+        tscBadge.style.color = 'var(--accent-save)';
+      } else {
+        tscBadge.textContent = `[📁 Đang tải: ${ord.id}]`;
+        tscBadge.style.color = (ord.type === 'COMPLETED') ? 'var(--accent-save)' : 'var(--accent-tax)';
+      }
+    }
+
+    updateOrderBadgeAndMeta(ord);
+    calculate();
+  }
+
+  function onOrderSelectChange() {
+    const sel = document.getElementById('orderSelect');
+    if (!sel) return;
+    const ord = ordersMaster[sel.value];
+    if (ord) {
+      applyOrderRecord(ord);
+    }
+  }
+
+  function onOrderIdInputChange() {
+    const val = document.getElementById('orderId').value.trim();
+    const ord = ordersMaster[activeOrderId];
+    if (ord && val) {
+      ord.name = val;
+      renderOrderDropdown();
+    }
+  }
+
+  function saveActiveOrderChanges() {
+    const ord = ordersMaster[activeOrderId];
+    if (!ord) return;
+
+    ord.revenueUsd = parseFloat(document.getElementById('revenueUsd').value) || 0;
+    ord.exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0;
+    ord.costFactory = parseFloat(document.getElementById('costFactory').value) || 0;
+    ord.costTransport = parseFloat(document.getElementById('costTransport').value) || 0;
+    ord.costCustoms = parseFloat(document.getElementById('costCustoms').value) || 0;
+    ord.costFees = parseFloat(document.getElementById('costFees').value) || 0;
+    ord.costBorderExtra = parseFloat(document.getElementById('costBorderExtra').value) || 0;
+    ord.vatRefund = parseFloat(document.getElementById('vatRefund').value) || 0;
+    ord.contingencyRate = parseFloat(document.getElementById('contingencyRate').value) || 3.0;
+    ord.priorVatAccumulated = parseFloat(document.getElementById('priorVatAccumulated').value) || 0;
+    ord.unforeseenExpenses = syncedUnforeseenExpenses;
+
+    saveOrdersToStorage();
+    renderOrderDropdown();
+    alert(`💾 Đã lưu thành công dữ liệu cho hồ sơ: ${ord.id} (${ord.name})!`);
+  }
+
+  function deleteActiveOrder() {
+    if (activeOrderId === '269901') {
+      alert("⛔ Đơn hàng 269901 là Hạt nhân SSOT của hệ thống, không được xóa!");
+      return;
+    }
+    const ord = ordersMaster[activeOrderId];
+    if (!confirm(`Bạn có chắc chắn muốn xóa hồ sơ '${activeOrderId}' (${ord ? ord.name : ''}) khỏi danh sách?`)) {
+      return;
+    }
+    delete ordersMaster[activeOrderId];
+    activeOrderId = '269901';
+    saveOrdersToStorage();
+    renderOrderDropdown();
+    applyOrderRecord(ordersMaster['269901']);
+    alert("🗑️ Đã xóa hồ sơ thành công và chuyển về Đơn 269901 SSOT.");
+  }
+
+  function openNewOrderModal() {
+    document.getElementById('newOrderId').value = '';
+    document.getElementById('newOrderName').value = '';
+    document.getElementById('newOrderBoxQty').value = '1300';
+    document.getElementById('newOrderUnitPriceVnd').value = '337000';
+    document.getElementById('newOrderUnitPriceUsd').value = '15.80';
+    document.getElementById('newOrderExchangeRate').value = '25797.45';
+    document.getElementById('newOrderCostTransport').value = '22000000';
+    document.getElementById('newOrderCostCustoms').value = '8200000';
+    document.getElementById('newOrderCostFees').value = '270000';
+    document.getElementById('newOrderCostBorderExtra').value = '0';
+    document.getElementById('newOrderPriorVat').value = '37237630';
+    document.getElementById('modalNewOrder').style.display = 'flex';
+  }
+
+  function closeNewOrderModal() {
+    document.getElementById('modalNewOrder').style.display = 'none';
+  }
+
+  function onNewOrderTypeChange() {
+    const t = document.getElementById('newOrderType').value;
+    const idInp = document.getElementById('newOrderId');
+    const nameInp = document.getElementById('newOrderName');
+    if (t === 'COMPLETED') {
+      if (!idInp.value || idInp.value.startsWith('SIM_')) idInp.value = '269902';
+      if (!nameInp.value || nameInp.value.includes('Dự toán')) nameInp.value = 'Đơn 269902 — Snack Quẩy 1.300 thùng (HOWO 15.6m · CPT Savannakhet)';
+    } else {
+      if (!idInp.value || !idInp.value.startsWith('SIM_')) idInp.value = 'SIM_CPT_1300T';
+      if (!nameInp.value || nameInp.value.includes('Đơn')) nameInp.value = 'Dự toán CPT Savannakhet (1.300 thùng - Chào giá mới)';
+    }
+  }
+
+  function confirmCreateNewOrder() {
+    const rawId = document.getElementById('newOrderId').value.trim();
+    if (!rawId) {
+      alert("Vui lòng nhập Mã Đơn hàng / Mã Dự toán!");
+      document.getElementById('newOrderId').focus();
+      return;
+    }
+    const cleanId = rawId.replace(/[^A-Za-z0-9_-]/g, '_');
+    const ordType = document.getElementById('newOrderType').value;
+    const nameVal = document.getElementById('newOrderName').value.trim() || `${ordType === 'COMPLETED' ? 'Đơn hàng' : 'Dự toán'} ${cleanId}`;
+    const boxQty = parseInt(document.getElementById('newOrderBoxQty').value) || 1300;
+    const unitPriceVnd = parseFloat(document.getElementById('newOrderUnitPriceVnd').value) || 337000;
+    const unitPriceUsd = parseFloat(document.getElementById('newOrderUnitPriceUsd').value) || 15.80;
+    const fxRate = parseFloat(document.getElementById('newOrderExchangeRate').value) || 25797.45;
+    const revUsd = Number((boxQty * unitPriceUsd).toFixed(2));
+    const costFactory = boxQty * unitPriceVnd;
+    const costTransport = parseFloat(document.getElementById('newOrderCostTransport').value) || 22000000;
+    const costCustoms = parseFloat(document.getElementById('newOrderCostCustoms').value) || 8200000;
+    const costFees = parseFloat(document.getElementById('newOrderCostFees').value) || 270000;
+    const costBorderExtra = parseFloat(document.getElementById('newOrderCostBorderExtra').value) || 0;
+    const priorVat = parseFloat(document.getElementById('newOrderPriorVat').value) || 0;
+
+    const vatRefund = Math.round((costFactory * 0.08) + (costTransport * 0.08) + (5364000 * 0.08));
+
+    ordersMaster[cleanId] = {
+      id: cleanId,
+      name: nameVal,
+      type: ordType,
+      boxQty: boxQty,
+      unitPriceVnd: unitPriceVnd,
+      unitPriceUsd: unitPriceUsd,
+      revenueUsd: revUsd,
+      exchangeRate: fxRate,
+      costFactory: costFactory,
+      costTransport: costTransport,
+      costCustoms: costCustoms,
+      costFees: costFees,
+      costBorderExtra: costBorderExtra,
+      vatRefund: vatRefund,
+      contingencyRate: 3.0,
+      priorVatAccumulated: priorVat,
+      unforeseenExpenses: []
+    };
+
+    activeOrderId = cleanId;
+    saveOrdersToStorage();
+    renderOrderDropdown();
+    applyOrderRecord(ordersMaster[cleanId]);
+    closeNewOrderModal();
+    alert(`✅ Đã khởi tạo thành công hồ sơ: ${cleanId}!\nBạn có thể tùy biến các thông số chi phí ngay trên buồng lái.`);
+  }
 
   function openExpenseDetailsModal() {
     renderSyncedExpenseTable();
@@ -1152,63 +1654,49 @@
 
   function applySyncedDataFromTsc(payload) {
     if (!payload) return;
-    if (payload.revenueUsd !== undefined && document.getElementById('revenueUsd')) {
-      document.getElementById('revenueUsd').value = payload.revenueUsd;
-    }
-    if (payload.exchangeRate !== undefined && document.getElementById('exchangeRate')) {
-      document.getElementById('exchangeRate').value = payload.exchangeRate;
-    }
-    if (payload.costFactory !== undefined && document.getElementById('costFactory')) {
-      document.getElementById('costFactory').value = payload.costFactory;
-    }
-    if (payload.costTransport !== undefined && document.getElementById('costTransport')) {
-      document.getElementById('costTransport').value = payload.costTransport;
-    }
-    if (payload.costCustoms !== undefined && document.getElementById('costCustoms')) {
-      document.getElementById('costCustoms').value = payload.costCustoms;
-    }
-    if (payload.costFees !== undefined && document.getElementById('costFees')) {
-      document.getElementById('costFees').value = payload.costFees;
-    }
-    if (payload.costBorderExtra !== undefined && document.getElementById('costBorderExtra')) {
-      document.getElementById('costBorderExtra').value = payload.costBorderExtra;
-    }
-    if (payload.vatRefund !== undefined && document.getElementById('vatRefund')) {
-      document.getElementById('vatRefund').value = payload.vatRefund;
+    const ordId = payload.orderId || '269901';
+
+    if (!ordersMaster[ordId]) {
+      ordersMaster[ordId] = {
+        id: ordId,
+        name: payload.orderName || `Đơn / Kịch bản #${ordId}`,
+        type: payload.orderType || (ordId === '269901' ? 'COMPLETED' : 'SIMULATION'),
+        boxQty: payload.boxQty || 1300,
+        unitPriceVnd: payload.unitPriceVnd || 337000,
+        unitPriceUsd: payload.unitPriceUsd || 15.80,
+        revenueUsd: payload.revenueUsd || 20540,
+        exchangeRate: payload.exchangeRate || 25797.45,
+        costFactory: payload.costFactory || 438100000,
+        costTransport: payload.costTransport || 22000000,
+        costCustoms: payload.costCustoms || 8200000,
+        costFees: payload.costFees || 270000,
+        costBorderExtra: payload.costBorderExtra || 0,
+        vatRefund: payload.vatRefund || 0,
+        contingencyRate: 3.0,
+        priorVatAccumulated: (ordId === '269901') ? 0 : 37237630,
+        unforeseenExpenses: Array.isArray(payload.unforeseenExpenses) ? payload.unforeseenExpenses : []
+      };
+    } else {
+      // Cập nhật đúng đơn này, bảo vệ các đơn khác không bị lệch pha
+      const ord = ordersMaster[ordId];
+      if (payload.boxQty !== undefined) ord.boxQty = payload.boxQty;
+      if (payload.unitPriceVnd !== undefined) ord.unitPriceVnd = payload.unitPriceVnd;
+      if (payload.unitPriceUsd !== undefined) ord.unitPriceUsd = payload.unitPriceUsd;
+      if (payload.revenueUsd !== undefined) ord.revenueUsd = payload.revenueUsd;
+      if (payload.exchangeRate !== undefined) ord.exchangeRate = payload.exchangeRate;
+      if (payload.costFactory !== undefined) ord.costFactory = payload.costFactory;
+      if (payload.costTransport !== undefined) ord.costTransport = payload.costTransport;
+      if (payload.costCustoms !== undefined) ord.costCustoms = payload.costCustoms;
+      if (payload.costFees !== undefined) ord.costFees = payload.costFees;
+      if (payload.costBorderExtra !== undefined) ord.costBorderExtra = payload.costBorderExtra;
+      if (payload.vatRefund !== undefined) ord.vatRefund = payload.vatRefund;
+      if (Array.isArray(payload.unforeseenExpenses)) ord.unforeseenExpenses = payload.unforeseenExpenses;
     }
 
-    if (Array.isArray(payload.unforeseenExpenses)) {
-      syncedUnforeseenExpenses = payload.unforeseenExpenses;
-    }
-
-    const countBadge = document.getElementById('borderExpCountBadge');
-    if (countBadge) countBadge.textContent = `${syncedUnforeseenExpenses.length} khoản`;
-
-    const statusBadge = document.getElementById('tscSyncStatusBadge');
-    if (statusBadge) {
-      statusBadge.textContent = `[📡 Đã đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}]`;
-      statusBadge.style.color = 'var(--accent-save)';
-    }
-
-    const subnote = document.getElementById('unforeseenSubnote');
-    if (subnote && payload.totalUnforeseenNoInvoice !== undefined) {
-      subnote.innerHTML = `<i>Đã cập nhật ${syncedUnforeseenExpenses.length} khoản từ CMH-TSC (Trong đó không HĐ: ${formatVnd(payload.totalUnforeseenNoInvoice)}).</i>`;
-    }
-
-    // Đối soát chặt chẽ giá vốn và số thùng để không bao giờ xảy ra lỗi tính sai
-    const factorySubnote = document.getElementById('costFactorySubnote');
-    if (factorySubnote) {
-      const curCost = parseFloat(document.getElementById('costFactory').value) || 438100000;
-      const uPrice = payload.unitPriceVnd || 337000;
-      const calculatedQty = Math.round(curCost / uPrice);
-      if (calculatedQty === 1300) {
-        factorySubnote.innerHTML = `(Quy cách SSOT: <b>1.300 thùng</b> × <b>337.000 đ/thùng</b> = <b>438.100.000 đ</b>)`;
-      } else {
-        factorySubnote.innerHTML = `(Quy cách: <b>${calculatedQty.toLocaleString('vi-VN')} thùng</b> × <b>${uPrice.toLocaleString('vi-VN')} đ/thùng</b> = <b>${formatVnd(curCost)}</b> <span style="color:var(--alert-warning-text); font-weight:bold;">[⚠️ Kịch bản mô phỏng ${calculatedQty} thùng]</span>)`;
-      }
-    }
-
-    calculate();
+    activeOrderId = ordId;
+    saveOrdersToStorage();
+    renderOrderDropdown();
+    applyOrderRecord(ordersMaster[ordId]);
   }
 
   function pullDataFromTsc() {
@@ -1217,7 +1705,7 @@
       if (stored) {
         const payload = JSON.parse(stored);
         applySyncedDataFromTsc(payload);
-        alert(`✅ Đã kéo thành công dữ liệu từ CMH-TSC:\n- Tổng phát sinh thực tế: ${formatVnd(payload.costBorderExtra || 0)}\n- Số khoản chi: ${(payload.unforeseenExpenses || []).length} khoản`);
+        alert(`✅ Đã kéo thành công dữ liệu từ CMH-TSC cho [${payload.orderId || '269901'}]:\n- Tổng phát sinh thực tế: ${formatVnd(payload.costBorderExtra || 0)}\n- Số khoản chi: ${(payload.unforeseenExpenses || []).length} khoản`);
       } else {
         alert("⚠️ Chưa tìm thấy dữ liệu phát sinh được phát từ CMH-TSC trong LocalStorage. Vui lòng mở CMH-TSC và bấm '📡 ĐỒNG BỘ SANG BUỒNG LÁI MÔI GIỚI'!");
       }
@@ -1227,7 +1715,6 @@
   }
 
   function initTscSyncListener() {
-    // Tự động dọn dẹp khóa lưu trữ cũ bị bẩn số liệu 800 thùng
     try {
       localStorage.removeItem('CMH_SYNC_ORDER_EXPENSES_V1');
     } catch (e) {}
@@ -1254,17 +1741,19 @@
 
     // 3. Kiểm tra query param hoặc dữ liệu lưu sẵn lúc boot
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('sync') === 'auto' || urlParams.get('order') === '269901') {
+    const orderParam = urlParams.get('order');
+    if (orderParam && ordersMaster[orderParam]) {
+      activeOrderId = orderParam;
+      renderOrderDropdown();
+      applyOrderRecord(ordersMaster[activeOrderId]);
+    }
+    if (urlParams.get('sync') === 'auto') {
       try {
         const stored = localStorage.getItem(CMH_STORAGE_KEY);
         if (stored) {
           applySyncedDataFromTsc(JSON.parse(stored));
-        } else {
-          loadSample269901();
         }
-      } catch (err) {
-        loadSample269901();
-      }
+      } catch (err) {}
     }
   }
 
@@ -1316,16 +1805,11 @@
   }
 
   function loadSample269901() {
-    document.getElementById('revenueUsd').value = 20540;
-    document.getElementById('exchangeRate').value = 25797.45;
-    document.getElementById('costFactory').value = 438100000;
-    document.getElementById('costTransport').value = 22000000;
-    document.getElementById('costCustoms').value = 8200000;
-    document.getElementById('costFees').value = 270000;
-    document.getElementById('costBorderExtra').value = 19320370;
-    document.getElementById('vatRefund').value = 37237630;
-    document.getElementById('contingencyRate').value = 3.0;
-    document.getElementById('priorVatAccumulated').value = 0;
+    ordersMaster['269901'] = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER['269901']));
+    activeOrderId = '269901';
+    saveOrdersToStorage();
+    renderOrderDropdown();
+    applyOrderRecord(ordersMaster['269901']);
 
     const factorySubnote = document.getElementById('costFactorySubnote');
     if (factorySubnote) {
@@ -1354,7 +1838,7 @@
       costFees: 270000,
       costBorderExtra: 19320370,
       vatRefund: 37237630,
-      unforeseenExpenses: syncedUnforeseenExpenses
+      unforeseenExpenses: ordersMaster['269901'].unforeseenExpenses
     };
     try {
       localStorage.removeItem('CMH_SYNC_ORDER_EXPENSES_V1');
@@ -1507,15 +1991,18 @@
   }
 
   function buildZaloText(data) {
+    const curOrd = ordersMaster[activeOrderId] || { id: '269901', name: 'Đơn 269901', type: 'COMPLETED', revenueUsd: 20540 };
+    const ordTitle = curOrd.name || curOrd.id;
+    const isCompleted = curOrd.type === 'COMPLETED';
     const text = 
 `BẢNG KÊ NGHIỆM THU THÙ LAO MÔI GIỚI XÚC TIẾN XUẤT KHẨU
-ĐƠN HÀNG: 269901 (HĐ GSSDIX_FCA_269901)
+HỒ SƠ: ${curOrd.id} — ${ordTitle}
 Đơn vị ủy thác: CÔNG TY TNHH GLOBAL SOLUTION SERVICE
 --------------------------------------------------
-1. KẾT QUẢ NGHIỆM THU ĐƠN HÀNG 269901:
-- Doanh thu xuất bán hoàn tất: ${Math.round(data.revVnd).toLocaleString('vi-VN')} đ ($20,540 USD)
-- Lô hàng đã thông quan thực xuất B11 tại Cửa khẩu Quốc tế Lao Bảo
-- Thuế GTGT đầu vào tích lũy đơn hàng: ${Math.round(data.vatRefThisOrder).toLocaleString('vi-VN')} đ
+1. KẾT QUẢ NGHIỆM THU HỒ SƠ ${curOrd.id}:
+- Doanh thu xuất bán: ${Math.round(data.revVnd).toLocaleString('vi-VN')} đ ($${(curOrd.revenueUsd || 0).toLocaleString('vi-VN')} USD)
+- Tình trạng hồ sơ: ${isCompleted ? 'Lô hàng đã hoàn tất xuất khẩu & thông quan thực tế' : 'Dự toán mô phỏng đàm phán hợp đồng'}
+- Thuế GTGT đầu vào tích lũy đơn này: ${Math.round(data.vatRefThisOrder).toLocaleString('vi-VN')} đ
 - Tiến độ hoàn thuế tích lũy toàn hệ thống: ${Math.round(data.totalVatAccumulated).toLocaleString('vi-VN')} đ / 300.000.000 đ
 
 2. THÙ LAO MÔI GIỚI ĐƯỢC HƯỞNG (ĐÃ NGHIỆM THU):
@@ -1580,7 +2067,7 @@ CÔNG TY TNHH GLOBAL SOLUTION SERVICE trân trọng thông báo!`;
 
   // Khởi chạy khi nạp trang
   window.onload = function() {
-    loadSample269901();
+    initOrdersMaster();
     initTscSyncListener();
   };
 </script>

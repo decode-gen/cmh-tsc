@@ -2402,6 +2402,16 @@
     }
 
     function dispatchTscToBscSync(openWindow = false) {
+      const curScn = scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0];
+      const scnId = curScn ? curScn.id : activeScenarioId;
+
+      // Trích xuất mã gốc đơn hàng 6 số YYMMNN nếu có, hoặc dùng chính scnId
+      const orderRefMatch = scnId.match(/\b(\d{6})\b/);
+      const derivedOrderId = orderRefMatch ? orderRefMatch[1] : scnId;
+      const isCompleted = scnId.includes('269901') || (curScn && curScn.isCompletedOrder === true);
+      const orderType = isCompleted ? 'COMPLETED' : 'SIMULATION';
+      const orderTitle = curScn ? (curScn.name || curScn.id) : `Kịch bản ${derivedOrderId}`;
+
       const qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 1300) || 1300;
       const quotePrice = parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 15.80) || 15.80;
       const fxRate = parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25797.45) || 25797.45;
@@ -2412,12 +2422,14 @@
       
       // Quỹ hoàn thuế GTGT 8% (TK 1331):
       // Đơn 269901 chuẩn 1.300 thùng: 37.237.630 đ (Hàng 35.048.000 + Xe 1.760.000 + HQ 429.630)
-      const vatRefund = (qty === 1300 && supId === 'SUP_THIEN_LONG')
+      const vatRefund = (qty === 1300 && supId === 'SUP_THIEN_LONG' && derivedOrderId === '269901')
         ? 37237630
         : Math.round(cogsPreVat * supplier.vatRate + (22000000 * 0.08) + (5364000 * 0.08));
 
-      // Doanh thu USD chuẩn: 1.300 thùng x 15.80 USD = 20.540 USD
-      const revUsd = (qty === 1300 && Math.abs(quotePrice - 15.80) < 0.01) ? 20540 : Number((qty * quotePrice).toFixed(2));
+      // Doanh thu USD chuẩn: 1.300 thùng x 15.80 USD = 20.540 USD nếu là đơn 269901
+      const revUsd = (qty === 1300 && Math.abs(quotePrice - 15.80) < 0.01 && derivedOrderId === '269901') 
+        ? 20540 
+        : Number((qty * quotePrice).toFixed(2));
       const revVnd = Math.round(revUsd * fxRate);
 
       const totalUnforeseen = currentUnforeseenExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
@@ -2425,7 +2437,9 @@
       const totalUnforeseenNonVat = currentUnforeseenExpenses.filter(e => !e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
 
       const payload = {
-        orderId: '269901',
+        orderId: derivedOrderId,
+        orderName: orderTitle,
+        orderType: orderType,
         scenarioId: activeScenarioId,
         timestamp: new Date().toISOString(),
         boxQty: qty,
@@ -2456,24 +2470,29 @@
         channel.close();
       } catch (e) {}
 
-      showToastNotification(`📡 Đã đồng bộ sang Buồng Lái Môi Giới (CMH-BSC): Tổng phát sinh ${formatVnd(totalUnforeseen)}!`);
+      showToastNotification(`📡 Đã đồng bộ sang Buồng Lái Môi Giới (CMH-BSC) cho [${derivedOrderId}]: ${formatVnd(totalUnforeseen)}!`);
 
       if (openWindow) {
         const isFile = window.location.protocol === 'file:';
-        const targetUrl = isFile ? 'CMH-BROKER-SHARE-COCKPIT.html?order=269901&sync=auto' : '/bsc?order=269901&sync=auto';
+        const targetUrl = isFile ? `CMH-BROKER-SHARE-COCKPIT.html?order=${derivedOrderId}&sync=auto` : `/bsc?order=${derivedOrderId}&sync=auto`;
         window.open(targetUrl, 'CMH_BSC_WINDOW');
       }
     }
 
     function navigateTscToBsc(event) {
       if (event) event.preventDefault();
+      let derivedOrderId = '269901';
       try {
+        const curScn = scenariosMaster.find(s => s.id === activeScenarioId);
+        const scnId = curScn ? curScn.id : activeScenarioId;
+        const orderRefMatch = scnId.match(/\b(\d{6})\b/);
+        derivedOrderId = orderRefMatch ? orderRefMatch[1] : scnId;
         dispatchTscToBscSync(false);
       } catch (e) {
         console.warn("Sync dispatch error before navigation:", e);
       }
       const isFile = window.location.protocol === 'file:';
-      const targetUrl = isFile ? 'CMH-BROKER-SHARE-COCKPIT.html?order=269901&sync=auto' : '/bsc?order=269901&sync=auto';
+      const targetUrl = isFile ? `CMH-BROKER-SHARE-COCKPIT.html?order=${derivedOrderId}&sync=auto` : `/bsc?order=${derivedOrderId}&sync=auto`;
       window.location.href = targetUrl;
     }
 
@@ -4653,7 +4672,7 @@
     // THUẬT TOÁN ĐỊNH DANH SSOT NAME ID (DETERMINISTIC NAMING ENGINE)
     // 100% THUẬT TOÁN QUY TẮC CỨNG - KHÔNG CÓ CAN THIỆP AI
     // ==========================================
-    function computeSsotNameId() {
+    function computeSsotNameId(overrideOrderRef) {
       // 1. Incoterms & Destination
       const termsVal = document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'FCA_LB';
       let termsCode = 'FCA_LB';
@@ -4728,8 +4747,11 @@
       else if (/THAI/i.test(currentName)) buyerTag = 'THAI';
 
       // Trích xuất mã gốc đơn hàng 6 số YYMMNN (Root Order Seed)
-      const orderRefMatch = currentName.match(/\b(\d{6})\b/);
-      const orderRef = orderRefMatch ? orderRefMatch[1] : '269901';
+      let orderRef = overrideOrderRef;
+      if (!orderRef) {
+        const orderRefMatch = currentName.match(/\b(\d{6})\b/);
+        orderRef = orderRefMatch ? orderRefMatch[1] : '269901';
+      }
 
       // 8. Operational Modifiers (Optional)
       let modifierCode = '';
@@ -4838,9 +4860,11 @@
           <tr style="background:rgba(234, 179, 8, 0.06);">
             <td class="text-center font-bold" style="color:var(--accent-gold);">7</td>
             <td class="font-bold" style="color:var(--accent-gold);">Mã Gốc Đơn Hàng (Seed)</td>
-            <td><code style="color:var(--accent-gold); font-weight:bold; font-size:13px; background:#000; padding:2px 6px; border-radius:3px;">${b.orderRef}</code></td>
-            <td><b>Hạt nhân liên kết SSOT sang Bộ chứng từ 01_BUY</b></td>
-            <td style="font-size:11px; color:var(--accent-gold);">Niên độ tài chính 6 số YYMMNN</td>
+            <td>
+              <input type="text" id="nidInputOrderRef" class="form-control font-bold" value="${b.orderRef}" maxlength="6" style="width:90px; color:var(--accent-gold); font-size:13px; background:#000; text-align:center; padding:2px 4px; border:1px solid var(--accent-gold);" oninput="onNidOrderRefChange()" title="Nhập mã 6 số của đơn hàng (VD: 269901, 269902)">
+            </td>
+            <td><b>Hạt nhân liên kết SSOT sang Bộ chứng từ 01_BUY (Tự do nhập mã đơn mới)</b></td>
+            <td style="font-size:11px; color:var(--accent-gold);">Niên độ tài chính 6 số YYMMNN (Gõ để đổi mã)</td>
           </tr>
           <tr>
             <td class="text-center font-bold">8</td>
@@ -4853,6 +4877,17 @@
       }
 
       document.getElementById('nidGeneratorModalBackdrop').style.display = 'flex';
+    }
+
+    function onNidOrderRefChange() {
+      const inp = document.getElementById('nidInputOrderRef');
+      if (!inp) return;
+      const refVal = inp.value.trim() || '269901';
+      const res = computeSsotNameId(refVal);
+      const idInput = document.getElementById('nidGeneratedId');
+      if (idInput) idInput.value = res.id;
+      const nameInput = document.getElementById('nidGeneratedLabel');
+      if (nameInput) nameInput.value = res.name;
     }
 
     function closeNidGeneratorModal() {
