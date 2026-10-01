@@ -826,6 +826,11 @@
       <span class="brand-badge">CMH-TSC V4.0 SSOT</span>
     </div>
     <div class="header-actions">
+      <!-- 0. CHUYỂN SANG BUỒNG LÁI MÔI GIỚI (CMH-BSC) -->
+      <button class="btn btn-sm" onclick="navigateTscToBsc(event)" data-tooltip="Chuyển sang Buồng Lái Quản Trị & Chia Sẻ Lợi Nhuận Môi Giới (CMH-BSC)" style="border-color: #2563eb; color: #2563eb; font-weight: bold; background: rgba(37,99,235,0.08); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px 8px;">
+        <span>🤝 Buồng Lái Môi Giới (BSC) ↗</span>
+      </button>
+
       <!-- 1. CÀI ĐẶT ĐỐI TÁC (ICON ONLY CHUẨN /cmh-ui) -->
       <button class="btn-icon-3d" onclick="openPartnerMasterModal()" data-tooltip="Cài đặt đối tác & Biểu phí chi tiết">
         <span>[🏢]</span>
@@ -2443,8 +2448,22 @@
       showToastNotification(`📡 Đã đồng bộ sang Buồng Lái Môi Giới (CMH-BSC): Tổng phát sinh ${formatVnd(totalUnforeseen)}!`);
 
       if (openWindow) {
-        window.open('CMH-BROKER-SHARE-COCKPIT.html?order=269901&sync=auto', 'CMH_BSC_WINDOW');
+        const isFile = window.location.protocol === 'file:';
+        const targetUrl = isFile ? 'CMH-BROKER-SHARE-COCKPIT.html?order=269901&sync=auto' : '/bsc?order=269901&sync=auto';
+        window.open(targetUrl, 'CMH_BSC_WINDOW');
       }
+    }
+
+    function navigateTscToBsc(event) {
+      if (event) event.preventDefault();
+      try {
+        dispatchTscToBscSync(false);
+      } catch (e) {
+        console.warn("Sync dispatch error before navigation:", e);
+      }
+      const isFile = window.location.protocol === 'file:';
+      const targetUrl = isFile ? 'CMH-BROKER-SHARE-COCKPIT.html?order=269901&sync=auto' : '/bsc?order=269901&sync=auto';
+      window.location.href = targetUrl;
     }
 
     function loadScenariosFromStorage() {

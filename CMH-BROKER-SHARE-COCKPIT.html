@@ -562,6 +562,10 @@
       </div>
     </div>
     <div class="header-actions">
+      <!-- NÚT QUAY LẠI BUỒNG LÁI ĐỊNH GIÁ (CMH-TSC) -->
+      <button class="btn-3d" onclick="navigateBscToTsc(event)" title="Quay lại Buồng Lái Mô Phỏng Định Giá & P&L Ngoại Thương (CMH-TSC)" style="border-color: #2563eb; color: #2563eb; font-weight: bold; background: rgba(37,99,235,0.08);">
+        🏛️ Về Buồng Lái Định Giá (TSC) ↖
+      </button>
       <button class="btn-3d" id="btn-theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ Sáng / Tối">
         <span id="theme-icon">☀</span> Giao diện
       </button>
@@ -1237,6 +1241,13 @@
         }
       } catch (err) {}
     }
+  }
+
+  function navigateBscToTsc(event) {
+    if (event) event.preventDefault();
+    const isFile = window.location.protocol === 'file:';
+    const targetUrl = isFile ? 'CMH-TSC.html' : '/';
+    window.location.href = targetUrl;
   }
 
   function formatVnd(val) {
