@@ -2234,8 +2234,8 @@
     let activeScenarioId = "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901";
     let isDraftMode = false;
     let currentUnforeseenExpenses = [];
-    const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS';
-    const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V1';
+    const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
+    const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
 
     // =========================================================================
     // KHỐI QUẢN TRỊ CHI PHÍ PHÁT SINH THỰC TẾ & ĐỒNG BỘ SANG CMH-BSC (V2.0)
@@ -2446,6 +2446,7 @@
       };
 
       try {
+        localStorage.removeItem('CMH_SYNC_ORDER_EXPENSES_V1');
         localStorage.setItem(CMH_STORAGE_KEY, JSON.stringify(payload));
       } catch (e) {}
 

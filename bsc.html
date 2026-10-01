@@ -572,8 +572,8 @@
       <button class="btn-3d" id="btn-pull-tsc" onclick="pullDataFromTsc()" title="Kéo đồng bộ dữ liệu chi phí & phát sinh mới nhất từ CMH-TSC" style="border-color: var(--accent-save); color: var(--accent-save);">
         🔄 Kéo từ CMH-TSC
       </button>
-      <button class="btn-3d" onclick="loadSample269901()" title="Nạp mẫu số liệu thực tế Đơn hàng 269901">
-        🔒 Nạp Đơn 269901
+      <button class="btn-3d" onclick="loadSample269901()" title="Khôi phục chuẩn 100% số liệu thực tế Đơn 269901 SSOT (1.300 thùng x 337.000đ)" style="border-color: #22c55e; color: #22c55e; font-weight: bold; background: rgba(34,197,94,0.08);">
+        🔒 Chuẩn Đơn 269901 (1.300 Thùng)
       </button>
       <button class="btn-3d" onclick="openContractModal()" title="Mở mẫu Hợp đồng & Biên bản Nghiệm thu Bảo mật">
         📄 Mẫu HĐ Môi Giới
@@ -1077,8 +1077,8 @@
   const VAT_REFUND_THRESHOLD = 300000000; // 300 Triệu VNĐ
 
   // CẦU NỐI ĐỒNG BỘ DỮ LIỆU VỚI BUỒNG LÁI CMH-TSC
-  const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS';
-  const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V1';
+  const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
+  const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
   let syncedUnforeseenExpenses = [
     { id: 'EXP-269901-01', name: 'Ca chờ / lưu xe chờ đối tác (Vĩnh Thành)', amount: 4629630, category: 'CARRIER', hasInvoice: true, invoiceNo: '00000217', note: 'Bkav eHoadon 24/09/2026' },
     { id: 'EXP-269901-02', name: 'Bốc hàng sang xe đối tác Thái/Lào bãi Lao Bảo', amount: 2500000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Không HĐ, cửu vạn bãi kiểm hóa' },
@@ -1195,11 +1195,17 @@
       subnote.innerHTML = `<i>Đã cập nhật ${syncedUnforeseenExpenses.length} khoản từ CMH-TSC (Trong đó không HĐ: ${formatVnd(payload.totalUnforeseenNoInvoice)}).</i>`;
     }
 
+    // Đối soát chặt chẽ giá vốn và số thùng để không bao giờ xảy ra lỗi tính sai
     const factorySubnote = document.getElementById('costFactorySubnote');
     if (factorySubnote) {
-      const bQty = payload.boxQty || 1300;
+      const curCost = parseFloat(document.getElementById('costFactory').value) || 438100000;
       const uPrice = payload.unitPriceVnd || 337000;
-      factorySubnote.innerHTML = `(Quy cách: <b>${bQty.toLocaleString('vi-VN')} thùng</b> × <b>${uPrice.toLocaleString('vi-VN')} đ/thùng</b> = <b>${formatVnd(payload.costFactory || (bQty * uPrice))}</b>)`;
+      const calculatedQty = Math.round(curCost / uPrice);
+      if (calculatedQty === 1300) {
+        factorySubnote.innerHTML = `(Quy cách SSOT: <b>1.300 thùng</b> × <b>337.000 đ/thùng</b> = <b>438.100.000 đ</b>)`;
+      } else {
+        factorySubnote.innerHTML = `(Quy cách: <b>${calculatedQty.toLocaleString('vi-VN')} thùng</b> × <b>${uPrice.toLocaleString('vi-VN')} đ/thùng</b> = <b>${formatVnd(curCost)}</b> <span style="color:var(--alert-warning-text); font-weight:bold;">[⚠️ Kịch bản mô phỏng ${calculatedQty} thùng]</span>)`;
+      }
     }
 
     calculate();
@@ -1221,6 +1227,11 @@
   }
 
   function initTscSyncListener() {
+    // Tự động dọn dẹp khóa lưu trữ cũ bị bẩn số liệu 800 thùng
+    try {
+      localStorage.removeItem('CMH_SYNC_ORDER_EXPENSES_V1');
+    } catch (e) {}
+
     // 1. BroadcastChannel (tức thời giữa các tab)
     try {
       const channel = new BroadcastChannel(CMH_SYNC_CHANNEL_NAME);
@@ -1243,13 +1254,17 @@
 
     // 3. Kiểm tra query param hoặc dữ liệu lưu sẵn lúc boot
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('sync') === 'auto' || localStorage.getItem(CMH_STORAGE_KEY)) {
+    if (urlParams.get('sync') === 'auto' || urlParams.get('order') === '269901') {
       try {
         const stored = localStorage.getItem(CMH_STORAGE_KEY);
         if (stored) {
           applySyncedDataFromTsc(JSON.parse(stored));
+        } else {
+          loadSample269901();
         }
-      } catch (err) {}
+      } catch (err) {
+        loadSample269901();
+      }
     }
   }
 
@@ -1302,7 +1317,7 @@
 
   function loadSample269901() {
     document.getElementById('revenueUsd').value = 20540;
-    document.getElementById('exchangeRate').value = 26008;
+    document.getElementById('exchangeRate').value = 25797.45;
     document.getElementById('costFactory').value = 438100000;
     document.getElementById('costTransport').value = 22000000;
     document.getElementById('costCustoms').value = 8200000;
@@ -1311,6 +1326,41 @@
     document.getElementById('vatRefund').value = 37237630;
     document.getElementById('contingencyRate').value = 3.0;
     document.getElementById('priorVatAccumulated').value = 0;
+
+    const factorySubnote = document.getElementById('costFactorySubnote');
+    if (factorySubnote) {
+      factorySubnote.innerHTML = `(Quy cách SSOT: <b>1.300 thùng</b> × <b>337.000 đ/thùng</b> = <b>438.100.000 đ</b>)`;
+    }
+
+    const tscBadge = document.getElementById('tscSyncStatusBadge');
+    if (tscBadge) {
+      tscBadge.textContent = `[🔒 Khôi phục Chuẩn Đơn 269901: 1.300 Thùng]`;
+      tscBadge.style.color = 'var(--accent-save)';
+    }
+
+    // Ghi đè lại cache sạch vào localStorage
+    const cleanPayload = {
+      orderId: '269901',
+      scenarioId: 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901',
+      boxQty: 1300,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 15.80,
+      revenueUsd: 20540,
+      exchangeRate: 25797.45,
+      revenueVnd: Math.round(20540 * 25797.45),
+      costFactory: 438100000,
+      costTransport: 22000000,
+      costCustoms: 8200000,
+      costFees: 270000,
+      costBorderExtra: 19320370,
+      vatRefund: 37237630,
+      unforeseenExpenses: syncedUnforeseenExpenses
+    };
+    try {
+      localStorage.removeItem('CMH_SYNC_ORDER_EXPENSES_V1');
+      localStorage.setItem(CMH_STORAGE_KEY, JSON.stringify(cleanPayload));
+    } catch (e) {}
+
     calculate();
   }
 
