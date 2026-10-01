@@ -1335,6 +1335,9 @@
         </div>
 
         <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="btn btn-sm" onclick="openOrderDossierModal()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; display:inline-flex; align-items:center; gap:5px;" data-tooltip="Mở Quản lý Hồ sơ & Tải Chứng từ Chuẩn SSOT (PO, CI, PKL, Waybill, PL01, C/O...)">
+            <span>[📁 Hồ Sơ & Biểu Mẫu SSOT]</span>
+          </button>
           <button type="button" class="btn btn-sm" onclick="openBoxCostSheetModal()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold;" data-tooltip="Xem Bảng Tính Bóc Tách Cost Gốc Ban Đầu / Thùng chi tiết">
             <span>[📊 Bóc Tách Cost / Thùng]</span>
           </button>
@@ -1869,6 +1872,264 @@
           <button class="btn btn-sm" onclick="closeNidGeneratorModal()">[✕ Hủy bỏ]</button>
           <button class="btn btn-sm" onclick="confirmNidSelection(false)" style="background:var(--accent-blue); color:#fff; font-weight:bold;">[✅ Xác Nhận Tên Này]</button>
           <button class="btn btn-sm" onclick="confirmNidSelection(true)" style="background:var(--accent-gold); color:#000; font-weight:bold;">[💾 Xác Nhận & Lưu Set Ngay]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 6: QUẢN LÝ HỒ SƠ CHỨNG TỪ & TẢI BIỂU MẪU SSOT (ORDER DOSSIER & MASTER FORM TEMPLATES) -->
+  <div id="orderDossierModalBackdrop" class="adaptive-modal-backdrop" style="display:none;">
+    <div class="adaptive-modal" id="orderDossierModal" style="width:94vw; max-width:1250px; max-height:92vh; display:flex; flex-direction:column;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-weight:bold; font-size:14px;">📁 QUẢN LÝ HỒ SƠ & TẢI BIỂU MẪU XNK CHUẨN SSOT (ORDER DOSSIER & MASTER TEMPLATES)</span>
+          <span class="brand-badge" style="background:#059669; color:#fff; font-weight:bold;">KẾ THỪA 100% PHÔI GỐC</span>
+          <span class="brand-badge" style="background:#2563eb; color:#fff;">RULE R18/R19 LOCKED</span>
+        </div>
+        <div class="modal-controls">
+          <button class="btn-icon-3d" onclick="handleModalControl('orderDossierModal', 'minimize')" data-tooltip="Thu nhỏ [🗕]"><span>[🗕]</span></button>
+          <button class="btn-icon-3d" onclick="handleModalControl('orderDossierModal', 'maximize')" data-tooltip="Phóng to [⛶]"><span>[⛶]</span></button>
+          <button class="btn-icon-3d" onclick="closeOrderDossierModal()" data-tooltip="Đóng [x]"><span>[x]</span></button>
+        </div>
+      </div>
+      
+      <div class="modal-body" style="padding:14px; background:var(--bg-app); overflow:auto; flex:1;">
+        <!-- ACTION BANNER & ACTIVE ORDER STATUS -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 14px; margin-bottom:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold;">ĐƠN HÀNG HOẠT ĐỘNG:</span>
+              <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#269901 — GSSDIX_FCA_269901 (FIRM_LOCKED)</b>
+              <span class="brand-badge" style="background:#064e3b; color:#6ee7b7;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">
+              🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button type="button" class="btn btn-sm" onclick="downloadAllDossierZip('269901')" style="background:#059669; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(5,150,105,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải về tệp nén ZIP chứa toàn bộ 214 file hồ sơ đơn hàng theo chuẩn 6 nhánh thư mục">
+              <span>[📦 Tải Trọn Bộ ZIP Đơn 269901]</span>
+            </button>
+            <button type="button" class="btn btn-sm" onclick="compileCurrentScenarioDossier()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Biên dịch bộ chứng từ theo thông số số lượng & đơn giá đang chọn trên Buồng Lái">
+              <span>[⚡ Biên Dịch Theo Kịch Bản Live]</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB NAVIGATION (6 TRỤ CỘT THỤ HƯỞNG + TAB MASTER BLUEPRINTS) -->
+        <div class="tab-bar" style="margin-bottom:12px;">
+          <button class="tab-btn active" onclick="switchDossierTab('dossierTab01Buy', this)">1. 🌏 01_BUY (Khách Ngoại)</button>
+          <button class="tab-btn" onclick="switchDossierTab('dossierTab02Cus', this)">2. 🏛️ 02_CUS (Hải Quan & Cửa Khẩu)</button>
+          <button class="tab-btn" onclick="switchDossierTab('dossierTab03Sup', this)">3. 🏭 03_SUP (Xưởng SX Thiên Long)</button>
+          <button class="tab-btn" onclick="switchDossierTab('dossierTab04Log', this)">4. 🚛 04_LOG (Vận Tải Vĩnh Thành)</button>
+          <button class="tab-btn" onclick="switchDossierTab('dossierTab05Cod', this)">5. 📑 05_COD (C/O Mẫu D eCoSys)</button>
+          <button class="tab-btn" onclick="switchDossierTab('dossierTab06Fin', this)">6. 💰 06_FIN (Kế Toán & Thuế 0%)</button>
+          <button class="tab-btn" onclick="switchDossierTab('dossierTabMaster', this)" style="color:var(--alert-warning-text); font-weight:bold;">7. 🏛️ PHÔI MASTER BLUEPRINTS</button>
+        </div>
+
+        <!-- TAB 1: 01_BUY (KHÁCH NGOẠI) -->
+        <div id="dossierTab01Buy" class="dossier-tab-content">
+          <div style="background:rgba(37,99,235,0.06); border-left:3px solid #2563eb; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Đối tượng thụ hưởng:</b> Khách hàng nước ngoài (Duangmanee Import-Export Co., Ltd), Ngân hàng thanh toán MB Bank USD SWIFT `MSCBVNVX`.<br>
+            <b>Ràng buộc:</b> 100% tiếng Anh thương mại, giá bán FCA Lao Bảo, điều khoản T/T và bảo lưu quyền sở hữu.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:130px;">Mã Form SSOT</th>
+                  <th>Tên Chứng Từ (Song Ngữ)</th>
+                  <th style="width:140px;">Quy Chuẩn Layout</th>
+                  <th style="width:110px;" class="text-center">Trạng Thái</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Tải Về / In</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossier01BuyBody">
+                <!-- Dynamically populated or rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: 02_CUS (HẢI QUAN & DỊCH VỤ CỬA KHẨU) -->
+        <div id="dossierTab02Cus" class="dossier-tab-content" style="display:none;">
+          <div style="background:rgba(5,150,105,0.06); border-left:3px solid #059669; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Đối tượng thụ hưởng:</b> Chi cục Hải quan Cửa khẩu Lao Bảo & Đại lý làm dịch vụ thông quan (Bình An Logistics).<br>
+            <b>Ràng buộc:</b> Hợp nhất toàn bộ hồ sơ khai báo hải quan B11 và hồ sơ đại lý dịch vụ thông quan cửa khẩu, triệt tiêu 100% việc nhân đôi tài liệu.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:130px;">Mã Form SSOT</th>
+                  <th>Tên Chứng Từ (Song Ngữ)</th>
+                  <th style="width:140px;">Quy Chuẩn Layout</th>
+                  <th style="width:110px;" class="text-center">Trạng Thái</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Tải Về / In</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossier02CusBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: 03_SUP (XƯỞNG SX THIÊN LONG) -->
+        <div id="dossierTab03Sup" class="dossier-tab-content" style="display:none;">
+          <div style="background:rgba(217,119,6,0.06); border-left:3px solid #d97706; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Đối tượng thụ hưởng:</b> Nhà máy Bánh kẹo Thiên Long (Phú Thọ), Quản lý kho xưởng.<br>
+            <b>Ràng buộc:</b> Giá vốn nội địa 337.000 đ/thùng (đã gồm công bốc xếp lên xe), cam kết ATTP/ISO 22000, cam kết bảo lãnh bồi thường hoàn thuế GTGT 0%.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:130px;">Mã Form SSOT</th>
+                  <th>Tên Chứng Từ (Song Ngữ)</th>
+                  <th style="width:140px;">Quy Chuẩn Layout</th>
+                  <th style="width:110px;" class="text-center">Trạng Thái</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Tải Về / In</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossier03SupBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: 04_LOG (VẬN TẢI VĨNH THÀNH) -->
+        <div id="dossierTab04Log" class="dossier-tab-content" style="display:none;">
+          <div style="background:rgba(147,51,234,0.06); border-left:3px solid #9333ea; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Đối tượng thụ hưởng:</b> Đơn vị vận tải Vĩnh Thành, Điều phối xe, Lái xe container.<br>
+            <b>Bảo mật Tầng 2 Tuyệt Đối:</b> Ẩn 100% giá vốn 337k và ẩn SĐT/Email riêng của khách ngoại. Giữ quy tắc 1-Page Invariant cho Waybill và Đơn điều xe PL01.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:130px;">Mã Form SSOT</th>
+                  <th>Tên Chứng Từ (Song Ngữ)</th>
+                  <th style="width:140px;">Quy Chuẩn Layout</th>
+                  <th style="width:110px;" class="text-center">Trạng Thái</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Tải Về / In</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossier04LogBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 5: 05_COD (C/O MẪU D ECOSYS) -->
+        <div id="dossierTab05Cod" class="dossier-tab-content" style="display:none;">
+          <div style="background:rgba(14,165,233,0.06); border-left:3px solid #0ea5e9; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Đối tượng thụ hưởng:</b> Phòng Quản lý XNK (Bộ Công Thương) / VCCI, Hệ thống eCoSys.<br>
+            <b>Ràng buộc:</b> Vector PDF 2 trang chuẩn, 13 Box ATIGA, triệt tiêu bẫy cấp sau (Issued Retroactively), chuẩn hóa Box 2 & Box 7.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:130px;">Mã Form SSOT</th>
+                  <th>Tên Chứng Từ (Song Ngữ)</th>
+                  <th style="width:140px;">Quy Chuẩn Layout</th>
+                  <th style="width:110px;" class="text-center">Trạng Thái</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Tải Về / In</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossier05CodBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 6: 06_FIN (KẾ TOÁN & THUẾ 0%) -->
+        <div id="dossierTab06Fin" class="dossier-tab-content" style="display:none;">
+          <div style="background:rgba(225,29,72,0.06); border-left:3px solid #e11d48; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Đối tượng thụ hưởng:</b> Ban Giám Đốc, Kế toán trưởng GSS, Đoàn thanh tra Cục Thuế Hà Nội.<br>
+            <b>Ràng buộc:</b> Tuyệt mật nội bộ, đối soát 3 góc chặt chẽ giữa Tiền về MB Bank — Tờ khai thông quan B11 — Hóa đơn GTGT 0% TT 219.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:130px;">Mã Form SSOT</th>
+                  <th>Tên Chứng Từ (Song Ngữ)</th>
+                  <th style="width:140px;">Quy Chuẩn Layout</th>
+                  <th style="width:110px;" class="text-center">Trạng Thái</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Tải Về / In</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossier06FinBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 7: PHÔI TRẮNG GỐC MASTER BLUEPRINTS (DÙNG CHO TẤT CẢ ĐƠN HÀNG MỚI) -->
+        <div id="dossierTabMaster" class="dossier-tab-content" style="display:none;">
+          <div style="background:rgba(234,179,8,0.08); border-left:3px solid #eab308; padding:8px 12px; margin-bottom:10px; font-size:12px;">
+            <b>Kho Lưu Trữ Gốc (Master Blueprints SSOT):</b> Chứa các phôi trắng chứa placeholder tham số (`[BUYER_NAME]`, `[UNIT_PRICE]`, `[QUANTITY]`,...). Dùng để áp dụng cho bất kỳ đối tác mới nào trong tương lai theo đúng quy chuẩn Factory V4.2.
+          </div>
+          <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
+            <table class="data-table" style="margin-top:0;">
+              <thead>
+                <tr style="background:var(--bg-cockpit-panel);">
+                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:140px;">Mã Phôi Gốc</th>
+                  <th>Tên Biểu Mẫu Chuẩn Master</th>
+                  <th style="width:110px;">Họ Trụ Cột</th>
+                  <th style="width:120px;">Định Dạng</th>
+                  <th style="width:230px;" class="text-right">Tải Phôi Gốc</th>
+                </tr>
+              </thead>
+              <tbody id="tblDossierMasterBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div style="font-size:11.5px; color:var(--text-muted);">
+          💡 Mọi tài liệu in ấn tuân thủ <b>Rule R13 (Pure Black #000000)</b>, không dùng màu xám để chống suy hao nét chữ khi in và scan.
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-sm" onclick="closeOrderDossierModal()">[Đóng Cửa Sổ]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 7: XEM TRƯỚC VÀ IN CHỨNG TỪ CHUẨN A4 (DOCUMENT QUICK PREVIEW & DIRECT PRINT MODAL) -->
+  <div id="dossierDocPreviewModalBackdrop" class="adaptive-modal-backdrop" style="display:none; z-index:10050;">
+    <div class="adaptive-modal" id="dossierDocPreviewModal" style="width:90vw; max-width:980px; max-height:94vh; display:flex; flex-direction:column;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="previewDocTitle" style="font-weight:bold; font-size:13.5px;">XEM TRƯỚC CHỨNG TỪ CHUẨN</span>
+          <span class="brand-badge" style="background:#000; color:#fff; border:1px solid #333;">PURE BLACK #000000</span>
+          <span class="brand-badge" style="background:#16a34a; color:#fff;">1-PAGE INVARIANT</span>
+        </div>
+        <div class="modal-controls">
+          <button class="btn-icon-3d" onclick="handleModalControl('dossierDocPreviewModal', 'maximize')" data-tooltip="Phóng to [⛶]"><span>[⛶]</span></button>
+          <button class="btn-icon-3d" onclick="closeDossierDocPreviewModal()" data-tooltip="Đóng [x]"><span>[x]</span></button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding:20px; background:#e4e4e7; overflow:auto; flex:1; display:flex; justify-content:center;">
+        <div id="previewDocContainer" style="background:#ffffff; color:#000000; width:100%; max-width:850px; min-height:1050px; padding:35px 40px; box-shadow:0 4px 18px rgba(0,0,0,0.15); font-family:'Times New Roman', serif; border:1px solid #000000; box-sizing:border-box;">
+          <!-- Dynamically populated document HTML content -->
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:11.5px; color:var(--text-muted);">
+          🖨 Nhấn <b>[In Trực Tiếp (A4)]</b> để mở hộp thoại in của trình duyệt hoặc lưu dạng PDF chuẩn A4.
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-sm" onclick="printPreviewDocDirect()" style="background:#16a34a; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(22,163,74,0.3);">
+            <span>[🖨 In Trực Tiếp (A4)]</span>
+          </button>
+          <button class="btn btn-sm" onclick="closeDossierDocPreviewModal()">[Đóng]</button>
         </div>
       </div>
     </div>
@@ -6166,6 +6427,1037 @@
       const pwd = document.getElementById('loginPassword');
       if (pwd) {
         pwd.type = pwd.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    // =========================================================================
+    // CMH ORDER DOSSIER & MASTER FORM TEMPLATES SUBSYSTEM (POPUP 6 & 7)
+    // Factory V4.2 · Rules R13, R16, R18, R19 · Strict SSOT Inheritance
+    // =========================================================================
+
+    const DOSSIER_REGISTRY = {
+      orderId: "269901",
+      contractCode: "GSSDIX_FCA_269901",
+      buyerName: "DUANGMANEE IMPORT-EXPORT CO., LTD",
+      supplierName: "Nhà máy Bánh kẹo Thiên Long (Phú Thọ)",
+      carrierName: "Công ty TNHH Vận tải Vĩnh Thành",
+      customsAgent: "Công ty Cổ phần Giao nhận Vận tải Bình An",
+      commodityVi: "Snack Quẩy Giòn Giòn",
+      commodityEn: "Crispy Stick Snack",
+      hsCode: "1905.90.80",
+      spec: "22g/cốc, 300 cốc/thùng",
+      quantity: 1300,
+      unitPriceUsd: 15.80,
+      totalAmountUsd: 20540.00,
+      cogsVnd: 337000,
+      zipFilename: "HO_SO_XUAT_KHAU_THONG_QUAN_GSSDIX_FCA_269901.zip",
+      zipSize: "75.1 MB (214 tệp tin chuẩn 6 nhánh)",
+      baseDir: "domains/supply-chain-trade/automations/xnk-dossier/artifacts/HO_SO_XUAT_KHAU_THONG_QUAN_GSSDIX_FCA_269901",
+      masterDir: "domains/supply-chain-trade/automations/xnk-dossier/artifacts/CMH_MASTER_FORM_TEMPLATES"
+    };
+
+    const DOSSIER_PILLARS = {
+      '01_BUY': [
+        {
+          id: 'FRM-TRD-02',
+          code: '01_BUY_FRM-TRD-02',
+          nameVi: 'Đơn Đặt Hàng Khách Ngoại (Addendum 01 PO)',
+          nameEn: 'Buyer Purchase Order (Addendum 01 PO)',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ KIỂM DUYỆT (1-PAGE INVARIANT)',
+          fileBase: '01_GUI_KHACH_HANG_THAILAND/01_ADDENDUM_01_PURCHASE_ORDER_269901',
+          formats: ['DOCX', 'PDF'],
+          canPreview: true
+        },
+        {
+          id: 'FRM-TRD-03',
+          code: '01_BUY_FRM-TRD-03',
+          nameVi: 'Hóa Đơn Thương Mại Quốc Tế',
+          nameEn: 'Commercial Invoice (GSS-INV-269901)',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ KIỂM DUYỆT (1-PAGE INVARIANT)',
+          fileBase: '01_GUI_KHACH_HANG_THAILAND/02_COMMERCIAL_INVOICE_GSS_INV_269901_FN',
+          formats: ['DOCX', 'PDF'],
+          canPreview: true
+        },
+        {
+          id: 'FRM-TRD-04',
+          code: '01_BUY_FRM-TRD-04',
+          nameVi: 'Phiếu Đóng Gói Chi Tiết Lô Hàng',
+          nameEn: 'Packing List (GSS-PKL-269901)',
+          layout: 'Landscape (A4 Ngang) — 1 Trang',
+          status: 'ĐÃ KIỂM DUYỆT (1-PAGE INVARIANT)',
+          fileBase: '01_GUI_KHACH_HANG_THAILAND/03_PACKING_LIST_GSS_PKL_269901_FN',
+          formats: ['DOCX', 'PDF'],
+          canPreview: true
+        },
+        {
+          id: 'FRM-TRD-05',
+          code: '01_BUY_FRM-TRD-05',
+          nameVi: 'Chỉ Dẫn Thanh Toán Quốc Tế MB Bank',
+          nameEn: 'Official Payment Instruction (USD Account)',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'SẴN SÀNG TẢI',
+          fileBase: '01_GUI_KHACH_HANG_THAILAND/04_OFFICIAL_PAYMENT_INSTRUCTION_USD_MB_BANK_269901',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-TRD-01',
+          code: '01_BUY_FRM-TRD-01',
+          nameVi: 'Hợp Đồng Mua Bán Ngoại Thương Khung',
+          nameEn: 'Sales Framework Agreement (GSSDIX_FCA_269901)',
+          layout: 'Portrait (A4 Dọc) — Đa Trang',
+          status: 'SẴN SÀNG TẢI',
+          fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-RA-04_SALES_CONTRACT_GSSDIX_FCA_269901',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        }
+      ],
+      '02_CUS': [
+        {
+          id: 'FRM-CUS-01',
+          code: '02_CUS_FRM-CUS-01',
+          nameVi: 'Tờ Khai Hải Quan Xuất Khẩu B11 (VNACCS)',
+          nameEn: 'Customs Export Declaration B11 (Yellow Lane)',
+          layout: 'Spreadsheet BIFF8 (3 Trang In)',
+          status: 'ĐÃ THÔNG QUAN LUỒNG VÀNG',
+          fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/01_TO_KHAI_XUAT_KHAU_B11_VNACCS_GSS_269901',
+          formats: ['XLS', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-CUS-02',
+          code: '02_CUS_FRM-CUS-02',
+          nameVi: 'Phiếu Bổ Sung Thông Tin DN Hải Quan (21 Chỉ Tiêu)',
+          nameEn: 'Customs Enterprise Profile Supplement (21 Indicators)',
+          layout: 'Official Risk Form (7 Trang)',
+          status: 'ĐÃ NỘP HẢI QUAN',
+          fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/02_PHIEU_BO_SUNG_THONG_TIN_DN_XNK_HAI_QUAN_GSS',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-CUS-03',
+          code: '02_CUS_FRM-CUS-03',
+          nameVi: 'Bảng Định Mức Tiêu Hao BOM 1,300 Thùng',
+          nameEn: 'Bill of Materials (BOM) Consumption Norm',
+          layout: 'Landscape (A4 Ngang) — 1 Trang',
+          status: 'SẴN SÀNG TẢI',
+          fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/03_BANG_DINH_MUC_TIEU_HAO_BOM_1300_THUNG',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-CUS-04',
+          code: '02_CUS_FRM-CUS-04',
+          nameVi: 'Giấy Giới Thiệu Nhân Sự Hải Quan Cửa Khẩu',
+          nameEn: 'Official Letter of Introduction (Customs Office)',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'SẴN SÀNG TẢI',
+          fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/04_GIAY_GIOI_THIEU_HAI_QUAN_CUA_KHAU_GSS_269901',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-BRO-01',
+          code: '02_CUS_FRM-BRO-01',
+          nameVi: 'Hợp Đồng Nguyên Tắc Dịch Vụ Khai Thuê Hải Quan',
+          nameEn: 'Customs Clearance Framework Agreement (Binh An)',
+          layout: 'Portrait (A4 Dọc) — Đa Trang',
+          status: 'ĐÃ KÝ KẾT',
+          fileBase: '06_GUI_DON_VI_DICH_VU_BINH_AN/05_HOP_DONG_NGUYEN_TAC_DICH_VU_HAI_QUAN_LOGISTICS_BINH_AN_GSS_2026',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-BRO-02',
+          code: '02_CUS_FRM-BRO-02',
+          nameVi: 'Giấy Ủy Quyền Làm Thủ Tục Hải Quan Cửa Khẩu',
+          nameEn: 'Power of Attorney for Border Customs Clearance',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ KÝ ĐÓNG DẤU',
+          fileBase: '06_GUI_DON_VI_DICH_VU_BINH_AN/07_GIAY_UY_QUYEN_LAM_THU_TUC_HAI_QUAN_BINH_AN_269901',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        }
+      ],
+      '03_SUP': [
+        {
+          id: 'FRM-PRO-01',
+          code: '03_SUP_FRM-PRO-01',
+          nameVi: 'Hợp Đồng Cung Ứng Nội Địa Dài Hạn Thiên Long',
+          nameEn: 'Master Domestic Supply Agreement (Thien Long)',
+          layout: 'Portrait (A4 Dọc) — Đa Trang',
+          status: 'ĐÃ KÝ SCAN DẤU ĐỎ',
+          fileBase: '03_HO_SO_NCC_THIEN_LONG/01_HOP_DONG_MUA_HANG_THIEN_LONG_269901_TL_GSS_SCAN_DAU_DO',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-PRO-02',
+          code: '03_SUP_FRM-PRO-02',
+          nameVi: 'Đơn Đặt Hàng Mua Bánh Snack PL01 (1,300 Thùng)',
+          nameEn: 'Supplier Purchase Order Appendix PL01',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ XÁC NHẬN GIAO HÀNG',
+          fileBase: '03_HO_SO_NCC_THIEN_LONG/02_PL01_DON_DAT_HANG_1300_THUNG_THIEN_LONG',
+          formats: ['DOCX', 'PDF'],
+          canPreview: true
+        },
+        {
+          id: 'FRM-PRO-03',
+          code: '03_SUP_FRM-PRO-03',
+          nameVi: 'Biên Bản Nghiệm Thu & Bàn Giao Cửa Kho Xưởng',
+          nameEn: 'Factory Cargo Handover & Inspection Record',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ BÀN GIAO ĐỦ',
+          fileBase: '03_HO_SO_NCC_THIEN_LONG/03_BIEN_BAN_BAN_GIAO_VA_NGHIEM_THU_XUONG_THIEN_LONG',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-PRO-04',
+          code: '03_SUP_FRM-PRO-04',
+          nameVi: 'Bản Tự Công Bố & Phiếu Kiểm Nghiệm ATTP Avatek',
+          nameEn: 'Food Safety Compliance Certificate & Lab Test',
+          layout: 'Portrait (A4 Dọc) — Hồ sơ ATTP',
+          status: 'HỢP QUY ATTP',
+          fileBase: '03_HO_SO_NCC_THIEN_LONG/12_BAN_TU_CONG_BO_VA_PHIEU_KIEM_NGHIEM_ATTP_AVATEK_DND',
+          formats: ['DOCX'],
+          canPreview: false
+        }
+      ],
+      '04_LOG': [
+        {
+          id: 'FRM-LOG-00',
+          code: '04_LOG_FRM-LOG-00',
+          nameVi: 'Hợp Đồng Nguyên Tắc Dịch Vụ Vận Tải Đường Bộ',
+          nameEn: 'Master Logistics & Trucking Agreement (Vinh Thanh)',
+          layout: 'Portrait (A4 Dọc) — Đa Trang',
+          status: 'ĐÃ KÝ KẾT',
+          fileBase: '04_VAN_TAI_KHO_BAI_VINH_THANH/01_HDNT_VAN_TAI_GSS_VINH_THANH',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-LOG-01',
+          code: '04_LOG_FRM-LOG-01',
+          nameVi: 'Vận Đơn Đường Bộ Nội Địa (Trucking Waybill)',
+          nameEn: 'Domestic Trucking Waybill (Freight Prepaid)',
+          layout: 'Landscape (A4 Ngang) — 1 Trang (ẨN GIÁ VỐN 337K)',
+          status: 'ĐÃ KÝ NHẬN XE',
+          fileBase: '04_VAN_TAI_KHO_BAI_VINH_THANH/03_TRUCKING_WAY_BILL_VTL20260921_VINH_THANH_SIGNED',
+          formats: ['DOCX', 'PDF'],
+          canPreview: true
+        },
+        {
+          id: 'FRM-LOG-02',
+          code: '04_LOG_FRM-LOG-02',
+          nameVi: 'Lệnh Điều Xe Container PL01 (Phú Thọ - Lao Bảo)',
+          nameEn: 'Transport Dispatch Order PL01 (Container)',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ HOÀN THÀNH CHẶNG',
+          fileBase: '04_VAN_TAI_KHO_BAI_VINH_THANH/02_PL01_DON_DAT_DICH_VU_DIEU_XE_GSS_VINH_THANH',
+          formats: ['DOCX', 'PDF'],
+          canPreview: true
+        },
+        {
+          id: 'FRM-LOG-03',
+          code: '04_LOG_FRM-LOG-03',
+          nameVi: 'Công Văn 15/CV Xin Hủy Xuất Cảnh Xe & Sang Hàng',
+          nameEn: 'Official Letter 15/CV Border Cargo Transshipment',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ DUYỆT THỦ TỤC',
+          fileBase: '04_VAN_TAI_KHO_BAI_VINH_THANH/15_CONG_VAN_XIN_HUY_XUAT_CANH_XE_VA_XIN_SANG_HANG_LAO_BAO',
+          formats: ['DOCX', 'MD'],
+          canPreview: false
+        }
+      ],
+      '05_COD': [
+        {
+          id: 'FRM-COD-01',
+          code: '05_COD_FRM-COD-01',
+          nameVi: 'Giấy Chứng Nhận Xuất Xứ Hàng Hóa C/O Mẫu D (13 Box)',
+          nameEn: 'Certificate of Origin Form D (ATIGA eCoSys)',
+          layout: 'Vector PDF Chuẩn (2 Trang)',
+          status: 'ĐÃ CẤP ĐIỆN TỬ VCCI',
+          fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/01_CO_FORM_D_ATIGA_ECOSYS_XUAT_KHAU_THAI_LAN',
+          formats: ['PDF', 'DOCX'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-COD-02',
+          code: '05_COD_FRM-COD-02',
+          nameVi: 'Bản Cam Kết Xuất Xứ Hàng Hóa Nhà Sản Xuất',
+          nameEn: 'Manufacturer Origin Declaration & Warranty',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ KÝ ĐÓNG DẤU',
+          fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/02_BAN_CAM_KET_XUAT_XU_CONG_TY_SAN_XUAT_THIEN_LONG',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-COD-03',
+          code: '05_COD_FRM-COD-03',
+          nameVi: 'Thuyết Minh Quy Trình Công Nghệ Sản Xuất Bánh Snack',
+          nameEn: 'Crispy Stick Snack Manufacturing Flow & Description',
+          layout: 'Portrait (A4 Dọc) — 2 Trang',
+          status: 'SẴN SÀNG TẢI',
+          fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/03_QUY_TRINH_CONG_NGHE_SAN_XUAT_THIEN_LONG',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-COD-04',
+          code: '05_COD_FRM-COD-04',
+          nameVi: 'Bảng Kê 16 Hóa Đơn Mua Nguyên Phụ Liệu Đầu Vào',
+          nameEn: 'Input Raw Materials Invoice Breakdown List',
+          layout: 'Landscape (A4 Ngang) — Bảng Kê',
+          status: 'ĐỐI SOÁT HỢP LỆ',
+          fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/04_BANG_KE_16_HOA_DON_NGUYEN_LIEU_DAU_VAO_CO_FORM_D',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        }
+      ],
+      '06_FIN': [
+        {
+          id: 'FRM-FIN-01',
+          code: '06_FIN_FRM-FIN-01',
+          nameVi: 'Phương Án Tài Chính Thu Chi & Chi Phí Cửa Khẩu',
+          nameEn: 'Financial Cost-Revenue Plan & Border Contingency',
+          layout: 'Landscape (A4 Ngang) — Báo Cáo',
+          status: 'ĐÃ DUYỆT QUYẾT TOÁN',
+          fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-FIN-01_PHUONG_AN_TAI_CHINH_THU_CHI_VA_CHI_PHI_DU_TRU_CUA_KHAU_269901',
+          formats: ['DOCX', 'PDF', 'MD'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-FIN-02',
+          code: '06_FIN_FRM-FIN-02',
+          nameVi: 'Hóa Đơn GTGT Điện Tử Xuất Khẩu Thuế Suất 0% MISA',
+          nameEn: 'Electronic VAT Export Invoice 0% (MISA Form)',
+          layout: 'Portrait (A4 Dọc) — 1 Trang',
+          status: 'ĐÃ PHÁT HÀNH CQT',
+          fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-RA-01_HOA_DON_GTGT_XUAT_KHAU_0PCT_MISA_269901',
+          formats: ['DOCX', 'MD'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-FIN-03',
+          code: '06_FIN_FRM-FIN-03',
+          nameVi: 'Checklist 4-Way Matching Đối Soát Hoàn Thuế GTGT 0%',
+          nameEn: '4-Way Matching Checklist for 0% VAT Refund Audit',
+          layout: 'Portrait (A4 Dọc) — Kiểm Toán',
+          status: '100% ĐẠT CHUẨN HOÀN THUẾ',
+          fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-FIN-02_CHECKLIST_4_WAY_MATCHING_HOAN_THUE_GTGT_0PCT',
+          formats: ['DOCX', 'PDF'],
+          canPreview: false
+        },
+        {
+          id: 'FRM-FIN-04',
+          code: '06_FIN_FRM-FIN-04',
+          nameVi: 'Bảng Tính Tổng Hợp Chi Phí & Quyết Toán Đơn 269901',
+          nameEn: 'Full Cost Settlement & Margin Sheet (Cleaned)',
+          layout: 'Bảng Tính Quyết Toán Độc Lập',
+          status: 'ĐÃ KHÓA SỔ CÁI',
+          fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-FIN-03_BANG_TINH_TONG_CHI_PHI_VA_QUYET_TOAN_DON_269901_CLEANED',
+          formats: ['XLSX', 'MD'],
+          canPreview: false
+        }
+      ],
+      'MASTER': [
+        {
+          code: '01_BUY_FRM-TRD-01',
+          nameVi: 'Phôi Khung Hợp Đồng Ngoại Thương Dài Hạn',
+          pillar: '01_BUY',
+          file: '01_BUY_FRM-TRD-01_MASTER_SALES_FRAMEWORK_AGREEMENT_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-TRD-02',
+          nameVi: 'Phôi Buyer Purchase Order (PO Khách Ngoại)',
+          pillar: '01_BUY',
+          file: 'FRM-TRD-02_BUYER_PURCHASE_ORDER_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-TRD-03',
+          nameVi: 'Phôi Commercial Invoice (Hóa Đơn Thương Mại)',
+          pillar: '01_BUY',
+          file: 'FRM-TRD-03_COMMERCIAL_INVOICE_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-TRD-04',
+          nameVi: 'Phôi Packing List (Bảng Kê Đóng Gói 10 Cột)',
+          pillar: '01_BUY',
+          file: 'FRM-TRD-04_PACKING_LIST_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-CUS-01',
+          nameVi: 'Phôi Tờ Khai Hải Quan B11 VNACCS Chuẩn (BIFF8)',
+          pillar: '02_CUS',
+          file: 'FRM-CUS-01_CUSTOMS_EXPORT_DECLARATION_B11_MASTER_TEMPLATE',
+          formats: ['XLS', 'MD']
+        },
+        {
+          code: 'FRM-CUS-02',
+          nameVi: 'Phôi Bổ Sung Thông Tin DN Hải Quan 21 Chỉ Tiêu',
+          pillar: '02_CUS',
+          file: 'FRM-CUS-02_CUSTOMS_ENTERPRISE_PROFILE_SUPPLEMENT_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-PRO-01',
+          nameVi: 'Phôi Hợp Đồng Cung Ứng Xưởng Dài Hạn (Nội Địa)',
+          pillar: '03_SUP',
+          file: 'FRM-PRO-01_MASTER_SUPPLIER_FRAMEWORK_AGREEMENT_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-PRO-02',
+          nameVi: 'Phôi Supplier Purchase Order (PO Nhà Cung Cấp)',
+          pillar: '03_SUP',
+          file: 'FRM-PRO-02_SUPPLIER_PURCHASE_ORDER_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-LOG-00',
+          nameVi: 'Phôi Hợp Đồng Vận Tải Đường Bộ Dài Hạn',
+          pillar: '04_LOG',
+          file: 'FRM-LOG-00_MASTER_LOGISTICS_FRAMEWORK_AGREEMENT_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-LOG-01',
+          nameVi: 'Phôi Trucking Waybill (Vận Đơn Lái Xe Chuẩn A4)',
+          pillar: '04_LOG',
+          file: 'FRM-LOG-01_TRUCKING_WAYBILL_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: '04_LOG_FRM-LOG-02',
+          nameVi: 'Phôi Đơn Điều Xe Container PL01 (A4 Dọc 1 Trang)',
+          pillar: '04_LOG',
+          file: '04_LOG_FRM-LOG-02_TRANSPORT_DISPATCH_ORDER_PL01_MASTER_TEMPLATE',
+          formats: ['DOCX', 'PDF', 'MD']
+        },
+        {
+          code: 'FRM-COD-01',
+          nameVi: 'Phôi C/O Form D eCoSys 13 Box Vector PDF',
+          pillar: '05_COD',
+          file: 'FRM-COD-01_CERTIFICATE_OF_ORIGIN_FORM_D_MASTER_TEMPLATE',
+          formats: ['PDF', 'MD']
+        }
+      ]
+    };
+
+    function openOrderDossierModal() {
+      const backdrop = document.getElementById('orderDossierModalBackdrop');
+      if (backdrop) {
+        backdrop.style.display = 'flex';
+        renderDossierPillarsTables();
+      }
+    }
+
+    function closeOrderDossierModal() {
+      const backdrop = document.getElementById('orderDossierModalBackdrop');
+      if (backdrop) backdrop.style.display = 'none';
+    }
+
+    function switchDossierTab(tabId, btn) {
+      document.querySelectorAll('.dossier-tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('#orderDossierModal .tab-btn').forEach(b => b.classList.remove('active'));
+      const target = document.getElementById(tabId);
+      if (target) target.style.display = 'block';
+      if (btn) btn.classList.add('active');
+    }
+
+    function renderDossierPillarsTables() {
+      // 1. Render 01_BUY
+      renderPillarRows('tblDossier01BuyBody', DOSSIER_PILLARS['01_BUY']);
+      // 2. Render 02_CUS
+      renderPillarRows('tblDossier02CusBody', DOSSIER_PILLARS['02_CUS']);
+      // 3. Render 03_SUP
+      renderPillarRows('tblDossier03SupBody', DOSSIER_PILLARS['03_SUP']);
+      // 4. Render 04_LOG
+      renderPillarRows('tblDossier04LogBody', DOSSIER_PILLARS['04_LOG']);
+      // 5. Render 05_COD
+      renderPillarRows('tblDossier05CodBody', DOSSIER_PILLARS['05_COD']);
+      // 6. Render 06_FIN
+      renderPillarRows('tblDossier06FinBody', DOSSIER_PILLARS['06_FIN']);
+      // 7. Render MASTER
+      renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+    }
+
+    function renderPillarRows(tbodyId, docs) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      let html = '';
+      docs.forEach((d, idx) => {
+        const fullDocx = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.docx';
+        const fullPdf = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.pdf';
+        const fullXls = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.xls';
+
+        let buttons = '';
+        if (d.formats.includes('DOCX')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.code}.docx')" style="padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .DOCX]</button>`;
+        }
+        if (d.formats.includes('PDF')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullPdf}', '${d.code}.pdf')" style="background:#059669; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .PDF]</button>`;
+        }
+        if (d.formats.includes('XLS')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.code}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .XLS]</button>`;
+        }
+        if (d.canPreview) {
+          buttons += `<button class="btn btn-sm" onclick="previewDossierDoc('${d.id}')" style="background:#2563eb; color:#fff; border:none; padding:2px 6px; font-size:11px;">[👁 In/Xem]</button>`;
+        }
+
+        html += `
+          <tr>
+            <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
+            <td><code style="font-size:11.5px; color:var(--text-main); font-weight:bold;">${d.code}</code></td>
+            <td>
+              <b style="color:var(--text-main); font-size:12.5px;">${d.nameVi}</b><br>
+              <small style="color:var(--text-muted);">${d.nameEn}</small>
+            </td>
+            <td><span style="font-size:11px; color:var(--text-dim);">${d.layout}</span></td>
+            <td class="text-center"><span class="brand-badge" style="font-size:10px; background:#064e3b; color:#6ee7b7;">${d.status}</span></td>
+            <td class="text-right" style="white-space:nowrap;">${buttons}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function renderMasterRows(tbodyId, docs) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      let html = '';
+      docs.forEach((d, idx) => {
+        const fullDocx = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.docx';
+        const fullPdf = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.pdf';
+        const fullXls = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.xls';
+
+        let buttons = '';
+        if (d.formats.includes('DOCX')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.file}.docx')" style="padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .DOCX]</button>`;
+        }
+        if (d.formats.includes('PDF')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullPdf}', '${d.file}.pdf')" style="background:#059669; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .PDF]</button>`;
+        }
+        if (d.formats.includes('XLS')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.file}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .XLS]</button>`;
+        }
+
+        html += `
+          <tr>
+            <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
+            <td><code style="font-size:11.5px; color:var(--alert-warning-text); font-weight:bold;">${d.code}</code></td>
+            <td><b style="color:var(--text-main); font-size:12.5px;">${d.nameVi}</b></td>
+            <td><span class="brand-badge" style="font-size:10.5px;">${d.pillar}</span></td>
+            <td><span style="font-size:11px; color:var(--text-muted);">${d.formats.join(' · ')}</span></td>
+            <td class="text-right" style="white-space:nowrap;">${buttons}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function downloadDossierDoc(filePath, fileName) {
+      showToastNotification(`⬇ Đang tải file chứng từ: ${fileName}...`);
+      const link = document.createElement('a');
+      link.href = filePath;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadAllDossierZip(orderId) {
+      const zipPath = `${DOSSIER_REGISTRY.baseDir}/${DOSSIER_REGISTRY.zipFilename}`;
+      showToastNotification(`📦 Đang khởi tạo tải trọn bộ ZIP Hồ Sơ Đơn #${orderId} (75.1 MB - 214 Tệp Tin Chuẩn)...`);
+      const link = document.createElement('a');
+      link.href = zipPath;
+      link.download = DOSSIER_REGISTRY.zipFilename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadMasterTemplatesZip() {
+      showToastNotification("📑 Đang tải về danh mục phôi Master Blueprints chuẩn 6 họ chứng từ...");
+      // Tải phôi mẫu PO và CI đại diện nếu tải lẻ
+      downloadDossierDoc(`${DOSSIER_REGISTRY.masterDir}/FRM-TRD-02_BUYER_PURCHASE_ORDER_MASTER_TEMPLATE.docx`, 'FRM-TRD-02_MASTER_PO.docx');
+    }
+
+    function compileCurrentScenarioDossier() {
+      recalculate();
+      const d = window._currentCalcData;
+      if (!d) {
+        showToastNotification("Chưa có dữ liệu kịch bản để biên dịch!");
+        return;
+      }
+      const qty = d.qty || 1300;
+      const quotePrice = d.quotePrice || 15.80;
+      const totalAmount = qty * quotePrice;
+      const incoterms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO';
+
+      showToastNotification(`⚡ ĐÃ ĐỒNG BỘ THÔNG SỐ VÀO BỘ BIÊN DỊCH: ${qty.toLocaleString('vi-VN')} thùng | $${quotePrice.toFixed(2)} USD (${incoterms})! Mọi phôi chứng từ giữ nguyên 100% chuẩn mực.`);
+      
+      const badge = document.getElementById('dossierActiveOrderBadge');
+      if (badge) {
+        badge.innerHTML = `#269901 (LIVE SCENARIO OVERRIDE) — ${qty.toLocaleString('vi-VN')} Thùng · Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD`;
+      }
+    }
+
+    // =========================================================================
+    // POPUP 7: XEM TRƯỚC VÀ IN CHỨNG TỪ CHUẨN A4 ĐƠN SẮC PURE BLACK #000000
+    // =========================================================================
+
+    function openDossierDocPreviewModal(title, htmlContent) {
+      const backdrop = document.getElementById('dossierDocPreviewModalBackdrop');
+      const titleEl = document.getElementById('previewDocTitle');
+      const container = document.getElementById('previewDocContainer');
+      if (backdrop && titleEl && container) {
+        titleEl.innerText = title;
+        container.innerHTML = htmlContent;
+        backdrop.style.display = 'flex';
+      }
+    }
+
+    function closeDossierDocPreviewModal() {
+      const backdrop = document.getElementById('dossierDocPreviewModalBackdrop');
+      if (backdrop) backdrop.style.display = 'none';
+    }
+
+    function printPreviewDocDirect() {
+      const container = document.getElementById('previewDocContainer');
+      if (!container) return;
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${document.getElementById('previewDocTitle').innerText}</title>
+          <style>
+            @page { size: A4 portrait; margin: 12mm 15mm; }
+            body { font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.45; color: #000000; background: #ffffff; margin: 0; padding: 0; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000000; padding: 4px 6px; }
+            th { background: #f8fafc; font-weight: bold; }
+            .no-border, .no-border td { border: none !important; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          ${container.innerHTML}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    function previewDossierDoc(docId) {
+      recalculate();
+      const d = window._currentCalcData || {};
+      const qty = d.qty || 1300;
+      const quotePrice = d.quotePrice || 15.80;
+      const totalAmount = qty * quotePrice;
+      const depositAmount = totalAmount * 0.3;
+      const balanceAmount = totalAmount * 0.7;
+      const curTerms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO BORDER GATE (INCOTERMS 2020)';
+
+      if (docId === 'FRM-TRD-02') {
+        // Buyer Purchase Order (Addendum 01 PO)
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:16px; font-weight:bold;">DUANGMANEE IMPORT-EXPORT CO., LTD</div>
+              <div style="font-size:11.5px;">Tax ID: 0495562000281 | Mukdahan, Thailand</div>
+              <div style="font-size:11.5px;">Representative: Mr. Somchai Duangmanee — Managing Director</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:15px; font-weight:bold;">PURCHASE ORDER</div>
+              <div style="font-size:12px; font-weight:bold;">Addendum No. 01 / PO260901</div>
+              <div style="font-size:11.5px;">Date: 09/09/2026</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px; font-size:12.5px;">
+            <b>Seller (Exporter):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)<br>
+            <b>Address:</b> CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam | Tax ID: 0109469047<br>
+            <b>Legal Rep:</b> Mr. NGUYEN VAN TRUNG — Director | Bank: MB Bank USD (SWIFT: MSCBVNVX)
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:35px;">No.</th>
+                <th style="border:1px solid #000; padding:5px; text-align:left;">Commodity & Technical Specifications</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:90px;">HS Code</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:80px;">Quantity</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right; width:95px;">Unit Price (USD)</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right; width:110px;">Total Amount (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">1</td>
+                <td style="border:1px solid #000; padding:5px;">
+                  <b>Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br>
+                  <small>Spec: 22g/cup x 300 cups/carton (30 cups x 10 bags/box). NW: 6.6 kg/ctn, GW: 8.5 kg/ctn. Origin: Vietnam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">1905.90.80</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL ORDER AMOUNT (FCA):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
+            <b>COMMERCIAL TERMS & PAYMENT SCHEDULE:</b>
+            <ol style="margin:4px 0 0 0; padding-left:18px;">
+              <li><b>Delivery Terms:</b> ${curTerms}. Loading point: Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.</li>
+              <li><b>Payment Term:</b> T/T 2 installments into Seller's USD Account at MB Bank (Vietnam).
+                <ul style="padding-left:16px; margin-top:2px;">
+                  <li><b>Phase 1 (Deposit 30%):</b> $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD upon PO signing.</li>
+                  <li><b>Phase 2 (Balance 70%):</b> $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD before customs release at Lao Bao Border Gate.</li>
+                </ul>
+              </li>
+              <li><b>Title Retention:</b> Ownership of the goods remains with Seller until full 100% payment is received.</li>
+            </ol>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:25px;" class="no-border">
+            <tr>
+              <td style="width:50%; vertical-align:top;">
+                <b>ACCEPTED & CONFIRMED BY BUYER</b><br>
+                DUANGMANEE IMPORT-EXPORT CO., LTD<br><br><br><br>
+                <b>SOMCHAI DUANGMANEE</b><br>Managing Director
+              </td>
+              <td style="width:50%; vertical-align:top;">
+                <b>FOR AND ON BEHALF OF SELLER</b><br>
+                CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br><br><br><br>
+                <b>NGUYEN VAN TRUNG</b><br>Director (Signed & Stamped)
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("BUYER PURCHASE ORDER (ADDENDUM 01 PO #269901)", html);
+
+      } else if (docId === 'FRM-TRD-03') {
+        // Commercial Invoice
+        const netWeight = (qty * 6.6).toLocaleString('vi-VN');
+        const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:18px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+            <div style="font-size:13.5px; font-weight:bold;">GLOBAL SOLUTION SERVICE CO., LTD</div>
+            <div style="font-size:11.5px;">Head Office: CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam | Tax ID: 0109469047</div>
+            <div style="font-size:16px; font-weight:bold; margin-top:10px; text-decoration:underline;">COMMERCIAL INVOICE / HÓA ĐƠN THƯƠNG MẠI</div>
+          </div>
+
+          <table style="width:100%; border:none; margin-bottom:12px; font-size:12px;" class="no-border">
+            <tr>
+              <td style="width:55%;">
+                <b>Invoice No.:</b> GSS-INV-269901<br>
+                <b>Date:</b> 09/09/2026<br>
+                <b>Sales Contract Ref:</b> GSSDIX_FCA_269901<br>
+                <b>Payment Term:</b> T/T 100% in advance of customs release
+              </td>
+              <td style="width:45%;">
+                <b>Buyer:</b> DUANGMANEE IMPORT-EXPORT CO., LTD<br>
+                <b>Address:</b> Mukdahan, Thailand<br>
+                <b>Tax ID:</b> 0495562000281<br>
+                <b>Delivery Term:</b> ${curTerms}
+              </td>
+            </tr>
+          </table>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11.5px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:30px;">No.</th>
+                <th style="border:1px solid #000; padding:4px; text-align:left;">Description of Goods</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:80px;">HS Code</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:70px;">Quantity</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:85px;">Unit Price (USD)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:105px;">Amount (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br>
+                  <small>Specification: 22g/cup x 300 cups/carton. Total cups: ${(qty * 300).toLocaleString('vi-VN')}. Origin: Vietnam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">1905.90.80</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL FCA AMOUNT:</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:12.5px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:12px; margin-bottom:12px;">
+            <b>Total Amount in Words:</b> TWENTY THOUSAND FIVE HUNDRED AND FORTY US DOLLARS ONLY.<br>
+            <b>Total Net Weight:</b> ${netWeight} KGS | <b>Total Gross Weight:</b> ${grossWeight} KGS
+          </div>
+
+          <div style="border:1px solid #000; padding:8px; font-size:11.5px; margin-bottom:16px;">
+            <b>BENEFICIARY BANKING DETAILS (USD WIRE TRANSFER):</b><br>
+            • <b>Beneficiary Name:</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br>
+            • <b>Account No. (USD):</b> 9489773866038 | <b>Bank:</b> Military Commercial Joint Stock Bank (MB Bank)<br>
+            • <b>SWIFT Code:</b> MSCBVNVX | <b>Branch:</b> Ha Noi Branch, Vietnam
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%;"></td>
+              <td style="width:50%;">
+                <b>GLOBAL SOLUTION SERVICE CO., LTD</b><br><br><br><br>
+                <b>NGUYEN VAN TRUNG</b><br>Director (Authorized Signature & Stamp)
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("COMMERCIAL INVOICE (GSS-INV-269901)", html);
+
+      } else if (docId === 'FRM-TRD-04') {
+        // Packing List
+        const totalCbm = (qty * 0.0785).toFixed(2);
+        const netWeight = (qty * 6.6).toLocaleString('vi-VN');
+        const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
+            <div style="font-size:17px; font-weight:bold;">GLOBAL SOLUTION SERVICE CO., LTD</div>
+            <div style="font-size:11.5px;">CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam | Tax ID: 0109469047</div>
+            <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">PACKING LIST / BẢNG KÊ ĐÓNG GÓI CHI TIẾT</div>
+          </div>
+
+          <table style="width:100%; border:none; margin-bottom:10px; font-size:12px;" class="no-border">
+            <tr>
+              <td style="width:50%;">
+                <b>Packing List No.:</b> GSS-PKL-269901<br>
+                <b>Date:</b> 09/09/2026<br>
+                <b>Invoice Ref:</b> GSS-INV-269901
+              </td>
+              <td style="width:50%;">
+                <b>Buyer:</b> DUANGMANEE IMPORT-EXPORT CO., LTD<br>
+                <b>Contract No.:</b> GSSDIX_FCA_269901<br>
+                <b>Delivery Term:</b> ${curTerms}
+              </td>
+            </tr>
+          </table>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Package No.</th>
+                <th style="border:1px solid #000; padding:4px; text-align:left;">Commodity</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Packaging Spec</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Dimensions (mm)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Boxes</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">NW (kg)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">GW (kg)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">Volume (CBM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">0001 - ${qty}</td>
+                <td style="border:1px solid #000; padding:4px;"><b>Crispy Stick Snack</b><br><small>Snack Quẩy Giòn Giòn</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">22g/cup x 300 cups</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">585 x 270 x 497</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${netWeight}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${grossWeight}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${totalCbm}</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="4" style="border:1px solid #000; padding:5px; text-align:right;">TOTAL SUMMARY:</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${qty.toLocaleString('vi-VN')} Cartons</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${netWeight} KG</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${grossWeight} KG</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${totalCbm} CBM</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="border:1px solid #000; padding:8px; font-size:11.5px; margin-bottom:16px;">
+            <b>LOGISTICS & TRUCK SEAL INVARIANT:</b><br>
+            • <b>Loading Factory:</b> Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.<br>
+            • <b>Truck / Container Plate:</b> 19C-123.45 / 19R-678.90 | <b>Customs Bullet Seal No.:</b> VN-CUS-2026-9901<br>
+            • <i>Note: Actual container tare and gross weighbridge certificate will be attached at Border Gate.</i>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%;"></td>
+              <td style="width:50%;">
+                <b>GLOBAL SOLUTION SERVICE CO., LTD</b><br><br><br><br>
+                <b>NGUYEN VAN TRUNG</b><br>Director
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("PACKING LIST (GSS-PKL-269901)", html);
+
+      } else if (docId === 'FRM-PRO-02') {
+        // Supplier PO Thiên Long
+        const cogsTotal = qty * 337000;
+        const vatTotal = cogsTotal * 0.08;
+        const grandTotal = cogsTotal + vatTotal;
+        const depositVnd = grandTotal * 0.3;
+        const balanceVnd = grandTotal * 0.7;
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+            <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội | MST: 0109469047</div>
+            <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">ĐƠN ĐẶT HÀNG MUA BÁNH SNACK (PHỤ LỤC 01 PO)</div>
+            <div style="font-size:12px;">Số: PL01/269901-TL/GSS | Ngày: 09/09/2026</div>
+          </div>
+
+          <div style="margin-bottom:12px; font-size:12.5px;">
+            <b>Bên Mua:</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE — Đại diện: Ông Nguyễn Văn Trung (Giám đốc)<br>
+            <b>Bên Bán (Nhà sản xuất):</b> CÔNG TY TNHH BÁNH KẸO THIÊN LONG (PHÚ THỌ) — MST: 5400512548<br>
+            <b>Địa chỉ xưởng:</b> Cụm Công nghiệp Tử Đà, Huyện Phù Ninh, Tỉnh Phú Thọ
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:35px;">STT</th>
+                <th style="border:1px solid #000; padding:4px; text-align:left;">Tên Hàng Hóa & Quy Cách</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:70px;">ĐVT</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:80px;">Số Lượng</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:110px;">Đơn Giá (VNĐ)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:130px;">Thành Tiền (VNĐ)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>Snack Quẩy Giòn Giòn</b><br>
+                  <small>Quy cách: 22g/cốc x 300 cốc/thùng. Trọng lượng tịnh: 6.6 kg/thùng. Bao gồm bốc xếp lên xe.</small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">337.000 đ</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${cogsTotal.toLocaleString('vi-VN')} đ</td>
+              </tr>
+              <tr>
+                <td colspan="5" style="border:1px solid #000; padding:4px; text-align:right;">Thuế GTGT đầu vào (8%):</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${vatTotal.toLocaleString('vi-VN')} đ</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TỔNG GIÁ TRỊ THANH TOÁN (ĐÃ GỒM VAT 8%):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">${grandTotal.toLocaleString('vi-VN')} đ</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
+            <b>ĐIỀU KHOẢN VẬN HÀNH & BẢO ĐẢM HOÀN THUẾ:</b>
+            <ol style="margin:4px 0 0 0; padding-left:18px;">
+              <li><b>Đã bao gồm bốc xếp:</b> Giá bán 337.000 đ/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng Phú Thọ.</li>
+              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND `2991116668888`. Đợt 1 (Cọc 30%): ${depositVnd.toLocaleString('vi-VN')} đ. Đợt 2 (70%): ${balanceVnd.toLocaleString('vi-VN')} đ khi xuất hóa đơn GTGT.</li>
+              <li><b>Cam kết hồ sơ thuế:</b> Bên Bán cam kết cung cấp đầy đủ bảng kê hóa đơn nguyên liệu đầu vào và chịu trách nhiệm bảo lãnh hoàn thuế GTGT 0% cho Bên Mua.</li>
+            </ol>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%; vertical-align:top;">
+                <b>ĐẠI DIỆN BÊN BÁN (NHÀ MÁY)</b><br>
+                CÔNG TY TNHH BÁNH KẸO THIÊN LONG<br><br><br><br>
+                <b>LÊ VĂN LONG</b><br>Giám Đốc
+              </td>
+              <td style="width:50%; vertical-align:top;">
+                <b>ĐẠI DIỆN BÊN MUA</b><br>
+                CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br><br><br><br>
+                <b>NGUYỄN VĂN TRUNG</b><br>Giám Đốc
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("ĐƠN ĐẶT HÀNG MUA BÁNH SNACK THIÊN LONG (PL01)", html);
+
+      } else if (docId === 'FRM-LOG-01') {
+        // Trucking Waybill (ẨN GIÁ VỐN THEO RULE BẢO VỆ TẦNG 2)
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
+            <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH VẬN TẢI VĨNH THÀNH — VINH THANH LOGISTICS</div>
+            <div style="font-size:11.5px;">Quốc Lộ 1A, TP. Đông Hà, Quảng Trị | MST: 3200722417</div>
+            <div style="font-size:15px; font-weight:bold; margin-top:6px; text-decoration:underline;">TRUCKING WAYBILL / VẬN ĐƠN ĐƯỜNG BỘ NỘI ĐỊA</div>
+            <div style="font-size:12px;">Số / Waybill No: VTL20260921 | FREIGHT PREPAID (CƯỚC ĐÃ TRẢ TRỌN GÓI)</div>
+          </div>
+
+          <div style="margin-bottom:10px; font-size:12px;">
+            <b>Người gửi hàng (Shipper):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE (GSS) — MST: 0109469047<br>
+            <b>Địa điểm nhận hàng (Origin):</b> Kho Nhà máy Bánh kẹo Thiên Long, Cụm CN Tử Đà, Phù Ninh, Phú Thọ<br>
+            <b>Địa điểm trả hàng (Destination):</b> Cửa khẩu Quốc tế Lao Bảo, Huyện Hướng Hóa, Tỉnh Quảng Trị<br>
+            <b>Người nhận hàng (Consignee):</b> Theo chỉ định của Tờ khai Hải quan B11 (GSS)
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11.5px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px;">Tên Hàng Hóa</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Số Lượng</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Trọng Lượng (NW)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Trọng Lượng Cả Bì (GW)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Thể Tích (CBM)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Tình Trạng Hàng Khi Bốc</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:4px;"><b>Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br><small>Mã HS: 1905.90.80</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 6.6).toLocaleString('vi-VN')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 8.5).toLocaleString('vi-VN')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 0.0785).toFixed(2)} CBM</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Nguyên đai nguyên kiện, khô ráo 100%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="border:1px solid #000; padding:8px; font-size:11.5px; margin-bottom:16px;">
+            <b>CAM KẾT LÁI XE & BẢO MẬT NGOẠI THƯƠNG (RULE R16):</b><br>
+            • Biển số đầu kéo: <b>19C-123.45</b> | Biển số sơ-mi rơ-moóc: <b>19R-678.90</b><br>
+            • Lái xe: <b>Trần Văn Nam</b> (CCCD: 025088001234) — SĐT: 0988.123.456<br>
+            • <i>Lái xe cam kết bảo quản hàng hóa không bị ướt, móp méo, chịu chế tài bồi thường 100% nếu đứt gãy và bảo mật thông tin hành trình.</i>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:33%;"><b>NGƯỜI GỬI HÀNG (GSS)</b><br><br><br><br>Đã bàn giao xe</td>
+              <td style="width:33%;"><b>LÁI XE TIẾP NHẬN</b><br><br><br><br>Trần Văn Nam</td>
+              <td style="width:33%;"><b>ĐẠI DIỆN VẬN TẢI VĨNH THÀNH</b><br><br><br><br>Ký đóng dấu</td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("TRUCKING WAYBILL (VẬN ĐƠN ĐƯỜNG BỘ VĨNH THÀNH)", html);
+
+      } else {
+        showToastNotification("Chứng từ này sẵn sàng tải trực tiếp dưới dạng file .DOCX và .PDF.");
       }
     }
 
