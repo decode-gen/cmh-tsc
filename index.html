@@ -504,6 +504,84 @@
     .text-center { text-align: center; }
     .font-bold { font-weight: bold; }
 
+    /* SEARCHABLE COMBOBOX COMPONENT (/cmh-ui Standard) */
+    .combobox-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    .combobox-menu {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      right: 0;
+      max-height: 280px;
+      overflow-y: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      z-index: 1000;
+    }
+    .combobox-group-header {
+      font-size: 10.5px;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 5px 8px;
+      background: var(--bg-cockpit-panel);
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-subtle);
+      letter-spacing: 0.3px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .combobox-item {
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.15s ease;
+    }
+    .combobox-item:last-child {
+      border-bottom: none;
+    }
+    .combobox-item:hover, .combobox-item.focused {
+      background: var(--bg-card-hover);
+    }
+    html[data-theme="light"] .combobox-item:hover, html[data-theme="light"] .combobox-item.focused {
+      background: #eaeaea;
+    }
+    .combobox-item.selected {
+      font-weight: bold;
+      border-left: 3px solid var(--accent-gold);
+      background: rgba(234, 179, 8, 0.08);
+    }
+    html[data-theme="light"] .combobox-item.selected {
+      border-left: 3px solid #000000;
+      background: #f0f0f0;
+    }
+    .combobox-item .item-title {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .combobox-item .item-badge {
+      font-size: 10px;
+      font-family: monospace;
+      padding: 1px 5px;
+      border-radius: 2px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     /* Alert Banner */
     .alert-banner {
       background: var(--alert-critical-bg);
@@ -944,12 +1022,28 @@
               <label style="font-size:11px; color:var(--text-muted); margin-bottom:0;">Chọn Set Kịch Bản Đã Lưu (SSOT Presets):</label>
               <span style="color:var(--text-dim); font-size:10.5px;" id="lblScenarioCount">5 kịch bản SSOT</span>
             </div>
-            <div style="display:flex; gap:5px;">
-              <select id="scenarioSelect" class="form-control font-bold" onchange="onScenarioSelectChange()" style="flex:1; font-size:12px; height:28px; background:var(--bg-card); color:var(--text-main);">
-                <!-- Populated dynamically -->
-              </select>
-              <button type="button" id="btnNewScenario" class="btn btn-sm" onclick="startNewScenarioDraft()" style="background:var(--accent-gold); color:#000; font-weight:bold; border:none; font-size:11px; padding:2px 9px; white-space:nowrap; border-radius:2px; cursor:pointer;" data-tooltip="Bắt đầu thiết lập kịch bản mới (chọn biến trước, sinh tên sau)">➕ Tạo Mới</button>
-              <button type="button" class="btn btn-sm" onclick="deleteCurrentScenario()" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--border-strong); font-size:11px; padding:2px 6px; border-radius:2px; cursor:pointer;" data-tooltip="Xóa Set Kịch Bản Đang Chọn">🗑️</button>
+            <div style="display:flex; gap:5px; align-items:center;">
+              <div class="combobox-wrapper" id="scenarioComboboxWrapper">
+                <div style="display: flex; align-items: center; position: relative;">
+                  <input type="text" id="scenarioSearchInput" class="form-control font-bold" 
+                         placeholder="🔍 Gõ mã kịch bản, tuyến, loại xe, số thùng để tìm..." 
+                         autocomplete="off"
+                         onfocus="openScenarioDropdown()" 
+                         oninput="filterScenarioDropdown()" 
+                         onkeydown="handleScenarioComboboxKeydown(event)"
+                         style="width: 100%; height: 28px; font-size: 12px; padding-right: 26px; background: var(--bg-card); color: var(--text-main);">
+                  <button type="button" onclick="toggleScenarioDropdown(event)" 
+                          data-tooltip="Mở danh sách kịch bản SSOT"
+                          style="position: absolute; right: 2px; top: 2px; bottom: 2px; width: 22px; background: transparent; border: none; cursor: pointer; color: var(--text-dim); font-size: 10px; display: flex; align-items: center; justify-content: center;">
+                    ▼
+                  </button>
+                </div>
+                <!-- Custom Dropdown Menu -->
+                <div id="scenarioDropdownMenu" class="combobox-menu" style="display: none;"></div>
+              </div>
+              <select id="scenarioSelect" style="display:none;" onchange="onScenarioSelectChange()"></select>
+              <button type="button" id="btnNewScenario" class="btn btn-sm" onclick="startNewScenarioDraft()" style="background:var(--accent-gold); color:#000; font-weight:bold; border:none; font-size:11px; padding:2px 9px; height:28px; white-space:nowrap; border-radius:2px; cursor:pointer;" data-tooltip="Bắt đầu thiết lập kịch bản mới (chọn biến trước, sinh tên sau)">➕ Tạo Mới</button>
+              <button type="button" class="btn btn-sm" onclick="deleteCurrentScenario()" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--border-strong); font-size:11px; padding:2px 6px; height:28px; border-radius:2px; cursor:pointer;" data-tooltip="Xóa Set Kịch Bản Đang Chọn">🗑️</button>
             </div>
           </div>
 
@@ -2542,20 +2636,101 @@
       } catch (e) {}
     }
 
-    function renderScenarioDropdown() {
+    function removeVietnameseTones(str) {
+      if (!str) return '';
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toLowerCase();
+    }
+
+    let scenarioComboboxFocusedIndex = -1;
+
+    function renderScenarioDropdown(filterKeyword = '') {
       const sel = document.getElementById('scenarioSelect');
-      if (!sel) return;
-      sel.innerHTML = '';
-      scenariosMaster.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        const displayLabel = (s.name && s.name !== s.id) ? `${s.id} — ${s.name}` : s.id;
-        opt.innerText = `${displayLabel} ${s.isDefault ? '⭐ [MẶC ĐỊNH]' : ''}`;
-        sel.appendChild(opt);
-      });
-      sel.value = activeScenarioId;
+      if (sel) {
+        sel.innerHTML = '';
+        scenariosMaster.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          const displayLabel = (s.name && s.name !== s.id) ? `${s.id} — ${s.name}` : s.id;
+          opt.innerText = `${displayLabel} ${s.isDefault ? '⭐ [MẶC ĐỊNH]' : ''}`;
+          sel.appendChild(opt);
+        });
+        sel.value = activeScenarioId;
+      }
+
+      const menu = document.getElementById('scenarioDropdownMenu');
+      const input = document.getElementById('scenarioSearchInput');
+      const normKw = removeVietnameseTones(filterKeyword || '').trim();
+
+      if (menu) {
+        menu.innerHTML = '';
+        const defOrActualScenarios = [];
+        const simScenarios = [];
+
+        scenariosMaster.forEach(s => {
+          const searchTarget = removeVietnameseTones(`${s.id} ${s.name || ''} ${s.terms || ''} ${s.vehicle || ''} ${s.boxQty || ''}`);
+          if (!normKw || searchTarget.includes(normKw)) {
+            if (s.isDefault || s.id.includes('269901') || s.isCompletedOrder) {
+              defOrActualScenarios.push(s);
+            } else {
+              simScenarios.push(s);
+            }
+          }
+        });
+
+        let totalVisible = 0;
+
+        if (defOrActualScenarios.length > 0) {
+          const gHeader = document.createElement('div');
+          gHeader.className = 'combobox-group-header';
+          gHeader.textContent = '⭐ KỊCH BẢN MẶC ĐỊNH & ĐƠN THỰC TẾ (SSOT)';
+          menu.appendChild(gHeader);
+
+          defOrActualScenarios.forEach(s => {
+            const item = createScenarioComboboxItem(s);
+            menu.appendChild(item);
+            totalVisible++;
+          });
+        }
+
+        if (simScenarios.length > 0) {
+          const gHeader = document.createElement('div');
+          gHeader.className = 'combobox-group-header';
+          gHeader.textContent = '🔮 DỰ TOÁN MÔ PHỎNG & KHẢO SÁT (SIMULATION)';
+          menu.appendChild(gHeader);
+
+          simScenarios.forEach(s => {
+            const item = createScenarioComboboxItem(s);
+            menu.appendChild(item);
+            totalVisible++;
+          });
+        }
+
+        if (totalVisible === 0) {
+          const emptyItem = document.createElement('div');
+          emptyItem.style.padding = '10px';
+          emptyItem.style.textAlign = 'center';
+          emptyItem.style.color = 'var(--text-dim)';
+          emptyItem.style.fontSize = '11.5px';
+          emptyItem.textContent = `Không tìm thấy kịch bản nào khớp với "${filterKeyword}"`;
+          menu.appendChild(emptyItem);
+        }
+      }
 
       const activeScn = scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0];
+      if (activeScn && !filterKeyword && input && document.activeElement !== input) {
+        if (isDraftMode || activeScenarioId === 'DRAFT_NEW') {
+          input.value = '📝 [ĐANG THIẾT LẬP KỊCH BẢN MỚI]';
+        } else {
+          const icon = activeScn.isDefault ? '⭐' : (activeScn.id.includes('269901') ? '📜' : '🔮');
+          input.value = `${icon} [${activeScn.id}] ${activeScn.name || activeScn.id}`;
+        }
+      }
+
       const nameInput = document.getElementById('scenarioName');
       if (nameInput && activeScn && !isDraftMode) {
         nameInput.value = activeScn.id;
@@ -2569,6 +2744,134 @@
 
       updateScenarioBadge(activeScn);
     }
+
+    function createScenarioComboboxItem(s) {
+      const el = document.createElement('div');
+      el.className = 'combobox-item' + (s.id === activeScenarioId ? ' selected' : '');
+      el.setAttribute('data-id', s.id);
+      const icon = s.isDefault ? '⭐' : (s.id.includes('269901') ? '📜' : '🔮');
+
+      el.innerHTML = `
+        <div class="item-title">
+          <span>${icon}</span>
+          <b>[${s.id}]</b>
+          <span style="color:var(--text-muted); font-size:11.5px;">${s.name || s.id}</span>
+        </div>
+        <span class="item-badge">${(s.boxQty || 1300).toLocaleString('vi-VN')} thùng · ${s.terms || 'FCA'}</span>
+      `;
+
+      el.onclick = function(e) {
+        e.stopPropagation();
+        selectScenario(s.id);
+      };
+
+      return el;
+    }
+
+    function openScenarioDropdown() {
+      const menu = document.getElementById('scenarioDropdownMenu');
+      const input = document.getElementById('scenarioSearchInput');
+      if (!menu) return;
+      renderScenarioDropdown('');
+      menu.style.display = 'block';
+      if (input) input.select();
+    }
+
+    function closeScenarioDropdown() {
+      const menu = document.getElementById('scenarioDropdownMenu');
+      if (menu) menu.style.display = 'none';
+      scenarioComboboxFocusedIndex = -1;
+      const input = document.getElementById('scenarioSearchInput');
+      const activeScn = scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0];
+      if (activeScn && input) {
+        if (isDraftMode || activeScenarioId === 'DRAFT_NEW') {
+          input.value = '📝 [ĐANG THIẾT LẬP KỊCH BẢN MỚI]';
+        } else {
+          const icon = activeScn.isDefault ? '⭐' : (activeScn.id.includes('269901') ? '📜' : '🔮');
+          input.value = `${icon} [${activeScn.id}] ${activeScn.name || activeScn.id}`;
+        }
+      }
+    }
+
+    function toggleScenarioDropdown(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('scenarioDropdownMenu');
+      if (!menu) return;
+      if (menu.style.display === 'block') {
+        closeScenarioDropdown();
+      } else {
+        openScenarioDropdown();
+      }
+    }
+
+    function filterScenarioDropdown() {
+      const input = document.getElementById('scenarioSearchInput');
+      const menu = document.getElementById('scenarioDropdownMenu');
+      if (!input || !menu) return;
+      menu.style.display = 'block';
+      renderScenarioDropdown(input.value);
+    }
+
+    function selectScenario(scnId) {
+      const scn = scenariosMaster.find(s => s.id === scnId);
+      if (!scn) return;
+      isDraftMode = false;
+      applyScenario(scn);
+      const helper = document.getElementById('nidHelperText');
+      if (helper) {
+        helper.innerHTML = `Đang nạp: <b style="color:var(--text-main);">${scn.name || scn.id}</b>`;
+      }
+      showToastNotification(`📑 Đã nạp Set kịch bản SSOT: ${scn.id}`);
+      closeScenarioDropdown();
+    }
+
+    function handleScenarioComboboxKeydown(e) {
+      const menu = document.getElementById('scenarioDropdownMenu');
+      if (!menu) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (menu.style.display !== 'block') {
+          openScenarioDropdown();
+          return;
+        }
+        const items = menu.querySelectorAll('.combobox-item');
+        if (items.length === 0) return;
+        scenarioComboboxFocusedIndex = (scenarioComboboxFocusedIndex + 1) % items.length;
+        items.forEach((it, idx) => it.classList.toggle('focused', idx === scenarioComboboxFocusedIndex));
+        if (items[scenarioComboboxFocusedIndex]) items[scenarioComboboxFocusedIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (menu.style.display !== 'block') return;
+        const items = menu.querySelectorAll('.combobox-item');
+        if (items.length === 0) return;
+        scenarioComboboxFocusedIndex = (scenarioComboboxFocusedIndex - 1 + items.length) % items.length;
+        items.forEach((it, idx) => it.classList.toggle('focused', idx === scenarioComboboxFocusedIndex));
+        if (items[scenarioComboboxFocusedIndex]) items[scenarioComboboxFocusedIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const items = menu.querySelectorAll('.combobox-item');
+        if (scenarioComboboxFocusedIndex >= 0 && items[scenarioComboboxFocusedIndex]) {
+          const id = items[scenarioComboboxFocusedIndex].getAttribute('data-id');
+          if (id) selectScenario(id);
+        } else if (items.length > 0) {
+          const id = items[0].getAttribute('data-id');
+          if (id) selectScenario(id);
+        }
+      } else if (e.key === 'Escape') {
+        closeScenarioDropdown();
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const wrapper = document.getElementById('scenarioComboboxWrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        const menu = document.getElementById('scenarioDropdownMenu');
+        if (menu && menu.style.display === 'block') {
+          closeScenarioDropdown();
+        }
+      }
+    });
 
     function updateScenarioBadge(scn) {
       const badge = document.getElementById('currentScenarioBadge');
@@ -2688,6 +2991,11 @@
       }
       const sel = document.getElementById('scenarioSelect');
       if (sel) sel.value = scn.id;
+      const searchInput = document.getElementById('scenarioSearchInput');
+      if (searchInput && document.activeElement !== searchInput) {
+        const icon = scn.isDefault ? '⭐' : (scn.id.includes('269901') ? '📜' : '🔮');
+        searchInput.value = `${icon} [${scn.id}] ${scn.name || scn.id}`;
+      }
       isDraftMode = false;
       updateScenarioBadge(scn);
     }
@@ -2720,12 +3028,22 @@
             opt.innerText = `${displayLabel} ${curScn.isDefault ? '⭐ [MẶC ĐỊNH]' : ''}`;
           }
         }
+        const searchInput = document.getElementById('scenarioSearchInput');
+        if (searchInput && document.activeElement !== searchInput) {
+          const icon = curScn.isDefault ? '⭐' : (curScn.id.includes('269901') ? '📜' : '🔮');
+          searchInput.value = `${icon} [${curScn.id}] ${curScn.name || curScn.id}`;
+        }
       }
     }
 
     function startNewScenarioDraft() {
       isDraftMode = true;
       activeScenarioId = 'DRAFT_NEW';
+
+      const searchInput = document.getElementById('scenarioSearchInput');
+      if (searchInput) {
+        searchInput.value = '📝 [ĐANG THIẾT LẬP KỊCH BẢN MỚI]';
+      }
 
       // Làm trống ô Name ID để người dùng thiết lập biến trước!
       const nameInput = document.getElementById('scenarioName');

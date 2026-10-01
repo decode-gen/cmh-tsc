@@ -517,7 +517,82 @@
       font-family: var(--font-mono-numbers);
       font-size: 12px;
       padding: 8px;
-      resize: vertical;
+    /* SEARCHABLE COMBOBOX COMPONENT */
+    .combobox-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    .combobox-menu {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      right: 0;
+      max-height: 280px;
+      overflow-y: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      z-index: 1000;
+    }
+    .combobox-group-header {
+      font-size: 10.5px;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 5px 8px;
+      background: var(--bg-cockpit-panel);
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-subtle);
+      letter-spacing: 0.3px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .combobox-item {
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: var(--transition-tactile);
+    }
+    .combobox-item:last-child {
+      border-bottom: none;
+    }
+    .combobox-item:hover, .combobox-item.focused {
+      background: var(--bg-card-hover);
+    }
+    html[data-theme="light"] .combobox-item:hover, html[data-theme="light"] .combobox-item.focused {
+      background: #eaeaea;
+    }
+    .combobox-item.selected {
+      font-weight: bold;
+      border-left: 3px solid var(--accent-save);
+      background: rgba(34, 197, 94, 0.08);
+    }
+    html[data-theme="light"] .combobox-item.selected {
+      border-left: 3px solid #000000;
+      background: #f0f0f0;
+    }
+    .combobox-item .item-title {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .combobox-item .item-badge {
+      font-size: 10px;
+      font-family: var(--font-mono-numbers);
+      padding: 1px 5px;
+      border-radius: 2px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* PRINT RULES */
@@ -648,9 +723,26 @@
           </span>
         </div>
         <div style="display: flex; gap: 5px; margin-bottom: 6px;">
-          <select id="orderSelect" class="input-3d font-bold" onchange="onOrderSelectChange()" style="flex: 1; height: 28px; font-size: 12px;">
-            <!-- Render động từ ordersMaster -->
-          </select>
+          <div class="combobox-wrapper" id="orderComboboxWrapper">
+            <div style="display: flex; align-items: center; position: relative;">
+              <input type="text" id="orderSearchInput" class="input-3d font-bold" 
+                     placeholder="🔍 Gõ mã đơn, loại xe, tuyến giao để tìm..." 
+                     autocomplete="off"
+                     onfocus="openOrderDropdown()" 
+                     oninput="filterOrderDropdown()" 
+                     onkeydown="handleOrderComboboxKeydown(event)"
+                     style="width: 100%; height: 28px; font-size: 12px; padding-right: 26px;">
+              <button type="button" onclick="toggleOrderDropdown(event)" 
+                      title="Mở danh sách đơn hàng"
+                      style="position: absolute; right: 2px; top: 2px; bottom: 2px; width: 22px; background: transparent; border: none; cursor: pointer; color: var(--text-dim); font-size: 10px; display: flex; align-items: center; justify-content: center;">
+                ▼
+              </button>
+            </div>
+            <!-- Custom Dropdown Menu -->
+            <div id="orderDropdownMenu" class="combobox-menu" style="display: none;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
           <button type="button" class="btn-3d" onclick="openNewOrderModal()" title="Thêm Đơn hàng thực tế mới hoặc Dự toán mô phỏng mới" style="padding: 2px 8px; font-size: 11px; white-space: nowrap; border-color: var(--accent-tax); color: var(--accent-tax); font-weight: bold;">
             ➕ Tạo Mới
           </button>
@@ -1349,36 +1441,214 @@
     } catch (e) {}
   }
 
-  function renderOrderDropdown() {
-    const sel = document.getElementById('orderSelect');
-    if (!sel) return;
-    sel.innerHTML = '';
+  let comboboxFocusedIndex = -1;
 
-    const groupCompleted = document.createElement('optgroup');
-    groupCompleted.label = '📜 ĐƠN HÀNG THỰC TẾ ĐÃ HOÀN THÀNH (SETTLEMENT)';
+  function removeVietnameseTones(str) {
+    if (!str) return '';
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i');
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o');
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u');
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y');
+    str = str.replace(/đ/g, 'd');
+    str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, 'A');
+    str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, 'E');
+    str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, 'I');
+    str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, 'O');
+    str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, 'U');
+    str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, 'Y');
+    str = str.replace(/Đ/g, 'D');
+    return str.toLowerCase();
+  }
 
-    const groupSim = document.createElement('optgroup');
-    groupSim.label = '🔮 DỰ TOÁN MÔ PHỎNG LỢI NHUẬN (SIMULATION)';
+  function renderOrderDropdown(filterKeyword = '') {
+    const menu = document.getElementById('orderDropdownMenu');
+    const input = document.getElementById('orderSearchInput');
+    if (!menu) return;
+
+    const normKw = removeVietnameseTones(filterKeyword.trim());
+    menu.innerHTML = '';
+
+    const completedOrders = [];
+    const simOrders = [];
 
     Object.keys(ordersMaster).forEach(k => {
       const ord = ordersMaster[k];
-      const opt = document.createElement('option');
-      opt.value = ord.id;
-      const typeIcon = (ord.type === 'COMPLETED') ? '📜' : '🔮';
-      opt.textContent = `${typeIcon} ${ord.id} — ${ord.name || ord.id}`;
-      if (ord.type === 'COMPLETED') {
-        groupCompleted.appendChild(opt);
-      } else {
-        groupSim.appendChild(opt);
+      const matchTarget = removeVietnameseTones(`${ord.id} ${ord.name || ''} ${ord.type || ''}`);
+      if (!normKw || matchTarget.includes(normKw)) {
+        if (ord.type === 'COMPLETED') completedOrders.push(ord);
+        else simOrders.push(ord);
       }
     });
 
-    sel.appendChild(groupCompleted);
-    sel.appendChild(groupSim);
-    sel.value = activeOrderId;
+    let totalVisible = 0;
 
-    updateOrderBadgeAndMeta(ordersMaster[activeOrderId] || ordersMaster['269901']);
+    // 1. Nhóm Đơn hàng thực tế
+    if (completedOrders.length > 0) {
+      const gHeader = document.createElement('div');
+      gHeader.className = 'combobox-group-header';
+      gHeader.textContent = '📜 ĐƠN HÀNG THỰC TẾ ĐÃ HOÀN THÀNH (SETTLEMENT)';
+      menu.appendChild(gHeader);
+
+      completedOrders.forEach(ord => {
+        const item = createComboboxItem(ord);
+        menu.appendChild(item);
+        totalVisible++;
+      });
+    }
+
+    // 2. Nhóm Dự toán mô phỏng
+    if (simOrders.length > 0) {
+      const gHeader = document.createElement('div');
+      gHeader.className = 'combobox-group-header';
+      gHeader.textContent = '🔮 DỰ TOÁN MÔ PHỎNG LỢI NHUẬN (SIMULATION)';
+      menu.appendChild(gHeader);
+
+      simOrders.forEach(ord => {
+        const item = createComboboxItem(ord);
+        menu.appendChild(item);
+        totalVisible++;
+      });
+    }
+
+    if (totalVisible === 0) {
+      const emptyItem = document.createElement('div');
+      emptyItem.style.padding = '10px';
+      emptyItem.style.textAlign = 'center';
+      emptyItem.style.color = 'var(--text-dim)';
+      emptyItem.style.fontSize = '11.5px';
+      emptyItem.textContent = `Không tìm thấy đơn hàng / kịch bản nào khớp với "${filterKeyword}"`;
+      menu.appendChild(emptyItem);
+    }
+
+    // Cập nhật ô input với thông tin đơn đang kích hoạt nếu không đang tìm kiếm
+    const curOrd = ordersMaster[activeOrderId] || ordersMaster['269901'];
+    if (curOrd && !filterKeyword && input && document.activeElement !== input) {
+      const icon = curOrd.type === 'COMPLETED' ? '📜' : '🔮';
+      input.value = `${icon} [${curOrd.id}] ${curOrd.name || curOrd.id}`;
+    }
+
+    updateOrderBadgeAndMeta(curOrd);
   }
+
+  function createComboboxItem(ord) {
+    const el = document.createElement('div');
+    el.className = 'combobox-item' + (ord.id === activeOrderId ? ' selected' : '');
+    el.setAttribute('data-id', ord.id);
+    const icon = (ord.type === 'COMPLETED') ? '📜' : '🔮';
+
+    el.innerHTML = `
+      <div class="item-title">
+        <span>${icon}</span>
+        <b>[${ord.id}]</b>
+        <span style="color:var(--text-muted); font-size:11.5px;">${ord.name || ord.id}</span>
+      </div>
+      <span class="item-badge">${(ord.boxQty || 1300).toLocaleString('vi-VN')} thùng</span>
+    `;
+
+    el.onclick = function(e) {
+      e.stopPropagation();
+      selectOrder(ord.id);
+    };
+
+    return el;
+  }
+
+  function openOrderDropdown() {
+    const menu = document.getElementById('orderDropdownMenu');
+    const input = document.getElementById('orderSearchInput');
+    if (!menu) return;
+    renderOrderDropdown('');
+    menu.style.display = 'block';
+    if (input) input.select();
+  }
+
+  function closeOrderDropdown() {
+    const menu = document.getElementById('orderDropdownMenu');
+    if (menu) menu.style.display = 'none';
+    comboboxFocusedIndex = -1;
+    const input = document.getElementById('orderSearchInput');
+    const curOrd = ordersMaster[activeOrderId] || ordersMaster['269901'];
+    if (curOrd && input) {
+      const icon = curOrd.type === 'COMPLETED' ? '📜' : '🔮';
+      input.value = `${icon} [${curOrd.id}] ${curOrd.name || curOrd.id}`;
+    }
+  }
+
+  function toggleOrderDropdown(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('orderDropdownMenu');
+    if (!menu) return;
+    if (menu.style.display === 'block') {
+      closeOrderDropdown();
+    } else {
+      openOrderDropdown();
+    }
+  }
+
+  function filterOrderDropdown() {
+    const input = document.getElementById('orderSearchInput');
+    const menu = document.getElementById('orderDropdownMenu');
+    if (!input || !menu) return;
+    menu.style.display = 'block';
+    renderOrderDropdown(input.value);
+  }
+
+  function selectOrder(orderId) {
+    if (!ordersMaster[orderId]) return;
+    activeOrderId = orderId;
+    applyOrderRecord(ordersMaster[orderId]);
+    closeOrderDropdown();
+  }
+
+  function handleOrderComboboxKeydown(e) {
+    const menu = document.getElementById('orderDropdownMenu');
+    if (!menu) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (menu.style.display !== 'block') {
+        openOrderDropdown();
+        return;
+      }
+      const items = menu.querySelectorAll('.combobox-item');
+      if (items.length === 0) return;
+      comboboxFocusedIndex = (comboboxFocusedIndex + 1) % items.length;
+      items.forEach((it, idx) => it.classList.toggle('focused', idx === comboboxFocusedIndex));
+      if (items[comboboxFocusedIndex]) items[comboboxFocusedIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (menu.style.display !== 'block') return;
+      const items = menu.querySelectorAll('.combobox-item');
+      if (items.length === 0) return;
+      comboboxFocusedIndex = (comboboxFocusedIndex - 1 + items.length) % items.length;
+      items.forEach((it, idx) => it.classList.toggle('focused', idx === comboboxFocusedIndex));
+      if (items[comboboxFocusedIndex]) items[comboboxFocusedIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const items = menu.querySelectorAll('.combobox-item');
+      if (comboboxFocusedIndex >= 0 && items[comboboxFocusedIndex]) {
+        const id = items[comboboxFocusedIndex].getAttribute('data-id');
+        if (id) selectOrder(id);
+      } else if (items.length > 0) {
+        const id = items[0].getAttribute('data-id');
+        if (id) selectOrder(id);
+      }
+    } else if (e.key === 'Escape') {
+      closeOrderDropdown();
+    }
+  }
+
+  document.addEventListener('click', function(e) {
+    const wrapper = document.getElementById('orderComboboxWrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      const menu = document.getElementById('orderDropdownMenu');
+      if (menu && menu.style.display === 'block') {
+        closeOrderDropdown();
+      }
+    }
+  });
 
   function updateOrderBadgeAndMeta(ord) {
     if (!ord) return;
