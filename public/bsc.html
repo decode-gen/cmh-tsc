@@ -752,6 +752,9 @@
           <button type="button" class="btn-3d" onclick="deleteActiveOrder()" title="Xóa Đơn / Dự toán đang chọn (Đơn 269901 được bảo vệ vĩnh viễn)" style="padding: 2px 6px; font-size: 11px; color: #ef4444;">
             🗑️
           </button>
+          <button type="button" class="btn-3d" onclick="purgeAllSimulationOrders()" title="Dọn dẹp sạch toàn bộ các đơn mô phỏng / dự toán giả lập, chỉ giữ lại Đơn 269901 SSOT" style="padding: 2px 7px; font-size: 11px; white-space: nowrap; border-color: var(--border-strong); color: var(--text-dim);">
+            🧹 Dọn Mô Phỏng
+          </button>
         </div>
         <div id="orderMetaSummary" style="font-size: 11px; color: var(--text-dim); line-height: 1.35;">
           <!-- Rendered dynamically -->
@@ -1285,12 +1288,14 @@
   // CẦU NỐI ĐỒNG BỘ DỮ LIỆU VỚI BUỒNG LÁI CMH-TSC
   const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
   const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
-  const CMH_BSC_STORAGE_ORDERS_KEY = 'CMH_BSC_ORDERS_MASTER_V1';
+  const CMH_BSC_STORAGE_ORDERS_KEY = 'CMH_BSC_ORDERS_MASTER_V2';
 
+  // SSOT CHỈ LƯU GIỮ DUY NHẤT ĐƠN HÀNG THỰC TẾ ĐÃ HOÀN THÀNH #269901
+  // TOÀN BỘ CÁC ĐƠN HÀNG MÔ PHỎNG GIẢ ĐỊNH ĐÃ BỊ DỌN SẠCH TRIỆT ĐỂ (/cmh-tk Zero Hallucination)
   const DEFAULT_ORDERS_MASTER = {
     '269901': {
       id: '269901',
-      name: 'Đơn 269901 — 1.300 thùng Snack Quẩy (HOWO 15.6m · Lao Bảo) [CHỐT THỰC TẾ]',
+      name: 'Đơn 269901 — 1.300 thùng Snack Quẩy Giòn Giòn (HOWO 15.6m · Lao Bảo) [CHỐT THỰC TẾ SSOT]',
       type: 'COMPLETED',
       boxQty: 1300,
       unitPriceVnd: 337000,
@@ -1315,82 +1320,6 @@
         { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
         { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
       ]
-    },
-    '269902': {
-      id: '269902',
-      name: 'Đơn 269902 — 1.300 thùng Snack Quẩy (HOWO 15.6m · CPT Savannakhet) [MẪU HOÀN THÀNH]',
-      type: 'COMPLETED',
-      boxQty: 1300,
-      unitPriceVnd: 337000,
-      unitPriceUsd: 16.50,
-      revenueUsd: 21450,
-      exchangeRate: 25790,
-      costFactory: 438100000,
-      costTransport: 26000000,
-      costCustoms: 9200000,
-      costFees: 350000,
-      costBorderExtra: 5000000,
-      vatRefund: 37557630,
-      contingencyRate: 3.0,
-      priorVatAccumulated: 37237630,
-      unforeseenExpenses: []
-    },
-    'SIM_CONT40_800T': {
-      id: 'SIM_CONT40_800T',
-      name: 'Dự toán Cont 40ft (800 thùng - Thử nghiệm bẫy thể tích)',
-      type: 'SIMULATION',
-      boxQty: 800,
-      unitPriceVnd: 337000,
-      unitPriceUsd: 17.50,
-      revenueUsd: 14000,
-      exchangeRate: 25790,
-      costFactory: 269600000,
-      costTransport: 22000000,
-      costCustoms: 8200000,
-      costFees: 270000,
-      costBorderExtra: 2000000,
-      vatRefund: 23748000,
-      contingencyRate: 3.0,
-      priorVatAccumulated: 0,
-      unforeseenExpenses: []
-    },
-    'SIM_CPT_SVN_1300T': {
-      id: 'SIM_CPT_SVN_1300T',
-      name: 'Dự toán CPT Savannakhet HOWO 15.6m (1.300 thùng - Chào giá mới)',
-      type: 'SIMULATION',
-      boxQty: 1300,
-      unitPriceVnd: 337000,
-      unitPriceUsd: 16.80,
-      revenueUsd: 21840,
-      exchangeRate: 25800,
-      costFactory: 438100000,
-      costTransport: 25000000,
-      costCustoms: 8800000,
-      costFees: 300000,
-      costBorderExtra: 3500000,
-      vatRefund: 37477630,
-      contingencyRate: 3.0,
-      priorVatAccumulated: 0,
-      unforeseenExpenses: []
-    },
-    'SIM_CONT45_1000T': {
-      id: 'SIM_CONT45_1000T',
-      name: 'Dự toán Cont 45ft (1.000 thùng - Xuất khẩu đường bộ)',
-      type: 'SIMULATION',
-      boxQty: 1000,
-      unitPriceVnd: 337000,
-      unitPriceUsd: 18.00,
-      revenueUsd: 18000,
-      exchangeRate: 25790,
-      costFactory: 337000000,
-      costTransport: 24000000,
-      costCustoms: 8500000,
-      costFees: 280000,
-      costBorderExtra: 2500000,
-      vatRefund: 29240000,
-      contingencyRate: 3.0,
-      priorVatAccumulated: 0,
-      unforeseenExpenses: []
     }
   };
 
@@ -1400,15 +1329,25 @@
 
   function initOrdersMaster() {
     try {
+      // Dọn dẹp triệt để cache của phiên bản cũ chứa đơn mô phỏng
+      localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V1');
       const stored = localStorage.getItem(CMH_BSC_STORAGE_ORDERS_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-          ordersMaster = parsed;
-          // Luôn đảm bảo 269901 chuẩn SSOT tồn tại
+        if (parsed && typeof parsed === 'object') {
+          // Lọc bỏ triệt để các mã đơn mô phỏng hoặc mẫu giả định cũ
+          const cleaned = {};
+          Object.keys(parsed).forEach(k => {
+            if (!k.startsWith('SIM_') && k !== '269902') {
+              cleaned[k] = parsed[k];
+            }
+          });
+          ordersMaster = cleaned;
+          // Luôn đảm bảo 269901 chuẩn SSOT thực tế tồn tại
           if (!ordersMaster['269901']) {
             ordersMaster['269901'] = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER['269901']));
           }
+          saveOrdersToStorage();
         } else {
           ordersMaster = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER));
           saveOrdersToStorage();
@@ -1776,6 +1715,21 @@
     renderOrderDropdown();
     applyOrderRecord(ordersMaster['269901']);
     alert("🗑️ Đã xóa hồ sơ thành công và chuyển về Đơn 269901 SSOT.");
+  }
+
+  function purgeAllSimulationOrders() {
+    if (!confirm("Bạn có chắc chắn muốn DỌN SẠCH toàn bộ các đơn hàng mô phỏng / dự toán giả lập, chỉ lưu giữ duy nhất Đơn hàng thực tế #269901 chuẩn SSOT?")) {
+      return;
+    }
+    localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V1');
+    ordersMaster = {
+      '269901': JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER['269901']))
+    };
+    activeOrderId = '269901';
+    saveOrdersToStorage();
+    renderOrderDropdown();
+    applyOrderRecord(ordersMaster['269901']);
+    alert("🧹 Đã dọn sạch toàn bộ dữ liệu đơn hàng mô phỏng! Hệ thống chỉ lưu giữ Đơn 269901 thực tế.");
   }
 
   function openNewOrderModal() {
