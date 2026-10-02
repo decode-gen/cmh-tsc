@@ -2168,13 +2168,22 @@
           🖨 Bản in thiết kế A4 chuẩn mực. Bạn có thể tải file Word (.DOC), tải file gốc, hoặc in trực tiếp.
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-          <button class="btn btn-sm" onclick="exportPreviewToWordDoc()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3);">
+          <button id="btnPreviewCopyPayment" class="btn btn-sm" onclick="copyPaymentInstructionText()" style="background:#f59e0b; color:#000; font-weight:bold; border:none; display:none;" data-tooltip="Copy thông tin chuyển khoản USD MB Bank">
+            <span>[📋 Sao Chép Nội Dung TT]</span>
+          </button>
+          <button id="btnPreviewGenerateImg" class="btn btn-sm" onclick="generatePaymentInstructionCardImage()" style="background:#0284c7; color:#fff; font-weight:bold; border:none; display:none;" data-tooltip="Xuất ảnh thẻ chuyển khoản PNG gửi Zalo/WhatsApp">
+            <span>[🖼 Xuất Ảnh Thẻ (PNG)]</span>
+          </button>
+          <button id="btnPreviewExportWord" class="btn btn-sm" onclick="exportPreviewToWordDoc()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3);">
             <span>[📄 Tải Bản Word .DOC Này]</span>
           </button>
-          <button class="btn btn-sm" onclick="downloadCurrentPreviewDocx()" style="background:#1d4ed8; color:#fff; font-weight:bold; border:none;">
+          <button id="btnPreviewDownloadDocx" class="btn btn-sm" onclick="downloadCurrentPreviewDocx()" style="background:#1d4ed8; color:#fff; font-weight:bold; border:none;">
             <span>[⬇ Tải File .DOCX Gốc]</span>
           </button>
-          <button class="btn btn-sm" onclick="downloadCurrentPreviewPdf()" style="background:#059669; color:#fff; font-weight:bold; border:none;">
+          <button id="btnPreviewDownloadXls" class="btn btn-sm" onclick="downloadCurrentPreviewXls()" style="background:#15803d; color:#fff; font-weight:bold; border:none; display:none;">
+            <span>[⬇ Tải File .XLS Gốc]</span>
+          </button>
+          <button id="btnPreviewDownloadPdf" class="btn btn-sm" onclick="downloadCurrentPreviewPdf()" style="background:#059669; color:#fff; font-weight:bold; border:none;">
             <span>[⬇ Tải File .PDF Gốc]</span>
           </button>
           <button class="btn btn-sm" onclick="printPreviewDocDirect()" style="background:#16a34a; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(22,163,74,0.3);">
@@ -6769,7 +6778,7 @@
           status: 'SẴN SÀNG TẢI',
           fileBase: '01_GUI_KHACH_HANG_THAILAND/04_OFFICIAL_PAYMENT_INSTRUCTION_USD_MB_BANK_269901',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-TRD-01',
@@ -6780,7 +6789,7 @@
           status: 'SẴN SÀNG TẢI',
           fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-RA-04_SALES_CONTRACT_GSSDIX_FCA_269901',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         }
       ],
       '02_CUS': [
@@ -6793,7 +6802,7 @@
           status: 'ĐÃ THÔNG QUAN LUỒNG VÀNG',
           fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/01_TO_KHAI_XUAT_KHAU_B11_VNACCS_GSS_269901',
           formats: ['XLS', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-CUS-02',
@@ -6999,7 +7008,7 @@
           status: 'ĐÃ DUYỆT QUYẾT TOÁN',
           fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-FIN-01_PHUONG_AN_TAI_CHINH_THU_CHI_VA_CHI_PHI_DU_TRU_CUA_KHAU_269901',
           formats: ['DOCX', 'PDF', 'MD'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-FIN-02',
@@ -7191,6 +7200,10 @@
         }
         if (d.formats.includes('XLS')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.code}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .XLS]</button>`;
+        }
+        if (d.id === 'FRM-TRD-05') {
+          buttons += `<button class="btn btn-sm" onclick="copyPaymentInstructionText()" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" data-tooltip="Copy nội dung điện chuyển tiền USD MB Bank">[📋 Copy TT]</button>`;
+          buttons += `<button class="btn btn-sm" onclick="generatePaymentInstructionCardImage()" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" data-tooltip="Tạo ảnh thẻ thanh toán MB Bank gửi Zalo/WhatsApp">[🖼 Tạo Ảnh]</button>`;
         }
         if (d.canPreview) {
           buttons += `<button class="btn btn-sm" onclick="previewDossierDoc('${d.id}')" style="background:#2563eb; color:#fff; border:none; padding:2px 6px; font-size:11px;">[👁 In/Xem]</button>`;
@@ -7479,8 +7492,290 @@
         const fullPdf = `${DOSSIER_REGISTRY.baseDir}/${foundDoc.fileBase}.pdf`;
         downloadDossierDoc(fullPdf, `${foundDoc.code}.pdf`);
       } else {
-        showToastNotification("Chứng từ này không có file .PDF gốc!");
+        printPreviewDocDirect();
       }
+    }
+
+    function downloadCurrentPreviewXls() {
+      if (!_currentPreviewDocId) {
+        showToastNotification("Chưa mở chứng từ nào!");
+        return;
+      }
+      let foundDoc = null;
+      for (const pk in DOSSIER_PILLARS) {
+        const item = DOSSIER_PILLARS[pk].find(d => d.id === _currentPreviewDocId);
+        if (item) { foundDoc = item; break; }
+      }
+      if (foundDoc && foundDoc.formats.includes('XLS')) {
+        const fullXls = `${DOSSIER_REGISTRY.baseDir}/${foundDoc.fileBase}.xls`;
+        downloadDossierDoc(fullXls, `${foundDoc.code}.xls`);
+      } else {
+        showToastNotification("Chứng từ này không có file .XLS gốc!");
+      }
+    }
+
+    // =========================================================================
+    // CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD: COPY THÔNG TIN & XUẤT ẢNH THẺ
+    // =========================================================================
+
+    function copyPaymentInstructionText() {
+      recalculate();
+      const d = window._currentCalcData || {};
+      const qty = d.qty || 1300;
+      const quotePrice = d.quotePrice || 15.80;
+      const totalAmount = qty * quotePrice;
+      const depositAmount = totalAmount * 0.3;
+      const balanceAmount = totalAmount * 0.7;
+      const contractCode = (activeScenario && activeScenario.nameId) ? activeScenario.nameId : 'GSSDIX_FCA_269901';
+      const invoiceNo = 'GSS-INV-269901';
+
+      const text = `======================================================================
+OFFICIAL PAYMENT INSTRUCTION (USD WIRE TRANSFER) / CHỈ DẪN THANH TOÁN
+BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
+======================================================================
+1. BENEFICIARY DETAILS (THÔNG TIN NGƯỜI THỤ HƯỞNG):
+   • Beneficiary Name: CÔNG TY TNHH GLOBAL SOLUTION SERVICE
+   • Beneficiary Account No. (USD): 9489773866038
+   • Beneficiary Address: CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam
+   • Tax ID: 0109469047 | Legal Representative: Mr. Nguyen Van Trung
+
+2. BENEFICIARY BANK DETAILS (NGÂN HÀNG THỤ HƯỞNG):
+   • Bank Name: MILITARY COMMERCIAL JOINT STOCK BANK (MB BANK)
+   • Branch: PHUNG HUNG BRANCH (HANOI, VIETNAM)
+   • Bank Address: MB Grand Tower, 63 Le Van Luong Str., Cau Giay Dist., Hanoi, Vietnam
+   • SWIFT / BIC Code: MSCBVNVX
+   • Currency: USD (United States Dollar)
+
+3. PAYMENT AMOUNT & SCHEDULE (SỐ TIỀN & ĐỢT THANH TOÁN):
+   • Total Contract Value: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Phase 1 (Deposit 30% upon PO): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Phase 2 (Balance 70% before release): $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+
+4. REMITTANCE REFERENCE / SWIFT FIELD :70: (NỘI DUNG CHUYỂN TIỀN):
+   ADVANCE PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}
+
+5. INTERMEDIARY / CORRESPONDENT BANK (NẾU ĐỐI TÁC CẦN NGÂN HÀNG TRUNG GIAN):
+   • Intermediary Bank: CITIBANK N.A., NEW YORK, USA
+   • SWIFT Code: CITIUS33
+======================================================================
+* Notice: All overseas banking charges (OUR) are for Buyer's account as agreed.
+======================================================================`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToastNotification("📋 ĐÃ SAO CHÉP TOÀN BỘ NỘI DUNG CHUYỂN KHOẢN MB BANK USD! Bạn có thể dán ngay vào Zalo/Email gửi khách hàng.");
+        }).catch(() => {
+          fallbackCopyText(text);
+        });
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToastNotification("📋 ĐÃ SAO CHÉP NỘI DUNG CHUYỂN KHOẢN MB BANK USD VÀO BỘ NHỚ TẠM!");
+      } catch (e) {
+        showToastNotification("⚠️ Không thể sao chép tự động, vui lòng chọn và copy thủ công.");
+      }
+      document.body.removeChild(ta);
+    }
+
+    function generatePaymentInstructionCardImage() {
+      recalculate();
+      const d = window._currentCalcData || {};
+      const qty = d.qty || 1300;
+      const quotePrice = d.quotePrice || 15.80;
+      const totalAmount = qty * quotePrice;
+      const depositAmount = totalAmount * 0.3;
+      const balanceAmount = totalAmount * 0.7;
+      const contractCode = (activeScenario && activeScenario.nameId) ? activeScenario.nameId : 'GSSDIX_FCA_269901';
+      const invoiceNo = 'GSS-INV-269901';
+
+      showToastNotification("🎨 Đang kết xuất ảnh thẻ thanh toán quốc tế MB Bank USD chất lượng cao...");
+
+      // Canvas dimensions: 1200 x 780 (High DPI 2x retina)
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 780;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Background gradient (Executive Deep Navy)
+      const bgGrad = ctx.createLinearGradient(0, 0, 1200, 780);
+      bgGrad.addColorStop(0, '#0a1128');
+      bgGrad.addColorStop(0.5, '#0f172a');
+      bgGrad.addColorStop(1, '#1e293b');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1200, 780);
+
+      // Decorative border with double frame
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(20, 20, 1160, 740);
+
+      ctx.strokeStyle = 'rgba(217, 119, 6, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(26, 26, 1148, 728);
+
+      // 2. Top Header Bar
+      ctx.fillStyle = '#1e3a8a';
+      ctx.fillRect(28, 28, 1144, 90);
+
+      // Company Name & Bank Header
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px "Times New Roman", serif';
+      ctx.fillText('CÔNG TY TNHH GLOBAL SOLUTION SERVICE', 50, 65);
+      ctx.font = '14px "Times New Roman", serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('GLOBAL SOLUTION SERVICE CO., LTD | TAX ID: 0109469047', 50, 92);
+
+      // Bank Info Top Right
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 22px "Times New Roman", serif';
+      ctx.fillText('MB BANK (VIETNAM)', 1140, 65);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px "Times New Roman", serif';
+      ctx.fillText('SWIFT CODE: MSCBVNVX', 1140, 92);
+      ctx.textAlign = 'left';
+
+      // 3. Document Title Ribbon
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(40, 135, 1120, 42);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 20px "Times New Roman", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('OFFICIAL INTERNATIONAL PAYMENT INSTRUCTION (USD WIRE TRANSFER)', 600, 163);
+      ctx.textAlign = 'left';
+
+      // Subtitle / Contract Ref
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'italic 15px "Times New Roman", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Contract: ${contractCode}  •  Invoice: ${invoiceNo}  •  Terms: FCA Lao Bao Border Gate`, 600, 202);
+      ctx.textAlign = 'left';
+
+      // 4. Main Account Card Box (High Contrast)
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(40, 220, 1120, 420, 8);
+      } else {
+        ctx.rect(40, 220, 1120, 420);
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      // Highlight Box for USD Account Number
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(60, 240, 1080, 75);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px "Times New Roman", serif';
+      ctx.fillText('BENEFICIARY ACCOUNT NUMBER (USD) / SỐ TÀI KHOẢN USD THỤ HƯỞNG:', 80, 268);
+      ctx.font = 'bold 36px "Courier New", monospace';
+      ctx.fillStyle = '#fef08a';
+      ctx.fillText('9489773866038', 80, 304);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Times New Roman", serif';
+      ctx.fillText('CURRENCY: USD ($)', 1110, 285);
+      ctx.font = '14px "Times New Roman", serif';
+      ctx.fillText('WIRE TRANSFER (T/T)', 1110, 305);
+      ctx.textAlign = 'left';
+
+      // Grid Info
+      const labels = [
+        { label: 'Beneficiary Customer / Người thụ hưởng:', val: 'CÔNG TY TNHH GLOBAL SOLUTION SERVICE', bold: true },
+        { label: 'Beneficiary Bank / Ngân hàng thụ hưởng:', val: 'MILITARY COMMERCIAL JOINT STOCK BANK (MB BANK)', bold: true },
+        { label: 'Bank Branch / Chi nhánh:', val: 'PHUNG HUNG BRANCH (HANOI, VIETNAM)' },
+        { label: 'Bank Address / Địa chỉ ngân hàng:', val: 'MB Grand Tower, 63 Le Van Luong, Cau Giay Dist., Hanoi, Vietnam' },
+        { label: 'SWIFT / BIC Code:', val: 'MSCBVNVX', highlight: true },
+        { label: 'Payment Schedule / Đợt thanh toán:', val: `Phase 1 (Deposit 30%): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD  |  Total: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD` },
+        { label: 'Remittance Reference / Field :70: (Nội dung CK):', val: `ADVANCE PAYMENT FOR CONTRACT ${contractCode}`, highlight: true }
+      ];
+
+      let curY = 345;
+      labels.forEach(item => {
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '15px "Times New Roman", serif';
+        ctx.fillText(item.label, 80, curY);
+
+        if (item.highlight) {
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 18px "Courier New", monospace';
+        } else if (item.bold) {
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 16px "Times New Roman", serif';
+        } else {
+          ctx.fillStyle = '#e2e8f0';
+          ctx.font = '16px "Times New Roman", serif';
+        }
+        ctx.fillText(item.val, 450, curY);
+        curY += 41;
+      });
+
+      // 5. Bottom Verified Footer
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(40, 655, 1120, 75);
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(40, 655, 1120, 75);
+
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 15px "Times New Roman", serif';
+      ctx.fillText('✓ VERIFIED SSOT BANKING INFORMATION — GLOBAL SOLUTION SERVICE (GSS)', 60, 685);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '13px "Times New Roman", serif';
+      ctx.fillText('All remittance details strictly compliant with International Trade Law & Viet Nam Foreign Exchange Regulations.', 60, 712);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 14px "Times New Roman", serif';
+      ctx.fillText('LEGAL REPRESENTATIVE: MR. NGUYEN VAN TRUNG — DIRECTOR', 1130, 698);
+      ctx.textAlign = 'left';
+
+      // Export to image file & download
+      canvas.toBlob(blob => {
+        if (!blob) {
+          showToastNotification("⚠️ Không thể sinh dữ liệu ảnh từ Canvas!");
+          return;
+        }
+        const fileName = `MB_BANK_USD_PAYMENT_INSTRUCTION_${contractCode}.png`;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        // Try copying to clipboard
+        if (navigator.clipboard && window.ClipboardItem) {
+          try {
+            const item = new ClipboardItem({ 'image/png': blob });
+            navigator.clipboard.write([item]).then(() => {
+              showToastNotification(`🖼 ĐÃ TẠO ẢNH & SAO CHÉP VÀO BỘ NHỚ TẠM! Đã tải file: ${fileName}. Bạn có thể dán (Ctrl+V) ngay vào Zalo/Email.`);
+            }).catch(() => {
+              showToastNotification(`🖼 ĐÃ TẢI ẢNH THẺ THANH TOÁN MB BANK: ${fileName}!`);
+            });
+          } catch (e) {
+            showToastNotification(`🖼 ĐÃ TẢI ẢNH THẺ THANH TOÁN MB BANK: ${fileName}!`);
+          }
+        } else {
+          showToastNotification(`🖼 ĐÃ TẢI ẢNH THẺ THANH TOÁN MB BANK: ${fileName}!`);
+        }
+      }, 'image/png');
     }
 
     function downloadAllDossierZip(orderId) {
@@ -7532,6 +7827,24 @@
         titleEl.innerText = title;
         container.innerHTML = htmlContent;
         backdrop.style.display = 'flex';
+
+        // Update footer buttons visibility based on active preview document
+        let foundDoc = null;
+        for (const pk in DOSSIER_PILLARS) {
+          const it = DOSSIER_PILLARS[pk].find(d => d.id === _currentPreviewDocId);
+          if (it) { foundDoc = it; break; }
+        }
+        const btnDocx = document.getElementById('btnPreviewDownloadDocx');
+        const btnPdf = document.getElementById('btnPreviewDownloadPdf');
+        const btnXls = document.getElementById('btnPreviewDownloadXls');
+        const btnCopy = document.getElementById('btnPreviewCopyPayment');
+        const btnImg = document.getElementById('btnPreviewGenerateImg');
+
+        if (btnDocx) btnDocx.style.display = (foundDoc && foundDoc.formats && foundDoc.formats.includes('DOCX')) ? 'inline-block' : 'none';
+        if (btnPdf) btnPdf.style.display = (foundDoc && foundDoc.formats && foundDoc.formats.includes('PDF')) ? 'inline-block' : 'none';
+        if (btnXls) btnXls.style.display = (foundDoc && foundDoc.formats && foundDoc.formats.includes('XLS')) ? 'inline-block' : 'none';
+        if (btnCopy) btnCopy.style.display = (_currentPreviewDocId === 'FRM-TRD-05') ? 'inline-block' : 'none';
+        if (btnImg) btnImg.style.display = (_currentPreviewDocId === 'FRM-TRD-05') ? 'inline-block' : 'none';
       }
     }
 
@@ -7963,6 +8276,373 @@
           </table>
         `;
         openDossierDocPreviewModal("TRUCKING WAYBILL (VẬN ĐƠN ĐƯỜNG BỘ VĨNH THÀNH)", html);
+
+      } else if (docId === 'FRM-TRD-05') {
+        // Official Payment Instruction MB Bank USD
+        const contractCode = (activeScenario && activeScenario.nameId) ? activeScenario.nameId : 'GSSDIX_FCA_269901';
+        const invoiceNo = 'GSS-INV-269901';
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+              <div style="font-size:13px; font-weight:bold;">GLOBAL SOLUTION SERVICE CO., LTD</div>
+              <div style="font-size:11.5px;">Head Office: CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam | Tax ID: 0109469047</div>
+              <div style="font-size:11.5px;">Tel: (+84) 24.3789.9999 | Email: contact@gss-global.com</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:15px; font-weight:bold; color:#1e3a8a;">MB BANK OFFICIAL</div>
+              <div style="font-size:12px; font-weight:bold;">SWIFT: MSCBVNVX</div>
+              <div style="font-size:11.5px;">Currency: USD ($)</div>
+            </div>
+          </div>
+
+          <div style="text-align:center; margin: 15px 0 16px 0;">
+            <div style="font-size:18px; font-weight:bold; text-transform:uppercase; text-decoration:underline;">
+              OFFICIAL PAYMENT INSTRUCTION / CHỈ DẪN THANH TOÁN QUỐC TẾ
+            </div>
+            <div style="font-size:12px; margin-top:4px;">
+              Sales Contract Ref: <b>${contractCode}</b> | Commercial Invoice: <b>${invoiceNo}</b> | Date: <b>09/09/2026</b>
+            </div>
+          </div>
+
+          <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; padding:10px 14px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div style="font-size:12px; color:#1e293b;">
+              💡 <b>Gửi khách hàng ngoại:</b> Copy nội dung điện chuyển tiền hoặc xuất ảnh thẻ MB Bank USD sắc nét gửi qua Zalo/WhatsApp/Email.
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm" onclick="copyPaymentInstructionText()" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;">
+                [📋 Sao Chép Nội Dung TT]
+              </button>
+              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage()" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;">
+                [🖼 Xuất Ảnh Thẻ (PNG)]
+              </button>
+            </div>
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <tbody>
+              <tr style="background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13px;">1. BENEFICIARY DETAILS (THÔNG TIN NGƯỜI THỤ HƯỞNG)</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px; width:35%;"><b>Beneficiary Customer / Tên Đơn Vị:</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13px;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Beneficiary Account (USD) / Số Tài Khoản:</b></td>
+                <td style="border:1px solid #000; padding:6px; font-size:16px; font-weight:bold; font-family:'Courier New', monospace; letter-spacing:1px; background:#eff6ff;">9489773866038</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Tax ID / Mã Số Thuế:</b></td>
+                <td style="border:1px solid #000; padding:6px;">0109469047 (Sở KH&ĐT TP. Hà Nội cấp)</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Beneficiary Address / Trụ Sở:</b></td>
+                <td style="border:1px solid #000; padding:6px;">CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Legal Representative / Đại Diện Pháp Luật:</b></td>
+                <td style="border:1px solid #000; padding:6px;">Mr. NGUYEN VAN TRUNG — Director</td>
+              </tr>
+
+              <tr style="background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13px;">2. BENEFICIARY BANK DETAILS (NGÂN HÀNG THỤ HƯỞNG)</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Beneficiary Bank Name / Ngân Hàng:</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold;">MILITARY COMMERCIAL JOINT STOCK BANK (MB BANK)</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Branch Name / Chi Nhánh:</b></td>
+                <td style="border:1px solid #000; padding:6px;">PHUNG HUNG BRANCH (HANOI, VIETNAM)</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Bank Address / Địa Chỉ Ngân Hàng:</b></td>
+                <td style="border:1px solid #000; padding:6px;">MB Grand Tower, 63 Le Van Luong Str., Cau Giay Dist., Hanoi, Vietnam</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>SWIFT / BIC Code:</b></td>
+                <td style="border:1px solid #000; padding:6px; font-size:15px; font-weight:bold; font-family:'Courier New', monospace; color:#1e3a8a;">MSCBVNVX</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Currency / Đồng Tiền Giao Dịch:</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold;">USD (United States Dollar)</td>
+              </tr>
+
+              <tr style="background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13px;">3. PAYMENT SCHEDULE & REMITTANCE DETAILS</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Total Order Amount (FCA):</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13.5px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Phase 1 (Deposit 30% upon PO):</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold; color:#0369a1;">$${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Phase 2 (Balance 70% before release):</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold;">$${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Remittance Reference (SWIFT Field :70:):</b></td>
+                <td style="border:1px solid #000; padding:6px; font-family:'Courier New', monospace; font-weight:bold; background:#fef3c7; font-size:13px;">ADVANCE PAYMENT FOR CONTRACT ${contractCode}</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Intermediary Bank (if required):</b></td>
+                <td style="border:1px solid #000; padding:6px;">CITIBANK N.A., NEW YORK (SWIFT: CITIUS33)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:11.5px; line-height:1.5; border:1px solid #000; padding:8px; margin-bottom:16px;">
+            <b>IMPORTANT INSTRUCTIONS FOR BUYER'S BANK / LƯU Ý CHUYỂN TIỀN:</b><br>
+            1. All international wire fees and intermediary charges are under <b>OUR</b> or <b>BEN</b> as specified in Sales Contract.<br>
+            2. The remittance reference must clearly include Contract No. <b>${contractCode}</b> for instant clearing.<br>
+            3. Goods dispatch and customs release will take place immediately upon bank confirmation of payment credit.
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:25px;" class="no-border">
+            <tr>
+              <td style="width:50%;"></td>
+              <td style="width:50%;">
+                <b>FOR AND ON BEHALF OF G-SS CO., LTD</b><br>
+                Director (Authorized Signatory & Stamp)<br><br><br><br>
+                <b>NGUYEN VAN TRUNG</b>
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD (FRM-TRD-05)", html);
+
+      } else if (docId === 'FRM-CUS-01') {
+        // Customs Export Declaration B11
+        const netWeight = (qty * 6.6).toLocaleString('vi-VN');
+        const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:14px; font-weight:bold;">TỔNG CỤC HẢI QUAN — HẢI QUAN VIỆT NAM</div>
+              <div style="font-size:13px; font-weight:bold;">CHI CỤC HẢI QUAN CỬA KHẨU QUỐC TẾ LAO BẢO (MÃ 45BB)</div>
+              <div style="font-size:11px;">Hệ thống Thông quan Tự động VNACCS/VCIS</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:14px; font-weight:bold;">TỜ KHAI HÀNG HÓA XUẤT KHẨU</div>
+              <div style="font-size:12px; font-weight:bold;">Mã Loại Hình: B11 (Xuất Kinh Doanh)</div>
+              <div style="font-size:11.5px; color:#d97706; font-weight:bold;">PHÂN LUỒNG: VÀNG (KIỂM TRA HỒ SƠ)</div>
+            </div>
+          </div>
+
+          <div style="text-align:center; margin: 10px 0 14px 0;">
+            <div style="font-size:16px; font-weight:bold;">TỜ KHAI HẢI QUAN ĐIỆN TỬ SỐ: 301234567890</div>
+            <div style="font-size:11.5px;">Ngày đăng ký: 09/09/2026 | Ngày hoàn thành thông quan: 21/09/2026</div>
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11.5px;">
+            <tbody>
+              <tr style="background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:5px; font-weight:bold;">THÔNG TIN DOANH NGHIỆP & ĐỐI TÁC</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:5px; width:50%;">
+                  <b>1. Người xuất khẩu (Exporter):</b><br>
+                  <b>CÔNG TY TNHH GLOBAL SOLUTION SERVICE</b><br>
+                  Mã số thuế: 0109469047<br>
+                  Địa chỉ: Tòa nhà CEO Tower, Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội
+                </td>
+                <td style="border:1px solid #000; padding:5px; width:50%;">
+                  <b>2. Người nhập khẩu (Importer):</b><br>
+                  <b>DUANGMANEE IMPORT-EXPORT CO., LTD</b><br>
+                  Tax ID: 0495562000281<br>
+                  Địa chỉ: Mukdahan, Thailand
+                </td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:5px;">
+                  <b>3. Đại lý hải quan / Khai thuê:</b><br>
+                  CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI BÌNH AN (MST: 0106123456)
+                </td>
+                <td style="border:1px solid #000; padding:5px;">
+                  <b>4. Địa điểm dỡ hàng & Cửa khẩu xuất:</b><br>
+                  Cửa khẩu Quốc tế Lao Bảo (45BB) / Đích đến: Mukdahan (THMKH)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Dòng</th>
+                <th style="border:1px solid #000; padding:4px;">Tên Hàng Hóa Theo Tờ Khai</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Mã HS</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Số Lượng</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">Đơn Giá (USD)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">Trị Giá Tính Thuế (USD)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Thuế XK</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">01</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>Bánh que snack quẩy giòn (Crispy Stick Snack)</b><br>
+                  <small>Quy cách: 22g/cốc x 300 cốc/thùng. Hàng mới 100%, xuất xứ Việt Nam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">1905.90.80</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">0%</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="5" style="border:1px solid #000; padding:5px; text-align:right;">TỔNG TRỊ GIÁ TÍNH THUẾ HẢI QUAN (FCA):</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-size:12px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">0 VNĐ</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:11.5px; border:1px solid #000; padding:8px; margin-bottom:14px;">
+            <b>KẾT QUẢ PHÂN LUỒNG & CHỈ THỊ HẢI QUAN:</b><br>
+            • <b>Phân luồng:</b> VÀNG — Kiểm tra chi tiết hồ sơ chứng từ điện tử.<br>
+            • <b>Trọng lượng tịnh (NW):</b> ${netWeight} kg | <b>Tổng trọng lượng cả bì (GW):</b> ${grossWeight} kg.<br>
+            • <b>Phương tiện vận tải:</b> Xe tải / Container biển kiểm soát 19C-123.45 / 19R-678.90.<br>
+            • <b>Trạng thái:</b> <b>ĐÃ THÔNG QUAN</b> — Chấp nhận thông quan xuất khẩu số 301234567890/XK.
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%;">
+                <b>NGƯỜI KHAI HẢI QUAN</b><br>
+                (Ký số điện tử Token GSS)<br><br><br><br>
+                <b>CÔNG TY TNHH GLOBAL SOLUTION SERVICE</b>
+              </td>
+              <td style="width:50%;">
+                <b>CÔNG CHỨC HẢI QUAN TIẾP NHẬN</b><br>
+                (Xác nhận thông quan điện tử)<br><br><br><br>
+                <b>CHI CỤC HẢI QUAN CKQT LAO BẢO</b>
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("TỜ KHAI HẢI QUAN XUẤT KHẨU B11 (FRM-CUS-01)", html);
+
+      } else if (docId === 'FRM-TRD-01') {
+        // Sales Contract Framework
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:16px; font-weight:bold;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div style="font-size:13px; font-weight:bold;">Độc lập - Tự do - Hạnh phúc</div>
+            <div style="margin: 6px 0;">***</div>
+            <div style="font-size:16px; font-weight:bold; text-decoration:underline;">HỢP ĐỒNG NGUYÊN TẮC MUA BÁN HÀNG HÓA XUẤT KHẨU</div>
+            <div style="font-size:13px; font-weight:bold;">MASTER EXPORT SALES FRAMEWORK AGREEMENT</div>
+            <div style="font-size:12px;">Số / Agreement No: <b>GSSDIX_FCA_269901</b> | Ngày lập: <b>09/09/2026</b></div>
+          </div>
+
+          <div style="font-size:12px; line-height:1.55; margin-bottom:12px;">
+            <b>BÊN BÁN (SELLER / EXPORTER): CÔNG TY TNHH GLOBAL SOLUTION SERVICE</b><br>
+            • Địa chỉ: Tòa nhà CEO Tower, Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội, Việt Nam<br>
+            • MST: 0109469047 | Đại diện: <b>Ông Nguyễn Văn Trung</b> — Giám Đốc<br>
+            • Tài khoản USD: <b>9489773866038</b> tại Ngân hàng TMCP Quân Đội (MB Bank) — Chi nhánh Phùng Hưng (SWIFT: <b>MSCBVNVX</b>)<br><br>
+            <b>BÊN MUA (BUYER / IMPORTER): DUANGMANEE IMPORT-EXPORT CO., LTD</b><br>
+            • Địa chỉ: Mukdahan, Thái Lan | Tax ID: 0495562000281<br>
+            • Đại diện: <b>Ông Somchai Duangmanee</b> — Giám Đốc Điều Hành
+          </div>
+
+          <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:14px;">
+            <b>CÁC ĐIỀU KHOẢN CỐT LÕI (CORE INVARIANTS):</b>
+            <ol style="margin:4px 0 0 0; padding-left:18px;">
+              <li><b>Điều 1 (Hàng hóa):</b> Bánh que Snack Quẩy Giòn Giòn, quy cách 22g/cốc x 300 cốc/thùng, xuất xứ Việt Nam.</li>
+              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán ${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.</li>
+              <li><b>Điều 3 (Phương thức thanh toán):</b> T/T 100% bằng đồng USD vào tài khoản MB Bank của Bên Bán (Cọc 30% khi ký PO, 70% trước khi thông quan cửa khẩu).</li>
+              <li><b>Điều 4 (Bảo lưu quyền sở hữu):</b> Quyền sở hữu hàng hóa thuộc về Bên Bán cho đến khi Bên Bán nhận đủ 100% tiền thanh toán.</li>
+              <li><b>Điều 5 (Trọng tài thương mại):</b> Tranh chấp phát sinh được giải quyết tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).</li>
+            </ol>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:25px;" class="no-border">
+            <tr>
+              <td style="width:50%; vertical-align:top;">
+                <b>ĐẠI DIỆN BÊN MUA (BUYER)</b><br>
+                DUANGMANEE IMPORT-EXPORT CO., LTD<br><br><br><br>
+                <b>SOMCHAI DUANGMANEE</b><br>Managing Director
+              </td>
+              <td style="width:50%; vertical-align:top;">
+                <b>ĐẠI DIỆN BÊN BÁN (SELLER)</b><br>
+                CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br><br><br><br>
+                <b>NGUYỄN VĂN TRUNG</b><br>Giám Đốc (Đã ký đóng dấu)
+              </td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("HỢP ĐỒNG NGOẠI THƯƠNG KHUNG (FRM-TRD-01)", html);
+
+      } else if (docId === 'FRM-FIN-01') {
+        // Financial Plan & Border Contingency
+        const cogsTotal = qty * 337000;
+        const vatTotal = cogsTotal * 0.08;
+        const totalVndRevenue = totalAmount * 26300;
+        const grossProfit = totalVndRevenue - cogsTotal;
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+            <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Nam Từ Liêm, Hà Nội | MST: 0109469047</div>
+            <div style="font-size:16px; font-weight:bold; margin-top:8px; text-decoration:underline;">PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN ĐƠN HÀNG #269901</div>
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:5px; text-align:left;">Hạng Mục Tài Chính</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Nguyên Tệ USD</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Quy Đổi VNĐ (Tỷ giá 26.300)</th>
+                <th style="border:1px solid #000; padding:5px; text-align:left;">Ghi Chú Nghiệp Vụ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:5px;"><b>1. Doanh thu xuất khẩu (FCA):</b></td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold; color:#0369a1;">${totalVndRevenue.toLocaleString('vi-VN')} đ</td>
+                <td style="border:1px solid #000; padding:5px;">Thuế suất GTGT 0% theo TT 219/2013</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:5px;"><b>2. Giá vốn mua hàng Thiên Long:</b></td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${cogsTotal.toLocaleString('vi-VN')} đ</td>
+                <td style="border:1px solid #000; padding:5px;">${qty.toLocaleString('vi-VN')} thùng x 337.000 đ (gồm bốc xếp)</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:5px;"><b>3. Thuế GTGT đầu vào được hoàn (8%):</b></td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold; color:#15803d;">+${vatTotal.toLocaleString('vi-VN')} đ</td>
+                <td style="border:1px solid #000; padding:5px;">Ngân sách hoàn thuế GTGT nhà nước</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td style="border:1px solid #000; padding:6px;">LỢI NHUẬN GỘP DỰ KIẾN (CHƯA TRỪ LOGS):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right;">-</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px; color:#15803d;">${grossProfit.toLocaleString('vi-VN')} đ</td>
+                <td style="border:1px solid #000; padding:6px;">Biên lợi nhuận gộp vững chắc</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:11.5px; border:1px solid #000; padding:8px; margin-bottom:16px;">
+            <b>ĐỐI SOÁT DÒNG TIỀN & ĐIỀU KIỆN HOÀN THUẾ:</b><br>
+            • Tiền hàng chuyển khoản 100% qua tài khoản USD MB Bank <b>9489773866038</b> của Bên Bán.<br>
+            • Đầy đủ 4 trụ cột chứng từ: Hợp đồng ngoại thương, Hóa đơn GTGT 0%, Tờ khai B11 thông quan, Chứng từ thanh toán ngân hàng.<br>
+            • Đạt điều kiện hoàn thuế 100% theo quy định quản lý ngoại hối và thuế quan Việt Nam.
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%;"><b>KẾ TOÁN TRƯỞNG GSS</b><br><br><br><br>Đã lập phương án</td>
+              <td style="width:50%;"><b>GIÁM ĐỐC G-SS CO., LTD</b><br><br><br><br><b>NGUYỄN VĂN TRUNG</b></td>
+            </tr>
+          </table>
+        `;
+        openDossierDocPreviewModal("PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN (#269901)", html);
 
       } else {
         showToastNotification("Chứng từ này sẵn sàng tải trực tiếp dưới dạng file .DOCX và .PDF.");
