@@ -1896,13 +1896,13 @@
       <div class="modal-body" style="padding:14px; background:var(--bg-app); overflow:auto; flex:1;">
         <!-- ACTION BANNER & ACTIVE ORDER STATUS -->
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 14px; margin-bottom:12px;">
-          <div>
-            <div style="display:flex; align-items:center; gap:8px;">
+          <div id="dossierOrderHeaderContainer" style="flex:1; min-width:320px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold;">ĐƠN HÀNG HOẠT ĐỘNG:</span>
               <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#269901 — GSSDIX_FCA_269901 (FIRM_LOCKED)</b>
-              <span class="brand-badge" style="background:#064e3b; color:#6ee7b7;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
+              <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
             </div>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">
+            <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:3px;">
               🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
             </div>
           </div>
@@ -5156,6 +5156,13 @@
         netProfitAfterTax, netMargin, totalComprehensiveProfit, totalMargin,
         costRows, targetMargins, isTaxSecretUnlocked
       };
+
+      if (typeof syncDossierWithActiveScenario === 'function') {
+        const dossierBackdrop = document.getElementById('orderDossierModalBackdrop');
+        if (dossierBackdrop && dossierBackdrop.style.display !== 'none') {
+          syncDossierWithActiveScenario();
+        }
+      }
     }
 
     function formatVnd(val) {
@@ -7136,6 +7143,7 @@
       const backdrop = document.getElementById('orderDossierModalBackdrop');
       if (backdrop) {
         backdrop.style.display = 'flex';
+        syncDossierWithActiveScenario();
         renderDossierPillarsTables();
       }
     }
@@ -7425,6 +7433,11 @@
       const docTitle = titleEl ? titleEl.innerText : 'Chung_Tu_XNK';
       const cleanFileName = docTitle.replace(/[^a-zA-Z0-9_\-\u00C0-\u024F\u1EA0-\u1EF9]/g, '_') + '.doc';
 
+      // Clone container and strip out UI elements that are marked .no-print
+      const clone = container.cloneNode(true);
+      clone.querySelectorAll('.no-print').forEach(el => el.remove());
+      const cleanHtml = clone.innerHTML;
+
       const wordHtml = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
         <head>
@@ -7443,7 +7456,7 @@
           </style>
         </head>
         <body>
-          ${container.innerHTML}
+          ${cleanHtml}
         </body>
         </html>
       `;
@@ -7795,24 +7808,111 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       downloadDossierDoc(`${DOSSIER_REGISTRY.masterDir}/FRM-TRD-02_BUYER_PURCHASE_ORDER_MASTER_TEMPLATE.docx`, 'FRM-TRD-02_MASTER_PO.docx');
     }
 
-    function compileCurrentScenarioDossier() {
-      recalculate();
-      const d = window._currentCalcData;
-      if (!d) {
-        showToastNotification("Chưa có dữ liệu kịch bản để biên dịch!");
-        return;
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function numberToEnglishWords(n) {
+      if (n === 0) return 'ZERO';
+      const a = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
+      const b = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
+
+      function convertGroup(num) {
+        let str = '';
+        if (num >= 100) {
+          str += a[Math.floor(num / 100)] + ' HUNDRED ';
+          num %= 100;
+        }
+        if (num >= 20) {
+          str += b[Math.floor(num / 10)] + (num % 10 > 0 ? '-' + a[num % 10] : '') + ' ';
+        } else if (num > 0) {
+          str += a[num] + ' ';
+        }
+        return str.trim();
       }
+
+      const millions = Math.floor(n / 1000000);
+      const thousands = Math.floor((n % 1000000) / 1000);
+      const remainder = Math.floor(n % 1000);
+
+      let words = '';
+      if (millions > 0) words += convertGroup(millions) + ' MILLION ';
+      if (thousands > 0) words += convertGroup(thousands) + ' THOUSAND ';
+      if (remainder > 0) words += convertGroup(remainder) + ' ';
+
+      return words.trim();
+    }
+
+    function formatUsdInWords(amount) {
+      const whole = Math.floor(amount);
+      const cents = Math.round((amount - whole) * 100);
+      let res = numberToEnglishWords(whole) + ' US DOLLARS';
+      if (cents > 0) {
+        res += ' AND ' + numberToEnglishWords(cents) + ' CENTS';
+      }
+      res += ' ONLY.';
+      return res;
+    }
+
+    function syncDossierWithActiveScenario() {
+      recalculate();
+      const d = window._currentCalcData || {};
       const qty = d.qty || 1300;
       const quotePrice = d.quotePrice || 15.80;
       const totalAmount = qty * quotePrice;
+      const terms = d.terms || 'FCA_LB';
+      const termsLabel = terms === 'CPT_SVN' ? 'CPT Savannakhet' : (terms === 'CPT_MKD' ? 'CPT Mukdahan' : (terms === 'DAP_MKD' ? 'DAP Mukdahan' : 'FCA Lao Bảo'));
+      const veh = d.vehicle || 'HOWO_156';
+      const vehLabel = veh === 'CONT_45HC' ? 'Cont 45HC' : (veh === 'CONT_40HC' ? 'Cont 40HC' : 'HOWO 15.6m');
+      const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
+      const scnName = scn ? (scn.name || scn.id) : '#269901 (Baseline)';
+      const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300;
+
+      const container = document.getElementById('dossierOrderHeaderContainer');
+      if (!container) return;
+
+      if (isLockedBaseline) {
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">🔒 ĐƠN HÀNG HOẠT ĐỘNG:</span>
+            <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#269901 — GSSDIX_FCA_269901 (FIRM_LOCKED)</b>
+            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7; font-weight:bold; font-size:11.5px;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
+            <span class="brand-badge" style="background:#d97706; color:#fff; font-weight:bold; font-size:11.5px;">$15.80 USD · FCA Lao Bảo · Tổng: $20,540.00 USD</span>
+          </div>
+          <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="brand-badge" style="background:#0284c7; color:#fff; font-weight:bold; font-size:11.5px;">⚡ KỊCH BẢN ĐANG CHỌN (LIVE):</span>
+            <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">${escapeHtml(scnName)}</b>
+            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#059669; color:#fff; font-weight:bold; font-size:11.5px;">${qty.toLocaleString('vi-VN')} Thùng · ${vehLabel}</span>
+            <span class="brand-badge" style="background:#d97706; color:#fff; font-weight:bold; font-size:11.5px;">$${quotePrice.toFixed(2)} USD · ${termsLabel}</span>
+            <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
+          </div>
+          <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            🔄 <b>Đồng bộ dữ liệu biến Live:</b> Mọi tính năng <b>[👁 In/Xem]</b>, <b>[📄 Tải Bản Word .DOC]</b>, <b>[🖨 In Trực Tiếp]</b>, <b>[📋 Copy TT]</b> và <b>[🖼 Tạo Ảnh]</b> xuất dữ liệu theo đúng kịch bản <b>${qty.toLocaleString('vi-VN')} Thùng ($${quotePrice.toFixed(2)} USD)</b>. Các nút tải phôi tĩnh [⬇ .DOCX]/[⬇ .PDF] trên danh sách kế thừa từ kho gốc Đơn #269901.
+          </div>
+        `;
+      }
+    }
+
+    function compileCurrentScenarioDossier() {
+      syncDossierWithActiveScenario();
+      const d = window._currentCalcData || {};
+      const qty = d.qty || 1300;
+      const quotePrice = d.quotePrice || 15.80;
       const incoterms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO';
 
       showToastNotification(`⚡ ĐÃ ĐỒNG BỘ THÔNG SỐ VÀO BỘ BIÊN DỊCH: ${qty.toLocaleString('vi-VN')} thùng | $${quotePrice.toFixed(2)} USD (${incoterms})! Mọi phôi chứng từ giữ nguyên 100% chuẩn mực.`);
-      
-      const badge = document.getElementById('dossierActiveOrderBadge');
-      if (badge) {
-        badge.innerHTML = `#269901 (LIVE SCENARIO OVERRIDE) — ${qty.toLocaleString('vi-VN')} Thùng · Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD`;
-      }
     }
 
     // =========================================================================
@@ -7824,8 +7924,29 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const titleEl = document.getElementById('previewDocTitle');
       const container = document.getElementById('previewDocContainer');
       if (backdrop && titleEl && container) {
+        const d = window._currentCalcData || {};
+        const qty = d.qty || 1300;
+        const quotePrice = d.quotePrice || 15.80;
+        const totalAmount = qty * quotePrice;
+        const curTerms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO';
+
+        const liveSyncBanner = `
+          <div class="no-print" style="margin-bottom:14px; background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#1e40af; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <b>⚡ ĐANG ĐỒNG BỘ THEO KỊCH BẢN LIVE:</b> 
+              <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${qty.toLocaleString('vi-VN')} Thùng</span> · 
+              <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">$${quotePrice.toFixed(2)} USD</span> · 
+              <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${curTerms}</span> · 
+              <span style="background:#dcfce7; color:#166534; padding:2px 6px; border-radius:3px; font-weight:bold;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
+            </div>
+            <div style="font-size:11px; color:#64748b;">
+              (Bấm <b>[📄 Tải Bản Word .DOC Này]</b> hoặc <b>[🖨 In Trực Tiếp]</b> để xuất văn bản đúng 100% thông số trên)
+            </div>
+          </div>
+        `;
+
         titleEl.innerText = title;
-        container.innerHTML = htmlContent;
+        container.innerHTML = liveSyncBanner + htmlContent;
         backdrop.style.display = 'flex';
 
         // Update footer buttons visibility based on active preview document
@@ -7872,6 +7993,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             .text-center { text-align: center; }
             .text-right { text-align: right; }
             .font-bold { font-weight: bold; }
+            .no-print { display: none !important; }
           </style>
         </head>
         <body onload="window.print(); window.close();">
@@ -7892,6 +8014,34 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const depositAmount = totalAmount * 0.3;
       const balanceAmount = totalAmount * 0.7;
       const curTerms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO BORDER GATE (INCOTERMS 2020)';
+
+      const supObj = (d.supplier && typeof d.supplier === 'object') ? d.supplier : (partnersMaster.suppliers[0] || {});
+      const supName = supObj.name ? (supObj.name.includes('CÔNG TY') ? supObj.name : `CÔNG TY TNHH BÁNH KẸO ${supObj.name.toUpperCase()}`) : 'CÔNG TY TNHH BÁNH KẸO THIÊN LONG (PHÚ THỌ)';
+      const supTaxId = supObj.taxId || '5400512548';
+      const prodName = supObj.product || 'Crispy Stick Snack (Snack Quẩy Giòn Giòn)';
+      const prodSpec = supObj.spec || '22g/cốc x 300 cốc/thùng';
+      const cogsUnitPrice = supObj.pricePreVat || 337000;
+      const cogsTotal = qty * cogsUnitPrice;
+      const vatRate = (supObj.vatRate !== undefined) ? supObj.vatRate : 0.08;
+      const vatTotal = cogsTotal * vatRate;
+      const grandTotalSup = cogsTotal + vatTotal;
+      const depositVnd = grandTotalSup * 0.3;
+      const balanceVnd = grandTotalSup * 0.7;
+
+      const carrierObj = (d.carrier && typeof d.carrier === 'object') ? d.carrier : (partnersMaster.carriers[0] || {});
+      const carrierName = carrierObj.name ? (carrierObj.name.includes('CÔNG TY') ? carrierObj.name : `CÔNG TY TNHH VẬN TẢI ${carrierObj.name.replace(/\s*\(.*?\)\s*/g, '').toUpperCase()}`) : 'CÔNG TY TNHH VẬN TẢI VĨNH THÀNH';
+      const carrierTax = carrierObj.taxId || '3200722417';
+
+      const agentVnObj = (d.activeAgentVn && typeof d.activeAgentVn === 'object') ? d.activeAgentVn : (partnersMaster.agents[0] || {});
+      const agentVnName = agentVnObj.name ? (agentVnObj.name.includes('CÔNG TY') ? agentVnObj.name : `CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI ${agentVnObj.name.replace(/\s*\(.*?\)\s*/g, '').toUpperCase()}`) : 'CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI BÌNH AN';
+      const agentVnTax = agentVnObj.taxId || '3200727091';
+
+      const contractCode = (typeof activeScenario !== 'undefined' && activeScenario && activeScenario.nameId) ? activeScenario.nameId : ((typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario.id : 'GSSDIX_FCA_269901');
+      const invoiceNo = 'GSS-INV-269901';
+
+      const netWeight = (qty * 6.6).toLocaleString('vi-VN');
+      const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+      const totalCbm = (qty * 0.0785).toFixed(2);
 
       if (docId === 'FRM-TRD-02') {
         // Buyer Purchase Order (Addendum 01 PO)
@@ -7991,9 +8141,9 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           <table style="width:100%; border:none; margin-bottom:12px; font-size:12px;" class="no-border">
             <tr>
               <td style="width:55%;">
-                <b>Invoice No.:</b> GSS-INV-269901<br>
+                <b>Invoice No.:</b> ${invoiceNo}<br>
                 <b>Date:</b> 09/09/2026<br>
-                <b>Sales Contract Ref:</b> GSSDIX_FCA_269901<br>
+                <b>Sales Contract Ref:</b> ${contractCode}<br>
                 <b>Payment Term:</b> T/T 100% in advance of customs release
               </td>
               <td style="width:45%;">
@@ -8020,8 +8170,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               <tr>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
                 <td style="border:1px solid #000; padding:4px;">
-                  <b>Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br>
-                  <small>Specification: 22g/cup x 300 cups/carton. Total cups: ${(qty * 300).toLocaleString('vi-VN')}. Origin: Vietnam.</small>
+                  <b>${prodName}</b><br>
+                  <small>Specification: ${prodSpec}. Total units: ${(qty * 300).toLocaleString('vi-VN')}. Origin: Vietnam.</small>
                 </td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">1905.90.80</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
@@ -8029,14 +8179,14 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
                 <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
               </tr>
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL FCA AMOUNT:</td>
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL INVOICE AMOUNT (${curTerms}):</td>
                 <td style="border:1px solid #000; padding:6px; text-align:right; font-size:12.5px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
               </tr>
             </tbody>
           </table>
 
           <div style="font-size:12px; margin-bottom:12px;">
-            <b>Total Amount in Words:</b> TWENTY THOUSAND FIVE HUNDRED AND FORTY US DOLLARS ONLY.<br>
+            <b>Total Amount in Words:</b> ${formatUsdInWords(totalAmount)}<br>
             <b>Total Net Weight:</b> ${netWeight} KGS | <b>Total Gross Weight:</b> ${grossWeight} KGS
           </div>
 
@@ -8140,24 +8290,19 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
         openDossierDocPreviewModal("PACKING LIST (GSS-PKL-269901)", html);
 
       } else if (docId === 'FRM-PRO-02') {
-        // Supplier PO Thiên Long
-        const cogsTotal = qty * 337000;
-        const vatTotal = cogsTotal * 0.08;
-        const grandTotal = cogsTotal + vatTotal;
-        const depositVnd = grandTotal * 0.3;
-        const balanceVnd = grandTotal * 0.7;
+        // Supplier PO (Nhà cung cấp được chọn trên Buồng Lái)
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
             <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
             <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội | MST: 0109469047</div>
-            <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">ĐƠN ĐẶT HÀNG MUA BÁNH SNACK (PHỤ LỤC 01 PO)</div>
-            <div style="font-size:12px;">Số: PL01/269901-TL/GSS | Ngày: 09/09/2026</div>
+            <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">ĐƠN ĐẶT HÀNG MUA HÀNG NỘI ĐỊA (PHỤ LỤC PO)</div>
+            <div style="font-size:12px;">Số: PL01/${contractCode}-SUP/GSS | Ngày: 09/09/2026</div>
           </div>
 
           <div style="margin-bottom:12px; font-size:12.5px;">
             <b>Bên Mua:</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE — Đại diện: Ông Nguyễn Văn Trung (Giám đốc)<br>
-            <b>Bên Bán (Nhà sản xuất):</b> CÔNG TY TNHH BÁNH KẸO THIÊN LONG (PHÚ THỌ) — MST: 5400512548<br>
-            <b>Địa chỉ xưởng:</b> Cụm Công nghiệp Tử Đà, Huyện Phù Ninh, Tỉnh Phú Thọ
+            <b>Bên Bán (Nhà sản xuất):</b> ${supName} — MST: ${supTaxId}<br>
+            <b>Địa chỉ xưởng:</b> Kho Xưởng Nhà Máy ${supName}, Việt Nam
           </div>
 
           <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
@@ -8175,21 +8320,21 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               <tr>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
                 <td style="border:1px solid #000; padding:4px;">
-                  <b>Snack Quẩy Giòn Giòn</b><br>
-                  <small>Quy cách: 22g/cốc x 300 cốc/thùng. Trọng lượng tịnh: 6.6 kg/thùng. Bao gồm bốc xếp lên xe.</small>
+                  <b>${prodName}</b><br>
+                  <small>Quy cách: ${prodSpec}. Bao gồm bốc xếp lên xe.</small>
                 </td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">Thùng</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">337.000 đ</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${cogsTotal.toLocaleString('vi-VN')} đ</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(cogsUnitPrice)}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(cogsTotal)}</td>
               </tr>
               <tr>
-                <td colspan="5" style="border:1px solid #000; padding:4px; text-align:right;">Thuế GTGT đầu vào (8%):</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${vatTotal.toLocaleString('vi-VN')} đ</td>
+                <td colspan="5" style="border:1px solid #000; padding:4px; text-align:right;">Thuế GTGT đầu vào (${(vatRate * 100).toFixed(0)}%):</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(vatTotal)}</td>
               </tr>
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TỔNG GIÁ TRỊ THANH TOÁN (ĐÃ GỒM VAT 8%):</td>
-                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">${grandTotal.toLocaleString('vi-VN')} đ</td>
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TỔNG GIÁ TRỊ THANH TOÁN (ĐÃ GỒM VAT):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">${formatVnd(grandTotalSup)}</td>
               </tr>
             </tbody>
           </table>
@@ -8197,8 +8342,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
             <b>ĐIỀU KHOẢN VẬN HÀNH & BẢO ĐẢM HOÀN THUẾ:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Đã bao gồm bốc xếp:</b> Giá bán 337.000 đ/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng Phú Thọ.</li>
-              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc 30%): ${depositVnd.toLocaleString('vi-VN')} đ. Đợt 2 (70%): ${balanceVnd.toLocaleString('vi-VN')} đ khi xuất hóa đơn GTGT.</li>
+              <li><b>Đã bao gồm bốc xếp:</b> Giá bán ${formatVnd(cogsUnitPrice)}/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng.</li>
+              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc 30%): ${formatVnd(depositVnd)}. Đợt 2 (70%): ${formatVnd(balanceVnd)} khi xuất hóa đơn GTGT.</li>
               <li><b>Cam kết hồ sơ thuế:</b> Bên Bán cam kết cung cấp đầy đủ bảng kê hóa đơn nguyên liệu đầu vào và chịu trách nhiệm bảo lãnh hoàn thuế GTGT 0% cho Bên Mua.</li>
             </ol>
           </div>
@@ -8207,8 +8352,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <tr>
               <td style="width:50%; vertical-align:top;">
                 <b>ĐẠI DIỆN BÊN BÁN (NHÀ MÁY)</b><br>
-                CÔNG TY TNHH BÁNH KẸO THIÊN LONG<br><br><br><br>
-                <b>LÊ VĂN LONG</b><br>Giám Đốc
+                ${supName}<br><br><br><br>
+                <b>GIÁM ĐỐC</b>
               </td>
               <td style="width:50%; vertical-align:top;">
                 <b>ĐẠI DIỆN BÊN MUA</b><br>
@@ -8218,21 +8363,21 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("ĐƠN ĐẶT HÀNG MUA BÁNH SNACK THIÊN LONG (PL01)", html);
+        openDossierDocPreviewModal(`ĐƠN ĐẶT HÀNG MUA HÀNG (${supName})`, html);
 
       } else if (docId === 'FRM-LOG-01') {
         // Trucking Waybill (ẨN GIÁ VỐN THEO RULE BẢO VỆ TẦNG 2)
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
-            <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH VẬN TẢI VĨNH THÀNH — VINH THANH LOGISTICS</div>
-            <div style="font-size:11.5px;">Quốc Lộ 1A, TP. Đông Hà, Quảng Trị | MST: 3200722417</div>
+            <div style="font-size:17px; font-weight:bold;">${carrierName}</div>
+            <div style="font-size:11.5px;">Quốc Lộ 1A, Quảng Trị | MST: ${carrierTax}</div>
             <div style="font-size:15px; font-weight:bold; margin-top:6px; text-decoration:underline;">TRUCKING WAYBILL / VẬN ĐƠN ĐƯỜNG BỘ NỘI ĐỊA</div>
             <div style="font-size:12px;">Số / Waybill No: VTL20260921 | FREIGHT PREPAID (CƯỚC ĐÃ TRẢ TRỌN GÓI)</div>
           </div>
 
           <div style="margin-bottom:10px; font-size:12px;">
             <b>Người gửi hàng (Shipper):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE (GSS) — MST: 0109469047<br>
-            <b>Địa điểm nhận hàng (Origin):</b> Kho Nhà máy Bánh kẹo Thiên Long, Cụm CN Tử Đà, Phù Ninh, Phú Thọ<br>
+            <b>Địa điểm nhận hàng (Origin):</b> Kho Nhà máy ${supName}, Việt Nam<br>
             <b>Địa điểm trả hàng (Destination):</b> Cửa khẩu Quốc tế Lao Bảo, Huyện Hướng Hóa, Tỉnh Quảng Trị<br>
             <b>Người nhận hàng (Consignee):</b> Theo chỉ định của Tờ khai Hải quan B11 (GSS)
           </div>
@@ -8250,7 +8395,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </thead>
             <tbody>
               <tr>
-                <td style="border:1px solid #000; padding:4px;"><b>Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br><small>Mã HS: 1905.90.80</small></td>
+                <td style="border:1px solid #000; padding:4px;"><b>${prodName}</b><br><small>Mã HS: 1905.90.80</small></td>
                 <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 6.6).toLocaleString('vi-VN')} kg</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 8.5).toLocaleString('vi-VN')} kg</td>
@@ -8271,11 +8416,11 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <tr>
               <td style="width:33%;"><b>NGƯỜI GỬI HÀNG (GSS)</b><br><br><br><br>Đã bàn giao xe</td>
               <td style="width:33%;"><b>LÁI XE TIẾP NHẬN</b><br><br><br><br>Trần Văn Nam</td>
-              <td style="width:33%;"><b>ĐẠI DIỆN VẬN TẢI VĨNH THÀNH</b><br><br><br><br>Ký đóng dấu</td>
+              <td style="width:33%;"><b>ĐẠI DIỆN VẬN TẢI</b><br><br><br><br>${carrierName}</td>
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("TRUCKING WAYBILL (VẬN ĐƠN ĐƯỜNG BỘ VĨNH THÀNH)", html);
+        openDossierDocPreviewModal(`TRUCKING WAYBILL (${carrierName})`, html);
 
       } else if (docId === 'FRM-TRD-05') {
         // Official Payment Instruction MB Bank USD
@@ -8460,7 +8605,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               <tr>
                 <td style="border:1px solid #000; padding:5px;">
                   <b>3. Đại lý hải quan / Khai thuê:</b><br>
-                  CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI BÌNH AN (MST: 0106123456)
+                  ${agentVnName} (MST: ${agentVnTax})
                 </td>
                 <td style="border:1px solid #000; padding:5px;">
                   <b>4. Địa điểm dỡ hàng & Cửa khẩu xuất:</b><br>
@@ -8486,8 +8631,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               <tr>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">01</td>
                 <td style="border:1px solid #000; padding:4px;">
-                  <b>Bánh que snack quẩy giòn (Crispy Stick Snack)</b><br>
-                  <small>Quy cách: 22g/cốc x 300 cốc/thùng. Hàng mới 100%, xuất xứ Việt Nam.</small>
+                  <b>${prodName}</b><br>
+                  <small>Quy cách: ${prodSpec}. Hàng mới 100%, xuất xứ Việt Nam.</small>
                 </td>
                 <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">1905.90.80</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
@@ -8496,7 +8641,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
                 <td style="border:1px solid #000; padding:4px; text-align:center;">0%</td>
               </tr>
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:5px; text-align:right;">TỔNG TRỊ GIÁ TÍNH THUẾ HẢI QUAN (FCA):</td>
+                <td colspan="5" style="border:1px solid #000; padding:5px; text-align:right;">TỔNG TRỊ GIÁ TÍNH THUẾ HẢI QUAN (${curTerms}):</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-size:12px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
                 <td style="border:1px solid #000; padding:5px; text-align:center;">0 VNĐ</td>
               </tr>
@@ -8553,8 +8698,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:14px;">
             <b>CÁC ĐIỀU KHOẢN CỐT LÕI (CORE INVARIANTS):</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Điều 1 (Hàng hóa):</b> Bánh que Snack Quẩy Giòn Giòn, quy cách 22g/cốc x 300 cốc/thùng, xuất xứ Việt Nam.</li>
-              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán ${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.</li>
+              <li><b>Điều 1 (Hàng hóa):</b> ${prodName}, quy cách ${prodSpec}, xuất xứ Việt Nam.</li>
+              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.</li>
               <li><b>Điều 3 (Phương thức thanh toán):</b> T/T 100% bằng đồng USD vào tài khoản MB Bank của Bên Bán (Cọc 30% khi ký PO, 70% trước khi thông quan cửa khẩu).</li>
               <li><b>Điều 4 (Bảo lưu quyền sở hữu):</b> Quyền sở hữu hàng hóa thuộc về Bên Bán cho đến khi Bên Bán nhận đủ 100% tiền thanh toán.</li>
               <li><b>Điều 5 (Trọng tài thương mại):</b> Tranh chấp phát sinh được giải quyết tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).</li>
@@ -8580,15 +8725,14 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
 
       } else if (docId === 'FRM-FIN-01') {
         // Financial Plan & Border Contingency
-        const cogsTotal = qty * 337000;
-        const vatTotal = cogsTotal * 0.08;
-        const totalVndRevenue = totalAmount * 26300;
+        const fx = d.fxRate || 25790;
+        const totalVndRevenue = totalAmount * fx;
         const grossProfit = totalVndRevenue - cogsTotal;
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
             <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
             <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Nam Từ Liêm, Hà Nội | MST: 0109469047</div>
-            <div style="font-size:16px; font-weight:bold; margin-top:8px; text-decoration:underline;">PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN ĐƠN HÀNG #269901</div>
+            <div style="font-size:16px; font-weight:bold; margin-top:8px; text-decoration:underline;">PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN ĐƠN HÀNG (${contractCode})</div>
           </div>
 
           <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
@@ -8596,25 +8740,25 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               <tr style="background:#f1f5f9;">
                 <th style="border:1px solid #000; padding:5px; text-align:left;">Hạng Mục Tài Chính</th>
                 <th style="border:1px solid #000; padding:5px; text-align:right;">Nguyên Tệ USD</th>
-                <th style="border:1px solid #000; padding:5px; text-align:right;">Quy Đổi VNĐ (Tỷ giá 26.300)</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Quy Đổi VNĐ (Tỷ giá ${Math.round(fx).toLocaleString('vi-VN')})</th>
                 <th style="border:1px solid #000; padding:5px; text-align:left;">Ghi Chú Nghiệp Vụ</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="border:1px solid #000; padding:5px;"><b>1. Doanh thu xuất khẩu (FCA):</b></td>
+                <td style="border:1px solid #000; padding:5px;"><b>1. Doanh thu xuất khẩu (${curTerms}):</b></td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold; color:#0369a1;">${totalVndRevenue.toLocaleString('vi-VN')} đ</td>
                 <td style="border:1px solid #000; padding:5px;">Thuế suất GTGT 0% theo TT 219/2013</td>
               </tr>
               <tr>
-                <td style="border:1px solid #000; padding:5px;"><b>2. Giá vốn mua hàng Thiên Long:</b></td>
+                <td style="border:1px solid #000; padding:5px;"><b>2. Giá vốn mua hàng (${supName}):</b></td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${cogsTotal.toLocaleString('vi-VN')} đ</td>
-                <td style="border:1px solid #000; padding:5px;">${qty.toLocaleString('vi-VN')} thùng x 337.000 đ (gồm bốc xếp)</td>
+                <td style="border:1px solid #000; padding:5px;">${qty.toLocaleString('vi-VN')} thùng x ${formatVnd(cogsUnitPrice)} (gồm bốc xếp)</td>
               </tr>
               <tr>
-                <td style="border:1px solid #000; padding:5px;"><b>3. Thuế GTGT đầu vào được hoàn (8%):</b></td>
+                <td style="border:1px solid #000; padding:5px;"><b>3. Thuế GTGT đầu vào được hoàn (${(vatRate * 100).toFixed(0)}%):</b></td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold; color:#15803d;">+${vatTotal.toLocaleString('vi-VN')} đ</td>
                 <td style="border:1px solid #000; padding:5px;">Ngân sách hoàn thuế GTGT nhà nước</td>
