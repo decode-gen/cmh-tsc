@@ -10,7 +10,11 @@
       "destination": "/CMH-BROKER-SHARE-COCKPIT.html"
     },
     {
-      "source": "/((?!api/|CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx|CMH-BROKER-SHARE-COCKPIT.html|bsc.html|robots.txt).*)",
+      "source": "/docs/(.*)",
+      "destination": "/artifacts/$1"
+    },
+    {
+      "source": "/((?!api/|docs/|artifacts/|CMH_TRADE_SCENARIO_SIMULATOR_V1.xlsx|CMH-BROKER-SHARE-COCKPIT.html|bsc.html|robots.txt).*)",
       "destination": "/index.html"
     }
   ],

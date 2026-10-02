@@ -1,0 +1,98 @@
+{
+  "$schema": "domains/supply-chain-trade/automations/xnk-dossier/schemas/order_manifest_schema.json",
+  "order_id": "269901",
+  "lifecycle_status": "FIRM_LOCKED",
+  "last_updated": "2026-09-23T16:00:00+07:00",
+  "approved_by": "NGUYEN VAN TRUNG",
+
+  "commercial_terms": {
+    "mfa_contract_no": "GSS-DM-MSA-2026",
+    "po_no": "269901",
+    "po_code_display": "PO260901",
+    "sales_contract_no": "GSSDIX_FCA_269901",
+    "invoice_no": "GSS-INV-269901",
+    "packing_list_no": "GSS-PKL-269901",
+    "execution_date": "09/09/2026",
+    "incoterms": "FCA LAO BAO BORDER GATE (INCOTERMS 2020)",
+    "currency": "USD"
+  },
+
+  "parties": {
+    "seller_code": "GSS",
+    "buyer_code": "BUY_TH_DUANGMANEE_DM",
+    "supplier_code": "SUP_VN_THIEN_LONG_TL",
+    "carrier_code": "LOG_VN_VINH_THANH_VT"
+  },
+
+  "order_line_items": [
+    {
+      "line_no": 1,
+      "commodity_name_vi": "Snack Quẩy Giòn Giòn",
+      "commodity_name_en": "Crispy Stick Snack",
+      "commodity_name_customs": "Snack food, crispy stick",
+      "hs_code": "1905.90.90",
+      "export_tax_rate": "0%",
+      "packaging_spec": "22g/cup, 300 cups/carton (30 cups × 10 bags/box)",
+      "carton_dimensions_mm": "585 x 270 x 497 mm",
+      "carton_cbm": 0.0785,
+      "unit": "Carton / Thùng",
+      
+      "quantity_cartons": 1300,
+      "total_cups": 390000,
+      
+      "export_unit_price_usd": 15.80,
+      "export_total_amount_usd": 20540.00,
+      "export_deposit_pct": 30,
+      "export_deposit_usd": 6162.00,
+      "export_balance_usd": 14378.00,
+      "export_amount_in_words_en": "TWENTY THOUSAND FIVE HUNDRED AND FORTY US DOLLARS ONLY",
+      "export_amount_in_words_vi": "Hai mươi nghìn năm trăm bốn mươi đô la Mỹ",
+      
+      "domestic_purchase_price_vnd": 337000,
+      "domestic_subtotal_vnd": 438100000,
+      "domestic_vat_rate": "8%",
+      "domestic_vat_amount_vnd": 35048000,
+      "domestic_total_payment_vnd": 473148000,
+      "domestic_deposit_vnd": 141944400,
+      "domestic_balance_vnd": 331203600,
+      
+      "net_weight_per_carton_kg": 6.60,
+      "total_net_weight_kg": 8580.00,
+      "gross_weight_per_carton_kg": 8.50,
+      "total_gross_weight_kg": 11050.00,
+      "total_volume_cbm": 102.05,
+      
+      "loading_factory_address": "Cụm CN Tử Đà, Huyện Phù Ninh, Tỉnh Phú Thọ, Việt Nam"
+    }
+  ],
+
+  "payment_execution_status": {
+    "supplier_thien_long": {
+      "status": "COMPLETED_100_PAID",
+      "total_paid_vnd": 473148000,
+      "phase_1_deposit_vnd": 141944400,
+      "phase_2_balance_vnd": 331203600,
+      "payment_method": "MB_BANK_UNC_TRANSFER",
+      "payable_remaining_vnd": 0
+    },
+    "carrier_vinh_thanh": {
+      "status": "COMPLETED_100_PAID",
+      "total_paid_vnd": 28760000,
+      "phase_1_advance_vnd": 11000000,
+      "phase_2_settlement_vnd": 17760000,
+      "invoice_no": "00000217",
+      "payment_method": "MB_BANK_UNC_TRANSFER",
+      "payable_remaining_vnd": 0
+    },
+    "customs_agent_binh_an": {
+      "status": "COMPLETED_100_PAID",
+      "total_paid_vnd": 18524000,
+      "service_fee_vnd": 16524000,
+      "cv15_fee_vnd": 2000000,
+      "debit_note_no": "DL2609298",
+      "payment_method": "BANK_UNC_TRANSFER",
+      "payable_remaining_vnd": 0
+    },
+    "overall_accounts_payable_status": "ZERO_BALANCE_FULLY_SETTLED"
+  }
+}

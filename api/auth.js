@@ -1,4 +1,4 @@
-// Vercel Serverless Function: Xác thực danh tính Ban Điều Hành
+// Vercel Serverless Function: Xác thực danh tính Ban Điều Hành GSS
 export default function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
@@ -9,14 +9,32 @@ export default function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  // Đọc từ Vercel Environment Variables và loại bỏ khoảng trắng / dấu ngoặc kép thừa
-  const rawEnvUser = process.env.ADMIN_USER || 'gss_director';
-  const rawEnvPass = process.env.ADMIN_PASS || 'GssTrung@2026';
-  const rawEnvPin = process.env.DIRECTOR_PIN || '1905';
+
+  // Quét biến môi trường không phân biệt HOA / THƯỜNG trên Linux (Vercel)
+  function getEnvCaseInsensitive(names, fallback = '') {
+    for (const name of names) {
+      if (process.env[name] !== undefined && process.env[name] !== '') {
+        return process.env[name];
+      }
+    }
+    const allKeys = Object.keys(process.env);
+    for (const name of names) {
+      const found = allKeys.find(k => k.toLowerCase() === name.toLowerCase());
+      if (found && process.env[found] !== undefined && process.env[found] !== '') {
+        return process.env[found];
+      }
+    }
+    return fallback;
+  }
+
+  // Đọc linh hoạt bất kỳ cách đặt tên nào (ADMIN_USER, Admin_user, admin_user, ...)
+  const rawEnvUser = getEnvCaseInsensitive(['ADMIN_USER', 'Admin_user', 'admin_user', 'USERNAME', 'USER'], 'decode9.0525');
+  const rawEnvPass = getEnvCaseInsensitive(['ADMIN_PASS', 'Admin_pass', 'admin_pass', 'PASSWORD', 'PASS'], '25051990');
+  const rawEnvPin  = getEnvCaseInsensitive(['DIRECTOR_PIN', 'Director_pin', 'director_pin', 'PIN'], '2505');
 
   const expectedUser = rawEnvUser.trim().replace(/^['"]|['"]$/g, '');
   const expectedPass = rawEnvPass.trim().replace(/^['"]|['"]$/g, '');
-  const expectedPin = rawEnvPin.trim().replace(/^['"]|['"]$/g, '');
+  const expectedPin  = rawEnvPin.trim().replace(/^['"]|['"]$/g, '');
 
   // Xác thực token qua GET
   if (req.method === 'GET') {
@@ -26,8 +44,14 @@ export default function handler(req, res) {
       try {
         const decoded = Buffer.from(token, 'base64').toString('utf8');
         const [user] = decoded.split(':');
-        if (user.toLowerCase() === expectedUser.toLowerCase()) {
-          return res.status(200).json({ success: true, user: expectedUser });
+        const normU = (user || '').toLowerCase();
+        if (
+          normU === expectedUser.toLowerCase() ||
+          normU === 'decode9.0525' ||
+          normU === 'gss_director' ||
+          normU === 'admin'
+        ) {
+          return res.status(200).json({ success: true, user: user || expectedUser });
         }
       } catch (e) {}
     }
@@ -46,54 +70,67 @@ export default function handler(req, res) {
   const { username, password, pin } = body || {};
   const cleanUser = String(username || '').trim().replace(/^['"]|['"]$/g, '');
   const cleanPass = String(password || '').trim().replace(/^['"]|['"]$/g, '');
-  const cleanPin = String(pin || '').trim().replace(/^['"]|['"]$/g, '');
+  const cleanPin  = String(pin || '').trim().replace(/^['"]|['"]$/g, '');
 
-  // Chuẩn hóa so khớp tên đăng nhập (không phân biệt hoa/thường trên bàn phím điện thoại)
   const normUser = cleanUser.toLowerCase();
   const normExpectedUser = expectedUser.toLowerCase();
 
-  const isUserMatch = normUser.length > 0 && (
-    normUser === normExpectedUser ||
-    normUser === 'gss_director' ||
-    normUser === 'admin'
-  );
+  // Danh sách các tài khoản hợp lệ được cấp quyền
+  const validUsers = [
+    normExpectedUser,
+    'decode9.0525',
+    'gss_director',
+    'admin'
+  ].filter(Boolean);
 
-  // Mật khẩu khớp với ADMIN_PASS hoặc mã PIN Ban Giám Đốc (1905 / 2505 / GssTrung@2026)
-  const isPassMatch = cleanPass.length > 0 && (
-    cleanPass === expectedPass ||
-    cleanPass === rawEnvPass.trim() ||
-    cleanPass === expectedPin ||
-    cleanPass === '1905' ||
-    cleanPass === '2505' ||
-    cleanPass === 'GssTrung@2026'
-  );
+  const isUserMatch = normUser.length > 0 && validUsers.includes(normUser);
 
-  const isPinMatch = cleanPin.length > 0 && (
-    cleanPin === expectedPin ||
-    cleanPin === '1905' ||
-    cleanPin === '2505'
-  );
+  // Danh sách các mật khẩu hợp lệ
+  const validPasswords = [
+    expectedPass,
+    '25051990',
+    'GssTrung@2026',
+    expectedPin,
+    '2505',
+    '1905'
+  ].filter(Boolean);
 
-  if ((isUserMatch && isPassMatch) || isPinMatch) {
-    const token = Buffer.from(`${expectedUser}:${Date.now()}`).toString('base64');
+  const isPassMatch = cleanPass.length > 0 && validPasswords.includes(cleanPass);
+
+  // Nhập mã PIN (dù nhập ở ô pin hay ô mật khẩu password)
+  const validPins = [
+    expectedPin,
+    '2505',
+    '1905'
+  ].filter(Boolean);
+
+  const isDirectPinMatch = (cleanPin.length > 0 && validPins.includes(cleanPin)) ||
+                           (cleanPass.length > 0 && validPins.includes(cleanPass));
+
+  // Điều kiện thành công:
+  // 1. Nhập đúng User và Password
+  // 2. HOẶC nhập trực tiếp mã PIN Giám Đốc (1905 / 2505) vào ô mật khẩu
+  if ((isUserMatch && isPassMatch) || isDirectPinMatch) {
+    const activeUser = isUserMatch ? cleanUser : (expectedUser || 'decode9.0525');
+    const token = Buffer.from(`${activeUser}:${Date.now()}`).toString('base64');
     return res.status(200).json({
       success: true,
       token,
-      user: expectedUser,
+      user: activeUser,
       message: 'Xác thực Ban Điều Hành GSS thành công!'
     });
   }
 
-  // Thông báo chẩn đoán chính xác lỗi
+  // Chẩn đoán lỗi chính xác cho người dùng
   if (!isUserMatch) {
     return res.status(401).json({
       success: false,
-      message: `Tài khoản "${cleanUser}" không khớp! Tài khoản đã cài trên Vercel: "${expectedUser}"`
+      message: `Tài khoản "${cleanUser}" không khớp! Hệ thống chấp nhận: "${expectedUser}", "decode9.0525", "gss_director", "admin".`
     });
   }
 
   return res.status(401).json({
     success: false,
-    message: `Mật khẩu không chính xác cho tài khoản "${cleanUser}"! Vui lòng kiểm tra lại ADMIN_PASS trên Vercel (hoặc có thể nhập mã PIN 1905 / 2505 để đăng nhập nhanh).`
+    message: `Mật khẩu không chính xác cho tài khoản "${cleanUser}"! Vui lòng kiểm tra lại mật khẩu (hoặc nhập mã PIN Giám Đốc 2505 / 1905 vào ô mật khẩu để đăng nhập trực tiếp). Số lượng biến env phát hiện: ${Object.keys(process.env).length}.`
   });
 }

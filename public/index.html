@@ -1907,11 +1907,17 @@
             </div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button type="button" class="btn btn-sm" onclick="downloadAllIndividualFilesSequentially()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tự động tải lần lượt từng file rời (25 tài liệu) về thư mục Downloads mà không cần giải nén ZIP">
+              <span>[📥 Tải Lần Lượt Từng File Rời (25 File)]</span>
+            </button>
+            <button type="button" class="btn btn-sm" onclick="downloadSelectedDossierFiles()" style="background:#d97706; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(217,119,6,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải lần lượt các tài liệu đã tích chọn trong danh sách">
+              <span>[☑ Tải Các File Đã Chọn <span class="btn-download-selected-count"></span>]</span>
+            </button>
             <button type="button" class="btn btn-sm" onclick="downloadAllDossierZip('269901')" style="background:#059669; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(5,150,105,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải về tệp nén ZIP chứa toàn bộ 214 file hồ sơ đơn hàng theo chuẩn 6 nhánh thư mục">
               <span>[📦 Tải Trọn Bộ ZIP Đơn 269901]</span>
             </button>
-            <button type="button" class="btn btn-sm" onclick="compileCurrentScenarioDossier()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Biên dịch bộ chứng từ theo thông số số lượng & đơn giá đang chọn trên Buồng Lái">
-              <span>[⚡ Biên Dịch Theo Kịch Bản Live]</span>
+            <button type="button" class="btn btn-sm" onclick="compileCurrentScenarioDossier()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; display:inline-flex; align-items:center; gap:5px;" data-tooltip="Biên dịch bộ chứng từ theo thông số số lượng & đơn giá đang chọn trên Buồng Lái">
+              <span>[⚡ Nạp Kịch Bản Live]</span>
             </button>
           </div>
         </div>
@@ -1929,15 +1935,20 @@
 
         <!-- TAB 1: 01_BUY (KHÁCH NGOẠI) -->
         <div id="dossierTab01Buy" class="dossier-tab-content">
-          <div style="background:rgba(37,99,235,0.06); border-left:3px solid #2563eb; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Đối tượng thụ hưởng:</b> Khách hàng nước ngoài (Duangmanee Import-Export Co., Ltd), Ngân hàng thanh toán MB Bank USD SWIFT `MSCBVNVX`.<br>
-            <b>Ràng buộc:</b> 100% tiếng Anh thương mại, giá bán FCA Lao Bảo, điều khoản T/T và bảo lưu quyền sở hữu.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(37,99,235,0.06); border-left:3px solid #2563eb; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Đối tượng thụ hưởng:</b> Khách ngoại (Duangmanee Co., Ltd), MB Bank USD `MSCBVNVX`. Giá bán FCA, T/T và bảo lưu quyền sở hữu.
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('01_BUY')" style="background:#1e3a8a; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Các File Trong Họ 01_BUY]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossier01BuyBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:130px;">Mã Form SSOT</th>
                   <th>Tên Chứng Từ (Song Ngữ)</th>
                   <th style="width:140px;">Quy Chuẩn Layout</th>
@@ -1954,15 +1965,20 @@
 
         <!-- TAB 2: 02_CUS (HẢI QUAN & DỊCH VỤ CỬA KHẨU) -->
         <div id="dossierTab02Cus" class="dossier-tab-content" style="display:none;">
-          <div style="background:rgba(5,150,105,0.06); border-left:3px solid #059669; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Đối tượng thụ hưởng:</b> Chi cục Hải quan Cửa khẩu Lao Bảo & Đại lý làm dịch vụ thông quan (Bình An Logistics).<br>
-            <b>Ràng buộc:</b> Hợp nhất toàn bộ hồ sơ khai báo hải quan B11 và hồ sơ đại lý dịch vụ thông quan cửa khẩu, triệt tiêu 100% việc nhân đôi tài liệu.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(5,150,105,0.06); border-left:3px solid #059669; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Đối tượng thụ hưởng:</b> Hải quan Lao Bảo & Bình An Logistics. Hợp nhất 100% hồ sơ B11 và đại lý dịch vụ.
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('02_CUS')" style="background:#065f46; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Các File Trong Họ 02_CUS]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossier02CusBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:130px;">Mã Form SSOT</th>
                   <th>Tên Chứng Từ (Song Ngữ)</th>
                   <th style="width:140px;">Quy Chuẩn Layout</th>
@@ -1977,15 +1993,20 @@
 
         <!-- TAB 3: 03_SUP (XƯỞNG SX THIÊN LONG) -->
         <div id="dossierTab03Sup" class="dossier-tab-content" style="display:none;">
-          <div style="background:rgba(217,119,6,0.06); border-left:3px solid #d97706; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Đối tượng thụ hưởng:</b> Nhà máy Bánh kẹo Thiên Long (Phú Thọ), Quản lý kho xưởng.<br>
-            <b>Ràng buộc:</b> Giá vốn nội địa 337.000 đ/thùng (đã gồm công bốc xếp lên xe), cam kết ATTP/ISO 22000, cam kết bảo lãnh bồi thường hoàn thuế GTGT 0%.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(217,119,6,0.06); border-left:3px solid #d97706; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Đối tượng thụ hưởng:</b> Nhà máy Thiên Long (Phú Thọ). Giá vốn 337.000 đ/thùng (gồm bốc xếp), cam kết bảo lãnh hoàn thuế 0%.
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('03_SUP')" style="background:#b45309; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Các File Trong Họ 03_SUP]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossier03SupBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:130px;">Mã Form SSOT</th>
                   <th>Tên Chứng Từ (Song Ngữ)</th>
                   <th style="width:140px;">Quy Chuẩn Layout</th>
@@ -2000,15 +2021,20 @@
 
         <!-- TAB 4: 04_LOG (VẬN TẢI VĨNH THÀNH) -->
         <div id="dossierTab04Log" class="dossier-tab-content" style="display:none;">
-          <div style="background:rgba(147,51,234,0.06); border-left:3px solid #9333ea; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Đối tượng thụ hưởng:</b> Đơn vị vận tải Vĩnh Thành, Điều phối xe, Lái xe container.<br>
-            <b>Bảo mật Tầng 2 Tuyệt Đối:</b> Ẩn 100% giá vốn 337k và ẩn SĐT/Email riêng của khách ngoại. Giữ quy tắc 1-Page Invariant cho Waybill và Đơn điều xe PL01.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(147,51,234,0.06); border-left:3px solid #9333ea; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Đối tượng thụ hưởng:</b> Đơn vị vận tải Vĩnh Thành. <b>Bảo vệ Tầng 2:</b> Ẩn 100% giá vốn 337k và SĐT khách ngoại.
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('04_LOG')" style="background:#7e22ce; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Các File Trong Họ 04_LOG]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossier04LogBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:130px;">Mã Form SSOT</th>
                   <th>Tên Chứng Từ (Song Ngữ)</th>
                   <th style="width:140px;">Quy Chuẩn Layout</th>
@@ -2023,15 +2049,20 @@
 
         <!-- TAB 5: 05_COD (C/O MẪU D ECOSYS) -->
         <div id="dossierTab05Cod" class="dossier-tab-content" style="display:none;">
-          <div style="background:rgba(14,165,233,0.06); border-left:3px solid #0ea5e9; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Đối tượng thụ hưởng:</b> Phòng Quản lý XNK (Bộ Công Thương) / VCCI, Hệ thống eCoSys.<br>
-            <b>Ràng buộc:</b> Vector PDF 2 trang chuẩn, 13 Box ATIGA, triệt tiêu bẫy cấp sau (Issued Retroactively), chuẩn hóa Box 2 & Box 7.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(14,165,233,0.06); border-left:3px solid #0ea5e9; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Đối tượng thụ hưởng:</b> Phòng QLXNK / VCCI, eCoSys. Vector PDF 2 trang chuẩn, 13 Box ATIGA không tích bẫy Retroactive.
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('05_COD')" style="background:#0369a1; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Các File Trong Họ 05_COD]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossier05CodBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:130px;">Mã Form SSOT</th>
                   <th>Tên Chứng Từ (Song Ngữ)</th>
                   <th style="width:140px;">Quy Chuẩn Layout</th>
@@ -2046,15 +2077,20 @@
 
         <!-- TAB 6: 06_FIN (KẾ TOÁN & THUẾ 0%) -->
         <div id="dossierTab06Fin" class="dossier-tab-content" style="display:none;">
-          <div style="background:rgba(225,29,72,0.06); border-left:3px solid #e11d48; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Đối tượng thụ hưởng:</b> Ban Giám Đốc, Kế toán trưởng GSS, Đoàn thanh tra Cục Thuế Hà Nội.<br>
-            <b>Ràng buộc:</b> Tuyệt mật nội bộ, đối soát 3 góc chặt chẽ giữa Tiền về MB Bank — Tờ khai thông quan B11 — Hóa đơn GTGT 0% TT 219.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(225,29,72,0.06); border-left:3px solid #e11d48; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Đối tượng thụ hưởng:</b> Ban Giám Đốc, Kế toán trưởng GSS, Đoàn thanh tra hoàn thuế. Đối soát 3 góc: Dòng tiền — Hải quan — Thuế.
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('06_FIN')" style="background:#be123c; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Các File Trong Họ 06_FIN]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossier06FinBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:130px;">Mã Form SSOT</th>
                   <th>Tên Chứng Từ (Song Ngữ)</th>
                   <th style="width:140px;">Quy Chuẩn Layout</th>
@@ -2069,14 +2105,20 @@
 
         <!-- TAB 7: PHÔI TRẮNG GỐC MASTER BLUEPRINTS (DÙNG CHO TẤT CẢ ĐƠN HÀNG MỚI) -->
         <div id="dossierTabMaster" class="dossier-tab-content" style="display:none;">
-          <div style="background:rgba(234,179,8,0.08); border-left:3px solid #eab308; padding:8px 12px; margin-bottom:10px; font-size:12px;">
-            <b>Kho Lưu Trữ Gốc (Master Blueprints SSOT):</b> Chứa các phôi trắng chứa placeholder tham số (`[BUYER_NAME]`, `[UNIT_PRICE]`, `[QUANTITY]`,...). Dùng để áp dụng cho bất kỳ đối tác mới nào trong tương lai theo đúng quy chuẩn Factory V4.2.
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+            <div style="background:rgba(234,179,8,0.08); border-left:3px solid #eab308; padding:6px 10px; font-size:11.5px; flex:1;">
+              <b>Kho Lưu Trữ Gốc (Master Blueprints SSOT):</b> Phôi trắng chứa placeholder tham số (`[BUYER_NAME]`, `[UNIT_PRICE]`, `[QUANTITY]`,...).
+            </div>
+            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('MASTER')" style="background:#a16207; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+              <span>[📥 Tải Lần Lượt Toàn Bộ Phôi Master]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
               <thead>
                 <tr style="background:var(--bg-cockpit-panel);">
-                  <th style="width:40px;" class="text-center">STT</th>
+                  <th style="width:30px;" class="text-center"><input type="checkbox" onchange="toggleSelectAllPillarDocs(this, 'tblDossierMasterBody')" data-tooltip="Chọn tất cả"></th>
+                  <th style="width:35px;" class="text-center">STT</th>
                   <th style="width:140px;">Mã Phôi Gốc</th>
                   <th>Tên Biểu Mẫu Chuẩn Master</th>
                   <th style="width:110px;">Họ Trụ Cột</th>
@@ -2121,11 +2163,20 @@
           <!-- Dynamically populated document HTML content -->
         </div>
       </div>
-      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
         <div style="font-size:11.5px; color:var(--text-muted);">
-          🖨 Nhấn <b>[In Trực Tiếp (A4)]</b> để mở hộp thoại in của trình duyệt hoặc lưu dạng PDF chuẩn A4.
+          🖨 Bản in thiết kế A4 chuẩn mực. Bạn có thể tải file Word (.DOC), tải file gốc, hoặc in trực tiếp.
         </div>
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <button class="btn btn-sm" onclick="exportPreviewToWordDoc()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3);">
+            <span>[📄 Tải Bản Word .DOC Này]</span>
+          </button>
+          <button class="btn btn-sm" onclick="downloadCurrentPreviewDocx()" style="background:#1d4ed8; color:#fff; font-weight:bold; border:none;">
+            <span>[⬇ Tải File .DOCX Gốc]</span>
+          </button>
+          <button class="btn btn-sm" onclick="downloadCurrentPreviewPdf()" style="background:#059669; color:#fff; font-weight:bold; border:none;">
+            <span>[⬇ Tải File .PDF Gốc]</span>
+          </button>
           <button class="btn btn-sm" onclick="printPreviewDocDirect()" style="background:#16a34a; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(22,163,74,0.3);">
             <span>[🖨 In Trực Tiếp (A4)]</span>
           </button>
@@ -6353,15 +6404,18 @@
           // Chạy offline / local file:/// -> Fallback xác thực mặc định
           console.warn("Máy chủ /api/auth chưa phản hồi (offline/file mode), áp dụng fallback:", apiErr);
           if (
+            (username === 'decode9.0525' && password === '25051990') ||
             (username === 'gss_director' && password === 'GssTrung@2026') ||
             (username === 'admin' && password === '1905') ||
-            password === '2505'
+            password === '2505' ||
+            password === '1905' ||
+            password === '25051990'
           ) {
             authSuccess = true;
             authToken = btoa(`${username}:${Date.now()}`);
             authUser = username;
           } else {
-            throw new Error('Tài khoản hoặc mật khẩu không chính xác! (Mặc định: gss_director / GssTrung@2026)');
+            throw new Error('Tài khoản hoặc mật khẩu không chính xác! (Chấp nhận: decode9.0525 / 25051990 hoặc PIN 2505)');
           }
         }
 
@@ -6452,8 +6506,8 @@
       cogsVnd: 337000,
       zipFilename: "HO_SO_XUAT_KHAU_THONG_QUAN_GSSDIX_FCA_269901.zip",
       zipSize: "75.1 MB (214 tệp tin chuẩn 6 nhánh)",
-      baseDir: "domains/supply-chain-trade/automations/xnk-dossier/artifacts/HO_SO_XUAT_KHAU_THONG_QUAN_GSSDIX_FCA_269901",
-      masterDir: "domains/supply-chain-trade/automations/xnk-dossier/artifacts/CMH_MASTER_FORM_TEMPLATES"
+      baseDir: "artifacts/HO_SO_XUAT_KHAU_THONG_QUAN_GSSDIX_FCA_269901",
+      masterDir: "artifacts/CMH_MASTER_FORM_TEMPLATES"
     };
 
     const DOSSIER_PILLARS = {
@@ -6901,6 +6955,18 @@
         const fullPdf = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.pdf';
         const fullXls = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.xls';
 
+        let primaryUrl = fullDocx;
+        let primaryFn = `${d.code}.docx`;
+        if (!d.formats.includes('DOCX')) {
+          if (d.formats.includes('PDF')) {
+            primaryUrl = fullPdf;
+            primaryFn = `${d.code}.pdf`;
+          } else if (d.formats.includes('XLS')) {
+            primaryUrl = fullXls;
+            primaryFn = `${d.code}.xls`;
+          }
+        }
+
         let buttons = '';
         if (d.formats.includes('DOCX')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.code}.docx')" style="padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .DOCX]</button>`;
@@ -6917,6 +6983,9 @@
 
         html += `
           <tr>
+            <td class="text-center">
+              <input type="checkbox" class="chk-dossier-doc" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${d.nameVi}" onchange="updateSelectedCountBadge()">
+            </td>
             <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
             <td><code style="font-size:11.5px; color:var(--text-main); font-weight:bold;">${d.code}</code></td>
             <td>
@@ -6930,6 +6999,7 @@
         `;
       });
       tbody.innerHTML = html;
+      updateSelectedCountBadge();
     }
 
     function renderMasterRows(tbodyId, docs) {
@@ -6940,6 +7010,18 @@
         const fullDocx = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.docx';
         const fullPdf = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.pdf';
         const fullXls = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.xls';
+
+        let primaryUrl = fullDocx;
+        let primaryFn = `${d.file}.docx`;
+        if (!d.formats.includes('DOCX')) {
+          if (d.formats.includes('PDF')) {
+            primaryUrl = fullPdf;
+            primaryFn = `${d.file}.pdf`;
+          } else if (d.formats.includes('XLS')) {
+            primaryUrl = fullXls;
+            primaryFn = `${d.file}.xls`;
+          }
+        }
 
         let buttons = '';
         if (d.formats.includes('DOCX')) {
@@ -6954,6 +7036,9 @@
 
         html += `
           <tr>
+            <td class="text-center">
+              <input type="checkbox" class="chk-dossier-doc" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${d.nameVi}" onchange="updateSelectedCountBadge()">
+            </td>
             <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
             <td><code style="font-size:11.5px; color:var(--alert-warning-text); font-weight:bold;">${d.code}</code></td>
             <td><b style="color:var(--text-main); font-size:12.5px;">${d.nameVi}</b></td>
@@ -6964,16 +7049,223 @@
         `;
       });
       tbody.innerHTML = html;
+      updateSelectedCountBadge();
+    }
+
+    function resolveDocPath(subPath) {
+      if (!subPath) return '';
+      if (subPath.startsWith('http://') || subPath.startsWith('https://')) return subPath;
+      if (subPath.startsWith('artifacts/') || subPath.startsWith('docs/')) return subPath;
+      return `${DOSSIER_REGISTRY.baseDir}/${subPath}`;
     }
 
     function downloadDossierDoc(filePath, fileName) {
       showToastNotification(`⬇ Đang tải file chứng từ: ${fileName}...`);
       const link = document.createElement('a');
-      link.href = filePath;
+      link.href = resolveDocPath(filePath);
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    async function downloadFilesSequentially(fileItems, groupName = 'Tài liệu') {
+      if (!fileItems || fileItems.length === 0) {
+        showToastNotification("⚠️ Không có tài liệu nào được chọn để tải!");
+        return;
+      }
+      const total = fileItems.length;
+      showToastNotification(`🚀 Bắt đầu tải lần lượt ${total} file của ${groupName}... Trình duyệt sẽ tải từng file vào Downloads.`);
+
+      let successCount = 0;
+      for (let i = 0; i < total; i++) {
+        const item = fileItems[i];
+        const url = resolveDocPath(item.url || item.path);
+        const fileName = item.filename || item.name || `document_${i + 1}`;
+        
+        try {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          successCount++;
+        } catch (err) {
+          console.error(`Lỗi khi tải file ${fileName}:`, err);
+        }
+
+        // Tạm dừng 450ms giữa 2 lần tải để trình duyệt không chặn popup/download spam
+        if (i < total - 1) {
+          await new Promise(resolve => setTimeout(resolve, 450));
+        }
+      }
+
+      showToastNotification(`✅ ĐÃ HOÀN TẤT: Đã kích hoạt tải ${successCount}/${total} file của ${groupName} vào thư mục Downloads!`);
+    }
+
+    function downloadCurrentTabSequentially(pillarKey) {
+      const docs = DOSSIER_PILLARS[pillarKey];
+      if (!docs || docs.length === 0) {
+        showToastNotification(`Không tìm thấy tài liệu trong họ ${pillarKey}`);
+        return;
+      }
+
+      const files = [];
+      docs.forEach(d => {
+        let ext = 'docx';
+        if (d.formats && d.formats.includes('DOCX')) ext = 'docx';
+        else if (d.formats && d.formats.includes('PDF')) ext = 'pdf';
+        else if (d.formats && d.formats.includes('XLS')) ext = 'xls';
+
+        const base = (pillarKey === 'MASTER') ? DOSSIER_REGISTRY.masterDir + '/' + d.file : DOSSIER_REGISTRY.baseDir + '/' + d.fileBase;
+        files.push({
+          url: `${base}.${ext}`,
+          filename: (pillarKey === 'MASTER') ? `${d.file}.${ext}` : `${d.code}.${ext}`,
+          name: d.nameVi
+        });
+      });
+
+      downloadFilesSequentially(files, `Họ Trụ Cột ${pillarKey}`);
+    }
+
+    function downloadAllIndividualFilesSequentially() {
+      const allFiles = [];
+      const pillarKeys = ['01_BUY', '02_CUS', '03_SUP', '04_LOG', '05_COD', '06_FIN'];
+      pillarKeys.forEach(pk => {
+        const list = DOSSIER_PILLARS[pk] || [];
+        list.forEach(d => {
+          let ext = 'docx';
+          if (d.formats && d.formats.includes('DOCX')) ext = 'docx';
+          else if (d.formats && d.formats.includes('PDF')) ext = 'pdf';
+          else if (d.formats && d.formats.includes('XLS')) ext = 'xls';
+
+          allFiles.push({
+            url: `${DOSSIER_REGISTRY.baseDir}/${d.fileBase}.${ext}`,
+            filename: `${d.code}.${ext}`,
+            name: d.nameVi
+          });
+        });
+      });
+
+      downloadFilesSequentially(allFiles, 'Toàn Bộ Hồ Sơ 6 Trụ Cột (25 Tài Liệu Rời)');
+    }
+
+    function downloadSelectedDossierFiles() {
+      const checkedBoxes = document.querySelectorAll('.chk-dossier-doc:checked');
+      if (checkedBoxes.length === 0) {
+        showToastNotification("⚠️ Vui lòng tích chọn ít nhất 1 tài liệu trong bảng để tải!");
+        return;
+      }
+
+      const files = [];
+      checkedBoxes.forEach(cb => {
+        files.push({
+          url: cb.getAttribute('data-url'),
+          filename: cb.getAttribute('data-fn'),
+          name: cb.getAttribute('data-name')
+        });
+      });
+
+      downloadFilesSequentially(files, `Danh sách ${files.length} tài liệu đã chọn`);
+    }
+
+    function toggleSelectAllPillarDocs(chkAll, tbodyId) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      const cbs = tbody.querySelectorAll('.chk-dossier-doc');
+      cbs.forEach(cb => {
+        cb.checked = chkAll.checked;
+      });
+      updateSelectedCountBadge();
+    }
+
+    function updateSelectedCountBadge() {
+      const totalChecked = document.querySelectorAll('.chk-dossier-doc:checked').length;
+      document.querySelectorAll('.btn-download-selected-count').forEach(el => {
+        el.textContent = totalChecked > 0 ? `(${totalChecked})` : '';
+      });
+    }
+
+    let _currentPreviewDocId = null;
+
+    function exportPreviewToWordDoc() {
+      const container = document.getElementById('previewDocContainer');
+      const titleEl = document.getElementById('previewDocTitle');
+      if (!container) return;
+      const docTitle = titleEl ? titleEl.innerText : 'Chung_Tu_XNK';
+      const cleanFileName = docTitle.replace(/[^a-zA-Z0-9_\-\u00C0-\u024F\u1EA0-\u1EF9]/g, '_') + '.doc';
+
+      const wordHtml = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>${docTitle}</title>
+          <style>
+            @page { size: A4 portrait; margin: 12mm 15mm; }
+            body { font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.45; color: #000000; background: #ffffff; margin: 0; padding: 0; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000000; padding: 4px 6px; font-family: 'Times New Roman', serif; font-size: 12px; }
+            th { background: #f1f5f9; font-weight: bold; }
+            .no-border, .no-border td { border: none !important; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          ${container.innerHTML}
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = cleanFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToastNotification(`📄 Đã xuất bản Word thành công: ${cleanFileName}`);
+    }
+
+    function downloadCurrentPreviewDocx() {
+      if (!_currentPreviewDocId) {
+        showToastNotification("Chưa mở chứng từ nào!");
+        return;
+      }
+      let foundDoc = null;
+      for (const pk in DOSSIER_PILLARS) {
+        const item = DOSSIER_PILLARS[pk].find(d => d.id === _currentPreviewDocId);
+        if (item) { foundDoc = item; break; }
+      }
+      if (foundDoc && foundDoc.formats.includes('DOCX')) {
+        const fullDocx = `${DOSSIER_REGISTRY.baseDir}/${foundDoc.fileBase}.docx`;
+        downloadDossierDoc(fullDocx, `${foundDoc.code}.docx`);
+      } else {
+        showToastNotification("Chứng từ này không có phôi .DOCX gốc!");
+      }
+    }
+
+    function downloadCurrentPreviewPdf() {
+      if (!_currentPreviewDocId) {
+        showToastNotification("Chưa mở chứng từ nào!");
+        return;
+      }
+      let foundDoc = null;
+      for (const pk in DOSSIER_PILLARS) {
+        const item = DOSSIER_PILLARS[pk].find(d => d.id === _currentPreviewDocId);
+        if (item) { foundDoc = item; break; }
+      }
+      if (foundDoc && foundDoc.formats.includes('PDF')) {
+        const fullPdf = `${DOSSIER_REGISTRY.baseDir}/${foundDoc.fileBase}.pdf`;
+        downloadDossierDoc(fullPdf, `${foundDoc.code}.pdf`);
+      } else {
+        showToastNotification("Chứng từ này không có file .PDF gốc!");
+      }
     }
 
     function downloadAllDossierZip(orderId) {
@@ -7063,6 +7355,7 @@
     }
 
     function previewDossierDoc(docId) {
+      _currentPreviewDocId = docId;
       recalculate();
       const d = window._currentCalcData || {};
       const qty = d.qty || 1300;

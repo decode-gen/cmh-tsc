@@ -1,6 +1,7 @@
 {
   "name": "coltdgss-tsc",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "description": "CMH-TSC — Executive Trade Scenario Simulator & P&L Cockpit (Vercel Satellite)",
   "scripts": {

@@ -1,0 +1,67 @@
+# THƯ MỤC HỒ SƠ QUẢN TRỊ KẾ TOÁN & KIỂM SOÁT THUẾ ĐƠN HÀNG 269901
+## BỘ CHỨNG TỪ HOÀN CHỈNH GIAO CHO PHÒNG TÀI CHÍNH KẾ TOÁN G-SS CO.,LTD
+### ĐƠN HÀNG XUẤT KHẨU SNACK QUẨY GIÒN GIÒN SANG THÁI LAN (HĐ: GSSDIX_FCA_269901)
+
+> **Mã thư mục chuẩn:** `07_BO_HO_SO_KE_TOAN_THUE_DON_269901`  
+> **Quy chuẩn định danh:** Hệ Name ID (`KT-RA`, `KT-HQ`, `KT-VAO`, `KT-LOG`, `KT-NH`, `KT-FIN`, `KT-SOP`)  
+> **Tiêu chuẩn chất lượng:** CMH Factory V4.2 / Rule R13 (Pure Black `#000000`)
+
+---
+
+### CẤU TRÚC 6 THƯ MỤC CHỨC NĂNG & DANH MỤC FILE TOÀN DIỆN
+
+```
+07_BO_HO_SO_KE_TOAN_THUE_DON_269901/
+├── 00_HUONG_DAN_QUY_TRINH_KE_TOAN_SAU_XUAT_HOA_DON_269901.docx  ★ [VĂN BẢN TRUNG TÂM - BẢN IN WORD]
+├── 00_HUONG_DAN_QUY_TRINH_KE_TOAN_SAU_XUAT_HOA_DON_269901.md    ★ [VĂN BẢN TRUNG TÂM - BẢN MARKDOWN]
+├── README_DANH_MUC_HO_SO_KE_TOAN_269901.md                      [BẢN ĐỒ CHỈ MỤC THƯ MỤC NÀY]
+│
+├── 01_HOA_DON_DAU_RA_VA_DOANH_THU/                              [KẾ TOÁN DOANH THU & KÊ KHAI 0%]
+│   ├── KT-RA-01_HOA_DON_GTGT_XUAT_KHAU_0PCT_MISA_269901.docx    (Bản nháp & cấu trúc HĐ MISA)
+│   ├── KT-RA-01_HOA_DON_GTGT_XUAT_KHAU_0PCT_MISA_269901.md      (Nội dung chi tiết HĐ MISA)
+│   ├── KT-RA-02_COMMERCIAL_INVOICE_GSS_INV_269901.pdf           (Hóa đơn thương mại quốc tế PDF)
+│   ├── KT-RA-02_COMMERCIAL_INVOICE_GSS_INV_269901.docx          (Hóa đơn thương mại quốc tế Word)
+│   ├── KT-RA-03_PACKING_LIST_GSS_PKL_269901.pdf                 (Phiếu đóng gói xuất khẩu PDF)
+│   ├── KT-RA-03_PACKING_LIST_GSS_PKL_269901.docx                (Phiếu đóng gói xuất khẩu Word)
+│   ├── KT-RA-04_SALES_CONTRACT_VA_PO01_GSSDIX_FCA_269901.pdf    (Hợp đồng & PO song ngữ PDF)
+│   └── KT-RA-04_SALES_CONTRACT_GSSDIX_FCA_269901.docx           (Hợp đồng ngoại thương Word)
+│
+├── 02_TO_KHAI_HAI_QUAN_VA_CHUNG_TU_XUAT/                        [HỒ SƠ THỰC XUẤT CỦA HẢI QUAN]
+│   ├── KT-HQ-01_TO_KHAI_HAI_QUAN_XUAT_KHAU_B11_THONG_QUAN.pdf   (Tờ khai B11 thông quan PDF)
+│   ├── KT-HQ-01_TO_KHAI_HAI_QUAN_XUAT_KHAU_B11_THONG_QUAN.docx  (Bản hiệu chỉnh tờ khai B11 Word)
+│   ├── KT-HQ-02_CO_FORM_D_ATIGA_ECOSYS_XUAT_KHAU_THAI_LAN.pdf   (C/O Form D 13 Box PDF)
+│   ├── KT-HQ-02_CO_FORM_D_ATIGA_ECOSYS_XUAT_KHAU_THAI_LAN.docx  (C/O Form D 13 Box Word)
+│   └── KT-HQ-03_CONG_VAN_15_CV_GSS_HUY_XUAT_CANH_XE_SANG_HANG.docx (CV 15 giải trình sang hàng)
+│
+├── 03_HOA_DON_DAU_VAO_CHI_PHI_GIA_VON/                          [GIÁ VỐN HÀNG XUẤT THIÊN LONG]
+│   ├── KT-VAO-01_HD_MUA_HANG_THIEN_LONG_269901_TL_GSS_SCAN_DAU_DO.pdf (HĐNT scan dấu đỏ 2 bên)
+│   ├── KT-VAO-01_HD_MUA_HANG_THIEN_LONG_269901_TL_GSS.docx      (HĐNT mua hàng Word)
+│   ├── KT-VAO-02_PL01_DON_DAT_HANG_1300_THUNG_THIEN_LONG.docx   (Phụ lục PO 01 chốt 1.300 thùng)
+│   ├── KT-VAO-03_SOP01_LENH_CHUYEN_KHOAN_NOI_BO_GSS_THIEN_LONG.md (Lệnh chuyển khoản nội bộ)
+│   └── KT-VAO-04_SOP02_HUONG_DAN_XUAT_HOA_DON_GTGT_8PCT_THIEN_LONG.md (Hướng dẫn xuất HĐ 8%)
+│
+├── 04_HOA_DON_DAU_VAO_LOGISTICS_VA_HIEN_TRUONG/                 [CHI PHÍ VẬN TẢI, LƯU XE, LƯU TRÚ]
+│   ├── KT-LOG-01_HOA_DON_GTGT_VAN_TAI_VA_LUU_XE_VINH_THANH_00000217.pdf ★ [HĐ VĨNH THÀNH 28.76M]
+│   ├── KT-LOG-02_HDNT_VAN_TAI_GSS_VINH_THANH.docx               (HĐNT vận tải đường bộ)
+│   ├── KT-LOG-02_PL01_DON_DAT_DICH_VU_DIEU_XE_GSS_VINH_THANH.pdf (Phụ lục điều xe 1 trang)
+│   ├── KT-LOG-03_TRUCKING_WAY_BILL_VTL20260921_VINH_THANH_SIGNED.pdf (Vận đơn xe tải đã ký)
+│   ├── KT-LOG-04_HOA_DON_GTGT_KHACH_SAN_DU_HUNG_PHAT_00001188.pdf ★ [HĐ KHÁCH SẠN 800K ĐỒNG THANH TÙNG]
+│   ├── KT-LOG-05_BANG_KE_01_TNDN_BOC_XEP_2M5_LAO_BAO.docx       ★ [MẪU BẢNG KÊ 01/TNDN IN KÝ]
+│   ├── KT-LOG-06_CAM_KET_08_CK_TNCN_TO_TRUONG_BOC_XEP.docx      ★ [MẪU CAM KẾT 08/CK-TNCN IN KÝ]
+│   └── KT-LOG-07_GIAY_DE_NGHI_THANH_TOAN_CONG_TAC_PHI_DONG_THANH_TUNG.docx ★ [GIẤY ĐỀ NGHỊ THANH TOÁN]
+│
+├── 05_CHUNG_TU_THANH_TOAN_NGAN_HANG_MB/                         [CHỨNG TỪ TIỀN VỀ ĐIỀU KIỆN HOÀN THUẾ]
+│   ├── KT-NH-01_OFFICIAL_PAYMENT_INSTRUCTION_USD_MB_BANK.pdf    (Hướng dẫn thanh toán USD)
+│   ├── KT-NH-01_OFFICIAL_PAYMENT_INSTRUCTION_USD_MB_BANK.docx   (Hướng dẫn thanh toán Word)
+│   ├── KT-NH-02_HUONG_DAN_THU_THAP_DIEN_SWIFT_MT103_VA_GIAY_BAO_CO_MB.docx ★ [HƯỚNG DẪN NGÂN HÀNG]
+│   └── KT-NH-02_HUONG_DAN_THU_THAP_DIEN_SWIFT_MT103_VA_GIAY_BAO_CO_MB.md   (Bản markdown)
+│
+└── 06_BAO_CAO_QUYET_TOAN_VA_HOAN_THUE/                          [BÁO CÁO P&L & CHECKLIST HOÀN THUẾ]
+    ├── KT-FIN-01_PHUONG_AN_TAI_CHINH_THU_CHI_VA_CHI_PHI_DU_TRU_CUA_KHAU_269901.docx (Bản P&L Word)
+    ├── KT-FIN-01_PHUONG_AN_TAI_CHINH_THU_CHI_VA_CHI_PHI_DU_TRU_CUA_KHAU_269901.md   (Bản P&L MD)
+    ├── KT-FIN-02_CHECKLIST_4_WAY_MATCHING_HOAN_THUE_GTGT_0PCT.docx ★ [CHECKLIST HOÀN THUẾ WORD]
+    ├── KT-FIN-02_CHECKLIST_4_WAY_MATCHING_HOAN_THUE_GTGT_0PCT.md   ★ [CHECKLIST HOÀN THUẾ MD]
+    ├── KT-FIN-03_BANG_TINH_TONG_CHI_PHI_VA_QUYET_TOAN_DON_269901.xlsx ★ [EXCEL TẬP TRUNG 9 SHEET TOÀN HỆ THỐNG]
+    ├── SO_THEO_DOI_CHI_PHI_DOANH_THU_VA_HOAN_THUE_XNK_GSS.xlsx ★ [EXCEL ALL-IN-ONE MASTER WORKBOOK]
+    └── KT-FIN-03_BANG_TINH_TONG_CHI_PHI_VA_QUYET_TOAN_DON_269901.md   ★ [THUYẾT MINH MASTER WORKBOOK ĐA SHEET]
+```
