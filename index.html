@@ -1055,7 +1055,7 @@
               <span id="nidRuleBadge" style="font-size:10.5px; color:var(--accent-gold); font-family:monospace; cursor:pointer;" onclick="openNidGeneratorModal()" data-tooltip="Xem bảng bóc tách 8 quy tắc cấu thành Name ID chuẩn">[⚡ Bóc Tách N.ID]</span>
             </div>
             <div style="display:flex; gap:4px; align-items:center;">
-              <input type="text" id="scenarioName" class="form-control font-bold" value="" oninput="onScenarioNameInput()" style="flex:1; font-size:12.5px; height:28px; font-family:monospace; background:var(--bg-card); color:var(--accent-gold); letter-spacing:0.3px;" placeholder="⚡ Hãy chọn thông số bên dưới, rồi bấm [⚡ Sinh N.ID]...">
+              <input type="text" id="scenarioName" name="scenarioName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control font-bold" value="" oninput="onScenarioNameInput()" style="flex:1; font-size:12.5px; height:28px; font-family:monospace; background:var(--bg-card); color:var(--accent-gold); letter-spacing:0.3px;" placeholder="⚡ Hãy chọn thông số bên dưới, rồi bấm [⚡ Sinh N.ID]...">
               <button type="button" id="btnGenerateNid" class="btn btn-sm" onclick="generateAndApplyNameId()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.4);" data-tooltip="⚡ Quét toàn bộ thông số trên buồng lái & tự động sinh Name ID chuẩn /cmh-namid (100% thuật toán cứng, không dùng AI)">[⚡ Sinh N.ID]</button>
               <button type="button" id="btnSaveScenario" class="btn btn-sm" onclick="saveCurrentScenario()" style="background:var(--accent-blue); color:#fff; font-size:11px; font-weight:bold; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer;" data-tooltip="Xác nhận & Lưu toàn bộ tham số vào Set kịch bản này">[💾 Lưu Set]</button>
             </div>
@@ -2966,6 +2966,13 @@
                 }
               }
             });
+            // Tự động dọn dẹp nếu có kịch bản bị dính tên autofill tài khoản
+            merged.forEach(s => {
+              if (s && s.name && (s.name.includes('decode9') || s.name === 'admin' || s.name === 'gss_director')) {
+                const def = DEFAULT_SCENARIOS_MASTER.find(d => d.id === s.id);
+                s.name = def ? def.name : s.id;
+              }
+            });
             scenariosMaster = merged;
           } else {
             scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
@@ -3375,8 +3382,17 @@
     }
 
     function onScenarioNameInput() {
-      const val = document.getElementById('scenarioName').value.trim();
+      const nameInput = document.getElementById('scenarioName');
+      if (!nameInput) return;
+      const val = nameInput.value.trim();
       const curScn = scenariosMaster.find(s => s.id === activeScenarioId);
+      
+      // Chặn triệt để hiện tượng trình duyệt tự động điền tài khoản đăng nhập (Autofill) vào ô Name ID
+      if (val.includes('decode9') || val.toLowerCase() === 'admin' || val.toLowerCase() === 'gss_director') {
+        nameInput.value = curScn ? curScn.id : '';
+        return;
+      }
+
       if (curScn && val) {
         curScn.name = val;
         const sel = document.getElementById('scenarioSelect');
@@ -7869,7 +7885,7 @@
             <b>ĐIỀU KHOẢN VẬN HÀNH & BẢO ĐẢM HOÀN THUẾ:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
               <li><b>Đã bao gồm bốc xếp:</b> Giá bán 337.000 đ/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng Phú Thọ.</li>
-              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND `2991116668888`. Đợt 1 (Cọc 30%): ${depositVnd.toLocaleString('vi-VN')} đ. Đợt 2 (70%): ${balanceVnd.toLocaleString('vi-VN')} đ khi xuất hóa đơn GTGT.</li>
+              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc 30%): ${depositVnd.toLocaleString('vi-VN')} đ. Đợt 2 (70%): ${balanceVnd.toLocaleString('vi-VN')} đ khi xuất hóa đơn GTGT.</li>
               <li><b>Cam kết hồ sơ thuế:</b> Bên Bán cam kết cung cấp đầy đủ bảng kê hóa đơn nguyên liệu đầu vào và chịu trách nhiệm bảo lãnh hoàn thuế GTGT 0% cho Bên Mua.</li>
             </ol>
           </div>
