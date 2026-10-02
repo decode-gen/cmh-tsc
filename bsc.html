@@ -1288,10 +1288,9 @@
   // CẦU NỐI ĐỒNG BỘ DỮ LIỆU VỚI BUỒNG LÁI CMH-TSC
   const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
   const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
-  const CMH_BSC_STORAGE_ORDERS_KEY = 'CMH_BSC_ORDERS_MASTER_V2';
+  const CMH_BSC_STORAGE_ORDERS_KEY = 'CMH_BSC_ORDERS_MASTER_V3';
 
-  // SSOT CHỈ LƯU GIỮ DUY NHẤT ĐƠN HÀNG THỰC TẾ ĐÃ HOÀN THÀNH #269901
-  // TOÀN BỘ CÁC ĐƠN HÀNG MÔ PHỎNG GIẢ ĐỊNH ĐÃ BỊ DỌN SẠCH TRIỆT ĐỂ (/cmh-tk Zero Hallucination)
+  // SSOT MASTER ORDERS VÀ DỰ TOÁN BÁO GIÁ (/cmh-namid & /cmh-tk)
   const DEFAULT_ORDERS_MASTER = {
     '269901': {
       id: '269901',
@@ -1320,6 +1319,82 @@
         { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
         { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
       ]
+    },
+    'SIM_CONT45_1000T_SVN': {
+      id: 'SIM_CONT45_1000T_SVN',
+      name: 'Dự toán Cont 45ft CPT Savannakhet (1.000 thùng - $16.00 USD - Vĩnh Thành)',
+      type: 'SIMULATION',
+      boxQty: 1000,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 16.00,
+      revenueUsd: 16000,
+      exchangeRate: 25790,
+      costFactory: 337000000,
+      costTransport: 35000000,
+      costCustoms: 5500000,
+      costFees: 13680000,
+      costBorderExtra: 0,
+      vatRefund: 29760000,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 37237630,
+      unforeseenExpenses: []
+    },
+    '269902': {
+      id: '269902',
+      name: 'Đơn 269902 — 1.300 thùng Snack Quẩy (HOWO 15.6m · CPT Savannakhet) [MẪU DỰ TOÁN]',
+      type: 'COMPLETED',
+      boxQty: 1300,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 16.50,
+      revenueUsd: 21450,
+      exchangeRate: 25790,
+      costFactory: 438100000,
+      costTransport: 26000000,
+      costCustoms: 9200000,
+      costFees: 15680000,
+      costBorderExtra: 0,
+      vatRefund: 37237630,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 37237630,
+      unforeseenExpenses: []
+    },
+    'SIM_CONT40_800T': {
+      id: 'SIM_CONT40_800T',
+      name: 'Dự toán Cont 40ft (800 thùng - Thử nghiệm bẫy thể tích)',
+      type: 'SIMULATION',
+      boxQty: 800,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 17.50,
+      revenueUsd: 14000,
+      exchangeRate: 25790,
+      costFactory: 269600000,
+      costTransport: 22000000,
+      costCustoms: 8200000,
+      costFees: 270000,
+      costBorderExtra: 0,
+      vatRefund: 23328000,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 37237630,
+      unforeseenExpenses: []
+    },
+    'SIM_CONT45_1000T': {
+      id: 'SIM_CONT45_1000T',
+      name: 'Dự toán Cont 45ft Mukdahan (1.000 thùng - Xuất khẩu đường bộ)',
+      type: 'SIMULATION',
+      boxQty: 1000,
+      unitPriceVnd: 337000,
+      unitPriceUsd: 18.80,
+      revenueUsd: 18800,
+      exchangeRate: 25790,
+      costFactory: 337000000,
+      costTransport: 38000000,
+      costCustoms: 8500000,
+      costFees: 13680000,
+      costBorderExtra: 0,
+      vatRefund: 29760000,
+      contingencyRate: 3.0,
+      priorVatAccumulated: 37237630,
+      unforeseenExpenses: []
     }
   };
 
@@ -1329,24 +1404,19 @@
 
   function initOrdersMaster() {
     try {
-      // Dọn dẹp triệt để cache của phiên bản cũ chứa đơn mô phỏng
       localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V1');
+      localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V2');
       const stored = localStorage.getItem(CMH_BSC_STORAGE_ORDERS_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed && typeof parsed === 'object') {
-          // Lọc bỏ triệt để các mã đơn mô phỏng hoặc mẫu giả định cũ
-          const cleaned = {};
-          Object.keys(parsed).forEach(k => {
-            if (!k.startsWith('SIM_') && k !== '269902') {
-              cleaned[k] = parsed[k];
+          ordersMaster = Object.assign({}, parsed);
+          // Luôn đảm bảo các đơn mặc định trong DEFAULT_ORDERS_MASTER tồn tại
+          Object.keys(DEFAULT_ORDERS_MASTER).forEach(k => {
+            if (!ordersMaster[k]) {
+              ordersMaster[k] = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER[k]));
             }
           });
-          ordersMaster = cleaned;
-          // Luôn đảm bảo 269901 chuẩn SSOT thực tế tồn tại
-          if (!ordersMaster['269901']) {
-            ordersMaster['269901'] = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER['269901']));
-          }
           saveOrdersToStorage();
         } else {
           ordersMaster = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER));
@@ -1718,18 +1788,18 @@
   }
 
   function purgeAllSimulationOrders() {
-    if (!confirm("Bạn có chắc chắn muốn DỌN SẠCH toàn bộ các đơn hàng mô phỏng / dự toán giả lập, chỉ lưu giữ duy nhất Đơn hàng thực tế #269901 chuẩn SSOT?")) {
+    if (!confirm("Bạn có chắc chắn muốn RESET toàn bộ danh mục đơn hàng và dự toán về cấu hình chuẩn (gồm Đơn 269901 và Dự toán Cont 45F Savannakhet $16 USD)?")) {
       return;
     }
     localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V1');
-    ordersMaster = {
-      '269901': JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER['269901']))
-    };
+    localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V2');
+    localStorage.removeItem('CMH_BSC_ORDERS_MASTER_V3');
+    ordersMaster = JSON.parse(JSON.stringify(DEFAULT_ORDERS_MASTER));
     activeOrderId = '269901';
     saveOrdersToStorage();
     renderOrderDropdown();
     applyOrderRecord(ordersMaster['269901']);
-    alert("🧹 Đã dọn sạch toàn bộ dữ liệu đơn hàng mô phỏng! Hệ thống chỉ lưu giữ Đơn 269901 thực tế.");
+    alert("🔄 Đã khôi phục toàn bộ danh mục đơn hàng và dự toán chuẩn SSOT!");
   }
 
   function openNewOrderModal() {

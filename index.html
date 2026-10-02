@@ -2453,8 +2453,8 @@
     // ==========================================
     // SCENARIO PRESETS & SSOT MASTER ENGINE (/cmh-namid Standard)
     // ==========================================
-    // CHỈ LƯU GIỮ DUY NHẤT ĐƠN HÀNG THỰC TẾ ĐÃ HOÀN THÀNH #269901 CHUẨN SSOT
-    // MỌI KỊCH BẢN MÔ PHỎNG GIẢ ĐỊNH ĐÃ BỊ DỌN SẠCH TRIỆT ĐỂ (/cmh-tk Zero Hallucination)
+    // CHUẨN HÓA SSOT KẾT HỢP DỰ TOÁN BÁO GIÁ (/cmh-namid & /cmh-tk)
+    // Bao gồm Đơn hàng thực tế #269901 và Kịch bản khảo sát giá CPT Savannakhet Cont 45F 1.000 thùng ($16 USD)
     const DEFAULT_SCENARIOS_MASTER = [
       {
         id: "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901",
@@ -2499,6 +2499,181 @@
           { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
           { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
         ]
+      },
+      {
+        id: "SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO",
+        name: "CPT Savannakhet · Cont 45HC (1.000 thùng) - $16.00 USD - Vĩnh Thành | DIX #260905",
+        isDefault: false,
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
+        terms: "CPT_SVN",
+        vehicle: "CONT_45HC",
+        tripCount: 1,
+        boxQty: 1000,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 0,
+        bankWireCount: "2",
+        quotePrice: 16.00,
+        fxRate: 25790,
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: true,
+        binhAnTransitTrucks: "1",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
+      },
+      {
+        id: "SCN-CPT_SVN-HOWO-1300T-VT-DIX-260902-LAO",
+        name: "CPT Savannakhet · HOWO 15.6m (1.300 thùng) - $16.50 USD - Vĩnh Thành | DIX #260902",
+        isDefault: false,
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
+        terms: "CPT_SVN",
+        vehicle: "HOWO_156",
+        tripCount: 1,
+        boxQty: 1300,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 0,
+        bankWireCount: "2",
+        quotePrice: 16.50,
+        fxRate: 25790,
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: true,
+        binhAnTransitTrucks: "2",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
+      },
+      {
+        id: "SCN-CPT_SVN-CONT40-800T-VT-DIX-260903-LAO",
+        name: "CPT Savannakhet · Cont 40HC (800 thùng) - $18.20 USD - Vĩnh Thành | DIX #260903",
+        isDefault: false,
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
+        terms: "CPT_SVN",
+        vehicle: "CONT_40HC",
+        tripCount: 1,
+        boxQty: 800,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 0,
+        bankWireCount: "2",
+        quotePrice: 18.20,
+        fxRate: 25790,
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: true,
+        binhAnTransitTrucks: "1",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
+      },
+      {
+        id: "SCN-CPT_MKD-CONT45-1000T-VT-DIX-260904-LAO",
+        name: "CPT Mukdahan · Cont 45HC (1.000 thùng) - $18.80 USD - Vĩnh Thành | DIX #260904",
+        isDefault: false,
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
+        terms: "CPT_MKD",
+        vehicle: "CONT_45HC",
+        tripCount: 1,
+        boxQty: 1000,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 0,
+        bankWireCount: "2",
+        quotePrice: 18.80,
+        fxRate: 25790,
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: true,
+        binhAnTransitTrucks: "1",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
+      },
+      {
+        id: "SCN-FCA_LB-CONT40-800T-VT-DIX-269901",
+        name: "FCA Lao Bảo · Cont 40HC (800 thùng - Cảnh báo bẫy thể tích) | DIX #269901",
+        isDefault: false,
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
+        terms: "FCA_LB",
+        vehicle: "CONT_40HC",
+        tripCount: 1,
+        boxQty: 800,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 0,
+        bankWireCount: "2",
+        quotePrice: 17.50,
+        fxRate: 25790,
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: false,
+        binhAnTransitTrucks: "1",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
       }
     ];
 
@@ -2770,27 +2945,28 @@
 
     function loadScenariosFromStorage() {
       try {
-        // Nâng cấp khóa lưu trữ sang V4 để loại bỏ toàn bộ kịch bản mô phỏng giả lập
+        // Nâng cấp khóa lưu trữ sang V5 để bảo toàn kịch bản Cont 45F Savannakhet $16 USD và đơn thực tế
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
-        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V4');
+        localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
+        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V5');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            // Lọc bỏ triệt để các mã kịch bản mô phỏng giả định 260902, 260903, 260904
-            const cleaned = parsed.filter(s => s && s.id && !s.id.includes('260902') && !s.id.includes('260903') && !s.id.includes('260904') && !(s.id.includes('269901') && s.boxQty === 800));
-            if (cleaned.length > 0) {
-              scenariosMaster = cleaned;
-              scenariosMaster.forEach(s => {
-                if (!s.unforeseenExpenses) {
-                  const def = DEFAULT_SCENARIOS_MASTER.find(d => d.id === s.id);
-                  s.unforeseenExpenses = (def && def.unforeseenExpenses) ? JSON.parse(JSON.stringify(def.unforeseenExpenses)) : [];
+            let merged = [...parsed];
+            // Luôn đảm bảo các kịch bản mặc định trong DEFAULT_SCENARIOS_MASTER tồn tại
+            DEFAULT_SCENARIOS_MASTER.forEach(defScn => {
+              const existingIdx = merged.findIndex(s => s && s.id === defScn.id);
+              if (existingIdx === -1) {
+                merged.push(JSON.parse(JSON.stringify(defScn)));
+              } else {
+                if (!merged[existingIdx].unforeseenExpenses && defScn.unforeseenExpenses) {
+                  merged[existingIdx].unforeseenExpenses = JSON.parse(JSON.stringify(defScn.unforeseenExpenses));
                 }
-              });
-            } else {
-              scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
-            }
+              }
+            });
+            scenariosMaster = merged;
           } else {
             scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
           }
@@ -2811,7 +2987,8 @@
 
     function saveScenariosToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V4', JSON.stringify(scenariosMaster));
+        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V5', JSON.stringify(scenariosMaster));
+        localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
@@ -3366,18 +3543,19 @@
     }
 
     function resetScenariosToStandard() {
-      if (!confirm("Bạn có chắc chắn muốn RESET danh sách kịch bản về duy nhất Đơn hàng thực tế #269901 chuẩn SSOT (dọn sạch toàn bộ các kịch bản mô phỏng giả lập)?")) return;
+      if (!confirm("Bạn có chắc chắn muốn RESET danh sách kịch bản về các thiết lập chuẩn (gồm Đơn thực tế #269901 và Kịch bản khảo sát giá Vĩnh Thành Cont 45F Savannakhet $16 USD)?")) return;
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
+      localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V5');
       scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
       activeScenarioId = scenariosMaster[0].id;
       isDraftMode = false;
       saveScenariosToStorage();
       renderScenarioDropdown();
       applyScenario(scenariosMaster[0]);
-      showToastNotification("🔄 ĐÃ RESET THÀNH CÔNG! Chỉ lưu giữ duy nhất Đơn hàng thực tế #269901 chuẩn SSOT.");
+      showToastNotification("🔄 ĐÃ RESET THÀNH CÔNG! Đã khôi phục các kịch bản chuẩn SSOT.");
     }
 
     function deleteCurrentScenario() {
