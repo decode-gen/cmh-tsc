@@ -1895,30 +1895,57 @@
       
       <div class="modal-body" style="padding:14px; background:var(--bg-app); overflow:auto; flex:1;">
         <!-- ACTION BANNER & ACTIVE ORDER STATUS -->
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 14px; margin-bottom:12px;">
-          <div id="dossierOrderHeaderContainer" style="flex:1; min-width:320px;">
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold;">ĐƠN HÀNG HOẠT ĐỘNG:</span>
-              <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#269901 — GSSDIX_FCA_269901 (FIRM_LOCKED)</b>
-              <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
+        <div style="background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 14px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div id="dossierOrderHeaderContainer" style="flex:1; min-width:320px;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold;">ĐƠN HÀNG HOẠT ĐỘNG:</span>
+                <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#269901 — GSSDIX_FCA_269901 (FIRM_LOCKED)</b>
+                <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
+              </div>
+              <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:3px;">
+                🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
+              </div>
             </div>
-            <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:3px;">
-              🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn btn-sm" onclick="downloadAllIndividualFilesSequentially()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tự động tải lần lượt từng file rời (25 tài liệu) về thư mục Downloads mà không cần giải nén ZIP">
+                <span>[📥 Tải Lần Lượt Từng File Rời (25 File)]</span>
+              </button>
+              <button type="button" class="btn btn-sm" onclick="downloadSelectedDossierFiles()" style="background:#d97706; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(217,119,6,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải lần lượt các tài liệu đã tích chọn trong danh sách">
+                <span>[☑ Tải Các File Đã Chọn <span class="btn-download-selected-count"></span>]</span>
+              </button>
+              <button type="button" class="btn btn-sm" onclick="downloadAllDossierZip('269901')" style="background:#059669; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(5,150,105,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải về tệp nén ZIP chứa toàn bộ 214 file hồ sơ đơn hàng theo chuẩn 6 nhánh thư mục">
+                <span>[📦 Tải Trọn Bộ ZIP Đơn 269901]</span>
+              </button>
+              <button type="button" class="btn btn-sm" onclick="compileCurrentScenarioDossier()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; display:inline-flex; align-items:center; gap:5px;" data-tooltip="Biên dịch bộ chứng từ theo thông số số lượng & đơn giá đang chọn trên Buồng Lái">
+                <span>[⚡ Nạp Kịch Bản Live]</span>
+              </button>
             </div>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-            <button type="button" class="btn btn-sm" onclick="downloadAllIndividualFilesSequentially()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tự động tải lần lượt từng file rời (25 tài liệu) về thư mục Downloads mà không cần giải nén ZIP">
-              <span>[📥 Tải Lần Lượt Từng File Rời (25 File)]</span>
-            </button>
-            <button type="button" class="btn btn-sm" onclick="downloadSelectedDossierFiles()" style="background:#d97706; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(217,119,6,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải lần lượt các tài liệu đã tích chọn trong danh sách">
-              <span>[☑ Tải Các File Đã Chọn <span class="btn-download-selected-count"></span>]</span>
-            </button>
-            <button type="button" class="btn btn-sm" onclick="downloadAllDossierZip('269901')" style="background:#059669; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(5,150,105,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải về tệp nén ZIP chứa toàn bộ 214 file hồ sơ đơn hàng theo chuẩn 6 nhánh thư mục">
-              <span>[📦 Tải Trọn Bộ ZIP Đơn 269901]</span>
-            </button>
-            <button type="button" class="btn btn-sm" onclick="compileCurrentScenarioDossier()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; display:inline-flex; align-items:center; gap:5px;" data-tooltip="Biên dịch bộ chứng từ theo thông số số lượng & đơn giá đang chọn trên Buồng Lái">
-              <span>[⚡ Nạp Kịch Bản Live]</span>
-            </button>
+
+          <!-- NGUỒN DỮ LIỆU HỒ SƠ: CHỌN ĐƠN THỰC CHIẾN GỐC VS ĐỒNG BỘ BIẾN LIVE BTS VS PHÔI MASTER -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-subtle);">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:11.5px; font-weight:bold; color:var(--text-main); display:inline-flex; align-items:center; gap:4px;">
+                <span>🧭 NGUỒN DỮ LIỆU HỒ SƠ:</span>
+              </span>
+              <div style="display:inline-flex; border:1px solid var(--border-strong); border-radius:4px; overflow:hidden; background:var(--bg-app);">
+                <button type="button" id="btnDossierModeOriginal" class="btn btn-sm dossier-mode-btn" onclick="setDossierSourceMode('ORIGINAL_269901')" style="padding:4px 10px; font-size:11px; border:none; border-radius:0; font-weight:bold; background:#1e3a8a; color:#fff;" data-tooltip="Khóa cứng hồ sơ đơn thực chiến #269901 (1,300 Thùng · $15.80 USD · FCA Lao Bảo) phục vụ thanh tra thuế và lưu trữ">
+                  📜 Đơn Thực Chiến Gốc #269901 (1,300T - Cố Định)
+                </button>
+                <button type="button" id="btnDossierModeLive" class="btn btn-sm dossier-mode-btn" onclick="setDossierSourceMode('LIVE_SCENARIO')" style="padding:4px 10px; font-size:11px; border:none; border-radius:0; font-weight:bold; background:var(--bg-cockpit-panel); color:var(--text-muted);" data-tooltip="Tự động đồng bộ số lượng, đơn giá, xe vận tải, NCC theo kịch bản đang chọn ở bảng ngoài buồng lái">
+                  ⚡ Kịch Bản Live BTS (<span id="dossierModeLiveQtyLabel">1,000T</span> - Đồng Bộ Động)
+                </button>
+                <button type="button" id="btnDossierModeMaster" class="btn btn-sm dossier-mode-btn" onclick="setDossierSourceMode('MASTER_TEMPLATES')" style="padding:4px 10px; font-size:11px; border:none; border-radius:0; font-weight:bold; background:var(--bg-cockpit-panel); color:var(--text-muted);" data-tooltip="Chuyển sang Tab 7 để tra cứu và tải toàn bộ 12 Phôi Master Blueprints chuẩn SSOT">
+                  🏛 Kho Phôi Master Blueprints
+                </button>
+              </div>
+            </div>
+            <div id="dossierModeStatusBadgeContainer">
+              <span id="dossierModeStatusBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7; font-size:11px; font-weight:bold;">
+                🔒 ĐANG CHỌN: Hồ sơ thực tế #269901 (FIRM_LOCKED)
+              </span>
+            </div>
           </div>
         </div>
 
@@ -2109,9 +2136,14 @@
             <div style="background:rgba(234,179,8,0.08); border-left:3px solid #eab308; padding:6px 10px; font-size:11.5px; flex:1;">
               <b>Kho Lưu Trữ Gốc (Master Blueprints SSOT):</b> Phôi trắng chứa placeholder tham số (`[BUYER_NAME]`, `[UNIT_PRICE]`, `[QUANTITY]`,...).
             </div>
-            <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('MASTER')" style="background:#a16207; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
-              <span>[📥 Tải Lần Lượt Toàn Bộ Phôi Master]</span>
-            </button>
+            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+              <button type="button" class="btn btn-sm" onclick="forceRefreshMasterTab()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; font-size:11px; padding:5px 8px;" data-tooltip="Tải lại bảng phôi Master nếu trình duyệt bị lag hoặc gián đoạn">
+                <span>[🔄 Làm Mới Danh Mục Phôi]</span>
+              </button>
+              <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('MASTER')" style="background:#a16207; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
+                <span>[📥 Tải Lần Lượt Toàn Bộ Phôi Master]</span>
+              </button>
+            </div>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
@@ -2123,7 +2155,7 @@
                   <th>Tên Biểu Mẫu Chuẩn Master</th>
                   <th style="width:110px;">Họ Trụ Cột</th>
                   <th style="width:120px;">Định Dạng</th>
-                  <th style="width:230px;" class="text-right">Tải Phôi Gốc</th>
+                  <th style="width:230px;" class="text-right">Tác Nghiệp Phôi Master</th>
                 </tr>
               </thead>
               <tbody id="tblDossierMasterBody"></tbody>
@@ -7139,11 +7171,104 @@
       ]
     };
 
+    let _currentDossierMode = 'ORIGINAL_269901';
+
+    function setDossierSourceMode(mode) {
+      _currentDossierMode = mode;
+      
+      const btnOrig = document.getElementById('btnDossierModeOriginal');
+      const btnLive = document.getElementById('btnDossierModeLive');
+      const btnMaster = document.getElementById('btnDossierModeMaster');
+      const statusBadge = document.getElementById('dossierModeStatusBadge');
+
+      // Reset button styles
+      [btnOrig, btnLive, btnMaster].forEach(b => {
+        if (b) {
+          b.style.background = 'var(--bg-cockpit-panel)';
+          b.style.color = 'var(--text-muted)';
+        }
+      });
+
+      if (mode === 'ORIGINAL_269901') {
+        if (btnOrig) {
+          btnOrig.style.background = '#1e3a8a';
+          btnOrig.style.color = '#fff';
+        }
+        if (statusBadge) {
+          statusBadge.style.background = '#064e3b';
+          statusBadge.style.color = '#6ee7b7';
+          statusBadge.innerHTML = '🔒 ĐANG CHỌN: Hồ sơ thực tế #269901 (FIRM_LOCKED)';
+        }
+        syncDossierWithActiveScenario();
+        // If current tab is master, switch back to tab 1
+        const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
+        if (activeTab && activeTab.textContent.includes('MASTER')) {
+          const firstTabBtn = document.querySelector('#orderDossierModal .tab-btn');
+          if (firstTabBtn) switchDossierTab('dossierTab01Buy', firstTabBtn);
+        }
+        showToastNotification("📜 Đã kích hoạt Chế độ: HỒ SƠ PHÁP LÝ GỐC ĐƠN #269901 (1,300 Thùng - FIRM_LOCKED)");
+      } else if (mode === 'LIVE_SCENARIO') {
+        if (btnLive) {
+          btnLive.style.background = '#0284c7';
+          btnLive.style.color = '#fff';
+        }
+        recalculate();
+        const d = window._currentCalcData || {};
+        const q = d.qty || 1000;
+        const p = d.quotePrice || 16.00;
+        if (statusBadge) {
+          statusBadge.style.background = '#0284c7';
+          statusBadge.style.color = '#fff';
+          statusBadge.innerHTML = `⚡ ĐANG CHỌN: Kịch bản Live (${q.toLocaleString('vi-VN')}T · $${p.toFixed(2)} USD)`;
+        }
+        syncDossierWithActiveScenario();
+        // If current tab is master, switch back to tab 1
+        const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
+        if (activeTab && activeTab.textContent.includes('MASTER')) {
+          const firstTabBtn = document.querySelector('#orderDossierModal .tab-btn');
+          if (firstTabBtn) switchDossierTab('dossierTab01Buy', firstTabBtn);
+        }
+        showToastNotification(`⚡ Đã kích hoạt Chế độ: ĐỒNG BỘ THEO BIẾN LIVE BUỒNG LÁI (${q.toLocaleString('vi-VN')} Thùng · $${p.toFixed(2)} USD)`);
+      } else if (mode === 'MASTER_TEMPLATES') {
+        if (btnMaster) {
+          btnMaster.style.background = '#a16207';
+          btnMaster.style.color = '#fff';
+        }
+        if (statusBadge) {
+          statusBadge.style.background = '#a16207';
+          statusBadge.style.color = '#fff';
+          statusBadge.innerHTML = '🏛 ĐANG CHỌN: Kho Phôi Master Blueprints (SSOT)';
+        }
+        // Switch to Tab 7
+        const tabBtns = document.querySelectorAll('#orderDossierModal .tab-btn');
+        if (tabBtns && tabBtns.length >= 7) {
+          switchDossierTab('dossierTabMaster', tabBtns[6]);
+        }
+        renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+        showToastNotification("🏛 Đã mở Chế độ: KHO PHÔI MASTER BLUEPRINTS SSOT (12 Phôi Chuẩn)");
+      }
+    }
+
+    function forceRefreshMasterTab() {
+      showToastNotification("🔄 Đang làm mới danh mục Phôi Master Blueprints...");
+      renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+      showToastNotification("✅ Đã nạp lại thành công 12 Phôi Master Blueprints SSOT!");
+    }
+
     function openOrderDossierModal() {
       const backdrop = document.getElementById('orderDossierModalBackdrop');
       if (backdrop) {
         backdrop.style.display = 'flex';
-        syncDossierWithActiveScenario();
+        recalculate();
+        const d = window._currentCalcData || {};
+        const qty = d.qty || 1300;
+        const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
+        const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300;
+        
+        if (!_currentDossierMode) {
+          _currentDossierMode = isLockedBaseline ? 'ORIGINAL_269901' : 'LIVE_SCENARIO';
+        }
+        setDossierSourceMode(_currentDossierMode);
         renderDossierPillarsTables();
       }
     }
@@ -7157,56 +7282,81 @@
       document.querySelectorAll('.dossier-tab-content').forEach(el => el.style.display = 'none');
       document.querySelectorAll('#orderDossierModal .tab-btn').forEach(b => b.classList.remove('active'));
       const target = document.getElementById(tabId);
-      if (target) target.style.display = 'block';
-      if (btn) btn.classList.add('active');
+      if (target) {
+        target.style.display = 'block';
+        if (btn) btn.classList.add('active');
+
+        // AUTO-HEALING & DEFENSIVE FALLBACK: Tự động render nếu bảng tab Master chưa có dòng dữ liệu nào
+        if (tabId === 'dossierTabMaster') {
+          const tbody = document.getElementById('tblDossierMasterBody');
+          if (!tbody || tbody.children.length === 0) {
+            renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+          }
+        }
+      }
     }
 
     function renderDossierPillarsTables() {
-      // 1. Render 01_BUY
-      renderPillarRows('tblDossier01BuyBody', DOSSIER_PILLARS['01_BUY']);
-      // 2. Render 02_CUS
-      renderPillarRows('tblDossier02CusBody', DOSSIER_PILLARS['02_CUS']);
-      // 3. Render 03_SUP
-      renderPillarRows('tblDossier03SupBody', DOSSIER_PILLARS['03_SUP']);
-      // 4. Render 04_LOG
-      renderPillarRows('tblDossier04LogBody', DOSSIER_PILLARS['04_LOG']);
-      // 5. Render 05_COD
-      renderPillarRows('tblDossier05CodBody', DOSSIER_PILLARS['05_COD']);
-      // 6. Render 06_FIN
-      renderPillarRows('tblDossier06FinBody', DOSSIER_PILLARS['06_FIN']);
-      // 7. Render MASTER
-      renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+      const pillars = [
+        { id: 'tblDossier01BuyBody', key: '01_BUY' },
+        { id: 'tblDossier02CusBody', key: '02_CUS' },
+        { id: 'tblDossier03SupBody', key: '03_SUP' },
+        { id: 'tblDossier04LogBody', key: '04_LOG' },
+        { id: 'tblDossier05CodBody', key: '05_COD' },
+        { id: 'tblDossier06FinBody', key: '06_FIN' }
+      ];
+
+      // Render từng trụ cột với try...catch độc lập - lỗi một trụ cột không làm sập các trụ cột khác
+      pillars.forEach(p => {
+        try {
+          renderPillarRows(p.id, DOSSIER_PILLARS[p.key] || []);
+        } catch (err) {
+          console.error(`Lỗi render trụ cột ${p.key}:`, err);
+        }
+      });
+
+      // Render Trụ cột 7 (Master)
+      try {
+        renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER'] || []);
+      } catch (err) {
+        console.error('Lỗi render Tab 7 Master:', err);
+      }
     }
 
     function renderPillarRows(tbodyId, docs) {
       const tbody = document.getElementById(tbodyId);
       if (!tbody) return;
+      if (!docs || !Array.isArray(docs)) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:12px; color:var(--text-muted);">Không có dữ liệu chứng từ</td></tr>';
+        return;
+      }
       let html = '';
       docs.forEach((d, idx) => {
         const fullDocx = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.docx';
         const fullPdf = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.pdf';
         const fullXls = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.xls';
 
+        const formats = d.formats || ['DOCX'];
         let primaryUrl = fullDocx;
         let primaryFn = `${d.code}.docx`;
-        if (!d.formats.includes('DOCX')) {
-          if (d.formats.includes('PDF')) {
+        if (!formats.includes('DOCX')) {
+          if (formats.includes('PDF')) {
             primaryUrl = fullPdf;
             primaryFn = `${d.code}.pdf`;
-          } else if (d.formats.includes('XLS')) {
+          } else if (formats.includes('XLS')) {
             primaryUrl = fullXls;
             primaryFn = `${d.code}.xls`;
           }
         }
 
         let buttons = '';
-        if (d.formats.includes('DOCX')) {
+        if (formats.includes('DOCX')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.code}.docx')" style="padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .DOCX]</button>`;
         }
-        if (d.formats.includes('PDF')) {
+        if (formats.includes('PDF')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullPdf}', '${d.code}.pdf')" style="background:#059669; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .PDF]</button>`;
         }
-        if (d.formats.includes('XLS')) {
+        if (formats.includes('XLS')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.code}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .XLS]</button>`;
         }
         if (d.id === 'FRM-TRD-05') {
@@ -7241,32 +7391,38 @@
     function renderMasterRows(tbodyId, docs) {
       const tbody = document.getElementById(tbodyId);
       if (!tbody) return;
+      if (!docs || !Array.isArray(docs) || docs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:16px; color:var(--text-muted);">Đang tải dữ liệu phôi Master Blueprints...</td></tr>';
+        return;
+      }
       let html = '';
       docs.forEach((d, idx) => {
         const fullDocx = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.docx';
         const fullPdf = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.pdf';
         const fullXls = DOSSIER_REGISTRY.masterDir + '/' + d.file + '.xls';
 
+        const formats = d.formats || ['DOCX'];
         let primaryUrl = fullDocx;
         let primaryFn = `${d.file}.docx`;
-        if (!d.formats.includes('DOCX')) {
-          if (d.formats.includes('PDF')) {
+        if (!formats.includes('DOCX')) {
+          if (formats.includes('PDF')) {
             primaryUrl = fullPdf;
             primaryFn = `${d.file}.pdf`;
-          } else if (d.formats.includes('XLS')) {
+          } else if (formats.includes('XLS')) {
             primaryUrl = fullXls;
             primaryFn = `${d.file}.xls`;
           }
         }
 
         let buttons = '';
-        if (d.formats.includes('DOCX')) {
+        buttons += `<button class="btn btn-sm" onclick="previewMasterDoc('${d.code}')" style="background:#2563eb; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" data-tooltip="Xem trước cấu trúc phôi mẫu với các placeholder tham số">[👁 Xem Phôi Trắng]</button>`;
+        if (formats.includes('DOCX')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.file}.docx')" style="padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .DOCX]</button>`;
         }
-        if (d.formats.includes('PDF')) {
+        if (formats.includes('PDF')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullPdf}', '${d.file}.pdf')" style="background:#059669; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .PDF]</button>`;
         }
-        if (d.formats.includes('XLS')) {
+        if (formats.includes('XLS')) {
           buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.file}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .XLS]</button>`;
         }
 
@@ -7279,7 +7435,7 @@
             <td><code style="font-size:11.5px; color:var(--alert-warning-text); font-weight:bold;">${d.code}</code></td>
             <td><b style="color:var(--text-main); font-size:12.5px;">${d.nameVi}</b></td>
             <td><span class="brand-badge" style="font-size:10.5px;">${d.pillar}</span></td>
-            <td><span style="font-size:11px; color:var(--text-muted);">${d.formats.join(' · ')}</span></td>
+            <td><span style="font-size:11px; color:var(--text-muted);">${formats.join(' · ')}</span></td>
             <td class="text-right" style="white-space:nowrap;">${buttons}</td>
           </tr>
         `;
@@ -7872,24 +8028,27 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const vehLabel = veh === 'CONT_45HC' ? 'Cont 45HC' : (veh === 'CONT_40HC' ? 'Cont 40HC' : 'HOWO 15.6m');
       const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
       const scnName = scn ? (scn.name || scn.id) : '#269901 (Baseline)';
-      const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300;
+
+      // Cập nhật nhãn số lượng trên nút Live Mode Switcher
+      const liveBtnLabel = document.getElementById('dossierModeLiveQtyLabel');
+      if (liveBtnLabel) liveBtnLabel.textContent = `${qty.toLocaleString('vi-VN')}T`;
 
       const container = document.getElementById('dossierOrderHeaderContainer');
       if (!container) return;
 
-      if (isLockedBaseline) {
+      if (_currentDossierMode === 'ORIGINAL_269901') {
         container.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">🔒 ĐƠN HÀNG HOẠT ĐỘNG:</span>
+            <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">🔒 ĐƠN THỰC CHIẾN GỐC:</span>
             <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#269901 — GSSDIX_FCA_269901 (FIRM_LOCKED)</b>
-            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7; font-weight:bold; font-size:11.5px;">1,300 Thùng · Snack Quẩy Giòn Giòn</span>
+            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7; font-weight:bold; font-size:11.5px;">1,300 Thùng · HOWO 15.6m · Snack Quẩy Giòn Giòn</span>
             <span class="brand-badge" style="background:#d97706; color:#fff; font-weight:bold; font-size:11.5px;">$15.80 USD · FCA Lao Bảo · Tổng: $20,540.00 USD</span>
           </div>
           <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
-            🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
+            🔒 <b>Hồ sơ thực tế bất biến (Kiểm toán thuế GTGT 0% TT 219):</b> Đơn hàng lịch sử đã hoàn thành xuất khẩu 21/09/2026. Tải trọn bộ ZIP 75.1MB và 25 file gốc (.docx, .pdf, .xls) hoặc xem trước đúng 1,300 thùng thực tế.
           </div>
         `;
-      } else {
+      } else if (_currentDossierMode === 'LIVE_SCENARIO') {
         container.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="brand-badge" style="background:#0284c7; color:#fff; font-weight:bold; font-size:11.5px;">⚡ KỊCH BẢN ĐANG CHỌN (LIVE):</span>
@@ -7899,7 +8058,18 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
           </div>
           <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
-            🔄 <b>Đồng bộ dữ liệu biến Live:</b> Mọi tính năng <b>[👁 In/Xem]</b>, <b>[📄 Tải Bản Word .DOC]</b>, <b>[🖨 In Trực Tiếp]</b>, <b>[📋 Copy TT]</b> và <b>[🖼 Tạo Ảnh]</b> xuất dữ liệu theo đúng kịch bản <b>${qty.toLocaleString('vi-VN')} Thùng ($${quotePrice.toFixed(2)} USD)</b>. Các nút tải phôi tĩnh [⬇ .DOCX]/[⬇ .PDF] trên danh sách kế thừa từ kho gốc Đơn #269901.
+            ⚡ <b>Đồng bộ dữ liệu biến BTS:</b> Mọi tính năng <b>[👁 In/Xem]</b>, <b>[📄 Tải Bản Word .DOC]</b>, <b>[🖨 In Trực Tiếp]</b>, <b>[📋 Copy TT]</b> và <b>[🖼 Tạo Ảnh]</b> sinh chứng từ trực tiếp theo kịch bản <b>${qty.toLocaleString('vi-VN')} Thùng ($${quotePrice.toFixed(2)} USD)</b>. Các nút tải tĩnh [⬇ .DOCX]/[⬇ .PDF] trong danh sách là phôi tham chiếu từ đơn gốc #269901.
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="brand-badge" style="background:#a16207; color:#fff; font-weight:bold; font-size:11.5px;">🏛 KHO PHÔI MASTER BLUEPRINTS:</span>
+            <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">HỆ THỐNG BIỂU MẪU CHUẨN NGOẠI THƯƠNG SSOT</b>
+            <span class="brand-badge" style="background:#15803d; color:#fff; font-weight:bold; font-size:11.5px;">12 Phôi Chuẩn 6 Họ Chứng Từ</span>
+          </div>
+          <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            🏛 <b>Phôi mẫu trắng SSOT:</b> Chứa các tham số placeholder chuẩn để áp dụng cho mọi đơn hàng xuất nhập khẩu mới của GSS.
           </div>
         `;
       }
@@ -7925,25 +8095,55 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const container = document.getElementById('previewDocContainer');
       if (backdrop && titleEl && container) {
         const d = window._currentCalcData || {};
-        const qty = d.qty || 1300;
-        const quotePrice = d.quotePrice || 15.80;
-        const totalAmount = qty * quotePrice;
-        const curTerms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO';
+        let liveSyncBanner = '';
 
-        const liveSyncBanner = `
-          <div class="no-print" style="margin-bottom:14px; background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#1e40af; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <div>
-              <b>⚡ ĐANG ĐỒNG BỘ THEO KỊCH BẢN LIVE:</b> 
-              <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${qty.toLocaleString('vi-VN')} Thùng</span> · 
-              <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">$${quotePrice.toFixed(2)} USD</span> · 
-              <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${curTerms}</span> · 
-              <span style="background:#dcfce7; color:#166534; padding:2px 6px; border-radius:3px; font-weight:bold;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
+        if (_currentDossierMode === 'ORIGINAL_269901') {
+          liveSyncBanner = `
+            <div class="no-print" style="margin-bottom:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-left:4px solid #16a34a; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#166534; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <div>
+                <b>🔒 ĐANG XEM HỒ SƠ PHÁP LÝ THỰC CHIẾN GỐC #269901 (FIRM_LOCKED):</b> 
+                <span style="background:#dcfce7; padding:2px 6px; border-radius:3px; font-weight:bold; color:#14532d;">1,300 Thùng</span> · 
+                <span style="font-weight:bold;">$15.80 USD</span> · 
+                <span>FCA Lao Bảo</span> · 
+                <span style="font-weight:bold; color:#15803d;">Tổng: $20,540.00 USD</span>
+              </div>
+              <div style="font-size:11px; color:#15803d;">
+                (Hồ sơ thực tế đã thông quan 21/09/2026 · Phục vụ kiểm toán thuế GTGT 0%)
+              </div>
             </div>
-            <div style="font-size:11px; color:#64748b;">
-              (Bấm <b>[📄 Tải Bản Word .DOC Này]</b> hoặc <b>[🖨 In Trực Tiếp]</b> để xuất văn bản đúng 100% thông số trên)
+          `;
+        } else if (_currentDossierMode === 'LIVE_SCENARIO') {
+          const qty = d.qty || 1000;
+          const quotePrice = d.quotePrice || 16.00;
+          const totalAmount = qty * quotePrice;
+          const curTerms = d.terms ? (d.terms.replace('_', ' ') + ' (INCOTERMS 2020)') : 'CPT SAVANNAKHET';
+          liveSyncBanner = `
+            <div class="no-print" style="margin-bottom:14px; background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#1e40af; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <div>
+                <b>⚡ ĐANG ĐỒNG BỘ THEO KỊCH BẢN LIVE BUỒNG LÁI (BTS):</b> 
+                <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${qty.toLocaleString('vi-VN')} Thùng</span> · 
+                <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">$${quotePrice.toFixed(2)} USD</span> · 
+                <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${curTerms}</span> · 
+                <span style="background:#dcfce7; color:#166534; padding:2px 6px; border-radius:3px; font-weight:bold;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
+              </div>
+              <div style="font-size:11px; color:#64748b;">
+                (Bấm <b>[📄 Tải Bản Word .DOC Này]</b> hoặc <b>[🖨 In Trực Tiếp]</b> để xuất văn bản đúng 100% thông số trên)
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        } else {
+          liveSyncBanner = `
+            <div class="no-print" style="margin-bottom:14px; background:#fefce8; border:1px solid #fef08a; border-left:4px solid #ca8a04; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#854d0e; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <div>
+                <b>🏛 ĐANG XEM PHÔI MẪU TRẮNG MASTER BLUEPRINT (SSOT):</b> 
+                <span style="background:#fef9c3; padding:2px 6px; border-radius:3px; font-weight:bold; color:#713f12;">Chứa tham số placeholder [TÊN_THAM_SỐ]</span>
+              </div>
+              <div style="font-size:11px; color:#854d0e;">
+                (Tải phôi gốc .DOCX / .PDF để áp dụng cho bất kỳ đơn hàng mới nào của doanh nghiệp)
+              </div>
+            </div>
+          `;
+        }
 
         titleEl.innerText = title;
         container.innerHTML = liveSyncBanner + htmlContent;
@@ -7952,7 +8152,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
         // Update footer buttons visibility based on active preview document
         let foundDoc = null;
         for (const pk in DOSSIER_PILLARS) {
-          const it = DOSSIER_PILLARS[pk].find(d => d.id === _currentPreviewDocId);
+          const it = DOSSIER_PILLARS[pk].find(d => d.id === _currentPreviewDocId || d.code === _currentPreviewDocId);
           if (it) { foundDoc = it; break; }
         }
         const btnDocx = document.getElementById('btnPreviewDownloadDocx');
@@ -8008,12 +8208,32 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       _currentPreviewDocId = docId;
       recalculate();
       const d = window._currentCalcData || {};
-      const qty = d.qty || 1300;
-      const quotePrice = d.quotePrice || 15.80;
-      const totalAmount = qty * quotePrice;
-      const depositAmount = totalAmount * 0.3;
-      const balanceAmount = totalAmount * 0.7;
-      const curTerms = d.terms ? d.terms.replace('_', ' ') : 'FCA LAO BAO BORDER GATE (INCOTERMS 2020)';
+
+      let qty, quotePrice, totalAmount, depositAmount, balanceAmount, curTerms, contractCode, invoiceNo, vehLabel;
+      if (_currentDossierMode === 'ORIGINAL_269901') {
+        qty = 1300;
+        quotePrice = 15.80;
+        totalAmount = 20540.00;
+        depositAmount = 6162.00;
+        balanceAmount = 14378.00;
+        curTerms = 'FCA LAO BAO BORDER GATE (INCOTERMS 2020)';
+        contractCode = 'GSSDIX_FCA_269901';
+        invoiceNo = 'GSS-INV-269901';
+        vehLabel = 'HOWO 15.6m';
+      } else {
+        qty = d.qty || 1000;
+        quotePrice = d.quotePrice || 16.00;
+        totalAmount = qty * quotePrice;
+        depositAmount = totalAmount * 0.3;
+        balanceAmount = totalAmount * 0.7;
+        const rawTerms = d.terms || 'CPT_SVN';
+        curTerms = (rawTerms.replace('_', ' ') + ' (INCOTERMS 2020)');
+        const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
+        contractCode = (scn && scn.nameId) ? scn.nameId : (scn ? scn.id : 'GSSDIX_SCN_LIVE');
+        invoiceNo = 'GSS-INV-' + (scn && scn.id ? scn.id.replace(/[^a-zA-Z0-9]/g, '').slice(-6) : 'LIVE01');
+        const veh = d.vehicle || 'CONT_45HC';
+        vehLabel = veh === 'CONT_45HC' ? 'Cont 45HC' : (veh === 'CONT_40HC' ? 'Cont 40HC' : 'HOWO 15.6m');
+      }
 
       const supObj = (d.supplier && typeof d.supplier === 'object') ? d.supplier : (partnersMaster.suppliers[0] || {});
       const supName = supObj.name ? (supObj.name.includes('CÔNG TY') ? supObj.name : `CÔNG TY TNHH BÁNH KẸO ${supObj.name.toUpperCase()}`) : 'CÔNG TY TNHH BÁNH KẸO THIÊN LONG (PHÚ THỌ)';
@@ -8035,9 +8255,6 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const agentVnObj = (d.activeAgentVn && typeof d.activeAgentVn === 'object') ? d.activeAgentVn : (partnersMaster.agents[0] || {});
       const agentVnName = agentVnObj.name ? (agentVnObj.name.includes('CÔNG TY') ? agentVnObj.name : `CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI ${agentVnObj.name.replace(/\s*\(.*?\)\s*/g, '').toUpperCase()}`) : 'CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI BÌNH AN';
       const agentVnTax = agentVnObj.taxId || '3200727091';
-
-      const contractCode = (typeof activeScenario !== 'undefined' && activeScenario && activeScenario.nameId) ? activeScenario.nameId : ((typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario.id : 'GSSDIX_FCA_269901');
-      const invoiceNo = 'GSS-INV-269901';
 
       const netWeight = (qty * 6.6).toLocaleString('vi-VN');
       const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
@@ -8424,8 +8641,6 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
 
       } else if (docId === 'FRM-TRD-05') {
         // Official Payment Instruction MB Bank USD
-        const contractCode = (activeScenario && activeScenario.nameId) ? activeScenario.nameId : 'GSSDIX_FCA_269901';
-        const invoiceNo = 'GSS-INV-269901';
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
@@ -8791,6 +9006,318 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       } else {
         showToastNotification("Chứng từ này sẵn sàng tải trực tiếp dưới dạng file .DOCX và .PDF.");
       }
+    }
+
+    function previewMasterDoc(code) {
+      _currentPreviewDocId = code;
+      const doc = (DOSSIER_PILLARS['MASTER'] || []).find(d => d.code === code) || { code, nameVi: 'Phôi Mẫu Master', pillar: 'MASTER' };
+
+      // Helper function to format placeholder tags in gold/amber badge
+      const ph = (text) => `<span style="background:#fef08a; color:#854d0e; padding:1px 4px; border-radius:2px; font-weight:bold; font-family:'Courier New', monospace; border:1px dashed #ca8a04;">[${text}]</span>`;
+
+      let html = '';
+      if (code === '01_BUY_FRM-TRD-01' || code === 'FRM-TRD-01') {
+        html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:16px; font-weight:bold;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div style="font-size:13px; font-weight:bold;">Độc lập - Tự do - Hạnh phúc</div>
+            <div style="margin: 6px 0;">***</div>
+            <div style="font-size:16px; font-weight:bold; text-decoration:underline;">HỢP ĐỒNG NGUYÊN TẮC MUA BÁN HÀNG HÓA XUẤT KHẨU</div>
+            <div style="font-size:13px; font-weight:bold;">MASTER EXPORT SALES FRAMEWORK AGREEMENT</div>
+            <div style="font-size:12px;">Số / Agreement No: <b>${ph('MÃ_HỢP_ĐỒNG_KHUNG_GSS')}</b> | Ngày lập: <b>${ph('NGÀY_KÝ_HỢP_ĐỒNG')}</b></div>
+          </div>
+
+          <div style="font-size:12px; line-height:1.55; margin-bottom:12px;">
+            <b>BÊN BÁN (SELLER / EXPORTER): CÔNG TY TNHH GLOBAL SOLUTION SERVICE</b><br>
+            • Địa chỉ: Tòa nhà CEO Tower, Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội, Việt Nam<br>
+            • MST: 0109469047 | Đại diện: <b>Ông Nguyễn Văn Trung</b> — Giám Đốc<br>
+            • Tài khoản USD: <b>9489773866038</b> tại Ngân hàng TMCP Quân Đội (MB Bank) — Chi nhánh Phùng Hưng (SWIFT: <b>MSCBVNVX</b>)<br><br>
+            <b>BÊN MUA (BUYER / IMPORTER): ${ph('TÊN_DOANH_NGHIỆP_KHÁCH_NGOẠI')}</b><br>
+            • Địa chỉ: ${ph('ĐỊA_CHỈ_TRỤ_SỞ_KHÁCH_NGOẠI')} | Tax ID: ${ph('MÃ_SỐ_THUẾ_QUỐC_TẾ_BUYER')}<br>
+            • Đại diện: <b>${ph('HỌ_TÊN_NGƯỜI_ĐẠI_DIỆN_PHÁP_LUẬT')}</b> — ${ph('CHỨC_VỤ_BUYER')}
+          </div>
+
+          <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:14px;">
+            <b>CÁC ĐIỀU KHOẢN CỐT LÕI (CORE INVARIANTS CHUẨN SSOT):</b>
+            <ol style="margin:4px 0 0 0; padding-left:18px;">
+              <li><b>Điều 1 (Hàng hóa):</b> ${ph('TÊN_THƯƠNG_MẠI_HÀNG_HÓA')}, quy cách ${ph('QUY_CÁCH_ĐÓNG_GÓI')}, xuất xứ ${ph('XUẤT_XỨ_HÀNG_HÓA_VN')}.</li>
+              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán ${ph('ĐƠN_GIÁ_USD_PER_UNIT')} USD theo điều kiện Incoterms 2020: ${ph('ĐIỀU_KIỆN_GIAO_HÀNG_INCOTERMS')}.</li>
+              <li><b>Điều 3 (Thanh toán Quốc tế):</b> T/T 100% bằng USD vào tài khoản MB Bank của Bên Bán (Cọc ${ph('TỶ_LỆ_CỌC_PO')}% khi ký PO, ${ph('TỶ_LỆ_THANH_TOÁN_CÒN_LẠI')}% trước khi giải phóng hàng tại cửa khẩu).</li>
+              <li><b>Điều 4 (Bảo lưu quyền sở hữu):</b> Quyền sở hữu hàng hóa thuộc về Bên Bán cho đến khi Bên Bán nhận đủ 100% tiền thanh toán vào tài khoản ngân hàng.</li>
+              <li><b>Điều 5 (Trọng tài thương mại):</b> Tranh chấp thương mại được giải quyết chung thẩm tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).</li>
+            </ol>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:25px;" class="no-border">
+            <tr>
+              <td style="width:50%; vertical-align:top;">
+                <b>ĐẠI DIỆN BÊN MUA (BUYER)</b><br>
+                ${ph('TÊN_CÔNG_TY_BUYER')}<br><br><br><br>
+                ${ph('HỌ_TÊN_NGƯỜI_KÝ')}<br>${ph('CHỨC_VỤ')}
+              </td>
+              <td style="width:50%; vertical-align:top;">
+                <b>ĐẠI DIỆN BÊN BÁN (SELLER)</b><br>
+                CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br><br><br><br>
+                <b>NGUYỄN VĂN TRUNG</b><br>Giám Đốc (Đã ký đóng dấu)
+              </td>
+            </tr>
+          </table>
+        `;
+      } else if (code === 'FRM-TRD-02') {
+        html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:16px; font-weight:bold;">${ph('BUYER_COMPANY_NAME')}</div>
+              <div style="font-size:11.5px;">Tax ID: ${ph('BUYER_TAX_ID')} | ${ph('BUYER_COUNTRY_CITY')}</div>
+              <div style="font-size:11.5px;">Representative: ${ph('BUYER_REPRESENTATIVE_NAME')} — ${ph('POSITION')}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:15px; font-weight:bold;">PURCHASE ORDER</div>
+              <div style="font-size:12px; font-weight:bold;">Addendum No. ${ph('ADDENDUM_NO')} / PO Ref: ${ph('PO_NUMBER')}</div>
+              <div style="font-size:11.5px;">Date: ${ph('DATE_OF_ISSUE')}</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px; font-size:12.5px;">
+            <b>Seller (Exporter):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)<br>
+            <b>Address:</b> CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam | Tax ID: 0109469047<br>
+            <b>Legal Rep:</b> Mr. NGUYEN VAN TRUNG — Director | Bank: MB Bank USD (SWIFT: MSCBVNVX)
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:35px;">No.</th>
+                <th style="border:1px solid #000; padding:5px; text-align:left;">Commodity & Technical Specifications</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:90px;">HS Code</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:80px;">Quantity</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right; width:95px;">Unit Price (USD)</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right; width:110px;">Total Amount (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">1</td>
+                <td style="border:1px solid #000; padding:5px;">
+                  <b>${ph('COMMODITY_DESCRIPTION_EN')}</b><br>
+                  <small>Spec: ${ph('PACKAGING_SPECIFICATION')} | NW: ${ph('NET_WEIGHT_KG')} kg, GW: ${ph('GROSS_WEIGHT_KG')} kg. Origin: Vietnam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${ph('HS_CODE_8_DIGITS')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${ph('QUANTITY_CARTONS')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${ph('UNIT_PRICE_USD')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${ph('TOTAL_AMOUNT_USD')}</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL ORDER AMOUNT (${ph('INCOTERMS')}):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">$${ph('TOTAL_AMOUNT_USD')} USD</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
+            <b>COMMERCIAL TERMS & PAYMENT SCHEDULE:</b>
+            <ol style="margin:4px 0 0 0; padding-left:18px;">
+              <li><b>Delivery Terms:</b> ${ph('INCOTERMS_PLACE_DESTINATION')}. Loading point: ${ph('FACTORY_LOADING_LOCATION')}.</li>
+              <li><b>Payment Term:</b> T/T into Seller's USD Account at MB Bank (Vietnam).
+                <ul style="padding-left:16px; margin-top:2px;">
+                  <li><b>Phase 1 (Deposit 30%):</b> $${ph('DEPOSIT_AMOUNT_30')} USD upon PO signing.</li>
+                  <li><b>Phase 2 (Balance 70%):</b> $${ph('BALANCE_AMOUNT_70')} USD before customs release at border.</li>
+                </ul>
+              </li>
+              <li><b>Title Retention:</b> Ownership of the goods remains with Seller until full 100% payment is received.</li>
+            </ol>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:25px;" class="no-border">
+            <tr>
+              <td style="width:50%; vertical-align:top;">
+                <b>FOR AND ON BEHALF OF BUYER</b><br>
+                ${ph('BUYER_COMPANY_NAME')}<br><br><br><br>
+                <b>${ph('BUYER_SIGNATORY_NAME')}</b><br>Managing Director
+              </td>
+              <td style="width:50%; vertical-align:top;">
+                <b>ACCEPTED & CONFIRMED BY SELLER</b><br>
+                CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br><br><br><br>
+                <b>NGUYEN VAN TRUNG</b><br>Director
+              </td>
+            </tr>
+          </table>
+        `;
+      } else if (code === 'FRM-TRD-03') {
+        html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:16px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+              <div style="font-size:11.5px;">CEO Tower, Pham Hung Str., Nam Tu Liem Dist., Hanoi, Vietnam</div>
+              <div style="font-size:11.5px;">Tax ID: 0109469047 | Tel: (+84) 912.345.678 | Email: sales@coltdgss.com</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:18px; font-weight:bold; letter-spacing:1px;">COMMERCIAL INVOICE</div>
+              <div style="font-size:12px; font-weight:bold;">Invoice No: ${ph('INVOICE_NUMBER')}</div>
+              <div style="font-size:11.5px;">Date: ${ph('INVOICE_DATE')}</div>
+            </div>
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11.5px;">
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:5px; width:50%;">
+                  <b>Consignee / Importer:</b><br>
+                  <b>${ph('BUYER_COMPANY_NAME')}</b><br>
+                  Address: ${ph('BUYER_ADDRESS')}<br>
+                  Tax ID: ${ph('BUYER_TAX_ID')}
+                </td>
+                <td style="border:1px solid #000; padding:5px; width:50%;">
+                  <b>Sales Contract Ref:</b> ${ph('CONTRACT_REFERENCE_NO')}<br>
+                  <b>Terms of Delivery:</b> ${ph('INCOTERMS_2020')}<br>
+                  <b>Port / Border of Departure:</b> ${ph('PORT_OF_DEPARTURE')}<br>
+                  <b>Destination:</b> ${ph('PORT_OF_DESTINATION')}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:35px;">No.</th>
+                <th style="border:1px solid #000; padding:5px; text-align:left;">Description of Goods</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:80px;">HS Code</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:80px;">Quantity</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right; width:95px;">Unit Price (USD)</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right; width:110px;">Amount (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">1</td>
+                <td style="border:1px solid #000; padding:5px;"><b>${ph('COMMODITY_NAME')}</b><br><small>Spec: ${ph('PACKAGING_SPECIFICATION')}</small></td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${ph('HS_CODE')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${ph('QUANTITY')} Ctns</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${ph('UNIT_PRICE')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${ph('TOTAL_AMOUNT')}</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL AMOUNT:</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">$${ph('TOTAL_AMOUNT')} USD</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:11.5px; border:1px solid #000; padding:8px; margin-bottom:16px;">
+            <b>SAY TOTAL IN US DOLLARS:</b> ${ph('TOTAL_AMOUNT_IN_ENGLISH_WORDS')} ONLY.<br>
+            <b>BENEFICIARY BANK:</b> MILITARY COMMERCIAL JOINT STOCK BANK (MB BANK) | SWIFT: <b>MSCBVNVX</b> | USD A/C: <b>9489773866038</b>
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:25px;" class="no-border">
+            <tr>
+              <td style="width:50%;"></td>
+              <td style="width:50%;">
+                <b>FOR AND ON BEHALF OF G-SS CO., LTD</b><br>
+                Authorized Signature & Official Stamp<br><br><br><br>
+                <b>NGUYEN VAN TRUNG — DIRECTOR</b>
+              </td>
+            </tr>
+          </table>
+        `;
+      } else if (code === 'FRM-TRD-04') {
+        html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:15px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+              <div style="font-size:11px;">CEO Tower, Pham Hung, Hanoi, Vietnam | Tax ID: 0109469047</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:16px; font-weight:bold;">PACKING LIST (10 CỘT CHUẨN SSOT)</div>
+              <div style="font-size:11.5px;">PKL No: ${ph('PACKING_LIST_NO')} | Date: ${ph('PACKING_DATE')}</div>
+            </div>
+          </div>
+
+          <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px;">Package No.</th>
+                <th style="border:1px solid #000; padding:4px;">Description of Goods</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Qty (Ctns)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Units/Ctn</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center;">Total Units</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">NW/Ctn</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">Total NW</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">GW/Ctn</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">Total GW</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right;">CBM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">0001 - ${ph('TOTAL_CARTONS')}</td>
+                <td style="border:1px solid #000; padding:4px;"><b>${ph('COMMODITY_NAME')}</b></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${ph('QUANTITY')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${ph('UNITS_PER_CARTON')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${ph('TOTAL_UNITS')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right;">${ph('NW_PER_CARTON_KG')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${ph('TOTAL_NET_WEIGHT_KG')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right;">${ph('GW_PER_CARTON_KG')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${ph('TOTAL_GROSS_WEIGHT_KG')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${ph('TOTAL_CBM')} m³</td>
+              </tr>
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:5px; text-align:right;">GRAND TOTAL:</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${ph('QUANTITY')} Ctns</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">-</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${ph('TOTAL_UNITS')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${ph('TOTAL_NET_WEIGHT_KG')} kg</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${ph('TOTAL_GROSS_WEIGHT_KG')} kg</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${ph('TOTAL_CBM')} m³</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size:11.5px; border:1px solid #000; padding:8px; margin-bottom:16px;">
+            <b>PACKAGING SPECIFICATION:</b> ${ph('CARTON_DIMENSIONS_L_W_H_MM')} mm | Palletized / Loose loaded: ${ph('LOADING_METHOD')}.
+          </div>
+
+          <table style="width:100%; border:none; text-align:center; font-size:12px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%;"></td>
+              <td style="width:50%;">
+                <b>FOR AND ON BEHALF OF G-SS CO., LTD</b><br><br><br><br>
+                <b>NGUYEN VAN TRUNG — DIRECTOR</b>
+              </td>
+            </tr>
+          </table>
+        `;
+      } else {
+        html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:16px; font-weight:bold;">${doc.nameVi.toUpperCase()}</div>
+            <div style="font-size:13px; font-weight:bold; color:#d97706;">MÃ PHÔI CHUẨN MASTER: ${doc.code}</div>
+            <div style="font-size:11.5px; color:#64748b;">Họ Trụ Cột: ${doc.pillar} · Định Dạng Sẵn Sàng: ${(doc.formats || ['DOCX']).join(' · ')}</div>
+          </div>
+
+          <div style="border:1px solid #000; padding:12px; font-size:12px; line-height:1.6; margin-bottom:16px; background:#fafafa;">
+            <b>CẤU TRÚC PHÔI MẪU & CÁC THAM SỐ THAY THẾ (SSOT PLACEHOLDERS):</b>
+            <ul style="margin:8px 0; padding-left:20px;">
+              <li>Mã chứng từ liên kết: ${ph('DOCUMENT_REFERENCE_CODE')}</li>
+              <li>Thông tin Bên xuất khẩu: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (MST: 0109469047)</li>
+              <li>Thông tin Đối tác thụ hưởng: ${ph('PARTNER_FULL_NAME_AND_TAX_ID')}</li>
+              <li>Thông số hàng hóa & Quy cách: ${ph('PRODUCT_NAME_SPECIFICATION_BOM')}</li>
+              <li>Khối lượng & Đơn vị tính: ${ph('QUANTITY_NET_GROSS_WEIGHT')}</li>
+              <li>Đơn giá, Trị giá thanh toán: ${ph('UNIT_PRICE_CURRENCY_TOTAL')}</li>
+              <li>Điều kiện thương mại & Giao nhận: ${ph('INCOTERMS_BORDER_GATE_LOCATION')}</li>
+              <li>Căn cứ pháp lý & Chữ ký thẩm quyền: ${ph('AUTHORIZED_SIGNATORY_AND_STAMP')}</li>
+            </ul>
+          </div>
+
+          <div style="border:1px solid #059669; background:#ecfdf5; padding:10px; font-size:12px; color:#065f46; margin-bottom:16px;">
+            💡 <b>Hướng dẫn sử dụng:</b> Bạn có thể bấm nút <b>[⬇ .DOCX]</b> hoặc <b>[⬇ .PDF]</b> trên bảng danh mục để tải trực tiếp file phôi trắng chuẩn về máy, sau đó điền các tham số trên cho hợp đồng/đơn hàng mới.
+          </div>
+        `;
+      }
+
+      openDossierDocPreviewModal(`PHÔI MẪU MASTER: ${doc.nameVi} (${doc.code})`, html);
     }
 
     // Initialize App
