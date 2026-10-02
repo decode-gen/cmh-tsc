@@ -4508,29 +4508,48 @@
     }
 
     // MAIN RECALCULATION ENGINE (TÍNH TOÁN LÃI SAU THUẾ TNDN 20% VÀ ĐA NHIỆM ĐẠI LÝ)
+    let _isRecalculating = false;
     function recalculate() {
-      const supId = document.getElementById('supplierSelect').value;
-      const carId = document.getElementById('carrierSelect').value;
-      const agtVnId = document.getElementById('agentVnSelect').value;
-      const agtLaoId = document.getElementById('agentLaoSelect').value;
-      const agtYardId = document.getElementById('agentYardSelect').value;
+      if (_isRecalculating) return;
+      _isRecalculating = true;
+      try {
+        const supSelect = document.getElementById('supplierSelect');
+        const carSelect = document.getElementById('carrierSelect');
+        const agtVnSelect = document.getElementById('agentVnSelect');
+        const agtLaoSelect = document.getElementById('agentLaoSelect');
+        const agtYardSelect = document.getElementById('agentYardSelect');
 
-      const supplier = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
-      const carrier = partnersMaster.carriers.find(c => c.id === carId) || partnersMaster.carriers[0];
-      const agentVn = partnersMaster.agents.find(a => a.id === agtVnId);
-      const agentLao = partnersMaster.agents.find(a => a.id === agtLaoId);
-      const agentYard = partnersMaster.agents.find(a => a.id === agtYardId);
+        const supId = supSelect ? supSelect.value : '';
+        const carId = carSelect ? carSelect.value : '';
+        const agtVnId = agtVnSelect ? agtVnSelect.value : '';
+        const agtLaoId = agtLaoSelect ? agtLaoSelect.value : '';
+        const agtYardId = agtYardSelect ? agtYardSelect.value : '';
 
-      const terms = document.getElementById('incotermsSelect').value;
-      const vehicle = document.getElementById('vehicleSelect').value;
-      const qty = parseInt(document.getElementById('boxQty').value) || 0;
-      const tripCount = parseInt(document.getElementById('tripCount').value) || 1;
-      const tripCountUnitEl = document.getElementById('tripCountUnit');
-      const tripCountUnit = (tripCountUnitEl ? tripCountUnitEl.innerText.trim() : '') || (vehicle === 'HOWO_156' ? 'xe HOWO 15.6m' : 'cont 40ft HC');
-      const demurrageDays = parseInt(document.getElementById('demurrageDays').value) || 0;
-      const wireCount = parseInt(document.getElementById('bankWireCount').value) || 1;
-      const fxRate = parseFloat(document.getElementById('fxRate').value) || 25790;
-      const quotePrice = parseFloat(document.getElementById('quotePrice').value) || 0;
+        const supplier = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : {};
+        const carrier = (partnersMaster && partnersMaster.carriers) ? (partnersMaster.carriers.find(c => c.id === carId) || partnersMaster.carriers[0]) : {};
+        const agentVn = (partnersMaster && partnersMaster.agents) ? partnersMaster.agents.find(a => a.id === agtVnId) : null;
+        const agentLao = (partnersMaster && partnersMaster.agents) ? partnersMaster.agents.find(a => a.id === agtLaoId) : null;
+        const agentYard = (partnersMaster && partnersMaster.agents) ? partnersMaster.agents.find(a => a.id === agtYardId) : null;
+
+        const termsEl = document.getElementById('incotermsSelect');
+        const vehicleEl = document.getElementById('vehicleSelect');
+        const boxQtyEl = document.getElementById('boxQty');
+        const tripCountEl = document.getElementById('tripCount');
+        const tripCountUnitEl = document.getElementById('tripCountUnit');
+        const demurrageDaysEl = document.getElementById('demurrageDays');
+        const bankWireCountEl = document.getElementById('bankWireCount');
+        const fxRateEl = document.getElementById('fxRate');
+        const quotePriceEl = document.getElementById('quotePrice');
+
+        const terms = termsEl ? termsEl.value : 'FCA_LB';
+        const vehicle = vehicleEl ? vehicleEl.value : 'HOWO_156';
+        const qty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
+        const tripCount = tripCountEl ? (parseInt(tripCountEl.value) || 1) : 1;
+        const tripCountUnit = (tripCountUnitEl ? tripCountUnitEl.innerText.trim() : '') || (vehicle === 'HOWO_156' ? 'xe HOWO 15.6m' : 'cont 40ft HC');
+        const demurrageDays = demurrageDaysEl ? (parseInt(demurrageDaysEl.value) || 0) : 0;
+        const wireCount = bankWireCountEl ? (parseInt(bankWireCountEl.value) || 1) : 1;
+        const fxRate = fxRateEl ? (parseFloat(fxRateEl.value) || 25790) : 25790;
+        const quotePrice = quotePriceEl ? (parseFloat(quotePriceEl.value) || 0) : 15.80;
 
       // 1. COGS
       const defaultCogs = qty * supplier.pricePreVat;
@@ -5189,11 +5208,16 @@
         costRows, targetMargins, isTaxSecretUnlocked
       };
 
-      if (typeof syncDossierWithActiveScenario === 'function') {
-        const dossierBackdrop = document.getElementById('orderDossierModalBackdrop');
-        if (dossierBackdrop && dossierBackdrop.style.display !== 'none') {
-          syncDossierWithActiveScenario();
+        if (typeof syncDossierWithActiveScenario === 'function') {
+          const dossierBackdrop = document.getElementById('orderDossierModalBackdrop');
+          if (dossierBackdrop && dossierBackdrop.style.display !== 'none') {
+            syncDossierWithActiveScenario();
+          }
         }
+      } catch (err) {
+        console.error("Lỗi trong quá trình tính toán recalculate():", err);
+      } finally {
+        _isRecalculating = false;
       }
     }
 
@@ -7199,7 +7223,7 @@
           statusBadge.style.color = '#6ee7b7';
           statusBadge.innerHTML = '🔒 ĐANG CHỌN: Hồ sơ thực tế #269901 (FIRM_LOCKED)';
         }
-        syncDossierWithActiveScenario();
+        try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
         // If current tab is master, switch back to tab 1
         const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
         if (activeTab && activeTab.textContent.includes('MASTER')) {
@@ -7212,7 +7236,7 @@
           btnLive.style.background = '#0284c7';
           btnLive.style.color = '#fff';
         }
-        recalculate();
+        try { recalculate(); } catch (e) { console.error(e); }
         const d = window._currentCalcData || {};
         const q = d.qty || 1000;
         const p = d.quotePrice || 16.00;
@@ -7221,7 +7245,7 @@
           statusBadge.style.color = '#fff';
           statusBadge.innerHTML = `⚡ ĐANG CHỌN: Kịch bản Live (${q.toLocaleString('vi-VN')}T · $${p.toFixed(2)} USD)`;
         }
-        syncDossierWithActiveScenario();
+        try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
         // If current tab is master, switch back to tab 1
         const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
         if (activeTab && activeTab.textContent.includes('MASTER')) {
@@ -7244,32 +7268,58 @@
         if (tabBtns && tabBtns.length >= 7) {
           switchDossierTab('dossierTabMaster', tabBtns[6]);
         }
-        renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+        try { renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']); } catch (e) { console.error(e); }
         showToastNotification("🏛 Đã mở Chế độ: KHO PHÔI MASTER BLUEPRINTS SSOT (12 Phôi Chuẩn)");
       }
     }
 
     function forceRefreshMasterTab() {
       showToastNotification("🔄 Đang làm mới danh mục Phôi Master Blueprints...");
-      renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
-      showToastNotification("✅ Đã nạp lại thành công 12 Phôi Master Blueprints SSOT!");
+      try {
+        renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+        showToastNotification("✅ Đã nạp lại thành công 12 Phôi Master Blueprints SSOT!");
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function forceRefreshDossierTables() {
+      showToastNotification("🔄 Đang nạp lại dữ liệu toàn bộ 7 Trụ Cột Hồ Sơ...");
+      try {
+        renderDossierPillarsTables();
+        showToastNotification("✅ Đã nạp thành công dữ liệu toàn bộ 7 Trụ Cột Biểu Mẫu SSOT!");
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function openOrderDossierModal() {
       const backdrop = document.getElementById('orderDossierModalBackdrop');
       if (backdrop) {
         backdrop.style.display = 'flex';
-        recalculate();
-        const d = window._currentCalcData || {};
-        const qty = d.qty || 1300;
-        const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
-        const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300;
         
-        if (!_currentDossierMode) {
-          _currentDossierMode = isLockedBaseline ? 'ORIGINAL_269901' : 'LIVE_SCENARIO';
+        // BƯỚC 1: Render toàn bộ 7 bảng chứng từ NGAY LẬP TỨC để đảm bảo DOM có dữ liệu
+        try {
+          renderDossierPillarsTables();
+        } catch (e) {
+          console.error("Lỗi nạp bảng hồ sơ chứng từ:", e);
         }
-        setDossierSourceMode(_currentDossierMode);
-        renderDossierPillarsTables();
+
+        // BƯỚC 2: Cập nhật chế độ hiển thị & số liệu kịch bản an toàn
+        try {
+          recalculate();
+          const d = window._currentCalcData || {};
+          const qty = d.qty || 1300;
+          const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
+          const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300;
+          
+          if (!_currentDossierMode) {
+            _currentDossierMode = isLockedBaseline ? 'ORIGINAL_269901' : 'LIVE_SCENARIO';
+          }
+          setDossierSourceMode(_currentDossierMode);
+        } catch (e) {
+          console.error("Lỗi đồng bộ nguồn dữ liệu hồ sơ:", e);
+        }
       }
     }
 
@@ -7286,11 +7336,34 @@
         target.style.display = 'block';
         if (btn) btn.classList.add('active');
 
-        // AUTO-HEALING & DEFENSIVE FALLBACK: Tự động render nếu bảng tab Master chưa có dòng dữ liệu nào
-        if (tabId === 'dossierTabMaster') {
+        // AUTO-HEALING & DEFENSIVE LAZY-FILL: Tự động render nếu bảng của tab bất kỳ chưa có dòng dữ liệu nào
+        const tabMapping = {
+          'dossierTab01Buy': { tbodyId: 'tblDossier01BuyBody', key: '01_BUY' },
+          'dossierTab02Cus': { tbodyId: 'tblDossier02CusBody', key: '02_CUS' },
+          'dossierTab03Sup': { tbodyId: 'tblDossier03SupBody', key: '03_SUP' },
+          'dossierTab04Log': { tbodyId: 'tblDossier04LogBody', key: '04_LOG' },
+          'dossierTab05Cod': { tbodyId: 'tblDossier05CodBody', key: '05_COD' },
+          'dossierTab06Fin': { tbodyId: 'tblDossier06FinBody', key: '06_FIN' }
+        };
+
+        if (tabMapping[tabId]) {
+          const info = tabMapping[tabId];
+          const tbody = document.getElementById(info.tbodyId);
+          if (!tbody || tbody.children.length === 0) {
+            try {
+              renderPillarRows(info.tbodyId, DOSSIER_PILLARS[info.key] || []);
+            } catch (err) {
+              console.error(`Lỗi lazy render tab ${tabId}:`, err);
+            }
+          }
+        } else if (tabId === 'dossierTabMaster') {
           const tbody = document.getElementById('tblDossierMasterBody');
           if (!tbody || tbody.children.length === 0) {
-            renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER']);
+            try {
+              renderMasterRows('tblDossierMasterBody', DOSSIER_PILLARS['MASTER'] || []);
+            } catch (err) {
+              console.error('Lỗi lazy render tab Master:', err);
+            }
           }
         }
       }
@@ -8017,7 +8090,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
     }
 
     function syncDossierWithActiveScenario() {
-      recalculate();
+      // KHÔNG gọi recalculate() ở đây để triệt tiêu vĩnh viễn nguy cơ đệ quy vô hạn (Infinite Recursion)
       const d = window._currentCalcData || {};
       const qty = d.qty || 1300;
       const quotePrice = d.quotePrice || 15.80;
@@ -8026,7 +8099,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const termsLabel = terms === 'CPT_SVN' ? 'CPT Savannakhet' : (terms === 'CPT_MKD' ? 'CPT Mukdahan' : (terms === 'DAP_MKD' ? 'DAP Mukdahan' : 'FCA Lao Bảo'));
       const veh = d.vehicle || 'HOWO_156';
       const vehLabel = veh === 'CONT_45HC' ? 'Cont 45HC' : (veh === 'CONT_40HC' ? 'Cont 40HC' : 'HOWO 15.6m');
-      const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
+      const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
       const scnName = scn ? (scn.name || scn.id) : '#269901 (Baseline)';
 
       // Cập nhật nhãn số lượng trên nút Live Mode Switcher
@@ -9335,6 +9408,12 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       applyScenario(initScn);
     } else {
       onVehicleChange();
+    }
+
+    try {
+      renderDossierPillarsTables();
+    } catch (e) {
+      console.error("Lỗi nạp danh mục hồ sơ ban đầu:", e);
     }
   </script>
 </body>
