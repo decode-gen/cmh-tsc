@@ -10,6 +10,22 @@ export default function handler(req, res) {
     return res.status(200).end();
   }
 
+  // CỜ MỞ CỬA TỰ DO 24H (Theo yêu cầu tạm thời của Ban Điều Hành)
+  // Thời hạn: 24 giờ kể từ 08:00 ngày 02/10/2026 đến hết 08:00 ngày 03/10/2026
+  const OPEN_ACCESS_UNTIL = 1791000000000;
+  const IS_OPEN_ACCESS_24H = true;
+
+  if (IS_OPEN_ACCESS_24H || Date.now() < OPEN_ACCESS_UNTIL) {
+    const user = 'decode9.0525';
+    const token = Buffer.from(`${user}:${Date.now()}`).toString('base64');
+    return res.status(200).json({
+      success: true,
+      token,
+      user,
+      message: 'Chế độ Mở Cửa Tự Do 24H đang kích hoạt! Vào web tự do không cần mật khẩu.'
+    });
+  }
+
   // Quét biến môi trường không phân biệt HOA / THƯỜNG trên Linux (Vercel)
   function getEnvCaseInsensitive(names, fallback = '') {
     for (const name of names) {

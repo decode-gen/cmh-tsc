@@ -848,7 +848,7 @@
     .print-plan-a4-only { display: none; }
   </style>
 </head>
-<body data-theme="light" class="locked-unauthenticated">
+<body data-theme="light">
 
   <!-- MÀN HÌNH ĐĂNG NHẬP BAN ĐIỀU HÀNH (EXECUTIVE GATEKEEPER) -->
   <div id="executiveLoginScreen" class="no-print">
@@ -6321,12 +6321,29 @@
     // =========================================================================
     let isExecutiveAuthenticated = false;
 
-    async function checkSavedExecutiveSession() {
-      const token = localStorage.getItem('cmh_auth_token') || sessionStorage.getItem('cmh_auth_token');
-      const user = localStorage.getItem('cmh_auth_user') || sessionStorage.getItem('cmh_auth_user') || 'gss_director';
+    // CỜ MỞ CỬA TỰ DO 24H (Theo yêu cầu tạm thời của Ban Điều Hành)
+    // Hiệu lực: 24 giờ kể từ 08:00 ngày 02/10/2026 đến hết 08:00 ngày 03/10/2026
+    const OPEN_ACCESS_UNTIL = 1791000000000;
+    const IS_OPEN_ACCESS_24H = true;
 
+    async function checkSavedExecutiveSession() {
       const loginScreen = document.getElementById('executiveLoginScreen');
       const badge = document.getElementById('authUsernameBadge');
+
+      // Chế độ mở cửa tự do 24H: Vào web tự do không cần mật khẩu
+      if (IS_OPEN_ACCESS_24H || Date.now() < OPEN_ACCESS_UNTIL) {
+        isExecutiveAuthenticated = true;
+        document.body.classList.remove('locked-unauthenticated');
+        if (loginScreen) {
+          loginScreen.style.display = 'none';
+          loginScreen.style.opacity = '0';
+        }
+        if (badge) badge.textContent = 'decode9.0525 (MỞ CỬA TỰ DO 24H)';
+        return true;
+      }
+
+      const token = localStorage.getItem('cmh_auth_token') || sessionStorage.getItem('cmh_auth_token');
+      const user = localStorage.getItem('cmh_auth_user') || sessionStorage.getItem('cmh_auth_user') || 'decode9.0525';
 
       if (token) {
         isExecutiveAuthenticated = true;
@@ -6458,6 +6475,10 @@
     }
 
     function handleExecutiveLogout() {
+      if (IS_OPEN_ACCESS_24H || Date.now() < OPEN_ACCESS_UNTIL) {
+        showToastNotification("🔓 Chế độ Mở Cửa Tự Do 24H đang kích hoạt. Buồng lái mở hoàn toàn không cần mật khẩu!");
+        return;
+      }
       if (confirm("Xác nhận đăng xuất khỏi Buồng lái CMH-TSC?")) {
         localStorage.removeItem('cmh_auth_token');
         localStorage.removeItem('cmh_auth_user');
