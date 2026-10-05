@@ -1940,6 +1940,13 @@
                   🏛 Kho Phôi Master Blueprints
                 </button>
               </div>
+
+              <!-- BỘ CHỌN NGÀY LẬP HỒ SƠ 2 TẦNG (TWO-TIER DATE GOVERNANCE) -->
+              <div id="dossierDatePickerContainer" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:2px 8px;">
+                <span style="font-size:11px; font-weight:bold; color:var(--text-main); white-space:nowrap;">📅 Ngày Lập Hồ Sơ:</span>
+                <input type="date" id="dossierExecutionDateInput" class="form-control" style="padding:1px 6px; font-size:11.5px; height:24px; border-radius:3px; border:1px solid var(--border-subtle); background:var(--bg-app); color:var(--text-main); cursor:pointer;" onchange="handleDossierDateChange()" data-tooltip="Ngày lập hồ sơ thực tế cho đơn hàng mới. Hợp đồng khung mẹ luôn giữ cố định ngày ký gốc 09/09/2026.">
+                <span id="dossierDateHintBadge" class="brand-badge" style="font-size:10px; background:#1e3a8a; color:#93c5fd;" data-tooltip="Tầng 1: HĐ Khung mẹ giữ ngày gốc 09/09/2026. Tầng 2: Chứng từ tác nghiệp (PO, INV, PKL, Trucking, TT) ăn theo ngày này.">🔒 HĐ Khung: 09/09/2026</span>
+              </div>
             </div>
             <div id="dossierModeStatusBadgeContainer">
               <span id="dossierModeStatusBadge" class="brand-badge" style="background:#064e3b; color:#6ee7b7; font-size:11px; font-weight:bold;">
@@ -7197,6 +7204,95 @@
 
     let _currentDossierMode = 'ORIGINAL_269901';
 
+    // =========================================================================
+    // QUẢN TRỊ NGÀY THÁNG BIỂU MẪU 2 TẦNG (TWO-TIER DATE GOVERNANCE SSOT)
+    // TẦNG 1: HỢP ĐỒNG KHUNG GỐC (09/09/2026) CỐ ĐỊNH BẤT BIẾN
+    // TẦNG 2: CHỨNG TỪ TÁC NGHIỆP ĐƠN MỚI (PO, INV, PKL, TRUCKING, TT, CUS) ĐỘNG
+    // =========================================================================
+
+    function getDossierExecutionDateInfo() {
+      const isOriginal = (_currentDossierMode === 'ORIGINAL_269901');
+      const masterContractDate = '09/09/2026'; // TẦNG 1: LUÔN CỐ ĐỊNH PHÁP LÝ GỐC
+
+      if (isOriginal) {
+        return {
+          isOriginal: true,
+          masterContractDate,
+          masterContractCode: 'GSSDIX_FCA_269901',
+          executionDate: '09/09/2026',
+          executionDateCompact: '20260909',
+          clearanceDate: '21/09/2026',
+          orderRef: '269901',
+          poNo: 'PO260901',
+          invoiceNo: 'GSS-INV-269901',
+          pklNo: 'GSS-PKL-269901',
+          waybillNo: 'VTL20260921',
+          customsDeclNo: '301234567890',
+          customsStatusText: 'ĐÃ THÔNG QUAN 21/09/2026'
+        };
+      }
+
+      // TẦNG 2: ĐƠN MỚI / LIVE SCENARIO
+      const dateInput = document.getElementById('dossierExecutionDateInput');
+      let rawDate = dateInput ? dateInput.value : '';
+      let executionDate = '05/10/2026';
+      let executionDateCompact = '20261005';
+
+      if (rawDate && rawDate.includes('-')) {
+        const parts = rawDate.split('-');
+        if (parts.length === 3) {
+          executionDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          executionDateCompact = `${parts[0]}${parts[1]}${parts[2]}`;
+        }
+      } else {
+        const now = new Date();
+        const dd = String(now.getDate()).padStart(2, '0');
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const yyyy = now.getFullYear();
+        executionDate = `${dd}/${mm}/${yyyy}`;
+        executionDateCompact = `${yyyy}${mm}${dd}`;
+      }
+
+      const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
+      const scnMatch = scn && (scn.id + ' ' + (scn.nameId || '')).match(/\b(26\d{4})\b/);
+      const orderRef = scnMatch ? scnMatch[1] : (executionDateCompact.slice(2, 6) + '01');
+      const contractCode = (scn && scn.nameId) ? scn.nameId : (scn ? scn.id : ('GSSDIX_FCA_' + orderRef));
+      const poNo = 'PO' + orderRef;
+      const invoiceNo = 'GSS-INV-' + orderRef;
+      const pklNo = 'GSS-PKL-' + orderRef;
+      const waybillNo = 'VTL' + executionDateCompact;
+      const customsDeclNo = '30' + orderRef + '890';
+      const customsStatusText = '[CHỜ TRUYỀN VNACCS KHI HÀNG RA CỬA KHẨU]';
+
+      return {
+        isOriginal: false,
+        masterContractDate,
+        masterContractCode: contractCode,
+        executionDate,
+        executionDateCompact,
+        clearanceDate: '[CHỜ THÔNG QUAN]',
+        orderRef,
+        poNo,
+        invoiceNo,
+        pklNo,
+        waybillNo,
+        customsDeclNo,
+        customsStatusText
+      };
+    }
+
+    function handleDossierDateChange() {
+      const dateInfo = getDossierExecutionDateInfo();
+      const hintBadge = document.getElementById('dossierDateHintBadge');
+      if (hintBadge) {
+        hintBadge.textContent = `Tác nghiệp: ${dateInfo.executionDate}`;
+      }
+      showToastNotification(`📅 Đã cập nhật Ngày lập hồ sơ tác nghiệp: ${dateInfo.executionDate} (HĐ Khung mẹ giữ vững ngày gốc 09/09/2026)`);
+      if (_currentPreviewDocId && document.getElementById('dossierDocPreviewModalBackdrop')?.style.display !== 'none') {
+        previewDossierDoc(_currentPreviewDocId);
+      }
+    }
+
     function setDossierSourceMode(mode) {
       _currentDossierMode = mode;
       
@@ -7204,6 +7300,8 @@
       const btnLive = document.getElementById('btnDossierModeLive');
       const btnMaster = document.getElementById('btnDossierModeMaster');
       const statusBadge = document.getElementById('dossierModeStatusBadge');
+      const dateInput = document.getElementById('dossierExecutionDateInput');
+      const hintBadge = document.getElementById('dossierDateHintBadge');
 
       // Reset button styles
       [btnOrig, btnLive, btnMaster].forEach(b => {
@@ -7223,6 +7321,17 @@
           statusBadge.style.color = '#6ee7b7';
           statusBadge.innerHTML = '🔒 ĐANG CHỌN: Hồ sơ thực tế #269901 (FIRM_LOCKED)';
         }
+        if (dateInput) {
+          dateInput.value = '2026-09-09';
+          dateInput.disabled = true;
+          dateInput.style.cursor = 'not-allowed';
+          dateInput.style.opacity = '0.75';
+        }
+        if (hintBadge) {
+          hintBadge.style.background = '#1e3a8a';
+          hintBadge.style.color = '#93c5fd';
+          hintBadge.textContent = '🔒 HĐ Khung: 09/09/2026';
+        }
         try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
         // If current tab is master, switch back to tab 1
         const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
@@ -7230,7 +7339,7 @@
           const firstTabBtn = document.querySelector('#orderDossierModal .tab-btn');
           if (firstTabBtn) switchDossierTab('dossierTab01Buy', firstTabBtn);
         }
-        showToastNotification("📜 Đã kích hoạt Chế độ: HỒ SƠ PHÁP LÝ GỐC ĐƠN #269901 (1,300 Thùng - FIRM_LOCKED)");
+        showToastNotification("📜 Đã kích hoạt Chế độ: HỒ SƠ PHÁP LÝ GỐC ĐƠN #269901 (1,300 Thùng - FIRM_LOCKED - 09/09/2026)");
       } else if (mode === 'LIVE_SCENARIO') {
         if (btnLive) {
           btnLive.style.background = '#0284c7';
@@ -7244,6 +7353,25 @@
           statusBadge.style.background = '#0284c7';
           statusBadge.style.color = '#fff';
           statusBadge.innerHTML = `⚡ ĐANG CHỌN: Kịch bản Live (${q.toLocaleString('vi-VN')}T · $${p.toFixed(2)} USD)`;
+        }
+        if (dateInput) {
+          dateInput.disabled = false;
+          dateInput.style.cursor = 'pointer';
+          dateInput.style.opacity = '1';
+          if (!dateInput.value || dateInput.value === '2026-09-09') {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+          }
+        }
+        if (hintBadge) {
+          hintBadge.style.background = '#0284c7';
+          hintBadge.style.color = '#fff';
+          const parts = dateInput?.value?.split('-');
+          const displayDate = parts && parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : 'Hôm nay';
+          hintBadge.textContent = `Tác nghiệp: ${displayDate}`;
         }
         try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
         // If current tab is master, switch back to tab 1
@@ -7262,6 +7390,16 @@
           statusBadge.style.background = '#a16207';
           statusBadge.style.color = '#fff';
           statusBadge.innerHTML = '🏛 ĐANG CHỌN: Kho Phôi Master Blueprints (SSOT)';
+        }
+        if (dateInput) {
+          dateInput.disabled = true;
+          dateInput.style.cursor = 'not-allowed';
+          dateInput.style.opacity = '0.75';
+        }
+        if (hintBadge) {
+          hintBadge.style.background = '#a16207';
+          hintBadge.style.color = '#fff';
+          hintBadge.textContent = '🏛 Phôi Master Trắng';
         }
         // Switch to Tab 7
         const tabBtns = document.querySelectorAll('#orderDossierModal .tab-btn');
@@ -7763,17 +7901,21 @@
     function copyPaymentInstructionText() {
       recalculate();
       const d = window._currentCalcData || {};
-      const qty = d.qty || 1300;
-      const quotePrice = d.quotePrice || 15.80;
+      const dateInfo = getDossierExecutionDateInfo();
+      const isOriginal = dateInfo.isOriginal;
+      const qty = isOriginal ? 1300 : (d.qty || 1000);
+      const quotePrice = isOriginal ? 15.80 : (d.quotePrice || 16.00);
       const totalAmount = qty * quotePrice;
       const depositAmount = totalAmount * 0.3;
       const balanceAmount = totalAmount * 0.7;
-      const contractCode = (activeScenario && activeScenario.nameId) ? activeScenario.nameId : 'GSSDIX_FCA_269901';
-      const invoiceNo = 'GSS-INV-269901';
+      const contractCode = dateInfo.masterContractCode;
+      const invoiceNo = dateInfo.invoiceNo;
+      const executionDate = dateInfo.executionDate;
 
       const text = `======================================================================
 OFFICIAL PAYMENT INSTRUCTION (USD WIRE TRANSFER) / CHỈ DẪN THANH TOÁN
 BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
+DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
 ======================================================================
 1. BENEFICIARY DETAILS (THÔNG TIN NGƯỜI THỤ HƯỞNG):
    • Beneficiary Name: CÔNG TY TNHH GLOBAL SOLUTION SERVICE
@@ -7833,13 +7975,17 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
     function generatePaymentInstructionCardImage() {
       recalculate();
       const d = window._currentCalcData || {};
-      const qty = d.qty || 1300;
-      const quotePrice = d.quotePrice || 15.80;
+      const dateInfo = getDossierExecutionDateInfo();
+      const isOriginal = dateInfo.isOriginal;
+      const qty = isOriginal ? 1300 : (d.qty || 1000);
+      const quotePrice = isOriginal ? 15.80 : (d.quotePrice || 16.00);
       const totalAmount = qty * quotePrice;
       const depositAmount = totalAmount * 0.3;
       const balanceAmount = totalAmount * 0.7;
-      const contractCode = (activeScenario && activeScenario.nameId) ? activeScenario.nameId : 'GSSDIX_FCA_269901';
-      const invoiceNo = 'GSS-INV-269901';
+      const contractCode = dateInfo.masterContractCode;
+      const invoiceNo = dateInfo.invoiceNo;
+      const executionDate = dateInfo.executionDate;
+      const termsStr = isOriginal ? 'FCA Lao Bao Border Gate' : (d.terms ? d.terms.replace('_', ' ') : 'CPT Savannakhet');
 
       showToastNotification("🎨 Đang kết xuất ảnh thẻ thanh toán quốc tế MB Bank USD chất lượng cao...");
 
@@ -7901,7 +8047,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       ctx.fillStyle = '#94a3b8';
       ctx.font = 'italic 15px "Times New Roman", serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`Contract: ${contractCode}  •  Invoice: ${invoiceNo}  •  Terms: FCA Lao Bao Border Gate`, 600, 202);
+      ctx.fillText(`Contract: ${contractCode}  •  Invoice: ${invoiceNo}  •  Date: ${executionDate}  •  Terms: ${termsStr}`, 600, 202);
       ctx.textAlign = 'left';
 
       // 4. Main Account Card Box (High Contrast)
@@ -8168,6 +8314,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       const container = document.getElementById('previewDocContainer');
       if (backdrop && titleEl && container) {
         const d = window._currentCalcData || {};
+        const dateInfo = getDossierExecutionDateInfo();
         let liveSyncBanner = '';
 
         if (_currentDossierMode === 'ORIGINAL_269901') {
@@ -8181,7 +8328,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
                 <span style="font-weight:bold; color:#15803d;">Tổng: $20,540.00 USD</span>
               </div>
               <div style="font-size:11px; color:#15803d;">
-                (Hồ sơ thực tế đã thông quan 21/09/2026 · Phục vụ kiểm toán thuế GTGT 0%)
+                (Hồ sơ thực tế đã thông quan 21/09/2026 · HĐ gốc ký 09/09/2026 · Kiểm toán thuế GTGT 0%)
               </div>
             </div>
           `;
@@ -8192,12 +8339,12 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           const curTerms = d.terms ? (d.terms.replace('_', ' ') + ' (INCOTERMS 2020)') : 'CPT SAVANNAKHET';
           liveSyncBanner = `
             <div class="no-print" style="margin-bottom:14px; background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#1e40af; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-              <div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 <b>⚡ ĐANG ĐỒNG BỘ THEO KỊCH BẢN LIVE BUỒNG LÁI (BTS):</b> 
                 <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${qty.toLocaleString('vi-VN')} Thùng</span> · 
                 <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">$${quotePrice.toFixed(2)} USD</span> · 
-                <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${curTerms}</span> · 
-                <span style="background:#dcfce7; color:#166534; padding:2px 6px; border-radius:3px; font-weight:bold;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
+                <span style="background:#fef3c7; color:#854d0e; padding:2px 6px; border-radius:3px; font-weight:bold;">📅 Ngày Lập: ${dateInfo.executionDate}</span> · 
+                <span style="background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:3px; font-weight:bold;">🔒 HĐ Khung Mẹ: 09/09/2026</span>
               </div>
               <div style="font-size:11px; color:#64748b;">
                 (Bấm <b>[📄 Tải Bản Word .DOC Này]</b> hoặc <b>[🖨 In Trực Tiếp]</b> để xuất văn bản đúng 100% thông số trên)
@@ -8281,17 +8428,28 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
       _currentPreviewDocId = docId;
       recalculate();
       const d = window._currentCalcData || {};
+      const dateInfo = getDossierExecutionDateInfo();
+      const isOriginal = dateInfo.isOriginal;
+      const masterContractDate = dateInfo.masterContractDate;
+      const executionDate = dateInfo.executionDate;
+      const executionDateCompact = dateInfo.executionDateCompact;
+      const orderRef = dateInfo.orderRef;
+      const poNo = dateInfo.poNo;
+      const invoiceNo = dateInfo.invoiceNo;
+      const pklNo = dateInfo.pklNo;
+      const waybillNo = dateInfo.waybillNo;
+      const customsDeclNo = dateInfo.customsDeclNo;
+      const customsStatusText = dateInfo.customsStatusText;
 
-      let qty, quotePrice, totalAmount, depositAmount, balanceAmount, curTerms, contractCode, invoiceNo, vehLabel;
-      if (_currentDossierMode === 'ORIGINAL_269901') {
+      let qty, quotePrice, totalAmount, depositAmount, balanceAmount, curTerms, contractCode, vehLabel;
+      if (isOriginal) {
         qty = 1300;
         quotePrice = 15.80;
         totalAmount = 20540.00;
         depositAmount = 6162.00;
         balanceAmount = 14378.00;
         curTerms = 'FCA LAO BAO BORDER GATE (INCOTERMS 2020)';
-        contractCode = 'GSSDIX_FCA_269901';
-        invoiceNo = 'GSS-INV-269901';
+        contractCode = dateInfo.masterContractCode;
         vehLabel = 'HOWO 15.6m';
       } else {
         qty = d.qty || 1000;
@@ -8301,9 +8459,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
         balanceAmount = totalAmount * 0.7;
         const rawTerms = d.terms || 'CPT_SVN';
         curTerms = (rawTerms.replace('_', ' ') + ' (INCOTERMS 2020)');
-        const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]);
-        contractCode = (scn && scn.nameId) ? scn.nameId : (scn ? scn.id : 'GSSDIX_SCN_LIVE');
-        invoiceNo = 'GSS-INV-' + (scn && scn.id ? scn.id.replace(/[^a-zA-Z0-9]/g, '').slice(-6) : 'LIVE01');
+        contractCode = dateInfo.masterContractCode;
         const veh = d.vehicle || 'CONT_45HC';
         vehLabel = veh === 'CONT_45HC' ? 'Cont 45HC' : (veh === 'CONT_40HC' ? 'Cont 40HC' : 'HOWO 15.6m');
       }
@@ -8344,8 +8500,9 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </div>
             <div style="text-align:right;">
               <div style="font-size:15px; font-weight:bold;">PURCHASE ORDER</div>
-              <div style="font-size:12px; font-weight:bold;">Addendum No. 01 / PO260901</div>
-              <div style="font-size:11.5px;">Date: 09/09/2026</div>
+              <div style="font-size:12px; font-weight:bold;">Addendum No. 01 / ${poNo}</div>
+              <div style="font-size:11.5px;">Date: ${executionDate}</div>
+              <div style="font-size:10.5px; color:#475569;">Under Master Agreement: ${contractCode} (dated ${masterContractDate})</div>
             </div>
           </div>
 
@@ -8379,7 +8536,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
               </tr>
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL ORDER AMOUNT (FCA):</td>
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL ORDER AMOUNT (${curTerms}):</td>
                 <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
               </tr>
             </tbody>
@@ -8414,7 +8571,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("BUYER PURCHASE ORDER (ADDENDUM 01 PO #269901)", html);
+        openDossierDocPreviewModal(`BUYER PURCHASE ORDER (ADDENDUM 01 ${poNo})`, html);
 
       } else if (docId === 'FRM-TRD-03') {
         // Commercial Invoice
@@ -8432,8 +8589,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <tr>
               <td style="width:55%;">
                 <b>Invoice No.:</b> ${invoiceNo}<br>
-                <b>Date:</b> 09/09/2026<br>
-                <b>Sales Contract Ref:</b> ${contractCode}<br>
+                <b>Date:</b> ${executionDate}<br>
+                <b>Sales Contract Ref:</b> ${contractCode} (Master dated ${masterContractDate})<br>
                 <b>Payment Term:</b> T/T 100% in advance of customs release
               </td>
               <td style="width:45%;">
@@ -8497,7 +8654,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("COMMERCIAL INVOICE (GSS-INV-269901)", html);
+        openDossierDocPreviewModal(`COMMERCIAL INVOICE (${invoiceNo})`, html);
 
       } else if (docId === 'FRM-TRD-04') {
         // Packing List
@@ -8514,13 +8671,13 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           <table style="width:100%; border:none; margin-bottom:10px; font-size:12px;" class="no-border">
             <tr>
               <td style="width:50%;">
-                <b>Packing List No.:</b> GSS-PKL-269901<br>
-                <b>Date:</b> 09/09/2026<br>
-                <b>Invoice Ref:</b> GSS-INV-269901
+                <b>Packing List No.:</b> ${pklNo}<br>
+                <b>Date:</b> ${executionDate}<br>
+                <b>Invoice Ref:</b> ${invoiceNo}
               </td>
               <td style="width:50%;">
                 <b>Buyer:</b> DUANGMANEE IMPORT-EXPORT CO., LTD<br>
-                <b>Contract No.:</b> GSSDIX_FCA_269901<br>
+                <b>Contract No.:</b> ${contractCode} (Master dated ${masterContractDate})<br>
                 <b>Delivery Term:</b> ${curTerms}
               </td>
             </tr>
@@ -8563,7 +8720,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           <div style="border:1px solid #000; padding:8px; font-size:11.5px; margin-bottom:16px;">
             <b>LOGISTICS & TRUCK SEAL INVARIANT:</b><br>
             • <b>Loading Factory:</b> Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.<br>
-            • <b>Truck / Container Plate:</b> 19C-123.45 / 19R-678.90 | <b>Customs Bullet Seal No.:</b> VN-CUS-2026-9901<br>
+            • <b>Truck / Container Plate:</b> 19C-123.45 / 19R-678.90 | <b>Customs Bullet Seal No.:</b> VN-CUS-${executionDateCompact.slice(0, 4)}-${orderRef}<br>
             • <i>Note: Actual container tare and gross weighbridge certificate will be attached at Border Gate.</i>
           </div>
 
@@ -8577,7 +8734,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("PACKING LIST (GSS-PKL-269901)", html);
+        openDossierDocPreviewModal(`PACKING LIST (${pklNo})`, html);
 
       } else if (docId === 'FRM-PRO-02') {
         // Supplier PO (Nhà cung cấp được chọn trên Buồng Lái)
@@ -8586,7 +8743,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
             <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Mễ Trì, Nam Từ Liêm, Hà Nội | MST: 0109469047</div>
             <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">ĐƠN ĐẶT HÀNG MUA HÀNG NỘI ĐỊA (PHỤ LỤC PO)</div>
-            <div style="font-size:12px;">Số: PL01/${contractCode}-SUP/GSS | Ngày: 09/09/2026</div>
+            <div style="font-size:12px;">Số: PL01/${contractCode}-SUP/GSS | Ngày: ${executionDate}</div>
+            <div style="font-size:11px; color:#475569;">Căn cứ HĐ Nguyên tắc Cung ứng số GSS-TL-MSA-2026 ký ngày ${masterContractDate}</div>
           </div>
 
           <div style="margin-bottom:12px; font-size:12.5px;">
@@ -8662,7 +8820,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <div style="font-size:17px; font-weight:bold;">${carrierName}</div>
             <div style="font-size:11.5px;">Quốc Lộ 1A, Quảng Trị | MST: ${carrierTax}</div>
             <div style="font-size:15px; font-weight:bold; margin-top:6px; text-decoration:underline;">TRUCKING WAYBILL / VẬN ĐƠN ĐƯỜNG BỘ NỘI ĐỊA</div>
-            <div style="font-size:12px;">Số / Waybill No: VTL20260921 | FREIGHT PREPAID (CƯỚC ĐÃ TRẢ TRỌN GÓI)</div>
+            <div style="font-size:12px;">Số / Waybill No: ${waybillNo} | Ngày: ${executionDate} | FREIGHT PREPAID (CƯỚC ĐÃ TRẢ TRỌN GÓI)</div>
+            <div style="font-size:11px; color:#475569;">Căn cứ HĐ Dịch vụ Vận tải số GSS-VT-LOG-2026 ký ngày ${masterContractDate}</div>
           </div>
 
           <div style="margin-bottom:10px; font-size:12px;">
@@ -8734,7 +8893,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               OFFICIAL PAYMENT INSTRUCTION / CHỈ DẪN THANH TOÁN QUỐC TẾ
             </div>
             <div style="font-size:12px; margin-top:4px;">
-              Sales Contract Ref: <b>${contractCode}</b> | Commercial Invoice: <b>${invoiceNo}</b> | Date: <b>09/09/2026</b>
+              Sales Contract Ref: <b>${contractCode}</b> | Commercial Invoice: <b>${invoiceNo}</b> | Date: <b>${executionDate}</b>
             </div>
           </div>
 
@@ -8819,7 +8978,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
               </tr>
               <tr>
                 <td style="border:1px solid #000; padding:6px;"><b>Remittance Reference (SWIFT Field :70:):</b></td>
-                <td style="border:1px solid #000; padding:6px; font-family:'Courier New', monospace; font-weight:bold; background:#fef3c7; font-size:13px;">ADVANCE PAYMENT FOR CONTRACT ${contractCode}</td>
+                <td style="border:1px solid #000; padding:6px; font-family:'Courier New', monospace; font-weight:bold; background:#fef3c7; font-size:13px;">ADVANCE PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}</td>
               </tr>
               <tr>
                 <td style="border:1px solid #000; padding:6px;"><b>Intermediary Bank (if required):</b></td>
@@ -8846,7 +9005,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD (FRM-TRD-05)", html);
+        openDossierDocPreviewModal(`CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD (${invoiceNo})`, html);
 
       } else if (docId === 'FRM-CUS-01') {
         // Customs Export Declaration B11
@@ -8867,8 +9026,8 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
           </div>
 
           <div style="text-align:center; margin: 10px 0 14px 0;">
-            <div style="font-size:16px; font-weight:bold;">TỜ KHAI HẢI QUAN ĐIỆN TỬ SỐ: 301234567890</div>
-            <div style="font-size:11.5px;">Ngày đăng ký: 09/09/2026 | Ngày hoàn thành thông quan: 21/09/2026</div>
+            <div style="font-size:16px; font-weight:bold;">TỜ KHAI HẢI QUAN ĐIỆN TỬ SỐ: ${customsDeclNo}</div>
+            <div style="font-size:11.5px;">Ngày đăng ký: ${executionDate} | Trạng thái: ${isOriginal ? 'Ngày hoàn thành thông quan: 21/09/2026' : '[CHỜ TRUYỀN VNACCS KHI HÀNG RA CỬA KHẨU]'}</div>
           </div>
 
           <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11.5px;">
@@ -8941,7 +9100,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             • <b>Phân luồng:</b> VÀNG — Kiểm tra chi tiết hồ sơ chứng từ điện tử.<br>
             • <b>Trọng lượng tịnh (NW):</b> ${netWeight} kg | <b>Tổng trọng lượng cả bì (GW):</b> ${grossWeight} kg.<br>
             • <b>Phương tiện vận tải:</b> Xe tải / Container biển kiểm soát 19C-123.45 / 19R-678.90.<br>
-            • <b>Trạng thái:</b> <b>ĐÃ THÔNG QUAN</b> — Chấp nhận thông quan xuất khẩu số 301234567890/XK.
+            • <b>Trạng thái:</b> <b>${isOriginal ? 'ĐÃ THÔNG QUAN — Chấp nhận thông quan xuất khẩu số 301234567890/XK' : 'HỒ SƠ CHỜ TRUYỀN ĐIỆN TỬ VNACCS (DRAFT B11)'}</b>
           </div>
 
           <table style="width:100%; border:none; text-align:center; font-size:12px; margin-top:20px;" class="no-border">
@@ -8959,7 +9118,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("TỜ KHAI HẢI QUAN XUẤT KHẨU B11 (FRM-CUS-01)", html);
+        openDossierDocPreviewModal(`TỜ KHAI HẢI QUAN XUẤT KHẨU B11 (${customsDeclNo})`, html);
 
       } else if (docId === 'FRM-TRD-01') {
         // Sales Contract Framework
@@ -8970,7 +9129,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <div style="margin: 6px 0;">***</div>
             <div style="font-size:16px; font-weight:bold; text-decoration:underline;">HỢP ĐỒNG NGUYÊN TẮC MUA BÁN HÀNG HÓA XUẤT KHẨU</div>
             <div style="font-size:13px; font-weight:bold;">MASTER EXPORT SALES FRAMEWORK AGREEMENT</div>
-            <div style="font-size:12px;">Số / Agreement No: <b>GSSDIX_FCA_269901</b> | Ngày lập: <b>09/09/2026</b></div>
+            <div style="font-size:12px;">Số / Agreement No: <b>${contractCode}</b> | Ngày ký HĐ Khung Gốc: <b>${masterContractDate}</b>${!isOriginal ? ` | Phụ lục đơn mới: <b>Ngày ${executionDate}</b>` : ''}</div>
           </div>
 
           <div style="font-size:12px; line-height:1.55; margin-bottom:12px;">
@@ -8987,7 +9146,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <b>CÁC ĐIỀU KHOẢN CỐT LÕI (CORE INVARIANTS):</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
               <li><b>Điều 1 (Hàng hóa):</b> ${prodName}, quy cách ${prodSpec}, xuất xứ Việt Nam.</li>
-              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.</li>
+              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.${!isOriginal ? ` Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.` : ''}</li>
               <li><b>Điều 3 (Phương thức thanh toán):</b> T/T 100% bằng đồng USD vào tài khoản MB Bank của Bên Bán (Cọc 30% khi ký PO, 70% trước khi thông quan cửa khẩu).</li>
               <li><b>Điều 4 (Bảo lưu quyền sở hữu):</b> Quyền sở hữu hàng hóa thuộc về Bên Bán cho đến khi Bên Bán nhận đủ 100% tiền thanh toán.</li>
               <li><b>Điều 5 (Trọng tài thương mại):</b> Tranh chấp phát sinh được giải quyết tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).</li>
@@ -9009,7 +9168,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("HỢP ĐỒNG NGOẠI THƯƠNG KHUNG (FRM-TRD-01)", html);
+        openDossierDocPreviewModal(`HỢP ĐỒNG NGOẠI THƯƠNG KHUNG (${contractCode})`, html);
 
       } else if (docId === 'FRM-FIN-01') {
         // Financial Plan & Border Contingency
@@ -9021,6 +9180,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
             <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Nam Từ Liêm, Hà Nội | MST: 0109469047</div>
             <div style="font-size:16px; font-weight:bold; margin-top:8px; text-decoration:underline;">PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN ĐƠN HÀNG (${contractCode})</div>
+            <div style="font-size:12px; margin-top:4px;">Ngày lập: <b>${executionDate}</b> | Căn cứ HĐ Khung ký ngày <b>${masterContractDate}</b></div>
           </div>
 
           <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
@@ -9074,7 +9234,7 @@ BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal("PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN (#269901)", html);
+        openDossierDocPreviewModal(`PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN (${contractCode})`, html);
 
       } else {
         showToastNotification("Chứng từ này sẵn sàng tải trực tiếp dưới dạng file .DOCX và .PDF.");
