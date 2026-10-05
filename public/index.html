@@ -1116,18 +1116,28 @@
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="flex:1;">
             <label>Số đợt thanh toán ngoại tệ</label>
-            <select id="bankWireCount" class="form-control" onchange="recalculate()">
-              <option value="1">1 đợt ($47 USD phí)</option>
+            <select id="bankWireCount" class="form-control" onchange="onBankWireCountChange()">
+              <option value="1">1 đợt 100% ($47 USD phí)</option>
               <option value="2" selected>2 đợt cọc & tất toán ($94 USD)</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="depositPercentGroup" style="flex:1;">
+            <label>% Cọc Đợt 1 (Advance)</label>
+            <select id="depositPercentSelect" class="form-control" onchange="recalculate()">
+              <option value="30" selected>30% cọc / 70% tất toán (Chuẩn SSOT)</option>
+              <option value="20">20% cọc / 80% tất toán</option>
+              <option value="40">40% cọc / 60% tất toán (Thực chiến 269901)</option>
+              <option value="50">50% cọc / 50% tất toán</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;">
             <label>Giá chào dự kiến (USD/thùng)</label>
             <input type="number" id="quotePrice" class="form-control" value="15.80" step="0.1" oninput="recalculate()" onchange="recalculate()">
           </div>
         </div>
+
 
         <!-- REAL-TIME MB BANK FX ROW (ICON ONLY CHUẨN /cmh-ui) -->
         <div class="form-group">
@@ -3318,6 +3328,7 @@
         demHowoDomesticDays: parseInt(document.getElementById('demHowoDomesticDays') ? document.getElementById('demHowoDomesticDays').value : 0) || 0,
         demHowoBorderDays: parseInt(document.getElementById('demHowoBorderDays') ? document.getElementById('demHowoBorderDays').value : 1) || 1,
         bankWireCount: document.getElementById('bankWireCount') ? document.getElementById('bankWireCount').value : '2',
+        depositPercent: document.getElementById('depositPercentSelect') ? document.getElementById('depositPercentSelect').value : '30',
         quotePrice: parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 17.50) || 17.50,
         fxRate: parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25790) || 25790,
         chkBinhAnCustoms: document.getElementById('chkBinhAnCustoms') ? document.getElementById('chkBinhAnCustoms').checked : true,
@@ -3356,7 +3367,13 @@
       if (document.getElementById('demurrageDays') && scn.demurrageDays !== undefined) document.getElementById('demurrageDays').value = scn.demurrageDays;
       if (document.getElementById('demHowoDomesticDays') && scn.demHowoDomesticDays !== undefined) document.getElementById('demHowoDomesticDays').value = scn.demHowoDomesticDays;
       if (document.getElementById('demHowoBorderDays') && scn.demHowoBorderDays !== undefined) document.getElementById('demHowoBorderDays').value = scn.demHowoBorderDays;
-      if (document.getElementById('bankWireCount') && scn.bankWireCount) document.getElementById('bankWireCount').value = scn.bankWireCount;
+      if (document.getElementById('bankWireCount') && scn.bankWireCount) {
+        document.getElementById('bankWireCount').value = scn.bankWireCount;
+        if (typeof onBankWireCountChange === 'function') onBankWireCountChange();
+      }
+      if (document.getElementById('depositPercentSelect') && scn.depositPercent) {
+        document.getElementById('depositPercentSelect').value = scn.depositPercent;
+      }
       if (document.getElementById('quotePrice') && scn.quotePrice !== undefined) document.getElementById('quotePrice').value = scn.quotePrice;
       if (document.getElementById('fxRate') && scn.fxRate !== undefined) document.getElementById('fxRate').value = scn.fxRate;
 
@@ -4514,6 +4531,16 @@
       recalculate();
     }
 
+    function onBankWireCountChange() {
+      const wireCountEl = document.getElementById('bankWireCount');
+      const depGroup = document.getElementById('depositPercentGroup');
+      const val = wireCountEl ? wireCountEl.value : '2';
+      if (depGroup) {
+        depGroup.style.display = (val === '1') ? 'none' : 'block';
+      }
+      recalculate();
+    }
+
     // MAIN RECALCULATION ENGINE (TÍNH TOÁN LÃI SAU THUẾ TNDN 20% VÀ ĐA NHIỆM ĐẠI LÝ)
     let _isRecalculating = false;
     function recalculate() {
@@ -4545,6 +4572,7 @@
         const tripCountUnitEl = document.getElementById('tripCountUnit');
         const demurrageDaysEl = document.getElementById('demurrageDays');
         const bankWireCountEl = document.getElementById('bankWireCount');
+        const depositPercentEl = document.getElementById('depositPercentSelect');
         const fxRateEl = document.getElementById('fxRate');
         const quotePriceEl = document.getElementById('quotePrice');
 
@@ -4555,6 +4583,8 @@
         const tripCountUnit = (tripCountUnitEl ? tripCountUnitEl.innerText.trim() : '') || (vehicle === 'HOWO_156' ? 'xe HOWO 15.6m' : 'cont 40ft HC');
         const demurrageDays = demurrageDaysEl ? (parseInt(demurrageDaysEl.value) || 0) : 0;
         const wireCount = bankWireCountEl ? (parseInt(bankWireCountEl.value) || 1) : 1;
+        const depositPercentVal = (wireCount === 1) ? 100 : (depositPercentEl ? (parseFloat(depositPercentEl.value) || 30) : 30);
+        const depositRate = depositPercentVal / 100;
         const fxRate = fxRateEl ? (parseFloat(fxRateEl.value) || 25790) : 25790;
         const quotePrice = quotePriceEl ? (parseFloat(quotePriceEl.value) || 0) : 15.80;
 
@@ -5200,8 +5230,10 @@
       window._currentCalcData = {
         supplier, carrier, activeAgentVn, agentVnName, agentLao, agentYard,
         terms, vehicle, qty, tripCount,
-        tripCountUnit: (document.getElementById('tripCountUnit') ? document.getElementById('tripCountUnit').innerText : 'xe/cont'),
-        demurrageDays, wireCount, fxRate, quotePrice,
+        demurrageDays, wireCount, depositPercent: depositPercentVal, depositRate,
+        depositAmount: revenueUsd * depositRate,
+        balanceAmount: (wireCount === 1) ? 0 : (revenueUsd * (1 - depositRate)),
+        totalAmountUsd: revenueUsd, fxRate, quotePrice,
         cogsPreVat, vatRefund, defaultFreight, freightBase,
         demurrageFee, demurrageNote, loloFee,
         customsFee, coFee, borderGuardFee, transitLaoFee,
@@ -7898,7 +7930,7 @@
     // CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD: COPY THÔNG TIN & XUẤT ẢNH THẺ
     // =========================================================================
 
-    function copyPaymentInstructionText() {
+    function copyPaymentInstructionText(targetPhase) {
       recalculate();
       const d = window._currentCalcData || {};
       const dateInfo = getDossierExecutionDateInfo();
@@ -7906,14 +7938,59 @@
       const qty = isOriginal ? 1300 : (d.qty || 1000);
       const quotePrice = isOriginal ? 15.80 : (d.quotePrice || 16.00);
       const totalAmount = qty * quotePrice;
-      const depositAmount = totalAmount * 0.3;
-      const balanceAmount = totalAmount * 0.7;
+      const wireCount = isOriginal ? 2 : (d.wireCount || (document.getElementById('bankWireCount') ? parseInt(document.getElementById('bankWireCount').value) : 2) || 2);
+      const depPercentVal = (wireCount === 1) ? 100 : (isOriginal ? 30 : (document.getElementById('depositPercentSelect') ? (parseFloat(document.getElementById('depositPercentSelect').value) || 30) : 30));
+      const depositAmount = totalAmount * (depPercentVal / 100);
+      const balanceAmount = (wireCount === 1) ? 0 : (totalAmount * ((100 - depPercentVal) / 100));
       const contractCode = dateInfo.masterContractCode;
       const invoiceNo = dateInfo.invoiceNo;
+      const poNo = dateInfo.poNo;
       const executionDate = dateInfo.executionDate;
 
+      const phase = (wireCount === 1) ? 'full' : (targetPhase || 'deposit');
+
+      let titleHeader = '';
+      let amountSection = '';
+      let remitRef = '';
+      let toastMsg = '';
+
+      if (phase === 'full') {
+        titleHeader = 'OFFICIAL PAYMENT INSTRUCTION (100% FULL PAYMENT) / CHỈ DẪN THANH TOÁN TRỌN GÓI';
+        amountSection = `3. PAYMENT AMOUNT (SỐ TIỀN THANH TOÁN 100% TRỌN GÓI):
+   • Total Order Value: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Payment Term: 100% Full Payment in advance prior to dispatch / customs release`;
+        remitRef = `FULL PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}`;
+        toastMsg = '📋 ĐÃ SAO CHÉP CHỈ DẪN THANH TOÁN 100% TRỌN GÓI MB BANK USD!';
+      } else if (phase === 'deposit') {
+        titleHeader = `PAYMENT INSTRUCTION — PHASE 1: ADVANCE DEPOSIT (${depPercentVal}%) / CHỈ DẪN ĐẶT CỌC ĐỢT 1`;
+        amountSection = `3. PAYMENT AMOUNT — PHASE 1 DEPOSIT (SỐ TIỀN CỌC ĐỢT 1):
+   • Deposit Amount (${depPercentVal}%): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Total Order Value (100%): $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Remaining Balance (${100 - depPercentVal}%): $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD (Due prior to release)`;
+        remitRef = `ADVANCE DEPOSIT (${depPercentVal}%) FOR CONTRACT ${contractCode} / PO ${poNo}`;
+        toastMsg = `📋 ĐÃ SAO CHÉP CHỈ DẪN CHUYỂN TIỀN CỌC ĐỢT 1 (${depPercentVal}%) MB BANK USD!`;
+      } else if (phase === 'balance') {
+        titleHeader = `PAYMENT INSTRUCTION — PHASE 2: FINAL BALANCE (${100 - depPercentVal}%) / CHỈ DẪN TẤT TOÁN ĐỢT 2`;
+        amountSection = `3. PAYMENT AMOUNT — PHASE 2 FINAL BALANCE (SỐ TIỀN TẤT TOÁN ĐỢT 2):
+   • Balance Amount to Wire (${100 - depPercentVal}%): $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Deposit Already Received (${depPercentVal}%): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Total Order Value (100%): $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+        remitRef = `FINAL BALANCE (${100 - depPercentVal}%) FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}`;
+        toastMsg = `📋 ĐÃ SAO CHÉP CHỈ DẪN TẤT TOÁN ĐỢT 2 (${100 - depPercentVal}%) MB BANK USD!`;
+      } else {
+        // 'all'
+        titleHeader = `OFFICIAL PAYMENT INSTRUCTION (2 INSTALLMENTS: ${depPercentVal}% / ${100 - depPercentVal}%) / CHỈ DẪN 2 ĐỢT`;
+        amountSection = `3. PAYMENT AMOUNT & SCHEDULE (SỐ TIỀN & TIẾN ĐỘ 2 ĐỢT):
+   • Total Order Value: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Phase 1 (Deposit ${depPercentVal}% upon PO): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+   • Phase 2 (Balance ${100 - depPercentVal}% before release): $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+        remitRef = `Phase 1: ADVANCE DEPOSIT (${depPercentVal}%) FOR CONTRACT ${contractCode} / PO ${poNo}
+   • Phase 2: FINAL BALANCE (${100 - depPercentVal}%) FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}`;
+        toastMsg = '📋 ĐÃ SAO CHÉP TOÀN BỘ NỘI DUNG CHUYỂN KHOẢN 2 ĐỢT MB BANK USD!';
+      }
+
       const text = `======================================================================
-OFFICIAL PAYMENT INSTRUCTION (USD WIRE TRANSFER) / CHỈ DẪN THANH TOÁN
+${titleHeader}
 BENEFICIARY: CÔNG TY TNHH GLOBAL SOLUTION SERVICE (G-SS CO., LTD)
 DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
 ======================================================================
@@ -7930,13 +8007,10 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
    • SWIFT / BIC Code: MSCBVNVX
    • Currency: USD (United States Dollar)
 
-3. PAYMENT AMOUNT & SCHEDULE (SỐ TIỀN & ĐỢT THANH TOÁN):
-   • Total Contract Value: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
-   • Phase 1 (Deposit 30% upon PO): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
-   • Phase 2 (Balance 70% before release): $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD
+${amountSection}
 
 4. REMITTANCE REFERENCE / SWIFT FIELD :70: (NỘI DUNG CHUYỂN TIỀN):
-   ADVANCE PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}
+   ${remitRef}
 
 5. INTERMEDIARY / CORRESPONDENT BANK (NẾU ĐỐI TÁC CẦN NGÂN HÀNG TRUNG GIAN):
    • Intermediary Bank: CITIBANK N.A., NEW YORK, USA
@@ -7947,7 +8021,7 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-          showToastNotification("📋 ĐÃ SAO CHÉP TOÀN BỘ NỘI DUNG CHUYỂN KHOẢN MB BANK USD! Bạn có thể dán ngay vào Zalo/Email gửi khách hàng.");
+          showToastNotification(toastMsg);
         }).catch(() => {
           fallbackCopyText(text);
         });
@@ -7972,7 +8046,7 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
       document.body.removeChild(ta);
     }
 
-    function generatePaymentInstructionCardImage() {
+    function generatePaymentInstructionCardImage(targetPhase) {
       recalculate();
       const d = window._currentCalcData || {};
       const dateInfo = getDossierExecutionDateInfo();
@@ -7980,12 +8054,54 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
       const qty = isOriginal ? 1300 : (d.qty || 1000);
       const quotePrice = isOriginal ? 15.80 : (d.quotePrice || 16.00);
       const totalAmount = qty * quotePrice;
-      const depositAmount = totalAmount * 0.3;
-      const balanceAmount = totalAmount * 0.7;
+      const wireCount = isOriginal ? 2 : (d.wireCount || (document.getElementById('bankWireCount') ? parseInt(document.getElementById('bankWireCount').value) : 2) || 2);
+      const depPercentVal = (wireCount === 1) ? 100 : (isOriginal ? 30 : (document.getElementById('depositPercentSelect') ? (parseFloat(document.getElementById('depositPercentSelect').value) || 30) : 30));
+      const depositAmount = totalAmount * (depPercentVal / 100);
+      const balanceAmount = (wireCount === 1) ? 0 : (totalAmount * ((100 - depPercentVal) / 100));
       const contractCode = dateInfo.masterContractCode;
       const invoiceNo = dateInfo.invoiceNo;
+      const poNo = dateInfo.poNo;
       const executionDate = dateInfo.executionDate;
       const termsStr = isOriginal ? 'FCA Lao Bao Border Gate' : (d.terms ? d.terms.replace('_', ' ') : 'CPT Savannakhet');
+
+      const phase = (wireCount === 1) ? 'full' : (targetPhase || 'deposit');
+
+      let ribbonTitle = '';
+      let highlightAmountLabel = '';
+      let highlightAmountVal = '';
+      let scheduleGridVal = '';
+      let remitGridVal = '';
+      let filePrefix = '';
+
+      if (phase === 'full') {
+        ribbonTitle = 'OFFICIAL PAYMENT INSTRUCTION (100% FULL PAYMENT)';
+        highlightAmountLabel = 'TOTAL AMOUNT TO WIRE (USD) / SỐ TIỀN THANH TOÁN 100%:';
+        highlightAmountVal = `$${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        scheduleGridVal = `100% Full Payment: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD prior to dispatch`;
+        remitGridVal = `FULL PAYMENT FOR CONTRACT ${contractCode}`;
+        filePrefix = 'FULL_PAYMENT_100';
+      } else if (phase === 'deposit') {
+        ribbonTitle = `OFFICIAL PAYMENT INSTRUCTION — PHASE 1 DEPOSIT (${depPercentVal}%)`;
+        highlightAmountLabel = `PHASE 1 DEPOSIT (USD) / SỐ TIỀN ĐẶT CỌC ĐỢT 1 (${depPercentVal}%):`;
+        highlightAmountVal = `$${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        scheduleGridVal = `Phase 1 (Deposit ${depPercentVal}%): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD  |  Total Order: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        remitGridVal = `ADVANCE DEPOSIT (${depPercentVal}%) FOR CONTRACT ${contractCode}`;
+        filePrefix = `PHASE1_DEPOSIT_${depPercentVal}PCT`;
+      } else if (phase === 'balance') {
+        ribbonTitle = `OFFICIAL PAYMENT INSTRUCTION — PHASE 2 BALANCE (${100 - depPercentVal}%)`;
+        highlightAmountLabel = `PHASE 2 FINAL BALANCE (USD) / SỐ TIỀN TẤT TOÁN ĐỢT 2 (${100 - depPercentVal}%):`;
+        highlightAmountVal = `$${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        scheduleGridVal = `Phase 2 (Balance ${100 - depPercentVal}%): $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD  |  Deposit Received: $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        remitGridVal = `FINAL BALANCE (${100 - depPercentVal}%) FOR CONTRACT ${contractCode}`;
+        filePrefix = `PHASE2_BALANCE_${100 - depPercentVal}PCT`;
+      } else {
+        ribbonTitle = `OFFICIAL PAYMENT INSTRUCTION (2 INSTALLMENTS: ${depPercentVal}% / ${100 - depPercentVal}%)`;
+        highlightAmountLabel = 'TOTAL CONTRACT VALUE (USD) / TỔNG TRỊ GIÁ HỢP ĐỒNG:';
+        highlightAmountVal = `$${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD`;
+        scheduleGridVal = `P1 Cọc ${depPercentVal}%: $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 0})} | P2 Tất toán ${100 - depPercentVal}%: $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits: 0})}`;
+        remitGridVal = `ADVANCE / BALANCE FOR CONTRACT ${contractCode}`;
+        filePrefix = '2_INSTALLMENTS';
+      }
 
       showToastNotification("🎨 Đang kết xuất ảnh thẻ thanh toán quốc tế MB Bank USD chất lượng cao...");
 
@@ -8040,7 +8156,7 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
       ctx.fillStyle = '#000000';
       ctx.font = 'bold 20px "Times New Roman", serif';
       ctx.textAlign = 'center';
-      ctx.fillText('OFFICIAL INTERNATIONAL PAYMENT INSTRUCTION (USD WIRE TRANSFER)', 600, 163);
+      ctx.fillText(ribbonTitle, 600, 163);
       ctx.textAlign = 'left';
 
       // Subtitle / Contract Ref
@@ -8063,22 +8179,23 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
       ctx.fill();
       ctx.stroke();
 
-      // Highlight Box for USD Account Number
+      // Highlight Box for USD Account Number & Amount
       ctx.fillStyle = '#0284c7';
       ctx.fillRect(60, 240, 1080, 75);
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px "Times New Roman", serif';
-      ctx.fillText('BENEFICIARY ACCOUNT NUMBER (USD) / SỐ TÀI KHOẢN USD THỤ HƯỞNG:', 80, 268);
-      ctx.font = 'bold 36px "Courier New", monospace';
+      ctx.font = 'bold 14px "Times New Roman", serif';
+      ctx.fillText('BENEFICIARY ACCOUNT (USD) / SỐ TÀI KHOẢN MB BANK:', 80, 266);
+      ctx.font = 'bold 34px "Courier New", monospace';
       ctx.fillStyle = '#fef08a';
-      ctx.fillText('9489773866038', 80, 304);
+      ctx.fillText('9489773866038', 80, 302);
 
       ctx.textAlign = 'right';
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Times New Roman", serif';
-      ctx.fillText('CURRENCY: USD ($)', 1110, 285);
-      ctx.font = '14px "Times New Roman", serif';
-      ctx.fillText('WIRE TRANSFER (T/T)', 1110, 305);
+      ctx.font = 'bold 13px "Times New Roman", serif';
+      ctx.fillText(highlightAmountLabel, 1110, 266);
+      ctx.font = 'bold 26px "Times New Roman", serif';
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText(highlightAmountVal, 1110, 300);
       ctx.textAlign = 'left';
 
       // Grid Info
@@ -8088,8 +8205,8 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
         { label: 'Bank Branch / Chi nhánh:', val: 'PHUNG HUNG BRANCH (HANOI, VIETNAM)' },
         { label: 'Bank Address / Địa chỉ ngân hàng:', val: 'MB Grand Tower, 63 Le Van Luong, Cau Giay Dist., Hanoi, Vietnam' },
         { label: 'SWIFT / BIC Code:', val: 'MSCBVNVX', highlight: true },
-        { label: 'Payment Schedule / Đợt thanh toán:', val: `Phase 1 (Deposit 30%): $${depositAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD  |  Total: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} USD` },
-        { label: 'Remittance Reference / Field :70: (Nội dung CK):', val: `ADVANCE PAYMENT FOR CONTRACT ${contractCode}`, highlight: true }
+        { label: 'Payment Schedule / Đợt thanh toán:', val: scheduleGridVal },
+        { label: 'Remittance Reference / Field :70: (Nội dung CK):', val: remitGridVal, highlight: true }
       ];
 
       let curY = 345;
@@ -8100,7 +8217,7 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
 
         if (item.highlight) {
           ctx.fillStyle = '#38bdf8';
-          ctx.font = 'bold 18px "Courier New", monospace';
+          ctx.font = 'bold 17px "Courier New", monospace';
         } else if (item.bold) {
           ctx.fillStyle = '#ffffff';
           ctx.font = 'bold 16px "Times New Roman", serif';
@@ -8138,7 +8255,7 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
           showToastNotification("⚠️ Không thể sinh dữ liệu ảnh từ Canvas!");
           return;
         }
-        const fileName = `MB_BANK_USD_PAYMENT_INSTRUCTION_${contractCode}.png`;
+        const fileName = `MB_BANK_USD_${filePrefix}_${contractCode}.png`;
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -8153,7 +8270,7 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
           try {
             const item = new ClipboardItem({ 'image/png': blob });
             navigator.clipboard.write([item]).then(() => {
-              showToastNotification(`🖼 ĐÃ TẠO ẢNH & SAO CHÉP VÀO BỘ NHỚ TẠM! Đã tải file: ${fileName}. Bạn có thể dán (Ctrl+V) ngay vào Zalo/Email.`);
+              showToastNotification(`🖼 ĐÃ TẠO ẢNH & SAO CHÉP VÀO BỘ NHỚ TẠM! Đã tải: ${fileName}. Bạn có thể dán (Ctrl+V) vào Zalo/Email.`);
             }).catch(() => {
               showToastNotification(`🖼 ĐÃ TẢI ẢNH THẺ THANH TOÁN MB BANK: ${fileName}!`);
             });
@@ -8442,10 +8559,13 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
       const customsStatusText = dateInfo.customsStatusText;
 
       let qty, quotePrice, totalAmount, depositAmount, balanceAmount, curTerms, contractCode, vehLabel;
+      let wireCount, depPercentVal;
       if (isOriginal) {
         qty = 1300;
         quotePrice = 15.80;
         totalAmount = 20540.00;
+        wireCount = 2;
+        depPercentVal = 30;
         depositAmount = 6162.00;
         balanceAmount = 14378.00;
         curTerms = 'FCA LAO BAO BORDER GATE (INCOTERMS 2020)';
@@ -8455,8 +8575,15 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
         qty = d.qty || 1000;
         quotePrice = d.quotePrice || 16.00;
         totalAmount = qty * quotePrice;
-        depositAmount = totalAmount * 0.3;
-        balanceAmount = totalAmount * 0.7;
+        wireCount = (d.wireCount !== undefined) ? Number(d.wireCount) : (document.getElementById('bankWireCount') ? (parseInt(document.getElementById('bankWireCount').value) || 2) : 2);
+        depPercentVal = (d.depositPercent !== undefined) ? Number(d.depositPercent) : (wireCount === 1 ? 100 : (document.getElementById('depositPercentSelect') ? (parseInt(document.getElementById('depositPercentSelect').value) || 30) : 30));
+        if (wireCount === 1) {
+          depositAmount = totalAmount;
+          balanceAmount = 0;
+        } else {
+          depositAmount = totalAmount * (depPercentVal / 100);
+          balanceAmount = totalAmount - depositAmount;
+        }
         const rawTerms = d.terms || 'CPT_SVN';
         curTerms = (rawTerms.replace('_', ' ') + ' (INCOTERMS 2020)');
         contractCode = dateInfo.masterContractCode;
@@ -8474,8 +8601,8 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
       const vatRate = (supObj.vatRate !== undefined) ? supObj.vatRate : 0.08;
       const vatTotal = cogsTotal * vatRate;
       const grandTotalSup = cogsTotal + vatTotal;
-      const depositVnd = grandTotalSup * 0.3;
-      const balanceVnd = grandTotalSup * 0.7;
+      const depositVnd = (wireCount === 1) ? grandTotalSup : (grandTotalSup * (depPercentVal / 100));
+      const balanceVnd = (wireCount === 1) ? 0 : (grandTotalSup - depositVnd);
 
       const carrierObj = (d.carrier && typeof d.carrier === 'object') ? d.carrier : (partnersMaster.carriers[0] || {});
       const carrierName = carrierObj.name ? (carrierObj.name.includes('CÔNG TY') ? carrierObj.name : `CÔNG TY TNHH VẬN TẢI ${carrierObj.name.replace(/\s*\(.*?\)\s*/g, '').toUpperCase()}`) : 'CÔNG TY TNHH VẬN TẢI VĨNH THÀNH';
@@ -8546,12 +8673,16 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
             <b>COMMERCIAL TERMS & PAYMENT SCHEDULE:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
               <li><b>Delivery Terms:</b> ${curTerms}. Loading point: Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.</li>
+              ${wireCount === 1 ? `
+              <li><b>Payment Term:</b> T/T 100% Full Payment into Seller's USD Account at MB Bank (Vietnam) in advance of customs release at Lao Bao Border Gate ($${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD).</li>
+              ` : `
               <li><b>Payment Term:</b> T/T 2 installments into Seller's USD Account at MB Bank (Vietnam).
                 <ul style="padding-left:16px; margin-top:2px;">
-                  <li><b>Phase 1 (Deposit 30%):</b> $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD upon PO signing.</li>
-                  <li><b>Phase 2 (Balance 70%):</b> $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD before customs release at Lao Bao Border Gate.</li>
+                  <li><b>Phase 1 (Deposit ${depPercentVal}%):</b> $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD upon PO signing.</li>
+                  <li><b>Phase 2 (Balance ${100 - depPercentVal}%):</b> $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD before customs release at Lao Bao Border Gate.</li>
                 </ul>
               </li>
+              `}
               <li><b>Title Retention:</b> Ownership of the goods remains with Seller until full 100% payment is received.</li>
             </ol>
           </div>
@@ -8591,7 +8722,9 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
                 <b>Invoice No.:</b> ${invoiceNo}<br>
                 <b>Date:</b> ${executionDate}<br>
                 <b>Sales Contract Ref:</b> ${contractCode} (Master dated ${masterContractDate})<br>
-                <b>Payment Term:</b> T/T 100% in advance of customs release
+                <b>Payment Term:</b> ${wireCount === 1 
+                  ? 'T/T 100% in advance of customs release (Full Payment)' 
+                  : `T/T 2 installments: Phase 1 (Deposit ${depPercentVal}%: $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD) & Phase 2 (Balance ${100 - depPercentVal}%: $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD) before customs release`}
               </td>
               <td style="width:45%;">
                 <b>Buyer:</b> DUANGMANEE IMPORT-EXPORT CO., LTD<br>
@@ -8899,15 +9032,36 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
 
           <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; padding:10px 14px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-size:12px; color:#1e293b;">
-              💡 <b>Gửi khách hàng ngoại:</b> Copy nội dung điện chuyển tiền hoặc xuất ảnh thẻ MB Bank USD sắc nét gửi qua Zalo/WhatsApp/Email.
+              💡 <b>Gửi khách hàng ngoại:</b> Copy nội dung điện chuyển tiền hoặc xuất ảnh thẻ MB Bank USD sắc nét gửi qua Zalo/WhatsApp/Email (${wireCount === 1 ? 'Phương án Chuyển 1 Lần 100%' : `Phương án Chuyển 2 Đợt: Cọc ${depPercentVal}% & Tất Toán ${100 - depPercentVal}%`}).
             </div>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn-sm" onclick="copyPaymentInstructionText()" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;">
-                [📋 Sao Chép Nội Dung TT]
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              ${wireCount === 1 ? `
+              <button class="btn btn-sm" onclick="copyPaymentInstructionText('full')" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép toàn bộ lệnh chuyển tiền 100%">
+                [📋 Sao Chép TT 100%]
               </button>
-              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage()" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;">
-                [🖼 Xuất Ảnh Thẻ (PNG)]
+              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('full')" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng 100% Full Payment">
+                [🖼 Xuất Ảnh Thẻ 100% (PNG)]
               </button>
+              ` : `
+              <button class="btn btn-sm" onclick="copyPaymentInstructionText('deposit')" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép lệnh chuyển tiền Đợt 1 Cọc ${depPercentVal}%">
+                [📋 Cọc Đợt 1 (${depPercentVal}%)]
+              </button>
+              <button class="btn btn-sm" onclick="copyPaymentInstructionText('balance')" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép lệnh chuyển tiền Đợt 2 Tất Toán ${100 - depPercentVal}%">
+                [📋 Tất Toán Đợt 2 (${100 - depPercentVal}%)]
+              </button>
+              <button class="btn btn-sm" onclick="copyPaymentInstructionText('all')" style="background:#d97706; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép điện chuyển tiền tổng hợp cả 2 đợt">
+                [📋 Cả 2 Đợt]
+              </button>
+              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('deposit')" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng Đợt 1">
+                [🖼 Thẻ Đợt 1]
+              </button>
+              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('balance')" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng Đợt 2">
+                [🖼 Thẻ Đợt 2]
+              </button>
+              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('all')" style="background:#0369a1; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng tổng hợp cả 2 đợt">
+                [🖼 Thẻ Cả 2 Đợt]
+              </button>
+              `}
             </div>
           </div>
 
@@ -8962,24 +9116,37 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
               </tr>
 
               <tr style="background:#f8fafc;">
-                <td colspan="2" style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13px;">3. PAYMENT SCHEDULE & REMITTANCE DETAILS</td>
+                <td colspan="2" style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13px;">3. PAYMENT SCHEDULE & REMITTANCE DETAILS (${wireCount === 1 ? 'CHUYỂN 1 LẦN 100%' : `CHUYỂN 2 ĐỢT: CỌC ${depPercentVal}% & TẤT TOÁN ${100 - depPercentVal}%`})</td>
               </tr>
               <tr>
-                <td style="border:1px solid #000; padding:6px;"><b>Total Order Amount (FCA):</b></td>
+                <td style="border:1px solid #000; padding:6px;"><b>Total Order Amount (${curTerms.split(' ')[0]}):</b></td>
                 <td style="border:1px solid #000; padding:6px; font-weight:bold; font-size:13.5px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
               </tr>
+              ${wireCount === 1 ? `
               <tr>
-                <td style="border:1px solid #000; padding:6px;"><b>Phase 1 (Deposit 30% upon PO):</b></td>
-                <td style="border:1px solid #000; padding:6px; font-weight:bold; color:#0369a1;">$${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #000; padding:6px;"><b>Phase 2 (Balance 70% before release):</b></td>
-                <td style="border:1px solid #000; padding:6px; font-weight:bold;">$${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
+                <td style="border:1px solid #000; padding:6px;"><b>Payment Mode / Hình Thức:</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold; color:#0369a1;">100% Full Payment before customs release ($${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD)</td>
               </tr>
               <tr>
                 <td style="border:1px solid #000; padding:6px;"><b>Remittance Reference (SWIFT Field :70:):</b></td>
-                <td style="border:1px solid #000; padding:6px; font-family:'Courier New', monospace; font-weight:bold; background:#fef3c7; font-size:13px;">ADVANCE PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}</td>
+                <td style="border:1px solid #000; padding:6px; font-family:'Courier New', monospace; font-weight:bold; background:#fef3c7; font-size:13px;">FULL PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}</td>
               </tr>
+              ` : `
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Phase 1 (Deposit ${depPercentVal}% upon PO):</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold; color:#0369a1;">
+                  $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD<br>
+                  <small style="font-family:'Courier New', monospace; background:#fef3c7; padding:1px 4px;">SWIFT :70: ADVANCE PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}</small>
+                </td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #000; padding:6px;"><b>Phase 2 (Balance ${100 - depPercentVal}% before release):</b></td>
+                <td style="border:1px solid #000; padding:6px; font-weight:bold; color:#15803d;">
+                  $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD<br>
+                  <small style="font-family:'Courier New', monospace; background:#f0fdf4; padding:1px 4px;">SWIFT :70: BALANCE PAYMENT FOR CONTRACT ${contractCode} / INVOICE ${invoiceNo}</small>
+                </td>
+              </tr>
+              `}
               <tr>
                 <td style="border:1px solid #000; padding:6px;"><b>Intermediary Bank (if required):</b></td>
                 <td style="border:1px solid #000; padding:6px;">CITIBANK N.A., NEW YORK (SWIFT: CITIUS33)</td>
@@ -9147,7 +9314,9 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
             <ol style="margin:4px 0 0 0; padding-left:18px;">
               <li><b>Điều 1 (Hàng hóa):</b> ${prodName}, quy cách ${prodSpec}, xuất xứ Việt Nam.</li>
               <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.${!isOriginal ? ` Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.` : ''}</li>
-              <li><b>Điều 3 (Phương thức thanh toán):</b> T/T 100% bằng đồng USD vào tài khoản MB Bank của Bên Bán (Cọc 30% khi ký PO, 70% trước khi thông quan cửa khẩu).</li>
+              <li><b>Điều 3 (Phương thức thanh toán):</b> ${wireCount === 1 
+                ? `T/T 100% Full Payment ($${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD) bằng đồng USD vào tài khoản MB Bank của Bên Bán trước khi thông quan giải phóng hàng tại cửa khẩu Lao Bảo.` 
+                : `T/T 2 đợt bằng đồng USD vào tài khoản MB Bank của Bên Bán (Đợt 1 đặt cọc ${depPercentVal}% tương đương $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD khi ký PO, Đợt 2 thanh toán ${100 - depPercentVal}% tương đương $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD trước khi thông quan giải phóng hàng tại cửa khẩu Lao Bảo).`}</li>
               <li><b>Điều 4 (Bảo lưu quyền sở hữu):</b> Quyền sở hữu hàng hóa thuộc về Bên Bán cho đến khi Bên Bán nhận đủ 100% tiền thanh toán.</li>
               <li><b>Điều 5 (Trọng tài thương mại):</b> Tranh chấp phát sinh được giải quyết tại Trung tâm Trọng tài Quốc tế Việt Nam (VIAC).</li>
             </ol>
@@ -9222,9 +9391,10 @@ DATE: ${executionDate} | CONTRACT: ${contractCode} | INVOICE: ${invoiceNo}
 
           <div style="font-size:11.5px; border:1px solid #000; padding:8px; margin-bottom:16px;">
             <b>ĐỐI SOÁT DÒNG TIỀN & ĐIỀU KIỆN HOÀN THUẾ:</b><br>
-            • Tiền hàng chuyển khoản 100% qua tài khoản USD MB Bank <b>9489773866038</b> của Bên Bán.<br>
+            • Tiền hàng xuất khẩu chuyển khoản qua tài khoản USD MB Bank <b>9489773866038</b> của Bên Bán theo phương án <b>${wireCount === 1 ? `1 đợt 100% ($${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD)` : `2 đợt (Cọc ${depPercentVal}%: $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD & Tất toán ${100 - depPercentVal}%: $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD)`}</b>.<br>
+            • Dự toán chi phí giao dịch ngân hàng: <b>${wireCount} điện chuyển tiền quốc tế</b> (khoảng $${wireCount * 47} USD ~ ${(wireCount * 47 * fx).toLocaleString('vi-VN')} đ).<br>
             • Đầy đủ 4 trụ cột chứng từ: Hợp đồng ngoại thương, Hóa đơn GTGT 0%, Tờ khai B11 thông quan, Chứng từ thanh toán ngân hàng.<br>
-            • Đạt điều kiện hoàn thuế 100% theo quy định quản lý ngoại hối và thuế quan Việt Nam.
+            • Đạt điều kiện hoàn thuế 100% theo quy định quản lý ngoại hối và thuế quan Việt Nam (Thông tư 219/2013/TT-BTC).
           </div>
 
           <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
