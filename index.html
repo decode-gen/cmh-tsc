@@ -844,8 +844,78 @@
       body:not(.printing-plan-a4) .print-plan-a4-only { display: none !important; }
       .data-table th, .data-table td { border-color: #000 !important; color: #000 !important; }
     }
-    .print-only { display: none; }
-    .print-plan-a4-only { display: none; }
+    /* --- CHUẨN SINGLE ITEM FEE LOCK & AUTO-LOCK 60S THEO /CMH-UI --- */
+    .fee-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      gap: 6px;
+      padding: 2px 2px;
+      border-radius: 3px;
+      transition: background-color 0.15s ease;
+    }
+    .fee-item-row:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+    [data-theme="light"] .fee-item-row:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    .fee-item-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+    .fee-item-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .btn-single-lock {
+      background: var(--bg-card);
+      color: var(--text-dim);
+      border: 1px solid var(--border-subtle);
+      padding: 1px 6px;
+      font-size: 11px;
+      border-radius: 3px;
+      cursor: pointer;
+      min-width: 28px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      box-shadow: var(--btn-3d-bevel-shadow);
+      transition: var(--transition-tactile);
+      user-select: none;
+    }
+    .btn-single-lock:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+    .btn-single-lock.is-unlocked {
+      background: rgba(234, 179, 8, 0.14) !important;
+      border-color: var(--accent-gold) !important;
+      color: var(--accent-gold) !important;
+      font-weight: bold;
+      min-width: 54px;
+    }
+    .btn-single-lock .countdown-text {
+      font-family: var(--font-mono, monospace);
+      font-size: 10px;
+      letter-spacing: -0.3px;
+    }
+    .fee-inline-input {
+      width: 95px;
+      padding: 1px 4px;
+      font-size: 11px;
+      text-align: right;
+      height: 22px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body data-theme="light">
@@ -978,12 +1048,19 @@
               <!-- Dynamically populated from partnersMaster -->
             </select>
           </div>
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
-            <label class="checkbox-item" style="margin-bottom:0; font-size:11px;">
-              <input type="checkbox" id="chkFreightBase" onchange="recalculate()" checked>
-              <span id="lblFreightBase">Khoản 3: Cước vận tải xe/cont: <b id="lblFreightVal">22.000.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_freight" class="form-control fee-inline-input" style="display:none; width:115px; padding:2px 4px; font-size:11px; text-align:right;" step="500000" placeholder="Tổng cước VND" onchange="recalculate()">
+          <div class="fee-item-row" id="row_freight" style="margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; font-size:11px; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkFreightBase" onchange="recalculate()" checked>
+                <span id="lblFreightBase">Khoản 3: Cước vận tải xe/cont: <b id="lblFreightVal">22.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_freight" class="form-control fee-inline-input" style="display:none; width:115px;" step="500000" placeholder="Tổng cước VND" oninput="onSingleFeeInputChange('freight', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_freight" onclick="toggleSingleFeeLock('freight')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
           <!-- CHỌN ĐẠI LÝ HẢI QUAN VN & C/O -->
@@ -1121,12 +1198,19 @@
             <input type="number" id="demHowoBorderDays" class="form-control" value="1" min="0" max="10" oninput="recalculate()" onchange="recalculate()">
           </div>
         </div>
-        <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-top:2px; margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
-          <label class="checkbox-item" style="margin-bottom:0; font-size:11px;">
-            <input type="checkbox" id="chkDemurrage" onchange="recalculate()" checked>
-            <span id="lblDemurrageFee">Khoản 4: Tiền lưu xe / lưu ca: <b id="lblDemurrageVal">2.500.000 đ</b></span>
-          </label>
-          <input type="number" id="inpFee_demurrage" class="form-control fee-inline-input" style="display:none; width:115px; padding:2px 4px; font-size:11px; text-align:right;" step="500000" placeholder="Tiền lưu xe VND" onchange="recalculate()">
+        <div class="fee-item-row" id="row_demurrage" style="margin-top:2px; margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
+          <div class="fee-item-left">
+            <label class="checkbox-item" style="margin-bottom:0; font-size:11px; flex:1; cursor:pointer;">
+              <input type="checkbox" id="chkDemurrage" onchange="recalculate()" checked>
+              <span id="lblDemurrageFee">Khoản 4: Tiền lưu xe / lưu ca: <b id="lblDemurrageVal">2.500.000 đ</b></span>
+            </label>
+          </div>
+          <div class="fee-item-right">
+            <input type="number" id="inpFee_demurrage" class="form-control fee-inline-input" style="display:none; width:115px;" step="500000" placeholder="Tiền lưu xe VND" oninput="onSingleFeeInputChange('demurrage', this.value)" onchange="recalculate()">
+            <button type="button" class="btn-single-lock" id="btnLock_demurrage" onclick="toggleSingleFeeLock('demurrage')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <span class="lock-glyph">🔒</span>
+            </button>
+          </div>
         </div>
 
         <div class="form-row">
@@ -1171,20 +1255,7 @@
         <div class="contingency-box" id="customsAgentBox" style="border-left: 3px solid #2563eb; background: var(--bg-card); margin-bottom: 12px;">
           <div class="contingency-title" style="display:flex; justify-content:space-between; align-items:center;">
             <span id="lblAgentVnTitle">📑 ĐẠI LÝ HẢI QUAN & C/O: BÌNH AN LOGISTICS (HĐ 269901)</span>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <span style="font-size:10px; color:var(--text-dim);">Hóa đơn VAT 8%</span>
-              <button type="button" id="btnToggleFeeEdit" class="btn btn-sm" onclick="handleToggleFeeEdit()" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-subtle); padding:2px 7px; font-size:10.5px; border-radius:3px; cursor:pointer;" data-tooltip="Xác nhận mật khẩu hệ thống 2505 để mở quyền tùy ý sửa số tiền chi phí">[🔓 Sửa Phí 3~14]</button>
-            </div>
-          </div>
-
-          <!-- THANH ĐIỀU KHIỂN KHI MỞ KHÓA SỬA PHÍ -->
-          <div id="feeEditActionToolbar" style="display:none; background:rgba(234, 179, 8, 0.08); border:1px dashed var(--accent-gold); border-radius:3px; padding:6px 8px; margin-bottom:8px; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-            <span style="font-size:11px; color:var(--accent-gold); font-weight:bold;">⚡ Đang mở chế độ sửa phí trực tiếp (Mã 2505):</span>
-            <div style="display:flex; gap:4px;">
-              <button type="button" class="btn btn-sm" onclick="saveCustomFeeOverrides()" style="background:var(--accent-blue); color:#fff; border:none; padding:2px 8px; font-size:10.5px; font-weight:bold; border-radius:2px; cursor:pointer;" data-tooltip="Lưu toàn bộ số tiền chi phí mới vào hệ thống">[💾 Lưu Giá Mới]</button>
-              <button type="button" class="btn btn-sm" onclick="resetCustomFeeOverrides()" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--border-subtle); padding:2px 6px; font-size:10.5px; border-radius:2px; cursor:pointer;" data-tooltip="Khôi phục toàn bộ chi phí về thiết lập gốc SSOT">[🔄 Khôi Phục Gốc]</button>
-              <button type="button" class="btn btn-sm" onclick="exitFeeEditMode()" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); padding:2px 6px; font-size:10.5px; border-radius:2px; cursor:pointer;">[✖ Đóng]</button>
-            </div>
+            <span style="font-size:10px; color:var(--text-dim);">Hóa đơn VAT 8%</span>
           </div>
 
           <!-- 1. CÁC KHOẢN TIÊU CHUẨN CỐ ĐỊNH / CHUYẾN -->
@@ -1192,26 +1263,47 @@
             <span>1. Các khoản tiêu chuẩn cố định / chuyến:</span>
             <small style="color:var(--text-dim); font-size:10px;">(Khoản 6, 7, 8 P&L)</small>
           </div>
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnCustoms" onchange="recalculate()" checked>
-              <span id="lblBinhAnCustoms">Thủ tục HQ Lao Bảo (Tờ khai B11): <b>3.000.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_baCustoms" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baCustoms">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnCustoms" onchange="recalculate()" checked>
+                <span id="lblBinhAnCustoms">Thủ tục HQ Lao Bảo (Tờ khai B11): <b id="val_baCustoms" class="fee-val-text">3.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_baCustoms" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCustoms', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baCustoms" onclick="toggleSingleFeeLock('baCustoms')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnCO" onchange="recalculate()" checked>
-              <span id="lblBinhAnCO">Dịch vụ xin C/O Form D (eCoSys): <b>1.000.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_baCO" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baCO">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnCO" onchange="recalculate()" checked>
+                <span id="lblBinhAnCO">Dịch vụ xin C/O Form D (eCoSys): <b id="val_baCO" class="fee-val-text">1.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_baCO" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCO', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baCO" onclick="toggleSingleFeeLock('baCO')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnBorderGuard" onchange="recalculate()" checked>
-              <span id="lblBinhAnBorderGuard">Thủ tục Biên phòng & Giám sát bãi 32BBG02: <b>1.500.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_baBorder" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baBorder">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnBorderGuard" onchange="recalculate()" checked>
+                <span id="lblBinhAnBorderGuard">Thủ tục Biên phòng & Giám sát bãi 32BBG02: <b id="val_baBorder" class="fee-val-text">1.500.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_baBorder" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baBorder', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baBorder" onclick="toggleSingleFeeLock('baBorder')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
           <!-- 2. CÁC KHOẢN PHÁT SINH TÙY BIẾN THEO THỰC TẾ -->
@@ -1220,43 +1312,69 @@
             <small style="color:var(--text-dim); font-size:10px;">(Khoản 9, 10, 11, 12 P&L)</small>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnTransit" onchange="recalculate()">
-              <span id="lblBinhAnTransit">Thủ tục transit xe Lào (Bình An): <b>2.000.000 đ/xe</b></span>
-            </label>
-            <div style="display:flex; gap:4px; align-items:center;">
-              <select id="binhAnTransitTrucks" class="form-control" style="width:65px; padding:2px 4px; font-size:11px;" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baTransit">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnTransit" onchange="recalculate()">
+                <span id="lblBinhAnTransit">Thủ tục transit xe Lào (Bình An): <b id="val_baTransit" class="fee-val-text">2.000.000 đ/xe</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <select id="binhAnTransitTrucks" class="form-control" style="width:65px; padding:2px 4px; font-size:11px; height:22px;" onchange="recalculate()">
                 <option value="1">1 xe</option>
                 <option value="2" selected>2 xe</option>
                 <option value="3">3 xe</option>
               </select>
-              <input type="number" id="inpFee_baTransit" class="form-control fee-inline-input" style="display:none; width:95px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" placeholder="Đơn giá/xe" onchange="recalculate()">
+              <input type="number" id="inpFee_baTransit" class="form-control fee-inline-input" style="display:none;" step="100000" placeholder="Đơn giá/xe" oninput="onSingleFeeInputChange('baTransit', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baTransit" onclick="toggleSingleFeeLock('baTransit')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
             </div>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnInspection" onchange="recalculate()">
-              <span id="lblBinhAnInspection">Phí kiểm hóa bãi (Luồng Vàng/Đỏ): <b>1.000.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_baInsp" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baInsp">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnInspection" onchange="recalculate()">
+                <span id="lblBinhAnInspection">Phí kiểm hóa bãi (Luồng Vàng/Đỏ): <b id="val_baInsp" class="fee-val-text">1.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_baInsp" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInsp', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baInsp" onclick="toggleSingleFeeLock('baInsp')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnInspOvertime" onchange="recalculate()">
-              <span id="lblBinhAnInspOvertime">Phí kiểm hóa ngoài giờ hành chính: <b>2.000.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_baInspOt" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baInspOt">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnInspOvertime" onchange="recalculate()">
+                <span id="lblBinhAnInspOvertime">Phí kiểm hóa ngoài giờ hành chính: <b id="val_baInspOt" class="fee-val-text">2.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_baInspOt" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInspOt', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baInspOt" onclick="toggleSingleFeeLock('baInspOt')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkBinhAnCOExpress" onchange="recalculate()">
-              <span id="lblBinhAnCOExpress">Phí dịch vụ duyệt C/O nhanh ngoài giờ: <b>2.000.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_baCoExpress" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_baCoExpress">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkBinhAnCOExpress" onchange="recalculate()">
+                <span id="lblBinhAnCOExpress">Phí dịch vụ duyệt C/O nhanh ngoài giờ: <b id="val_baCoExpress" class="fee-val-text">2.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_baCoExpress" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCoExpress', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_baCoExpress" onclick="toggleSingleFeeLock('baCoExpress')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
           <!-- 3. QUÁ CẢNH LÀO, BẾN BÃI & NÂNG HẠ (LIÊN KẾT TRỌN GÓI) -->
@@ -1265,28 +1383,49 @@
             <small style="color:var(--text-dim); font-size:10px;">(Khoản 5, 13, 14 P&L)</small>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkLaoTransit" onchange="recalculate()" checked>
-              <span id="lblLaoTransit">Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b>12.240.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_laoTransit" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_laoTransit">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkLaoTransit" onchange="recalculate()" checked>
+                <span id="lblLaoTransit">Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b id="val_laoTransit" class="fee-val-text">12.240.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_laoTransit" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('laoTransit', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_laoTransit" onclick="toggleSingleFeeLock('laoTransit')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkYardFee" onchange="recalculate()" checked>
-              <span id="lblYardFee">Phí bến bãi & kiểm hóa cửa khẩu (32BBG02): <b>1.500.000 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_yard" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_yard">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkYardFee" onchange="recalculate()" checked>
+                <span id="lblYardFee">Phí bến bãi & kiểm hóa cửa khẩu (32BBG02): <b id="val_yard" class="fee-val-text">1.500.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_yard" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('yard', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_yard" onclick="toggleSingleFeeLock('yard')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
 
-          <div class="fee-item-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-            <label class="checkbox-item" style="margin-bottom:0;">
-              <input type="checkbox" id="chkLoloFee" onchange="recalculate()">
-              <span id="lblLoloFee">Cẩu bãi & nâng hạ cont LOLO: <b>0 đ</b></span>
-            </label>
-            <input type="number" id="inpFee_lolo" class="form-control fee-inline-input" style="display:none; width:105px; padding:2px 4px; font-size:11px; text-align:right;" step="100000" onchange="recalculate()">
+          <div class="fee-item-row" id="row_lolo">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkLoloFee" onchange="recalculate()">
+                <span id="lblLoloFee">Cẩu bãi & nâng hạ cont LOLO: <b id="val_lolo" class="fee-val-text">0 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_lolo" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('lolo', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_lolo" onclick="toggleSingleFeeLock('lolo')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1295,26 +1434,70 @@
           <div class="contingency-title">
             <span>🛡️ DỰ PHÒNG CHI PHÍ HIỆN TRƯỜNG & VẬN TẢI KHÁC:</span>
           </div>
-          <label class="checkbox-item">
-            <input type="checkbox" id="chkInsurance" onchange="recalculate()" checked>
-            <span>Bảo hiểm hàng hóa quốc tế đường bộ (0.2% giá trị hàng)</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="chkDunnage" onchange="recalculate()">
-            <span>Vật tư chèn lót túi khí & bốc xếp ngoài giờ (+800,000 đ)</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="chkCrossDock" onchange="recalculate()">
-            <span>Sang xe chuyển tải tại Cảng cạn Savannakhet (+2,000,000 đ)</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="chkWeighbridge" onchange="recalculate()">
-            <span>Phí Cân xe tải trọng bãi Lao Bảo (+200,000 đ)</span>
-          </label>
-          <label class="checkbox-item">
-            <input type="checkbox" id="chkPhyto" onchange="recalculate()">
-            <span>Phí Chứng thư Kiểm dịch Thực vật / CFS / ATTP (+1,500,000 đ)</span>
-          </label>
+          <div class="fee-item-row" id="row_insurance">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkInsurance" onchange="recalculate()" checked>
+                <span>Bảo hiểm hàng hóa quốc tế đường bộ (0.2% giá trị hàng): <b id="val_insurance" class="fee-val-text">0 đ</b></span>
+              </label>
+            </div>
+          </div>
+          <div class="fee-item-row" id="row_dunnage">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkDunnage" onchange="recalculate()">
+                <span>Vật tư chèn lót túi khí & bốc xếp ngoài giờ: <b id="val_dunnage" class="fee-val-text">800.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_dunnage" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('dunnage', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_dunnage" onclick="toggleSingleFeeLock('dunnage')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
+          </div>
+          <div class="fee-item-row" id="row_crossDock">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkCrossDock" onchange="recalculate()">
+                <span>Sang xe chuyển tải tại Cảng cạn Savannakhet: <b id="val_crossDock" class="fee-val-text">2.000.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_crossDock" class="form-control fee-inline-input" style="display:none;" step="500000" oninput="onSingleFeeInputChange('crossDock', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_crossDock" onclick="toggleSingleFeeLock('crossDock')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
+          </div>
+          <div class="fee-item-row" id="row_weighbridge">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkWeighbridge" onchange="recalculate()">
+                <span>Phí Cân xe tải trọng bãi Lao Bảo: <b id="val_weighbridge" class="fee-val-text">200.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_weighbridge" class="form-control fee-inline-input" style="display:none;" step="50000" oninput="onSingleFeeInputChange('weighbridge', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_weighbridge" onclick="toggleSingleFeeLock('weighbridge')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
+          </div>
+          <div class="fee-item-row" id="row_phyto">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkPhyto" onchange="recalculate()">
+                <span>Phí Chứng thư Kiểm dịch Thực vật / CFS / ATTP: <b id="val_phyto" class="fee-val-text">1.500.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_phyto" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('phyto', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_phyto" onclick="toggleSingleFeeLock('phyto')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- KHỐI QUẢN TRỊ CHI PHÍ PHÁT SINH THỰC TẾ HẬU KIỂM ĐƠN HÀNG (DYNAMIC POST-EXECUTION ACTUAL COSTS) -->
@@ -3423,6 +3606,11 @@
         chkBinhAnInspection: document.getElementById('chkBinhAnInspection') ? document.getElementById('chkBinhAnInspection').checked : false,
         chkBinhAnInspOvertime: document.getElementById('chkBinhAnInspOvertime') ? document.getElementById('chkBinhAnInspOvertime').checked : false,
         chkBinhAnCOExpress: document.getElementById('chkBinhAnCOExpress') ? document.getElementById('chkBinhAnCOExpress').checked : false,
+        chkFreightBase: document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true,
+        chkDemurrage: document.getElementById('chkDemurrage') ? document.getElementById('chkDemurrage').checked : true,
+        chkLaoTransit: document.getElementById('chkLaoTransit') ? document.getElementById('chkLaoTransit').checked : true,
+        chkYardFee: document.getElementById('chkYardFee') ? document.getElementById('chkYardFee').checked : true,
+        chkLoloFee: document.getElementById('chkLoloFee') ? document.getElementById('chkLoloFee').checked : false,
         chkInsurance: document.getElementById('chkInsurance') ? document.getElementById('chkInsurance').checked : true,
         chkDunnage: document.getElementById('chkDunnage') ? document.getElementById('chkDunnage').checked : false,
         chkCrossDock: document.getElementById('chkCrossDock') ? document.getElementById('chkCrossDock').checked : false,
@@ -3462,6 +3650,8 @@
       if (document.getElementById('fxRate') && scn.fxRate !== undefined) document.getElementById('fxRate').value = scn.fxRate;
 
       // 3. Hải quan & Chi phí
+      if (document.getElementById('chkFreightBase') && scn.chkFreightBase !== undefined) document.getElementById('chkFreightBase').checked = scn.chkFreightBase;
+      if (document.getElementById('chkDemurrage') && scn.chkDemurrage !== undefined) document.getElementById('chkDemurrage').checked = scn.chkDemurrage;
       if (document.getElementById('chkBinhAnCustoms') && scn.chkBinhAnCustoms !== undefined) document.getElementById('chkBinhAnCustoms').checked = scn.chkBinhAnCustoms;
       if (document.getElementById('chkBinhAnCO') && scn.chkBinhAnCO !== undefined) document.getElementById('chkBinhAnCO').checked = scn.chkBinhAnCO;
       if (document.getElementById('chkBinhAnBorderGuard') && scn.chkBinhAnBorderGuard !== undefined) document.getElementById('chkBinhAnBorderGuard').checked = scn.chkBinhAnBorderGuard;
@@ -3470,6 +3660,9 @@
       if (document.getElementById('chkBinhAnInspection') && scn.chkBinhAnInspection !== undefined) document.getElementById('chkBinhAnInspection').checked = scn.chkBinhAnInspection;
       if (document.getElementById('chkBinhAnInspOvertime') && scn.chkBinhAnInspOvertime !== undefined) document.getElementById('chkBinhAnInspOvertime').checked = scn.chkBinhAnInspOvertime;
       if (document.getElementById('chkBinhAnCOExpress') && scn.chkBinhAnCOExpress !== undefined) document.getElementById('chkBinhAnCOExpress').checked = scn.chkBinhAnCOExpress;
+      if (document.getElementById('chkLaoTransit') && scn.chkLaoTransit !== undefined) document.getElementById('chkLaoTransit').checked = scn.chkLaoTransit;
+      if (document.getElementById('chkYardFee') && scn.chkYardFee !== undefined) document.getElementById('chkYardFee').checked = scn.chkYardFee;
+      if (document.getElementById('chkLoloFee') && scn.chkLoloFee !== undefined) document.getElementById('chkLoloFee').checked = scn.chkLoloFee;
 
       if (document.getElementById('chkInsurance') && scn.chkInsurance !== undefined) document.getElementById('chkInsurance').checked = scn.chkInsurance;
       if (document.getElementById('chkDunnage') && scn.chkDunnage !== undefined) document.getElementById('chkDunnage').checked = scn.chkDunnage;
@@ -3485,6 +3678,10 @@
         ? JSON.parse(JSON.stringify(scn.unforeseenExpenses))
         : [];
       renderUnforeseenExpensesList();
+
+      if (typeof lockAllUnlockedFeeItems === 'function') {
+        lockAllUnlockedFeeItems(false);
+      }
 
       // 5. Cập nhật UI & tính toán
       updateBinhAnLeftPanelLabels();
@@ -3769,14 +3966,12 @@
       const coFee = overrides['baCO'] !== undefined ? overrides['baCO'] : (isNone ? 0 : ((selectedAgent && selectedAgent.coFee !== undefined) ? selectedAgent.coFee : 1000000));
       const bgFee = overrides['baBorder'] !== undefined ? overrides['baBorder'] : (isNone ? 0 : ((selectedAgent && selectedAgent.borderGuard !== undefined) ? selectedAgent.borderGuard : 1500000));
 
-      const lblCustoms = document.getElementById('lblBinhAnCustoms');
-      if (lblCustoms) lblCustoms.innerHTML = `Thủ tục HQ Lao Bảo (Tờ khai B11): <b>${cFee.toLocaleString('vi-VN')} đ</b>`;
-
-      const lblCO = document.getElementById('lblBinhAnCO');
-      if (lblCO) lblCO.innerHTML = `Dịch vụ xin C/O Form D (eCoSys): <b>${coFee.toLocaleString('vi-VN')} đ</b>`;
-
-      const lblBorder = document.getElementById('lblBinhAnBorderGuard');
-      if (lblBorder) lblBorder.innerHTML = `Thủ tục Biên phòng & Giám sát bãi 32BBG02: <b>${bgFee.toLocaleString('vi-VN')} đ</b>`;
+      const valCustoms = document.getElementById('val_baCustoms');
+      if (valCustoms) valCustoms.innerText = `${cFee.toLocaleString('vi-VN')} đ`;
+      const valCO = document.getElementById('val_baCO');
+      if (valCO) valCO.innerText = `${coFee.toLocaleString('vi-VN')} đ`;
+      const valBorder = document.getElementById('val_baBorder');
+      if (valBorder) valBorder.innerText = `${bgFee.toLocaleString('vi-VN')} đ`;
 
       // 2. Nhóm 2: Phát sinh tùy biến (Khoản 9, 10, 11, 12)
       const agtShortName = isNone ? "GSS" : ((selectedAgent && selectedAgent.name) ? selectedAgent.name.split(' ')[0] : "Đại lý");
@@ -3786,16 +3981,13 @@
       const coExpFee = overrides['baCoExpress'] !== undefined ? overrides['baCoExpress'] : (isNone ? 0 : ((selectedAgent && selectedAgent.coExpressFee !== undefined) ? selectedAgent.coExpressFee : 2000000));
 
       const lblTransit = document.getElementById('lblBinhAnTransit');
-      if (lblTransit) lblTransit.innerHTML = `Thủ tục transit xe Lào (${agtShortName}): <b>${trFee.toLocaleString('vi-VN')} đ/xe</b>`;
-
-      const lblInsp = document.getElementById('lblBinhAnInspection');
-      if (lblInsp) lblInsp.innerHTML = `Phí kiểm hóa bãi (Luồng Vàng/Đỏ): <b>${inspFee.toLocaleString('vi-VN')} đ</b>`;
-
-      const lblInspOt = document.getElementById('lblBinhAnInspOvertime');
-      if (lblInspOt) lblInspOt.innerHTML = `Phí kiểm hóa ngoài giờ hành chính: <b>${inspOtFee.toLocaleString('vi-VN')} đ</b>`;
-
-      const lblCoExpress = document.getElementById('lblBinhAnCOExpress');
-      if (lblCoExpress) lblCoExpress.innerHTML = `Phí dịch vụ duyệt C/O nhanh ngoài giờ: <b>${coExpFee.toLocaleString('vi-VN')} đ</b>`;
+      if (lblTransit) lblTransit.innerHTML = `Thủ tục transit xe Lào (${agtShortName}): <b id="val_baTransit" class="fee-val-text">${trFee.toLocaleString('vi-VN')} đ/xe</b>`;
+      const valInsp = document.getElementById('val_baInsp');
+      if (valInsp) valInsp.innerText = `${inspFee.toLocaleString('vi-VN')} đ`;
+      const valInspOt = document.getElementById('val_baInspOt');
+      if (valInspOt) valInspOt.innerText = `${inspOtFee.toLocaleString('vi-VN')} đ`;
+      const valCoExp = document.getElementById('val_baCoExpress');
+      if (valCoExp) valCoExp.innerText = `${coExpFee.toLocaleString('vi-VN')} đ`;
 
       // 3. Nhóm 3: Quá cảnh Lào, bến bãi & nâng hạ (Khoản 13, 14, 5)
       const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
@@ -3803,25 +3995,25 @@
       const terms = document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'FCA_LB';
 
       const agtLaoId = document.getElementById('agentLaoSelect') ? document.getElementById('agentLaoSelect').value : 'AGT_NGAN_HUNG';
-      const selectedAgentLao = partnersMaster.agentsLao ? partnersMaster.agentsLao.find(a => a.id === agtLaoId) : null;
+      const selectedAgentLao = partnersMaster.agents ? partnersMaster.agents.find(a => a.id === agtLaoId) : null;
       let defLao = 0;
       if (agtLaoId !== 'NONE' && terms !== 'FCA_LB') {
         let perTrip = (selectedAgentLao && selectedAgentLao.laoTransitD8) ? selectedAgentLao.laoTransitD8 : 12240000;
         defLao = perTrip * tripCount;
       }
       const laoTransitVal = overrides['laoTransit'] !== undefined ? overrides['laoTransit'] : defLao;
-      const lblLaoTransit = document.getElementById('lblLaoTransit');
-      if (lblLaoTransit) lblLaoTransit.innerHTML = `Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b>${laoTransitVal.toLocaleString('vi-VN')} đ</b>`;
+      const valLao = document.getElementById('val_laoTransit');
+      if (valLao) valLao.innerText = `${laoTransitVal.toLocaleString('vi-VN')} đ`;
 
       const defYard = 1500000 * tripCount;
       const yardVal = overrides['yard'] !== undefined ? overrides['yard'] : defYard;
-      const lblYard = document.getElementById('lblYardFee');
-      if (lblYard) lblYard.innerHTML = `Phí bến bãi & kiểm hóa cửa khẩu (32BBG02): <b>${yardVal.toLocaleString('vi-VN')} đ</b>`;
+      const valYard = document.getElementById('val_yard');
+      if (valYard) valYard.innerText = `${yardVal.toLocaleString('vi-VN')} đ`;
 
       let defLolo = (vehicle !== 'HOWO_156') ? (2000000 * tripCount) : 0;
       const loloVal = overrides['lolo'] !== undefined ? overrides['lolo'] : defLolo;
-      const lblLolo = document.getElementById('lblLoloFee');
-      if (lblLolo) lblLolo.innerHTML = `Cẩu bãi & nâng hạ cont LOLO: <b>${loloVal.toLocaleString('vi-VN')} đ</b>`;
+      const valLolo = document.getElementById('val_lolo');
+      if (valLolo) valLolo.innerText = `${loloVal.toLocaleString('vi-VN')} đ`;
 
       // 4. Khoản 3 (Cước vận tải) & Khoản 4 (Tiền lưu xe)
       const carrierId = document.getElementById('carrierSelect') ? document.getElementById('carrierSelect').value : 'CAR_VINH_THANH';
@@ -3836,7 +4028,24 @@
       const lblDem = document.getElementById('lblDemurrageVal');
       if (lblDem) lblDem.innerText = `${demVal.toLocaleString('vi-VN')} đ`;
 
-      // Đồng bộ giá trị vào các ô input khi đang mở chế độ sửa phí
+      // 5. Dự phòng hiện trường & Contingency (Khoản dunnage, crossDock, weighbridge, phyto)
+      const dunVal = overrides['dunnage'] !== undefined ? overrides['dunnage'] : (800000 * tripCount);
+      const valDun = document.getElementById('val_dunnage');
+      if (valDun) valDun.innerText = `${dunVal.toLocaleString('vi-VN')} đ`;
+
+      const cdVal = overrides['crossDock'] !== undefined ? overrides['crossDock'] : (2000000 * tripCount);
+      const valCd = document.getElementById('val_crossDock');
+      if (valCd) valCd.innerText = `${cdVal.toLocaleString('vi-VN')} đ`;
+
+      const wbVal = overrides['weighbridge'] !== undefined ? overrides['weighbridge'] : (200000 * tripCount);
+      const valWb = document.getElementById('val_weighbridge');
+      if (valWb) valWb.innerText = `${wbVal.toLocaleString('vi-VN')} đ`;
+
+      const phytoVal = overrides['phyto'] !== undefined ? overrides['phyto'] : 1500000;
+      const valPhyto = document.getElementById('val_phyto');
+      if (valPhyto) valPhyto.innerText = `${phytoVal.toLocaleString('vi-VN')} đ`;
+
+      // Đồng bộ giá trị vào các ô input khi không đang gõ trực tiếp
       const syncInput = (id, val) => {
         const inp = document.getElementById(id);
         if (inp && (document.activeElement !== inp || inp.value === '')) {
@@ -3855,6 +4064,10 @@
       syncInput('inpFee_lolo', loloVal);
       syncInput('inpFee_freight', frVal);
       syncInput('inpFee_demurrage', demVal);
+      syncInput('inpFee_dunnage', dunVal);
+      syncInput('inpFee_crossDock', cdVal);
+      syncInput('inpFee_weighbridge', wbVal);
+      syncInput('inpFee_phyto', phytoVal);
     }
 
     function onAgentVnChange() {
@@ -4502,88 +4715,213 @@
       }
     }
 
-    // TOGGLE & EDIT CONTROLS FOR FEES 3 ~ 14
-    function handleToggleFeeEdit() {
-      if (isFeeEditMode) {
-        exitFeeEditMode();
+    // SINGLE ITEM FEE LOCK & 60-SECOND AUTO-LOCK CONTROLS
+    const FEE_CONFIG = {
+      freight: { inputId: 'inpFee_freight', btnId: 'btnLock_freight', valId: 'lblFreightVal', overrideKey: 'freight', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      demurrage: { inputId: 'inpFee_demurrage', btnId: 'btnLock_demurrage', valId: 'lblDemurrageVal', overrideKey: 'demurrage', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      baCustoms: { inputId: 'inpFee_baCustoms', btnId: 'btnLock_baCustoms', valId: 'val_baCustoms', overrideKey: 'baCustoms', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      baCO: { inputId: 'inpFee_baCO', btnId: 'btnLock_baCO', valId: 'val_baCO', overrideKey: 'baCO', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      baBorder: { inputId: 'inpFee_baBorder', btnId: 'btnLock_baBorder', valId: 'val_baBorder', overrideKey: 'baBorder', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      baTransit: { inputId: 'inpFee_baTransit', btnId: 'btnLock_baTransit', valId: 'val_baTransit', overrideKey: 'baTransitUnit', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ/xe` },
+      baInsp: { inputId: 'inpFee_baInsp', btnId: 'btnLock_baInsp', valId: 'val_baInsp', overrideKey: 'baInsp', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      baInspOt: { inputId: 'inpFee_baInspOt', btnId: 'btnLock_baInspOt', valId: 'val_baInspOt', overrideKey: 'baInspOt', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      baCoExpress: { inputId: 'inpFee_baCoExpress', btnId: 'btnLock_baCoExpress', valId: 'val_baCoExpress', overrideKey: 'baCoExpress', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      laoTransit: { inputId: 'inpFee_laoTransit', btnId: 'btnLock_laoTransit', valId: 'val_laoTransit', overrideKey: 'laoTransit', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      yard: { inputId: 'inpFee_yard', btnId: 'btnLock_yard', valId: 'val_yard', overrideKey: 'yard', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      lolo: { inputId: 'inpFee_lolo', btnId: 'btnLock_lolo', valId: 'val_lolo', overrideKey: 'lolo', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      dunnage: { inputId: 'inpFee_dunnage', btnId: 'btnLock_dunnage', valId: 'val_dunnage', overrideKey: 'dunnage', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      crossDock: { inputId: 'inpFee_crossDock', btnId: 'btnLock_crossDock', valId: 'val_crossDock', overrideKey: 'crossDock', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      weighbridge: { inputId: 'inpFee_weighbridge', btnId: 'btnLock_weighbridge', valId: 'val_weighbridge', overrideKey: 'weighbridge', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` },
+      phyto: { inputId: 'inpFee_phyto', btnId: 'btnLock_phyto', valId: 'val_phyto', overrideKey: 'phyto', format: v => `${Math.round(v).toLocaleString('vi-VN')} đ` }
+    };
+
+    let unlockedFeeItems = new Set();
+    let feeAutoLockTimer = null;
+    let feeAutoLockSecondsRemaining = 60;
+
+    function toggleSingleFeeLock(key) {
+      if (unlockedFeeItems.has(key)) {
+        lockSingleFeeItem(key);
+        showToastNotification(`🔒 Đã khóa lại khoản phí [${key}]!`);
       } else {
         requestPinVerification(() => {
-          enterFeeEditMode();
-        }, "Mở quyền tùy ý sửa số tiền chi phí các khoản 3~14");
+          unlockSingleFeeItem(key);
+        }, `Mở khóa sửa số tiền khoản phí [${key}]`);
       }
     }
 
-    function enterFeeEditMode() {
-      isFeeEditMode = true;
-      const toolbar = document.getElementById('feeEditActionToolbar');
-      if (toolbar) toolbar.style.display = 'flex';
-      const btn = document.getElementById('btnToggleFeeEdit');
-      if (btn) {
-        btn.innerHTML = '[🔒 Khóa Sửa]';
-        btn.style.color = 'var(--alert-critical-text)';
-      }
-      document.querySelectorAll('.fee-inline-input').forEach(inp => {
+    function unlockSingleFeeItem(key) {
+      const cfg = FEE_CONFIG[key];
+      if (!cfg) return;
+
+      unlockedFeeItems.add(key);
+
+      const inp = document.getElementById(cfg.inputId);
+      const btn = document.getElementById(cfg.btnId);
+
+      if (inp) {
         inp.style.display = 'inline-block';
-      });
-      updateBinhAnLeftPanelLabels();
-      showToastNotification("🔓 Đã mở chế độ sửa số tiền chi phí trực tiếp!");
+        inp.focus();
+        inp.select();
+      }
+      if (btn) {
+        btn.classList.add('is-unlocked');
+        btn.innerHTML = `<span class="lock-glyph">🔓</span> <span class="countdown-text">${feeAutoLockSecondsRemaining}s</span>`;
+      }
+
+      startOrExtendFeeAutoLockTimer();
+      showToastNotification(`🔓 Đã mở khóa sửa [${key}] · Tự động khóa sau ${feeAutoLockSecondsRemaining}s nếu không thao tác!`);
     }
 
-    function exitFeeEditMode() {
-      isFeeEditMode = false;
-      const toolbar = document.getElementById('feeEditActionToolbar');
-      if (toolbar) toolbar.style.display = 'none';
-      const btn = document.getElementById('btnToggleFeeEdit');
-      if (btn) {
-        btn.innerHTML = '[🔓 Sửa Phí 3~14]';
-        btn.style.color = 'var(--accent-gold)';
+    function lockSingleFeeItem(key) {
+      const cfg = FEE_CONFIG[key];
+      if (cfg) {
+        const inp = document.getElementById(cfg.inputId);
+        if (inp && inp.value !== '') {
+          const num = parseFloat(inp.value);
+          if (!isNaN(num) && num >= 0) {
+            if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
+            partnersMaster.baselineOverrides[cfg.overrideKey] = num;
+          }
+        }
+        if (inp) inp.style.display = 'none';
+
+        const btn = document.getElementById(cfg.btnId);
+        if (btn) {
+          btn.classList.remove('is-unlocked');
+          btn.innerHTML = `<span class="lock-glyph">🔒</span>`;
+        }
       }
-      document.querySelectorAll('.fee-inline-input').forEach(inp => {
-        inp.style.display = 'none';
-      });
+
+      unlockedFeeItems.delete(key);
+      savePartnersToStorage();
       updateBinhAnLeftPanelLabels();
       recalculate();
+
+      if (unlockedFeeItems.size === 0) {
+        stopFeeAutoLockTimer();
+      }
     }
 
-    function saveCustomFeeOverrides() {
-      if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
+    function lockAllUnlockedFeeItems(isAutoExpire = false) {
+      if (unlockedFeeItems.size === 0) return;
 
-      const map = [
-        { id: 'inpFee_freight', key: 'freight' },
-        { id: 'inpFee_demurrage', key: 'demurrage' },
-        { id: 'inpFee_lolo', key: 'lolo' },
-        { id: 'inpFee_baCustoms', key: 'baCustoms' },
-        { id: 'inpFee_baCO', key: 'baCO' },
-        { id: 'inpFee_baBorder', key: 'baBorder' },
-        { id: 'inpFee_baTransit', key: 'baTransitUnit' },
-        { id: 'inpFee_baInsp', key: 'baInsp' },
-        { id: 'inpFee_baInspOt', key: 'baInspOt' },
-        { id: 'inpFee_baCoExpress', key: 'baCoExpress' },
-        { id: 'inpFee_laoTransit', key: 'laoTransit' },
-        { id: 'inpFee_yard', key: 'yard' }
-      ];
+      unlockedFeeItems.forEach(key => {
+        const cfg = FEE_CONFIG[key];
+        if (cfg) {
+          const inp = document.getElementById(cfg.inputId);
+          if (inp && inp.value !== '') {
+            const num = parseFloat(inp.value);
+            if (!isNaN(num) && num >= 0) {
+              if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
+              partnersMaster.baselineOverrides[cfg.overrideKey] = num;
+            }
+          }
+          if (inp) inp.style.display = 'none';
 
-      map.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el && el.value !== '') {
-          const val = parseFloat(el.value);
-          if (!isNaN(val) && val >= 0) {
-            partnersMaster.baselineOverrides[item.key] = val;
+          const btn = document.getElementById(cfg.btnId);
+          if (btn) {
+            btn.classList.remove('is-unlocked');
+            btn.innerHTML = `<span class="lock-glyph">🔒</span>`;
           }
         }
       });
 
+      unlockedFeeItems.clear();
+      stopFeeAutoLockTimer();
+
+      if (isAutoExpire) {
+        isPinAuthenticated = false;
+      }
+
       savePartnersToStorage();
       updateBinhAnLeftPanelLabels();
       recalculate();
+
+      if (isAutoExpire) {
+        showToastNotification("🔒 Đã hết 60s: Tự động lưu và khóa toàn bộ các khoản phí!");
+      }
+    }
+
+    function startOrExtendFeeAutoLockTimer() {
+      feeAutoLockSecondsRemaining = 60;
+      updateFeeLockCountdownButtons();
+
+      if (feeAutoLockTimer) {
+        clearInterval(feeAutoLockTimer);
+        feeAutoLockTimer = null;
+      }
+
+      feeAutoLockTimer = setInterval(() => {
+        feeAutoLockSecondsRemaining--;
+        if (feeAutoLockSecondsRemaining <= 0) {
+          clearInterval(feeAutoLockTimer);
+          feeAutoLockTimer = null;
+          lockAllUnlockedFeeItems(true);
+        } else {
+          updateFeeLockCountdownButtons();
+        }
+      }, 1000);
+    }
+
+    function updateFeeLockCountdownButtons() {
+      unlockedFeeItems.forEach(key => {
+        const cfg = FEE_CONFIG[key];
+        if (cfg) {
+          const btn = document.getElementById(cfg.btnId);
+          if (btn) {
+            btn.innerHTML = `<span class="lock-glyph">🔓</span> <span class="countdown-text">${feeAutoLockSecondsRemaining}s</span>`;
+          }
+        }
+      });
+    }
+
+    function stopFeeAutoLockTimer() {
+      if (feeAutoLockTimer) {
+        clearInterval(feeAutoLockTimer);
+        feeAutoLockTimer = null;
+      }
+      feeAutoLockSecondsRemaining = 60;
+    }
+
+    function onSingleFeeInputChange(key, val) {
+      if (unlockedFeeItems.has(key)) {
+        startOrExtendFeeAutoLockTimer();
+      }
+
+      const cfg = FEE_CONFIG[key];
+      if (cfg) {
+        const num = parseFloat(val);
+        if (!isNaN(num) && num >= 0) {
+          if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
+          partnersMaster.baselineOverrides[cfg.overrideKey] = num;
+
+          const valEl = document.getElementById(cfg.valId);
+          if (valEl) {
+            valEl.innerText = cfg.format(num);
+          }
+        }
+      }
+
+      recalculate();
+    }
+
+    function saveCustomFeeOverrides() {
+      lockAllUnlockedFeeItems(false);
       showToastNotification("💾 Đã lưu tùy biến số tiền các khoản phí 3~14 vào hệ thống!");
     }
 
     function resetCustomFeeOverrides() {
-      if (partnersMaster.baselineOverrides) {
-        const keys = ['freight', 'demurrage', 'lolo', 'baCustoms', 'baCO', 'baBorder', 'baTransit', 'baTransitUnit', 'baInsp', 'baInspOt', 'baCoExpress', 'laoTransit', 'yard'];
+      if (partnersMaster && partnersMaster.baselineOverrides) {
+        const keys = [
+          'freight', 'demurrage', 'lolo',
+          'baCustoms', 'baCO', 'baBorder', 'baTransit', 'baTransitUnit',
+          'baInsp', 'baInspOt', 'baCoExpress', 'laoTransit', 'yard',
+          'dunnage', 'crossDock', 'weighbridge', 'phyto'
+        ];
         keys.forEach(k => delete partnersMaster.baselineOverrides[k]);
       }
+      lockAllUnlockedFeeItems(false);
       savePartnersToStorage();
       updateBinhAnLeftPanelLabels();
       recalculate();
@@ -5031,10 +5369,13 @@
       const isPhyto = document.getElementById('chkPhyto') ? document.getElementById('chkPhyto').checked : false;
 
       const insuranceFee = isIns ? (cogsPreVat * 0.002) : 0;
-      const dunnageFee = isDunnage ? (800000 * tripCount) : 0;
-      const crossDockFee = isCrossDock ? (2000000 * tripCount) : 0;
-      const weighFee = isWeigh ? (200000 * tripCount) : 0;
-      const phytoFee = isPhyto ? 1500000 : 0;
+      const dunnageFee = isDunnage ? (partnersMaster.baselineOverrides['dunnage'] !== undefined ? partnersMaster.baselineOverrides['dunnage'] : (800000 * tripCount)) : 0;
+      const crossDockFee = isCrossDock ? (partnersMaster.baselineOverrides['crossDock'] !== undefined ? partnersMaster.baselineOverrides['crossDock'] : (2000000 * tripCount)) : 0;
+      const weighFee = isWeigh ? (partnersMaster.baselineOverrides['weighbridge'] !== undefined ? partnersMaster.baselineOverrides['weighbridge'] : (200000 * tripCount)) : 0;
+      const phytoFee = isPhyto ? (partnersMaster.baselineOverrides['phyto'] !== undefined ? partnersMaster.baselineOverrides['phyto'] : 1500000) : 0;
+
+      const valIns = document.getElementById('val_insurance');
+      if (valIns) valIns.innerText = `${Math.round(insuranceFee).toLocaleString('vi-VN')} đ`;
 
       // 9c. Chi phí phát sinh thực tế động hậu kiểm
       const unforeseenTotal = (currentUnforeseenExpenses && currentUnforeseenExpenses.length > 0)
