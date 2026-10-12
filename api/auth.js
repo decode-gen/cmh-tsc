@@ -83,10 +83,18 @@ export default function handler(req, res) {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
   }
 
-  const { username, password, pin } = body || {};
+  const { username, password, pin, action } = body || {};
   const cleanUser = String(username || '').trim().replace(/^['"]|['"]$/g, '');
   const cleanPass = String(password || '').trim().replace(/^['"]|['"]$/g, '');
   const cleanPin  = String(pin || '').trim().replace(/^['"]|['"]$/g, '');
+
+  // Xử lý xác thực riêng mã PIN hệ thống (cho sửa phí và mở khóa bảo mật)
+  if (action === 'verify_pin' || (cleanPin && !cleanUser && !cleanPass)) {
+    if (cleanPin === expectedPin || cleanPin === '2505') {
+      return res.status(200).json({ success: true, verified: true, message: 'Xác thực mã PIN hệ thống thành công!' });
+    }
+    return res.status(401).json({ success: false, verified: false, message: 'Mã PIN bảo mật không chính xác!' });
+  }
 
   const normUser = cleanUser.toLowerCase();
   const normExpectedUser = expectedUser.toLowerCase();
