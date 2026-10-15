@@ -1846,6 +1846,7 @@
                   <th>Tên sản phẩm</th>
                   <th class="text-right">Giá mua chưa VAT (VNĐ/thùng)</th>
                   <th class="text-center">Thuế VAT (%)</th>
+                  <th class="text-center">Kích thước & Đóng Cont 45ft</th>
                   <th class="text-center" style="width:130px;">Thao tác riêng</th>
                 </tr>
               </thead>
@@ -2586,10 +2587,14 @@
     // SSOT MASTER PARTNERS DATABASE (STORAGE IN LOCALSTORAGE)
     const DEFAULT_PARTNERS_MASTER = {
       suppliers: [
-        { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng" },
-        { id: "SUP_ORION", name: "Orion Vina Food", taxId: "0303864722", product: "Snack Bắp O'Star", pricePreVat: 360000, vatRate: 0.08, spec: "30g x 240 gói/thùng" },
-        { id: "SUP_HUU_NGHI", name: "Hữu Nghị Food", taxId: "0102148765", product: "Bánh Quy Tipo", pricePreVat: 320000, vatRate: 0.08, spec: "250g x 24 hộp/thùng" },
-        { id: "SUP_RICHY", name: "Richy Group", taxId: "0101569874", product: "Bánh Gạo Jinju", pricePreVat: 345000, vatRate: 0.08, spec: "150g x 30 gói/thùng" }
+        { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", cbm: 0.0785, dims: "585x270x497 mm", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+        { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", cbm: 0.0279, dims: "450x328x189 mm", cont45Qty: 2814, cont40Qty: 2250, howoQty: 3650 },
+        { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", cbm: 0.1066, dims: "620x430x400 mm", cont45Qty: 736, cont40Qty: 580, howoQty: 950 },
+        { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", cbm: 0.0723, dims: "530x440x310 mm", cont45Qty: 1086, cont40Qty: 850, howoQty: 1400 },
+        { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 },
+        { id: "SUP_ORION", name: "Orion Vina Food", taxId: "0303864722", product: "Snack Bắp O'Star", pricePreVat: 360000, vatRate: 0.08, spec: "30g x 240 gói/thùng", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+        { id: "SUP_HUU_NGHI", name: "Hữu Nghị Food", taxId: "0102148765", product: "Bánh Quy Tipo", pricePreVat: 320000, vatRate: 0.08, spec: "250g x 24 hộp/thùng", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+        { id: "SUP_RICHY", name: "Richy Group", taxId: "0101569874", product: "Bánh Gạo Jinju", pricePreVat: 345000, vatRate: 0.08, spec: "150g x 30 gói/thùng", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 }
       ],
       carriers: [
         { 
@@ -2723,9 +2728,25 @@
     // Load from LocalStorage with smart migration for granular fee keys
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
+          if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
+            DEFAULT_PARTNERS_MASTER.suppliers.forEach(defSup => {
+              const existing = parsed.suppliers.find(s => s.id === defSup.id);
+              if (!existing) {
+                parsed.suppliers.push(defSup);
+              } else {
+                Object.assign(existing, {
+                  cbm: defSup.cbm,
+                  dims: defSup.dims,
+                  cont45Qty: defSup.cont45Qty,
+                  cont40Qty: defSup.cont40Qty,
+                  howoQty: defSup.howoQty
+                });
+              }
+            });
+          }
           if (parsed.agents && Array.isArray(parsed.agents)) {
             parsed.agents = parsed.agents.map(a => {
               const def = DEFAULT_PARTNERS_MASTER.agents.find(d => d.id === a.id);
@@ -2771,7 +2792,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_6', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_7', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
@@ -4084,7 +4105,8 @@
       partnersMaster.suppliers.forEach(s => {
         const opt = document.createElement('option');
         opt.value = s.id;
-        opt.innerText = `${s.name} (${s.product} - ${s.pricePreVat.toLocaleString('vi-VN')} đ/thùng)`;
+        const c45Text = s.cont45Qty ? ` | Cont45: ${s.cont45Qty.toLocaleString('vi-VN')} th` : '';
+        opt.innerText = `${s.name} (${s.product} - ${s.pricePreVat.toLocaleString('vi-VN')} đ/th${c45Text})`;
         supSelect.appendChild(opt);
       });
       if (curSup && [...supSelect.options].some(o => o.value === curSup)) {
@@ -4173,6 +4195,25 @@
       onSupplierChange();
     }
 
+    function updateVehicleSelectLabels(sup) {
+      const vehSelect = document.getElementById('vehicleSelect');
+      if (!vehSelect) return;
+      const s = sup || (partnersMaster.suppliers.find(x => x.id === (document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '')) || partnersMaster.suppliers[0]);
+      const howoCap = s.howoQty || 1300;
+      const cont40Cap = s.cont40Qty || 800;
+      const cont45Cap = s.cont45Qty || 1000;
+
+      for (let opt of vehSelect.options) {
+        if (opt.value === 'HOWO_156') {
+          opt.innerText = `Xe HOWO 15.6m (${howoCap.toLocaleString('vi-VN')} thùng)`;
+        } else if (opt.value === 'CONT_40HC') {
+          opt.innerText = `Cont 40ft HC (${cont40Cap.toLocaleString('vi-VN')} thùng)`;
+        } else if (opt.value === 'CONT_45HC') {
+          opt.innerText = `Cont 45ft HC (${cont45Cap.toLocaleString('vi-VN')} thùng)`;
+        }
+      }
+    }
+
     function onSupplierChange() {
       const supId = document.getElementById('supplierSelect').value;
       const sup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
@@ -4184,6 +4225,22 @@
       document.getElementById('kpiVatRateSub').innerText = `${(sup.vatRate * 100).toFixed(0)}% Tiền mua hàng Nhà máy`;
       document.getElementById('printCommodity').innerText = sup.product;
       document.getElementById('printItemTitle').innerText = sup.product;
+
+      // Cập nhật nhãn sức chứa các loại xe theo sản phẩm đang chọn
+      updateVehicleSelectLabels(sup);
+
+      // Tự động cập nhật số lượng thùng xuất khẩu theo sản phẩm và loại xe đang chọn
+      const v = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
+      const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
+      let baseCap = 1000;
+      if (v === 'HOWO_156') baseCap = sup.howoQty || 1300;
+      else if (v === 'CONT_40HC') baseCap = sup.cont40Qty || 800;
+      else if (v === 'CONT_45HC') baseCap = sup.cont45Qty || 1000;
+
+      const boxInput = document.getElementById('boxQty');
+      if (boxInput) {
+        boxInput.value = baseCap * tripCount;
+      }
 
       recalculate();
     }
@@ -4289,6 +4346,10 @@
             <td><input type="text" class="form-control inp-sup-prod" style="font-size:12px; padding:3px 6px;" value="${s.product}"></td>
             <td><input type="number" class="form-control text-right inp-sup-price" style="font-size:12px; padding:3px 6px;" value="${s.pricePreVat}"></td>
             <td class="text-center"><input type="number" class="form-control text-center inp-sup-vat" style="font-size:12px; padding:3px 6px; width:55px; display:inline-block;" value="${(s.vatRate*100).toFixed(0)}">%</td>
+            <td class="text-center" style="font-size:11px; padding:3px 6px;">
+              <div style="font-family:monospace; color:var(--text-main); font-weight:bold;">${s.dims || 'N/A'}</div>
+              <div style="color:var(--accent-gold); font-size:10px;">Cont45: <b>${(s.cont45Qty || 1000).toLocaleString('vi-VN')}</b> th (${s.cbm || '0.0785'} m³)</div>
+            </td>
             <td class="text-center">
               <div style="display:flex; gap:4px; justify-content:center;">
                 <button class="btn btn-sm" onclick="saveSingleSupplier(${idx})" style="background:var(--accent-blue); color:#fff; font-size:11px; padding:3px 8px;" data-tooltip="Lưu riêng & đồng bộ NCC này">[💾 Lưu]</button>
@@ -5106,21 +5167,24 @@
       const demHowoGroup = document.getElementById('demurrageHowoGroup');
       const unitBadge = document.getElementById('tripCountUnit');
 
-      let baseCap = 800;
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const curSup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+
+      let baseCap = 1000;
       if (v === 'HOWO_156') {
-        baseCap = 1300;
+        baseCap = (curSup && curSup.howoQty) ? curSup.howoQty : 1300;
         if (unitBadge) unitBadge.innerText = 'xe HOWO 15.6m';
         volumeAlert.style.display = 'none';
         if (demContGroup) demContGroup.style.display = 'none';
         if (demHowoGroup) demHowoGroup.style.display = 'flex';
       } else if (v === 'CONT_40HC') {
-        baseCap = 800;
+        baseCap = (curSup && curSup.cont40Qty) ? curSup.cont40Qty : 800;
         if (unitBadge) unitBadge.innerText = 'cont 40ft HC';
         volumeAlert.style.display = 'flex';
         if (demContGroup) demContGroup.style.display = 'block';
         if (demHowoGroup) demHowoGroup.style.display = 'none';
       } else if (v === 'CONT_45HC') {
-        baseCap = 1000;
+        baseCap = (curSup && curSup.cont45Qty) ? curSup.cont45Qty : 1000;
         if (unitBadge) unitBadge.innerText = 'cont 45ft HC';
         volumeAlert.style.display = 'flex';
         if (demContGroup) demContGroup.style.display = 'block';
@@ -5136,10 +5200,13 @@
 
     function onTripCountChange() {
       const v = document.getElementById('vehicleSelect').value;
-      let baseCap = 800;
-      if (v === 'HOWO_156') baseCap = 1300;
-      else if (v === 'CONT_40HC') baseCap = 800;
-      else if (v === 'CONT_45HC') baseCap = 1000;
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const curSup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+
+      let baseCap = 1000;
+      if (v === 'HOWO_156') baseCap = (curSup && curSup.howoQty) ? curSup.howoQty : 1300;
+      else if (v === 'CONT_40HC') baseCap = (curSup && curSup.cont40Qty) ? curSup.cont40Qty : 800;
+      else if (v === 'CONT_45HC') baseCap = (curSup && curSup.cont45Qty) ? curSup.cont45Qty : 1000;
 
       const tripCount = parseInt(document.getElementById('tripCount').value) || 1;
       document.getElementById('boxQty').value = baseCap * tripCount;
