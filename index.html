@@ -979,6 +979,12 @@
         <span>🤝 Buồng Lái Môi Giới (BSC) ↗</span>
       </button>
 
+      <!-- 0b. TRẠNG THÁI ĐỒNG BỘ ĐÁM MÂY VERCEL KV (APPEND & UPDATE ONLY) -->
+      <button class="btn btn-sm" id="btnCloudSync" onclick="triggerManualCloudSync()" data-tooltip="Trạng thái đồng bộ đám mây Vercel KV · Dữ liệu được bảo vệ vĩnh viễn (Cấm xóa) · Bấm để ép đồng bộ ngay" style="border-color: var(--border-subtle); color: var(--text-muted); font-size: 11px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; background: var(--bg-card); cursor: pointer;">
+        <span id="cloudSyncDot" class="status-dot dot-gold"></span>
+        <span id="cloudSyncText">Đám mây: Đang kiểm tra...</span>
+      </button>
+
       <!-- 1. CÀI ĐẶT ĐỐI TÁC (ICON ONLY CHUẨN /cmh-ui) -->
       <button class="btn-icon-3d" onclick="openPartnerMasterModal()" data-tooltip="Cài đặt đối tác & Biểu phí chi tiết">
         <span>[🏢]</span>
@@ -2796,6 +2802,129 @@
     }
 
     // ==========================================
+    // VERCEL CLOUD STATE SYNCHRONIZATION ENGINE
+    // SOLO-OPERATOR PROTOCOL: APPEND & UPDATE ONLY (CẤM XÓA DỮ LIỆU GỐC)
+    // ==========================================
+
+    let isCloudSyncing = false;
+
+    async function syncToCloud(quiet = false) {
+      if (isCloudSyncing) return;
+      isCloudSyncing = true;
+      const syncDot = document.getElementById('cloudSyncDot');
+      const syncText = document.getElementById('cloudSyncText');
+
+      if (syncText) syncText.innerText = 'Đám mây: Đang lưu...';
+      if (syncDot) syncDot.className = 'status-dot dot-gold';
+
+      try {
+        const payload = {
+          suppliers: partnersMaster.suppliers,
+          carriers: partnersMaster.carriers,
+          agents: partnersMaster.agents,
+          scenarios: scenariosMaster,
+          activeScenarioId: typeof activeScenarioId !== 'undefined' ? activeScenarioId : null
+        };
+
+        const res = await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (data.success && data.kvConnected) {
+          if (syncDot) syncDot.className = 'status-dot dot-green';
+          if (syncText) syncText.innerText = 'Đám mây: Đã lưu Vercel KV';
+          if (!quiet && typeof showToastNotification === 'function') {
+            showToastNotification('☁️ Đã đồng bộ an toàn lên Vercel KV Cloud (Dữ liệu được bảo vệ, cấm xóa)!');
+          }
+          // Cập nhật lại danh sách đối tác đã bảo vệ từ Cloud
+          if (data.state && Array.isArray(data.state.suppliers) && data.state.suppliers.length > 0) {
+            partnersMaster.suppliers = data.state.suppliers;
+            savePartnersToStorage();
+            renderArea2Dropdowns();
+          }
+        } else {
+          if (syncDot) syncDot.className = 'status-dot dot-gold';
+          if (syncText) syncText.innerText = 'Đám mây: Lưu cục bộ';
+          if (!quiet && typeof showToastNotification === 'function') {
+            showToastNotification('💡 Đã lưu cục bộ! Bạn có thể kết nối Vercel KV trên Dashboard để đồng bộ đa thiết bị.');
+          }
+        }
+      } catch (err) {
+        console.warn("Cloud sync warning:", err);
+        if (syncDot) syncDot.className = 'status-dot dot-gold';
+        if (syncText) syncText.innerText = 'Đám mây: Lưu cục bộ';
+      } finally {
+        isCloudSyncing = false;
+      }
+    }
+
+    async function fetchCloudStateAndSync() {
+      const syncDot = document.getElementById('cloudSyncDot');
+      const syncText = document.getElementById('cloudSyncText');
+
+      try {
+        const res = await fetch('/api/sync');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (data.success && data.kvConnected && data.state) {
+          const s = data.state;
+          let hasChanges = false;
+
+          if (Array.isArray(s.suppliers) && s.suppliers.length > 0) {
+            partnersMaster.suppliers = s.suppliers;
+            hasChanges = true;
+          }
+          if (Array.isArray(s.carriers) && s.carriers.length > 0) {
+            partnersMaster.carriers = s.carriers;
+            hasChanges = true;
+          }
+          if (Array.isArray(s.agents) && s.agents.length > 0) {
+            partnersMaster.agents = s.agents;
+            hasChanges = true;
+          }
+          if (Array.isArray(s.scenarios) && s.scenarios.length > 0) {
+            scenariosMaster = s.scenarios;
+            if (typeof saveScenariosToStorage === 'function') saveScenariosToStorage();
+            hasChanges = true;
+          }
+          if (s.activeScenarioId && typeof activeScenarioId !== 'undefined') {
+            activeScenarioId = s.activeScenarioId;
+          }
+
+          if (hasChanges) {
+            savePartnersToStorage();
+            renderArea2Dropdowns();
+            if (typeof renderScenarioDropdown === 'function') renderScenarioDropdown();
+            recalculate();
+          }
+
+          if (syncDot) syncDot.className = 'status-dot dot-green';
+          if (syncText) syncText.innerText = 'Đám mây: Đã đồng bộ Vercel KV';
+          if (typeof showToastNotification === 'function') {
+            showToastNotification('☁️ Đã nạp dữ liệu mới nhất từ Vercel KV Cloud!');
+          }
+        } else {
+          if (syncDot) syncDot.className = 'status-dot dot-gold';
+          if (syncText) syncText.innerText = 'Đám mây: Lưu cục bộ';
+        }
+      } catch (e) {
+        console.warn("Could not fetch cloud state:", e);
+        if (syncDot) syncDot.className = 'status-dot dot-gold';
+        if (syncText) syncText.innerText = 'Đám mây: Lưu cục bộ';
+      }
+    }
+
+    function triggerManualCloudSync() {
+      syncToCloud(false);
+    }
+
+    // ==========================================
     // SCENARIO PRESETS & SSOT MASTER ENGINE (/cmh-namid Standard)
     // ==========================================
     // CHUẨN HÓA SSOT KẾT HỢP DỰ TOÁN BÁO GIÁ (/cmh-namid & /cmh-tk)
@@ -3899,6 +4028,7 @@
         helper.innerHTML = `💾 Kịch bản <b style="color:var(--text-main); font-family:monospace;">${nameVal}</b> đã được lưu vào hệ thống SSOT.`;
       }
 
+      syncToCloud(true);
       showToastNotification(`💾 ĐÃ LƯU THÀNH CÔNG SET KỊCH BẢN: ${nameVal}!`);
     }
 
@@ -4451,6 +4581,7 @@
         savePartnersToStorage();
         renderArea2Dropdowns();
         recalculate();
+        syncToCloud(true);
 
         highlightRowSuccess(row);
         showToastNotification(`✅ Đã lưu & đồng bộ biểu phí cho Nhà cung cấp: ${name}!`);
@@ -4480,6 +4611,7 @@
         savePartnersToStorage();
         renderArea2Dropdowns();
         recalculate();
+        syncToCloud(true);
 
         highlightRowSuccess(row);
         showToastNotification(`✅ Đã lưu & đồng bộ biểu phí cho Đơn vị vận tải: ${name}!`);
@@ -4531,6 +4663,7 @@
         updateBinhAnLeftPanelLabels();
         renderArea2Dropdowns();
         recalculate();
+        syncToCloud(true);
 
         highlightRowSuccess(row);
         showToastNotification(`✅ Đã lưu & đồng bộ biểu phí cho Đại lý: ${name}!`);
@@ -10482,6 +10615,11 @@ ${amountSection}
       renderDossierPillarsTables();
     } catch (e) {
       console.error("Lỗi nạp danh mục hồ sơ ban đầu:", e);
+    }
+
+    // Tự động nạp và đồng bộ trạng thái mới nhất từ Vercel KV Đám Mây
+    if (typeof fetchCloudStateAndSync === 'function') {
+      setTimeout(fetchCloudStateAndSync, 200);
     }
   </script>
 </body>
