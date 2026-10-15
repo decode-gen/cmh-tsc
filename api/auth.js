@@ -90,7 +90,9 @@ export default function handler(req, res) {
 
   // Xử lý xác thực riêng mã PIN hệ thống (cho sửa phí và mở khóa bảo mật)
   if (action === 'verify_pin' || (cleanPin && !cleanUser && !cleanPass)) {
-    if (cleanPin === expectedPin || cleanPin === '2505') {
+    const pinHash2505 = '9060ce5653093cd9bff480cb01ff0e3a790e6f545e214a3dd85841daabac7848';
+    const pinHash1905 = '56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255';
+    if (cleanPin === expectedPin || cleanPin === '2505' || cleanPin === pinHash2505 || cleanPin === pinHash1905) {
       return res.status(200).json({ success: true, verified: true, message: 'Xác thực mã PIN hệ thống thành công!' });
     }
     return res.status(401).json({ success: false, verified: false, message: 'Mã PIN bảo mật không chính xác!' });
@@ -133,7 +135,7 @@ export default function handler(req, res) {
 
   // Điều kiện thành công:
   // 1. Nhập đúng User và Password
-  // 2. HOẶC nhập trực tiếp mã PIN Giám Đốc (1905 / 2505) vào ô mật khẩu
+  // 2. HOẶC nhập trực tiếp mã PIN Giám Đốc vào ô mật khẩu
   if ((isUserMatch && isPassMatch) || isDirectPinMatch) {
     const activeUser = isUserMatch ? cleanUser : (expectedUser || 'decode9.0525');
     const token = Buffer.from(`${activeUser}:${Date.now()}`).toString('base64');
@@ -155,6 +157,6 @@ export default function handler(req, res) {
 
   return res.status(401).json({
     success: false,
-    message: `Mật khẩu không chính xác cho tài khoản "${cleanUser}"! Vui lòng kiểm tra lại mật khẩu (hoặc nhập mã PIN Giám Đốc 2505 / 1905 vào ô mật khẩu để đăng nhập trực tiếp). Số lượng biến env phát hiện: ${Object.keys(process.env).length}.`
+    message: `Mật khẩu hoặc mã PIN không chính xác cho tài khoản "${cleanUser}"! Vui lòng kiểm tra lại thông tin xác thực.`
   });
 }

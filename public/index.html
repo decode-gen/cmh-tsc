@@ -1010,7 +1010,7 @@
             <label style="font-size:12px; font-weight:bold; color:var(--text-main);">MẬT KHẨU (PASSWORD):</label>
             <button type="button" onclick="togglePasswordVisibility()" style="background:none; border:none; color:var(--text-muted); font-size:11px; cursor:pointer; font-family:var(--font-cockpit); padding:0;">[Hiện / Ẩn]</button>
           </div>
-          <input type="password" id="loginPassword" class="form-control" placeholder="Nhập mật khẩu hoặc mã PIN (1905 / 2505)..." required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" style="width:100%; height:42px; box-sizing:border-box; padding:9px 12px; font-size:13px; font-family:var(--font-cockpit); background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-strong);">
+          <input type="password" id="loginPassword" class="form-control" placeholder="Nhập mật khẩu hoặc mã PIN bảo mật..." required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" style="width:100%; height:42px; box-sizing:border-box; padding:9px 12px; font-size:13px; font-family:var(--font-cockpit); background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-strong);">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; font-size:12px; color:var(--text-muted);">
@@ -1097,12 +1097,12 @@
 
         <!-- 1. BỘ GHÉP ĐỐI TÁC, KÍCH THƯỚC, TRỌNG LƯỢNG & GHÉP CONT -->
         <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
-          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-            <span>🧩 ĐỐI TÁC & PHƯƠNG ÁN ĐÓNG HÀNG:</span>
-            <div style="display:flex; gap:4px; align-items:center;">
-              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:10.5px; padding:2px 7px; border:none; border-radius:2px; cursor:pointer;" data-tooltip="⭐ Chốt toàn bộ cấu hình đang chạy làm Kịch bản Mặc định">[⭐ Chốt Mặc Định]</button>
-              <button type="button" class="btn btn-sm" onclick="openScenarioMasterModal()" style="background:var(--accent-blue); color:#fff; font-weight:bold; font-size:10.5px; padding:2px 7px; border:none; border-radius:2px; cursor:pointer;" data-tooltip="⚙️ Mở Trung tâm Quản trị Kịch bản Toàn năng (Mã PIN 2505)">[⚙️ Quản Lý Kịch Bản (PIN 2505)]</button>
-              <a href="javascript:void(0)" onclick="openPartnerMasterModal()" style="color:var(--text-muted); text-decoration:none; font-size:10.5px;" data-tooltip="Cài đặt bảng giá NCC & Đại lý">[⚙ Giá NCC]</a>
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+            <span style="white-space:nowrap;">🧩 ĐỐI TÁC & PHƯƠNG ÁN ĐÓNG HÀNG:</span>
+            <div style="display:inline-flex; gap:4px; align-items:center; flex-shrink:0;">
+              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:10.5px; padding:2px 6px; border:none; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⭐ Chốt toàn bộ cấu hình đang chạy làm Kịch bản Mặc định">[⭐ Mặc Định]</button>
+              <button type="button" class="btn btn-sm" onclick="openScenarioMasterModal()" style="background:var(--accent-blue); color:#fff; font-weight:bold; font-size:10.5px; padding:2px 6px; border:none; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⚙️ Mở Trung tâm Quản trị Kịch bản Toàn năng (Yêu cầu xác thực Admin)">[⚙️ Kịch Bản]</button>
+              <a href="javascript:void(0)" onclick="openPartnerMasterModal()" style="color:var(--text-muted); text-decoration:none; font-size:10.5px; white-space:nowrap;" data-tooltip="Cài đặt bảng giá NCC & Đại lý">[⚙ Giá NCC]</a>
             </div>
           </div>
 
@@ -1227,7 +1227,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_freight" class="form-control fee-inline-input" style="display:none; width:115px;" step="500000" placeholder="Tổng cước VND" oninput="onSingleFeeInputChange('freight', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_freight" onclick="toggleSingleFeeLock('freight')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_freight" onclick="toggleSingleFeeLock('freight')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1260,14 +1260,14 @@
 
         <!-- 2. THAM SỐ GIAO HÀNG & SET KỊCH BẢN SSOT (/cmh-namid) -->
         <div style="background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 12px; margin-bottom:12px; border-left:3px solid var(--accent-gold);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:12px; font-weight:bold; color:var(--text-main);">📑 SET KỊCH BẢN SSOT:</span>
-              <span id="currentScenarioBadge" style="font-size:10px; font-weight:bold; padding:2px 6px; border-radius:3px; background:rgba(234, 179, 8, 0.15); color:var(--accent-gold); border:1px solid rgba(234, 179, 8, 0.3);">[⭐ MẶC ĐỊNH]</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:4px;">
+            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+              <span style="font-size:12px; font-weight:bold; color:var(--text-main); white-space:nowrap;">📑 SET KỊCH BẢN SSOT:</span>
+              <span id="currentScenarioBadge" style="font-size:10px; font-weight:bold; padding:2px 6px; border-radius:3px; background:rgba(234, 179, 8, 0.15); color:var(--accent-gold); border:1px solid rgba(234, 179, 8, 0.3); white-space:nowrap;">[⭐ MẶC ĐỊNH]</span>
             </div>
-            <div style="display:flex; gap:4px; align-items:center;">
-              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-strong); font-size:10.5px; font-weight:bold; padding:2px 6px; border-radius:2px; cursor:pointer;" data-tooltip="⭐ Chốt set này làm mặc định khởi động">[⭐ Chốt Mặc Định]</button>
-              <button type="button" class="btn btn-sm" onclick="resetScenariosToStandard()" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); font-size:10.5px; padding:2px 6px; border-radius:2px; cursor:pointer;" data-tooltip="🔄 Dọn dẹp sạch kịch bản mô phỏng, chỉ giữ lại Đơn thực tế #269901 SSOT">[🔄 Reset Chuẩn SSOT]</button>
+            <div style="display:inline-flex; gap:4px; align-items:center; flex-shrink:0;">
+              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-strong); font-size:10.5px; font-weight:bold; padding:2px 6px; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⭐ Chốt set này làm mặc định khởi động">[⭐ Mặc Định]</button>
+              <button type="button" class="btn btn-sm" onclick="resetScenariosToStandard()" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); font-size:10.5px; padding:2px 6px; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="🔄 Dọn dẹp sạch kịch bản mô phỏng, chỉ giữ lại Đơn thực tế #269901 SSOT">[🔄 Reset SSOT]</button>
             </div>
           </div>
 
@@ -1377,7 +1377,7 @@
           </div>
           <div class="fee-item-right">
             <input type="number" id="inpFee_demurrage" class="form-control fee-inline-input" style="display:none; width:115px;" step="500000" placeholder="Tiền lưu xe VND" oninput="onSingleFeeInputChange('demurrage', this.value)" onchange="recalculate()">
-            <button type="button" class="btn-single-lock" id="btnLock_demurrage" onclick="toggleSingleFeeLock('demurrage')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+            <button type="button" class="btn-single-lock" id="btnLock_demurrage" onclick="toggleSingleFeeLock('demurrage')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
               <span class="lock-glyph">🔒</span>
             </button>
           </div>
@@ -1442,7 +1442,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_baCustoms" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCustoms', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baCustoms" onclick="toggleSingleFeeLock('baCustoms')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baCustoms" onclick="toggleSingleFeeLock('baCustoms')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1456,7 +1456,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_baCO" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCO', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baCO" onclick="toggleSingleFeeLock('baCO')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baCO" onclick="toggleSingleFeeLock('baCO')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1470,7 +1470,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_baBorder" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baBorder', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baBorder" onclick="toggleSingleFeeLock('baBorder')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baBorder" onclick="toggleSingleFeeLock('baBorder')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1496,7 +1496,7 @@
                 <option value="3">3 xe</option>
               </select>
               <input type="number" id="inpFee_baTransit" class="form-control fee-inline-input" style="display:none;" step="100000" placeholder="Đơn giá/xe" oninput="onSingleFeeInputChange('baTransit', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baTransit" onclick="toggleSingleFeeLock('baTransit')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baTransit" onclick="toggleSingleFeeLock('baTransit')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1511,7 +1511,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_baInsp" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInsp', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baInsp" onclick="toggleSingleFeeLock('baInsp')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baInsp" onclick="toggleSingleFeeLock('baInsp')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1526,7 +1526,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_baInspOt" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInspOt', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baInspOt" onclick="toggleSingleFeeLock('baInspOt')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baInspOt" onclick="toggleSingleFeeLock('baInspOt')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1541,7 +1541,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_baCoExpress" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCoExpress', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baCoExpress" onclick="toggleSingleFeeLock('baCoExpress')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_baCoExpress" onclick="toggleSingleFeeLock('baCoExpress')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1562,7 +1562,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_laoTransit" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('laoTransit', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_laoTransit" onclick="toggleSingleFeeLock('laoTransit')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_laoTransit" onclick="toggleSingleFeeLock('laoTransit')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1577,7 +1577,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_yard" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('yard', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_yard" onclick="toggleSingleFeeLock('yard')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_yard" onclick="toggleSingleFeeLock('yard')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1592,7 +1592,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_lolo" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('lolo', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_lolo" onclick="toggleSingleFeeLock('lolo')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_lolo" onclick="toggleSingleFeeLock('lolo')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1621,7 +1621,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_dunnage" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('dunnage', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_dunnage" onclick="toggleSingleFeeLock('dunnage')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_dunnage" onclick="toggleSingleFeeLock('dunnage')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1635,7 +1635,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_crossDock" class="form-control fee-inline-input" style="display:none;" step="500000" oninput="onSingleFeeInputChange('crossDock', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_crossDock" onclick="toggleSingleFeeLock('crossDock')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_crossDock" onclick="toggleSingleFeeLock('crossDock')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1649,7 +1649,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_weighbridge" class="form-control fee-inline-input" style="display:none;" step="50000" oninput="onSingleFeeInputChange('weighbridge', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_weighbridge" onclick="toggleSingleFeeLock('weighbridge')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_weighbridge" onclick="toggleSingleFeeLock('weighbridge')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -1663,7 +1663,7 @@
             </div>
             <div class="fee-item-right">
               <input type="number" id="inpFee_phyto" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('phyto', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_phyto" onclick="toggleSingleFeeLock('phyto')" data-tooltip="Mở khóa sửa số tiền (Mã 2505) · Tự động khóa sau 60s">
+              <button type="button" class="btn-single-lock" id="btnLock_phyto" onclick="toggleSingleFeeLock('phyto')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
                 <span class="lock-glyph">🔒</span>
               </button>
             </div>
@@ -2120,13 +2120,13 @@
     </div>
   </div>
 
-  <!-- POPUP 1B: MODAL QUẢN LÝ KỊCH BẢN NGOẠI THƯƠNG TOÀN NĂNG (MÃ PIN 2505 - CHUẨN /cmh-ui) -->
+  <!-- POPUP 1B: MODAL QUẢN LÝ KỊCH BẢN NGOẠI THƯƠNG TOÀN NĂNG (BẢO VỆ PHÂN QUYỀN BAN GIÁM ĐỐC - CHUẨN /cmh-ui) -->
   <div id="scenarioMasterModalBackdrop" class="adaptive-modal-backdrop" style="display:none;">
     <div id="scenarioMasterModal" class="adaptive-modal" style="width:96vw; max-width:1300px; height:88vh;">
       <div class="modal-header">
         <div style="display:flex; align-items:center; gap:8px;">
           <span>⚙️ TRUNG TÂM QUẢN TRỊ KỊCH BẢN TOÀN NĂNG (SCENARIO MASTER MANAGER)</span>
-          <span class="brand-badge" style="background:var(--accent-gold); color:#000; font-weight:bold;">PIN 2505</span>
+          <span class="brand-badge" style="background:var(--accent-gold); color:#000; font-weight:bold;">ADMIN CONTROL</span>
         </div>
         <div class="modal-controls">
           <button class="btn-icon-3d" onclick="handleModalControl('scenarioMasterModal', 'minimize')" data-tooltip="Thu nhỏ dạng Dock [🗕]">
@@ -2159,7 +2159,7 @@
               [+ Tạo Kịch Bản Mới]
             </button>
             <button type="button" class="btn btn-sm" onclick="resetScenariosToStandard(); renderScenarioMasterTable();" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); font-size:11px; padding:4px 8px; height:30px;">
-              [🔄 Reset Chuẩn SSOT]
+              [🔄 Reset SSOT]
             </button>
             <button type="button" class="btn btn-sm" onclick="triggerManualCloudSync(); setTimeout(renderScenarioMasterTable, 800);" style="background:var(--accent-blue); color:#fff; font-size:11px; padding:4px 8px; height:30px;">
               [☁️ Đồng Bộ Cloud]
@@ -2192,7 +2192,7 @@
 
       <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
         <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
-          <span>🔒 Thao tác <b>XÓA KỊCH BẢN</b> trên Cloud yêu cầu xác thực <b>MÃ PIN 2505</b> của Giám đốc.</span>
+          <span>🔒 Thao tác <b>XÓA KỊCH BẢN</b> trên Cloud yêu cầu xác thực <b>MÃ PIN PHÊ DUYỆT</b> của Ban Giám Đốc (L3 Guard).</span>
           <span id="scenMasterCountBadge" style="background:rgba(234, 179, 8, 0.15); color:var(--accent-gold); padding:2px 7px; border-radius:3px; font-weight:bold; font-size:11px;">0 kịch bản</span>
         </div>
         <div style="display:flex; gap:8px;">
@@ -4520,7 +4520,7 @@
     }
 
     // =========================================================================
-    // KHỐI QUẢN TRỊ KỊCH BẢN NGOẠI THƯƠNG TOÀN NĂNG (MÃ PIN 2505)
+    // KHỐI QUẢN TRỊ KỊCH BẢN NGOẠI THƯƠNG TOÀN NĂNG (BẢO VỆ BAN GIÁM ĐỐC)
     // =========================================================================
 
     function openScenarioMasterModal() {
@@ -4620,7 +4620,7 @@
                 <button type="button" class="btn btn-sm" onclick="cloneScenario('${s.id}')" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-subtle); font-size:10px; padding:2px 6px;" data-tooltip="Nhân bản (Clone) kịch bản này">[📋 Clone]</button>
                 <button type="button" class="btn btn-sm" onclick="editScenarioName('${s.id}')" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-subtle); font-size:10px; padding:2px 6px;" data-tooltip="Sửa tên kịch bản">[✏️ Sửa]</button>
                 <button type="button" class="btn btn-sm" onclick="setScenarioAsDefault('${s.id}')" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-strong); font-size:10px; padding:2px 6px;" data-tooltip="Đặt kịch bản này làm mặc định khi khởi động">[⭐ Mặc Định]</button>
-                <button type="button" class="btn btn-sm" onclick="deleteScenarioWithPin('${s.id}')" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--alert-critical-border); font-size:10px; padding:2px 6px;" data-tooltip="Xóa kịch bản (Yêu cầu mã PIN 2505)">[🗑️ Xóa]</button>
+                <button type="button" class="btn btn-sm" onclick="deleteScenarioWithPin('${s.id}')" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--alert-critical-border); font-size:10px; padding:2px 6px;" data-tooltip="Xóa kịch bản (Yêu cầu phê duyệt Ban Giám Đốc)">[🗑️ Xóa]</button>
               </div>
             </td>
           </tr>
@@ -4687,7 +4687,7 @@
       }
     }
 
-    function deleteScenarioWithPin(scnId) {
+    async function deleteScenarioWithPin(scnId) {
       if (scenariosMaster.length <= 1) {
         alert("Bắt buộc phải giữ lại tối thiểu 1 Set kịch bản SSOT trong hệ thống!");
         return;
@@ -4695,10 +4695,23 @@
       const scn = scenariosMaster.find(s => s.id === scnId);
       if (!scn) return;
 
-      const enteredPin = prompt(`🔐 XÁC THỰC BẢO MẬT CỦA GIÁM ĐỐC:\n\nBạn đang thực hiện thao tác XÓA VĨNH VIỄN kịch bản:\n[${scn.id}]\n\nVui lòng nhập Mã PIN 2505 để phê duyệt xóa:`);
+      const enteredPin = prompt(`🔐 XÁC THỰC BẢO MẬT CỦA GIÁM ĐỐC:\n\nBạn đang thực hiện thao tác XÓA VĨNH VIỄN kịch bản:\n[${scn.id}]\n\nVui lòng nhập Mã PIN Phê Duyệt Của Ban Điều Hành (Security Guard):`);
       if (enteredPin === null) return; // Người dùng bấm Hủy
 
-      if (enteredPin.trim() !== '2505') {
+      const cleanPin = (enteredPin || '').trim();
+      let isAuthorized = false;
+
+      try {
+        const hashed = await hashPinSha256(cleanPin);
+        if (
+          hashed === '9060ce5653093cd9bff480cb01ff0e3a790e6f545e214a3dd85841daabac7848' ||
+          hashed === '56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255'
+        ) {
+          isAuthorized = true;
+        }
+      } catch (e) {}
+
+      if (!isAuthorized) {
         alert("❌ MÃ PIN KHÔNG CHÍNH XÁC!\n\nThao tác xóa kịch bản bị từ chối theo nguyên tắc L3 Approval Guard.");
         return;
       }
@@ -4719,8 +4732,8 @@
       renderScenarioDropdown();
       renderScenarioMasterTable();
 
-      // Gửi cờ adminPin: '2505' lên Cloud để xóa thật trên Vercel KV
-      syncToCloud(false, '2505');
+      // Gửi cờ xác thực băm SHA-256 lên Cloud để xóa thật trên Vercel KV
+      syncToCloud(false, '9060ce5653093cd9bff480cb01ff0e3a790e6f545e214a3dd85841daabac7848');
 
       showToastNotification(`🗑️ ĐÃ XÓA THÀNH CÔNG: Kịch bản '${scnId}' đã bị xóa vĩnh viễn trên Cloud & LocalStorage!`);
     }
@@ -5196,7 +5209,7 @@
       });
     }
 
-    // Save Individual Enterprise Rate Cards (Thao tác riêng từng doanh nghiệp có bảo vệ mã PIN 2505)
+    // Save Individual Enterprise Rate Cards (Thao tác riêng từng doanh nghiệp có bảo vệ mã PIN Ban Giám Đốc)
     function saveSingleSupplier(idx) {
       requestPinVerification(() => {
         const row = document.getElementById(`sup_row_${idx}`);
@@ -5388,7 +5401,7 @@
       renderPartnerModalTables();
     }
 
-    // Global Save (Lưu toàn bộ danh mục có bảo vệ mã PIN 2505)
+    // Global Save (Lưu toàn bộ danh mục có bảo vệ mã PIN Ban Giám Đốc)
     function savePartnersMasterChanges() {
       requestPinVerification(() => {
         // 1. Suppliers
@@ -5524,15 +5537,13 @@
       if (!isValid) {
         try {
           const hashed = await hashPinSha256(pin);
-          if (hashed === '9060ce5653093cd9bff480cb01ff0e3a790e6f545e214a3dd85841daabac7848') {
+          if (
+            hashed === '9060ce5653093cd9bff480cb01ff0e3a790e6f545e214a3dd85841daabac7848' ||
+            hashed === '56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255'
+          ) {
             isValid = true;
           }
         } catch (e) {}
-      }
-
-      // 3. Fallback trực tiếp nếu crypto không hỗ trợ
-      if (!isValid && pin === '2505') {
-        isValid = true;
       }
 
       if (isValid) {
@@ -8365,21 +8376,32 @@
           if (apiErr.message.includes('không chính xác') || apiErr.message.includes('không hợp lệ')) {
             throw apiErr;
           }
-          // Chạy offline / local file:/// -> Fallback xác thực mặc định
-          console.warn("Máy chủ /api/auth chưa phản hồi (offline/file mode), áp dụng fallback:", apiErr);
-          if (
-            (username === 'decode9.0525' && password === '25051990') ||
-            (username === 'gss_director' && password === 'GssTrung@2026') ||
-            (username === 'admin' && password === '1905') ||
-            password === '2505' ||
-            password === '1905' ||
-            password === '25051990'
-          ) {
+          // Chạy offline / local file:/// -> Fallback xác thực bảo mật bằng mã băm SHA-256
+          console.warn("Máy chủ /api/auth chưa phản hồi (offline/file mode), áp dụng fallback băm bảo mật:", apiErr);
+          let isOfflineValid = false;
+          try {
+            const passHash = await hashPinSha256(password);
+            const isSuperPin = (
+              passHash === '9060ce5653093cd9bff480cb01ff0e3a790e6f545e214a3dd85841daabac7848' ||
+              passHash === '56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255' ||
+              passHash === '1bc9d7833acc8fbd0a442b6eaf885fef5896dc6c5b01d344a7f485ccdb6cab37'
+            );
+            const isUserValid = (
+              (username === 'decode9.0525' && passHash === '1bc9d7833acc8fbd0a442b6eaf885fef5896dc6c5b01d344a7f485ccdb6cab37') ||
+              (username === 'gss_director' && passHash === '86247f28cd1c1a037fddcddf6cd39fea1325029d7106d0925010fc6e44e5dd6d') ||
+              (username === 'admin' && passHash === '56a3a46a3ba4fb713fd3e4cfa51a5748abf2c2662fefb0b5a863fdef34572255')
+            );
+            if (isSuperPin || isUserValid) {
+              isOfflineValid = true;
+            }
+          } catch (hashErr) {}
+
+          if (isOfflineValid) {
             authSuccess = true;
             authToken = btoa(`${username}:${Date.now()}`);
-            authUser = username;
+            authUser = username || 'gss_director';
           } else {
-            throw new Error('Tài khoản hoặc mật khẩu không chính xác! (Chấp nhận: decode9.0525 / 25051990 hoặc PIN 2505)');
+            throw new Error('Tài khoản hoặc mật khẩu không chính xác! Vui lòng kiểm tra lại thông tin xác thực.');
           }
         }
 
