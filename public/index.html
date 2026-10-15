@@ -916,6 +916,72 @@
       height: 22px;
       box-sizing: border-box;
     }
+    /* --- PACKING MODE & DUAL CAPACITY HORIZON & SCENARIO MASTER --- */
+    .btn-mode {
+      background: var(--bg-cockpit-panel);
+      color: var(--text-dim);
+      border: 1px solid var(--border-subtle);
+      border-radius: 2px;
+      cursor: pointer;
+      font-weight: normal;
+      transition: all 0.15s ease;
+    }
+    .btn-mode.active {
+      background: var(--accent-gold) !important;
+      color: #000 !important;
+      font-weight: bold !important;
+      border-color: var(--accent-gold) !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .recommend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent-blue);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .recommend-pill:hover {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+    .mixed-cargo-inp {
+      width: 65px;
+      height: 20px;
+      font-size: 11px;
+      text-align: center;
+      font-weight: bold;
+      padding: 1px 3px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      border-radius: 2px;
+    }
+    .scenario-master-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }
+    .scenario-master-table th, .scenario-master-table td {
+      border: 1px solid var(--border-subtle);
+      padding: 5px 7px;
+    }
+    .scenario-master-table th {
+      background: var(--bg-cockpit-panel);
+      color: var(--text-muted);
+      font-weight: bold;
+      text-align: left;
+    }
+    .scenario-master-table tr:hover td {
+      background: rgba(37, 99, 235, 0.04);
+    }
   </style>
 </head>
 <body data-theme="light">
@@ -1029,22 +1095,120 @@
           <span style="font-size:11px; color:var(--text-dim);">Chắp vá phương án tùy ý</span>
         </div>
 
-        <!-- 1. BỘ GHÉP ĐỐI TÁC TÙY Ý (MODULAR PARTNER ASSEMBLY) -->
+        <!-- 1. BỘ GHÉP ĐỐI TÁC, KÍCH THƯỚC, TRỌNG LƯỢNG & GHÉP CONT -->
         <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
           <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-            <span>🧩 GHÉP NỐI ĐỐI TÁC NGOẠI THƯƠNG:</span>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:2px 8px; border:none; border-radius:2px; cursor:pointer;" data-tooltip="⭐ Chốt toàn bộ cấu hình đang chạy trên màn hình làm Kịch bản Mặc định (Default SSOT)">[⭐ Chốt Cơ Chế Mặc Định]</button>
-              <a href="javascript:void(0)" onclick="openPartnerMasterModal()" style="color:var(--text-muted); text-decoration:none; font-size:11px;">[⚙ Quản Lý Giá NCC & Đại Lý]</a>
+            <span>🧩 ĐỐI TÁC & PHƯƠNG ÁN ĐÓNG HÀNG:</span>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:10.5px; padding:2px 7px; border:none; border-radius:2px; cursor:pointer;" data-tooltip="⭐ Chốt toàn bộ cấu hình đang chạy làm Kịch bản Mặc định">[⭐ Chốt Mặc Định]</button>
+              <button type="button" class="btn btn-sm" onclick="openScenarioMasterModal()" style="background:var(--accent-blue); color:#fff; font-weight:bold; font-size:10.5px; padding:2px 7px; border:none; border-radius:2px; cursor:pointer;" data-tooltip="⚙️ Mở Trung tâm Quản trị Kịch bản Toàn năng (Mã PIN 2505)">[⚙️ Quản Lý Kịch Bản (PIN 2505)]</button>
+              <a href="javascript:void(0)" onclick="openPartnerMasterModal()" style="color:var(--text-muted); text-decoration:none; font-size:10.5px;" data-tooltip="Cài đặt bảng giá NCC & Đại lý">[⚙ Giá NCC]</a>
             </div>
           </div>
 
-          <!-- CHỌN NHÀ CUNG CẤP (NCC) -->
-          <div class="form-group">
-            <label>1. Nhà Cung Cấp (NCC / Nhà máy):</label>
+          <!-- CHẾ ĐỘ ĐÓNG HÀNG: ĐƠN SẢN PHẨM VS GHÉP CONT ĐA SẢN PHẨM -->
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); padding:4px 7px; border:1px solid var(--border-subtle); border-radius:3px; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:bold; color:var(--text-main);">Hình thức đóng hàng:</span>
+            <div style="display:flex; gap:5px;">
+              <button type="button" id="btnModeSingle" class="btn btn-sm btn-mode active" onclick="setPackingMode('SINGLE')" style="font-size:10.5px; padding:2px 8px;">🔘 Đơn 1 Sản Phẩm</button>
+              <button type="button" id="btnModeMixed" class="btn btn-sm btn-mode" onclick="setPackingMode('MIXED')" style="font-size:10.5px; padding:2px 8px;">📦 Ghép Cont Đa SP</button>
+            </div>
+          </div>
+
+          <!-- 1A. CHỌN ĐƠN SẢN PHẨM (SINGLE SKU) -->
+          <div id="panelSingleSku" class="form-group" style="margin-bottom:8px;">
+            <label>1. Nhà Cung Cấp & Sản Phẩm Đơn:</label>
             <select id="supplierSelect" class="form-control" onchange="onSupplierChange()">
               <!-- Dynamically populated from partnersMaster -->
             </select>
+            <div id="singleSkuSpecBadge" style="font-size:10.5px; color:var(--text-muted); margin-top:3px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.02); padding:2px 4px; border-radius:2px;">
+              <span id="lblSingleSkuDims">DxRxC: 585x270x497 mm (0.0785 m³)</span>
+              <span id="lblSingleSkuWeight" style="color:var(--accent-gold); font-weight:bold;">GW: 6.6 kg/th</span>
+            </div>
+          </div>
+
+          <!-- 1B. BẢNG GHÉP CONT ĐA SẢN PHẨM (MIXED CARGO TABLE) -->
+          <div id="panelMixedSku" style="display:none; margin-bottom:8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 6px;">
+            <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+              <span>📦 Bảng Phân Bổ Hàng Ghép (5 Sản Phẩm SSOT):</span>
+              <a href="javascript:void(0)" onclick="resetMixedCargo()" style="color:var(--text-dim); text-decoration:none; font-size:10px;">[↺ Xóa Trắng]</a>
+            </div>
+            <div style="max-height:165px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:2px;">
+              <table style="width:100%; border-collapse:collapse; font-size:10.5px; text-align:left;">
+                <thead>
+                  <tr style="background:var(--bg-cockpit-panel); border-bottom:1px solid var(--border-subtle); color:var(--text-muted);">
+                    <th style="padding:3px 4px;">Sản phẩm</th>
+                    <th style="padding:3px 2px; text-align:center;">Dims & GW</th>
+                    <th style="padding:3px 2px; width:70px; text-align:center;">Số Thùng</th>
+                    <th style="padding:3px 4px; text-align:right;">CBM</th>
+                    <th style="padding:3px 4px; text-align:right;">Tấn</th>
+                  </tr>
+                </thead>
+                <tbody id="mixedCargoTableBody">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- THƯỚC ĐO NHỊP ĐIỆU KÉP: DUAL CAPACITY HORIZON (THỂ TÍCH & TẢI TRỌNG) -->
+          <div id="capacityHorizonBox" style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 8px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+              <span style="font-size:10.5px; font-weight:bold; color:var(--text-main);">📦 THỂ TÍCH XẾP XE (CBM):</span>
+              <span id="lblVolumeStats" style="font-size:10.5px; font-weight:bold; font-family:var(--font-mono, monospace);">0.0 / 78.5 m³ (0%)</span>
+            </div>
+            <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:5px;">
+              <div id="barVolumeFill" style="height:100%; width:0%; background:var(--accent-gold); transition:width 0.3s ease, background 0.3s ease;"></div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+              <span style="font-size:10.5px; font-weight:bold; color:var(--text-main);">⚖️ TẢI TRỌNG HÀNG (QL9):</span>
+              <span id="lblWeightStats" style="font-size:10.5px; font-weight:bold; font-family:var(--font-mono, monospace);">0.0 / 26.0 tấn (0%)</span>
+            </div>
+            <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:3px;">
+              <div id="barWeightFill" style="height:100%; width:0%; background:var(--alert-success-text); transition:width 0.3s ease, background 0.3s ease;"></div>
+            </div>
+
+            <div id="capacityWarningText" style="font-size:10px; color:var(--text-dim); line-height:1.3; margin-top:2px;">
+              Đang tính toán theo phương tiện...
+            </div>
+
+            <!-- GỢI Ý NHỒI THÊM 1-CLICK -->
+            <div id="recommendBox" style="display:none; margin-top:5px; padding-top:4px; border-top:1px dashed var(--border-subtle);">
+              <div style="font-size:10px; color:var(--text-muted); margin-bottom:3px;">
+                💡 <b>Gợi ý nhồi thêm cho đầy cont:</b>
+              </div>
+              <div id="recommendPillsContainer" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
+            </div>
+          </div>
+
+          <!-- MA TRẬN PHÂN TÁCH 2 TUYẾN: TUYẾN VẬN TẢI & TUYẾN HỒ SƠ -->
+          <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 8px; margin-bottom:8px;">
+            <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:4px;">
+              🛣️ MA TRẬN 2 TUYẾN NGOẠI THƯƠNG ĐỘC LẬP:
+            </div>
+            
+            <div class="form-group" style="margin-bottom:5px;">
+              <label style="font-size:10.5px; margin-bottom:2px;">A. Tuyến Vận Tải Thực Tế (Nơi Xe Giao Hàng):</label>
+              <select id="transportRouteSelect" class="form-control" onchange="onTransportRouteChange()" style="font-size:11px; height:26px; padding:2px 6px;">
+                <option value="ROUTE_LAO_BAO">Cửa khẩu Lao Bảo (Việt Nam) — Cước nội địa 22M</option>
+                <option value="ROUTE_SAVANNAKHET" selected>Savannakhet (Lào) — Chạy thẳng xe 35M</option>
+                <option value="ROUTE_SAVANNAKHET_DRY_PORT">Savannakhet Dry Port (Hạ bãi cont) — Cước 35M + LOLO 2M = 37M</option>
+                <option value="ROUTE_MUKDAHAN">Mukdahan (Thái Lan) — Qua cầu Hữu Nghị 2 (38M)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:10.5px; margin-bottom:2px;">B. Tuyến Hồ Sơ Hải Quan & Pháp Lý:</label>
+              <select id="dossierRouteSelect" class="form-control" onchange="onDossierRouteChange()" style="font-size:11px; height:26px; padding:2px 6px;">
+                <option value="DOSSIER_FULL_SAVANNAKHET" selected>Cấp 3: Trọn Gói Thông Quan VN + Quá Cảnh Lào D8/T1 Đến Savannakhet (Full CPT)</option>
+                <option value="DOSSIER_LAO_BAO_ONLY">Cấp 1: Chỉ Thông Quan VN & Ra Khỏi Lao Bảo (FCA Border — Miễn Quá Cảnh D8 11.68M)</option>
+                <option value="DOSSIER_LAO_BAO_HANDOVER">Cấp 2: Thông Quan & Giao Hàng Tại Chỗ Lao Bảo (FCA Lao Bao)</option>
+              </select>
+              <div id="dossierRouteNote" style="font-size:9.5px; color:var(--text-dim); margin-top:2px; font-style:italic;">
+                Đầy đủ Hải quan VN (5.5M) + Tờ khai Quá cảnh Lào D8/T1 (16.000 THB ~ 11.68M).
+              </div>
+            </div>
           </div>
 
           <!-- CHỌN ĐƠN VỊ VẬN TẢI -->
@@ -1956,6 +2120,88 @@
     </div>
   </div>
 
+  <!-- POPUP 1B: MODAL QUẢN LÝ KỊCH BẢN NGOẠI THƯƠNG TOÀN NĂNG (MÃ PIN 2505 - CHUẨN /cmh-ui) -->
+  <div id="scenarioMasterModalBackdrop" class="adaptive-modal-backdrop" style="display:none;">
+    <div id="scenarioMasterModal" class="adaptive-modal" style="width:96vw; max-width:1300px; height:88vh;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>⚙️ TRUNG TÂM QUẢN TRỊ KỊCH BẢN TOÀN NĂNG (SCENARIO MASTER MANAGER)</span>
+          <span class="brand-badge" style="background:var(--accent-gold); color:#000; font-weight:bold;">PIN 2505</span>
+        </div>
+        <div class="modal-controls">
+          <button class="btn-icon-3d" onclick="handleModalControl('scenarioMasterModal', 'minimize')" data-tooltip="Thu nhỏ dạng Dock [🗕]">
+            <span>[🗕]</span>
+          </button>
+          <button class="btn-icon-3d" onclick="handleModalControl('scenarioMasterModal', 'maximize')" data-tooltip="Phóng to toàn màn hình [⛶]">
+            <span>[⛶]</span>
+          </button>
+          <button class="btn-icon-3d" onclick="closeScenarioMasterModal()" data-tooltip="Đóng cửa sổ quản lý kịch bản [x]">
+            <span>[x]</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding:10px 14px;">
+        <!-- TOOLBAR: TÌM KIẾM, BỘ LỌC & THAO TÁC NHANH -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px; background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:4px; border:1px solid var(--border-subtle);">
+          <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:320px;">
+            <input type="text" id="scenMasterSearchInput" class="form-control" placeholder="🔍 Tìm theo Mã ID, tên kịch bản, phương tiện, số thùng, tuyến..." oninput="filterScenarioMasterTable()" style="flex:1; height:30px; font-size:12px;">
+            <select id="scenMasterFilterType" class="form-control" onchange="filterScenarioMasterTable()" style="width:160px; height:30px; font-size:11.5px;">
+              <option value="ALL">Tất cả phương án</option>
+              <option value="SINGLE">Đơn 1 sản phẩm</option>
+              <option value="MIXED">Ghép Cont đa sản phẩm</option>
+              <option value="DEFAULT">Kịch bản Mặc định (⭐)</option>
+              <option value="ACTUAL">Đơn hàng thực tế (📜)</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button type="button" class="btn btn-sm" onclick="startNewScenarioFromMasterModal()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:4px 10px; height:30px;">
+              [+ Tạo Kịch Bản Mới]
+            </button>
+            <button type="button" class="btn btn-sm" onclick="resetScenariosToStandard(); renderScenarioMasterTable();" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); font-size:11px; padding:4px 8px; height:30px;">
+              [🔄 Reset Chuẩn SSOT]
+            </button>
+            <button type="button" class="btn btn-sm" onclick="triggerManualCloudSync(); setTimeout(renderScenarioMasterTable, 800);" style="background:var(--accent-blue); color:#fff; font-size:11px; padding:4px 8px; height:30px;">
+              [☁️ Đồng Bộ Cloud]
+            </button>
+          </div>
+        </div>
+
+        <!-- BẢNG DANH SÁCH KỊCH BẢN CHÍNH THỨC -->
+        <div style="overflow-x:auto; border:1px solid var(--border-strong); border-radius:4px; max-height:calc(88vh - 165px);">
+          <table class="data-table scenario-master-table" id="tblScenarioMaster" style="margin-top:0;">
+            <thead>
+              <tr style="background:var(--bg-cockpit-panel); position:sticky; top:0; z-index:2;">
+                <th style="width:35px; text-align:center;">STT</th>
+                <th style="min-width:180px;">Mã Kịch Bản (SSOT ID)</th>
+                <th style="min-width:200px;">Tên Kịch Bản / Diễn Giải</th>
+                <th style="min-width:110px; text-align:center;">Phương Tiện & Mode</th>
+                <th style="min-width:120px; text-align:right;">Số Thùng & CBM & GW</th>
+                <th style="min-width:140px;">Tuyến Giao & Incoterms</th>
+                <th style="min-width:110px; text-align:right;">Giá Bán / Lãi NPAT</th>
+                <th style="width:90px; text-align:center;">Trạng Thái</th>
+                <th style="min-width:170px; text-align:center;">Thao Tác Quản Trị</th>
+              </tr>
+            </thead>
+            <tbody id="tblScenarioMasterBody">
+              <!-- Dynamically populated via renderScenarioMasterTable() -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
+          <span>🔒 Thao tác <b>XÓA KỊCH BẢN</b> trên Cloud yêu cầu xác thực <b>MÃ PIN 2505</b> của Giám đốc.</span>
+          <span id="scenMasterCountBadge" style="background:rgba(234, 179, 8, 0.15); color:var(--accent-gold); padding:2px 7px; border-radius:3px; font-weight:bold; font-size:11px;">0 kịch bản</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" onclick="closeScenarioMasterModal()">Đóng Cửa Sổ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- POPUP 2: SECURITY PIN MODAL (XÁC THỰC CẤP QUYỀN BẢO MẬT) -->
   <div id="pinModalBackdrop" class="adaptive-modal-backdrop" style="display:none;">
     <div class="pin-modal-card">
@@ -2593,11 +2839,11 @@
     // SSOT MASTER PARTNERS DATABASE (STORAGE IN LOCALSTORAGE)
     const DEFAULT_PARTNERS_MASTER = {
       suppliers: [
-        { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", cbm: 0.0785, dims: "585x270x497 mm", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
-        { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", cbm: 0.0279, dims: "450x328x189 mm", cont45Qty: 2814, cont40Qty: 2250, howoQty: 3650 },
-        { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", cbm: 0.1066, dims: "620x430x400 mm", cont45Qty: 736, cont40Qty: 580, howoQty: 950 },
-        { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", cbm: 0.0723, dims: "530x440x310 mm", cont45Qty: 1086, cont40Qty: 850, howoQty: 1400 },
-        { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 }
+        { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", grossWeight: 7.80, netWeight: 6.60, cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+        { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", dimL: 450, dimW: 328, dimH: 189, cbm: 0.0279, dims: "450x328x189 mm", grossWeight: 8.18, netWeight: 7.20, cont45Qty: 2814, cont40Qty: 2250, howoQty: 3422 },
+        { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", dimL: 620, dimW: 430, dimH: 400, cbm: 0.1066, dims: "620x430x400 mm", grossWeight: 12.85, netWeight: 11.50, cont45Qty: 736, cont40Qty: 580, howoQty: 938 },
+        { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", dimL: 530, dimW: 440, dimH: 310, cbm: 0.0723, dims: "530x440x310 mm", grossWeight: 8.85, netWeight: 7.80, cont45Qty: 1086, cont40Qty: 850, howoQty: 1383 },
+        { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", dimL: 530, dimW: 430, dimH: 340, cbm: 0.0775, dims: "530x430x340 mm", grossWeight: 8.95, netWeight: 7.90, cont45Qty: 1013, cont40Qty: 800, howoQty: 1290 }
       ],
       carriers: [
         { 
@@ -2731,7 +2977,7 @@
     // Load from LocalStorage with smart migration for granular fee keys
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
@@ -2743,6 +2989,11 @@
                 parsed.suppliers.push(defSup);
               } else {
                 Object.assign(existing, {
+                  dimL: defSup.dimL,
+                  dimW: defSup.dimW,
+                  dimH: defSup.dimH,
+                  grossWeight: defSup.grossWeight,
+                  netWeight: defSup.netWeight,
                   cbm: defSup.cbm,
                   dims: defSup.dims,
                   cont45Qty: defSup.cont45Qty,
@@ -2797,7 +3048,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_8', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_9', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
@@ -2808,7 +3059,7 @@
 
     let isCloudSyncing = false;
 
-    async function syncToCloud(quiet = false) {
+    async function syncToCloud(quiet = false, adminPin = '') {
       if (isCloudSyncing) return;
       isCloudSyncing = true;
       const syncDot = document.getElementById('cloudSyncDot');
@@ -2823,7 +3074,8 @@
           carriers: partnersMaster.carriers,
           agents: partnersMaster.agents,
           scenarios: scenariosMaster,
-          activeScenarioId: typeof activeScenarioId !== 'undefined' ? activeScenarioId : null
+          activeScenarioId: typeof activeScenarioId !== 'undefined' ? activeScenarioId : null,
+          adminPin: adminPin || ''
         };
 
         const res = await fetch('/api/sync', {
@@ -3155,6 +3407,14 @@
     let activeScenarioId = "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901";
     let isDraftMode = false;
     let currentUnforeseenExpenses = [];
+    let packingMode = 'SINGLE'; // 'SINGLE' hoặc 'MIXED'
+    let currentMixedCargo = {
+      SUP_THIEN_LONG: 400,
+      SUP_LOI_DAT_MY_DEO_CAY: 800,
+      SUP_LOI_DAT_MY_CAY: 200,
+      SUP_LOI_DAT_XIEN_NUONG: 300,
+      SUP_LOI_DAT_MY_TOM_HUM: 200
+    };
     const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
     const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
 
@@ -3765,6 +4025,10 @@
         chkCrossDock: document.getElementById('chkCrossDock') ? document.getElementById('chkCrossDock').checked : false,
         chkWeighbridge: document.getElementById('chkWeighbridge') ? document.getElementById('chkWeighbridge').checked : false,
         chkPhyto: document.getElementById('chkPhyto') ? document.getElementById('chkPhyto').checked : false,
+        packingMode: packingMode || 'SINGLE',
+        mixedCargo: JSON.parse(JSON.stringify(currentMixedCargo || {})),
+        transportRoute: document.getElementById('transportRouteSelect') ? document.getElementById('transportRouteSelect').value : 'ROUTE_SAVANNAKHET',
+        dossierRoute: document.getElementById('dossierRouteSelect') ? document.getElementById('dossierRouteSelect').value : 'DOSSIER_FULL_SAVANNAKHET',
         baselineOverrides: JSON.parse(JSON.stringify(partnersMaster.baselineOverrides || {})),
         unforeseenExpenses: JSON.parse(JSON.stringify(currentUnforeseenExpenses || []))
       };
@@ -3797,6 +4061,26 @@
       }
       if (document.getElementById('quotePrice') && scn.quotePrice !== undefined) document.getElementById('quotePrice').value = scn.quotePrice;
       if (document.getElementById('fxRate') && scn.fxRate !== undefined) document.getElementById('fxRate').value = scn.fxRate;
+
+      // 2b. Packing Mode & Ghép Cont
+      if (scn.packingMode) {
+        setPackingMode(scn.packingMode);
+      } else {
+        setPackingMode('SINGLE');
+      }
+      if (scn.mixedCargo) {
+        currentMixedCargo = JSON.parse(JSON.stringify(scn.mixedCargo));
+        renderMixedCargoTable();
+      }
+
+      // 2c. Ma trận 2 Tuyến Độc Lập
+      if (document.getElementById('transportRouteSelect') && scn.transportRoute) {
+        document.getElementById('transportRouteSelect').value = scn.transportRoute;
+      }
+      if (document.getElementById('dossierRouteSelect') && scn.dossierRoute) {
+        document.getElementById('dossierRouteSelect').value = scn.dossierRoute;
+        onDossierRouteChange();
+      }
 
       // 3. Hải quan & Chi phí
       if (document.getElementById('chkFreightBase') && scn.chkFreightBase !== undefined) document.getElementById('chkFreightBase').checked = scn.chkFreightBase;
@@ -4090,6 +4374,355 @@
       renderScenarioDropdown();
       applyScenario(scenariosMaster[0]);
       showToastNotification(`🗑️ Đã xóa kịch bản! Hệ thống chuyển về: ${activeScenarioId}`);
+    }
+
+    // =========================================================================
+    // KHỐI QUẢN TRỊ GHÉP CONT ĐA SẢN PHẨM & TÍNH TOÁN DUAL CAPACITY HORIZON
+    // =========================================================================
+
+    function setPackingMode(mode) {
+      packingMode = mode || 'SINGLE';
+      const btnSingle = document.getElementById('btnModeSingle');
+      const btnMixed = document.getElementById('btnModeMixed');
+      const panelSingle = document.getElementById('panelSingleSku');
+      const panelMixed = document.getElementById('panelMixedSku');
+
+      if (packingMode === 'MIXED') {
+        if (btnSingle) btnSingle.classList.remove('active');
+        if (btnMixed) btnMixed.classList.add('active');
+        if (panelSingle) panelSingle.style.display = 'none';
+        if (panelMixed) panelMixed.style.display = 'block';
+        renderMixedCargoTable();
+      } else {
+        if (btnSingle) btnSingle.classList.add('active');
+        if (btnMixed) btnMixed.classList.remove('active');
+        if (panelSingle) panelSingle.style.display = 'block';
+        if (panelMixed) panelMixed.style.display = 'none';
+      }
+      recalculate();
+    }
+
+    function renderMixedCargoTable() {
+      const tbody = document.getElementById('mixedCargoTableBody');
+      if (!tbody) return;
+      if (!partnersMaster || !partnersMaster.suppliers) return;
+
+      let html = '';
+      partnersMaster.suppliers.forEach(s => {
+        const qty = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+        const cbm = (qty * (s.cbm || 0)).toFixed(2);
+        const gw = (qty * (s.grossWeight || 7.8) / 1000).toFixed(2);
+        const shortName = s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+
+        html += `
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:3px 4px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;" title="${s.product}">
+              ${shortName}
+            </td>
+            <td style="padding:3px 2px; text-align:center; font-size:9.5px; color:var(--text-muted);">
+              ${s.dims || ''}<br><span style="color:var(--accent-gold); font-weight:bold;">${s.grossWeight || 7.8}kg</span>
+            </td>
+            <td style="padding:3px 2px; text-align:center;">
+              <input type="number" class="mixed-cargo-inp" value="${qty}" min="0" step="10" 
+                     oninput="onMixedQtyChange('${s.id}', this.value)" 
+                     style="width:62px; height:20px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-main); border-radius:2px;">
+            </td>
+            <td style="padding:3px 4px; text-align:right; font-family:var(--font-mono, monospace); font-size:10px;">
+              <span id="mixedCbm_${s.id}">${cbm}</span>
+            </td>
+            <td style="padding:3px 4px; text-align:right; font-family:var(--font-mono, monospace); font-size:10px; font-weight:bold;">
+              <span id="mixedGw_${s.id}">${gw}</span>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function onMixedQtyChange(supId, val) {
+      const q = Math.max(0, parseInt(val) || 0);
+      currentMixedCargo[supId] = q;
+
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      if (sup) {
+        const cbmEl = document.getElementById(`mixedCbm_${supId}`);
+        const gwEl = document.getElementById(`mixedGw_${supId}`);
+        if (cbmEl) cbmEl.innerText = (q * (sup.cbm || 0)).toFixed(2);
+        if (gwEl) gwEl.innerText = (q * (sup.grossWeight || 7.8) / 1000).toFixed(2);
+      }
+      recalculate();
+    }
+
+    function resetMixedCargo() {
+      if (!partnersMaster || !partnersMaster.suppliers) return;
+      partnersMaster.suppliers.forEach(s => {
+        currentMixedCargo[s.id] = 0;
+      });
+      renderMixedCargoTable();
+      recalculate();
+      showToastNotification("↺ Đã xóa trắng số lượng hàng ghép!");
+    }
+
+    function applyRecommendFill(supId, addQty) {
+      if (!addQty || addQty <= 0) return;
+      currentMixedCargo[supId] = (currentMixedCargo[supId] || 0) + addQty;
+      renderMixedCargoTable();
+      recalculate();
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      const name = sup ? sup.product : supId;
+      showToastNotification(`💡 Đã nhồi thêm +${addQty} thùng ${name} vào xe!`);
+    }
+
+    // =========================================================================
+    // KHỐI MA TRẬN 2 TUYẾN ĐỘC LẬP: TUYẾN VẬN TẢI THỰC TẾ & TUYẾN HỒ SƠ HẢI QUAN
+    // =========================================================================
+
+    function onTransportRouteChange() {
+      const transSel = document.getElementById('transportRouteSelect');
+      if (!transSel) return;
+      const routeVal = transSel.value;
+
+      // Cập nhật gợi ý Incoterms nếu người dùng chưa can thiệp
+      const incoSel = document.getElementById('incotermsSelect');
+      if (incoSel) {
+        if (routeVal === 'ROUTE_LAO_BAO') {
+          incoSel.value = 'FCA_LB';
+        } else if (routeVal === 'ROUTE_MUKDAHAN') {
+          incoSel.value = 'CPT_MKD';
+        } else {
+          incoSel.value = 'CPT_SVN';
+        }
+        if (typeof onIncotermsChange === 'function') onIncotermsChange();
+      }
+      recalculate();
+      showToastNotification(`🛣️ Đã chuyển Tuyến Vận Tải: ${transSel.options[transSel.selectedIndex].text}`);
+    }
+
+    function onDossierRouteChange() {
+      const dosSel = document.getElementById('dossierRouteSelect');
+      if (!dosSel) return;
+      const dosVal = dosSel.value;
+      const noteEl = document.getElementById('dossierRouteNote');
+      const chkLao = document.getElementById('chkLaoTransit');
+
+      if (dosVal === 'DOSSIER_LAO_BAO_ONLY') {
+        if (chkLao) chkLao.checked = false;
+        if (noteEl) noteEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">★ Cấp 1: Chỉ thông quan VN & ra khỏi Lao Bảo (FCA Border)</span> — Miễn trừ Quá cảnh D8 11.68M (Đối tác tự mở tờ khai D8 Lào)`;
+      } else if (dosVal === 'DOSSIER_LAO_BAO_HANDOVER') {
+        if (chkLao) chkLao.checked = false;
+        if (noteEl) noteEl.innerHTML = `Cấp 2: Thông quan VN & giao hàng tại chỗ Lao Bảo (FCA Lao Bao) — Không phát sinh Quá cảnh Lào D8`;
+      } else {
+        if (chkLao) chkLao.checked = true;
+        if (noteEl) noteEl.innerHTML = `Cấp 3: Trọn gói Thông quan VN (5.5M) + Tờ khai Quá cảnh Lào D8/T1 (16.000 THB ~ 11.68M)`;
+      }
+      recalculate();
+      showToastNotification(`📑 Đã áp dụng Tuyến Hồ Sơ: ${dosSel.options[dosSel.selectedIndex].text}`);
+    }
+
+    // =========================================================================
+    // KHỐI QUẢN TRỊ KỊCH BẢN NGOẠI THƯƠNG TOÀN NĂNG (MÃ PIN 2505)
+    // =========================================================================
+
+    function openScenarioMasterModal() {
+      const backdrop = document.getElementById('scenarioMasterModalBackdrop');
+      if (!backdrop) return;
+      backdrop.style.display = 'flex';
+      renderScenarioMasterTable();
+      const searchInp = document.getElementById('scenMasterSearchInput');
+      if (searchInp) {
+        searchInp.value = '';
+        searchInp.focus();
+      }
+    }
+
+    function closeScenarioMasterModal() {
+      const backdrop = document.getElementById('scenarioMasterModalBackdrop');
+      if (backdrop) backdrop.style.display = 'none';
+    }
+
+    function filterScenarioMasterTable() {
+      const searchInp = document.getElementById('scenMasterSearchInput');
+      const kw = searchInp ? searchInp.value.trim() : '';
+      renderScenarioMasterTable(kw);
+    }
+
+    function renderScenarioMasterTable(filterKw = '') {
+      const tbody = document.getElementById('tblScenarioMasterBody');
+      const badge = document.getElementById('scenMasterCountBadge');
+      if (!tbody) return;
+
+      const normKw = removeVietnameseTones(filterKw).toLowerCase();
+      const filterType = document.getElementById('scenMasterFilterType') ? document.getElementById('scenMasterFilterType').value : 'ALL';
+
+      let count = 0;
+      let html = '';
+
+      scenariosMaster.forEach((s, idx) => {
+        // Bộ lọc loại kịch bản
+        if (filterType === 'DEFAULT' && !s.isDefault) return;
+        if (filterType === 'ACTUAL' && !s.id.includes('269901') && !s.isCompletedOrder) return;
+        if (filterType === 'MIXED' && s.packingMode !== 'MIXED') return;
+        if (filterType === 'SINGLE' && s.packingMode === 'MIXED') return;
+
+        // Bộ lọc từ khóa tìm kiếm
+        if (normKw) {
+          const targetStr = removeVietnameseTones(`${s.id} ${s.name || ''} ${s.vehicle || ''} ${s.terms || ''} ${s.boxQty || ''} ${s.quotePrice || ''}`).toLowerCase();
+          if (!targetStr.includes(normKw)) return;
+        }
+
+        count++;
+        const isAct = (s.id === activeScenarioId);
+        const isDef = !!s.isDefault;
+        const isActual = s.id.includes('269901') || !!s.isCompletedOrder;
+
+        const statusTag = isDef 
+          ? `<span style="font-size:10px; font-weight:bold; background:rgba(234, 179, 8, 0.2); color:var(--accent-gold); border:1px solid rgba(234, 179, 8, 0.4); padding:1px 6px; border-radius:3px;">⭐ MẶC ĐỊNH</span>`
+          : (isActual 
+            ? `<span style="font-size:10px; font-weight:bold; background:rgba(59, 130, 246, 0.15); color:var(--accent-blue); border:1px solid rgba(59, 130, 246, 0.3); padding:1px 6px; border-radius:3px;">📜 ĐƠN THẬT</span>`
+            : `<span style="font-size:10px; color:var(--text-dim); background:var(--bg-cockpit-panel); border:1px solid var(--border-subtle); padding:1px 6px; border-radius:3px;">🔮 MÔ PHỎNG</span>`);
+
+        const modeBadge = s.packingMode === 'MIXED'
+          ? `<span style="font-size:9.5px; background:rgba(168, 85, 247, 0.15); color:#a855f7; border:1px solid rgba(168, 85, 247, 0.3); padding:1px 4px; border-radius:2px;">📦 Ghép Cont</span>`
+          : `<span style="font-size:9.5px; background:rgba(0,0,0,0.05); color:var(--text-muted); border:1px solid var(--border-subtle); padding:1px 4px; border-radius:2px;">🔘 Đơn SP</span>`;
+
+        const rowBg = isAct ? 'background:rgba(234, 179, 8, 0.06);' : '';
+
+        html += `
+          <tr style="${rowBg} border-bottom:1px solid var(--border-subtle);">
+            <td style="text-align:center; font-size:11px; color:var(--text-dim);">${idx + 1}</td>
+            <td style="font-family:var(--font-mono, monospace); font-size:11px; font-weight:bold; color:var(--text-main);">
+              ${s.id}
+              ${isAct ? `<span style="font-size:9px; background:var(--accent-gold); color:#000; padding:1px 4px; border-radius:2px; margin-left:4px;">LIVE</span>` : ''}
+            </td>
+            <td style="font-size:11px;">
+              <div style="font-weight:bold; color:var(--text-main);">${s.name || s.id}</div>
+              <div style="font-size:9.5px; color:var(--text-dim); margin-top:2px;">Cập nhật: ${s.updatedAt ? new Date(s.updatedAt).toLocaleString('vi-VN') : 'Gốc'}</div>
+            </td>
+            <td style="text-align:center; font-size:10.5px;">
+              <b>${s.vehicle || 'HOWO_156'}</b><br>${modeBadge}
+            </td>
+            <td style="text-align:right; font-family:var(--font-mono, monospace); font-size:11px;">
+              <b>${(s.boxQty || 0).toLocaleString('vi-VN')}</b> thùng<br>
+              <span style="font-size:9.5px; color:var(--text-dim);">${s.tripCount || 1} chuyến</span>
+            </td>
+            <td style="font-size:11px;">
+              <b>${s.terms || 'FCA_LB'}</b><br>
+              <span style="font-size:9.5px; color:var(--text-dim);">${s.transportRoute || 'Savannakhet'}</span>
+            </td>
+            <td style="text-align:right; font-family:var(--font-mono, monospace); font-size:11px;">
+              <b style="color:var(--accent-gold);">$${(s.quotePrice || 0).toFixed(2)}</b> USD<br>
+              <span style="font-size:9.5px; color:var(--text-dim);">${(s.fxRate || 25790).toLocaleString('vi-VN')} đ</span>
+            </td>
+            <td style="text-align:center;">${statusTag}</td>
+            <td style="text-align:center; white-space:nowrap;">
+              <div style="display:flex; gap:3px; justify-content:center; align-items:center;">
+                <button type="button" class="btn btn-sm" onclick="selectScenarioFromMaster('${s.id}')" style="background:var(--accent-blue); color:#fff; font-size:10px; padding:2px 6px; font-weight:bold;" data-tooltip="Nạp kịch bản này ra Buồng lái Live">[📑 Nạp]</button>
+                <button type="button" class="btn btn-sm" onclick="cloneScenario('${s.id}')" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-subtle); font-size:10px; padding:2px 6px;" data-tooltip="Nhân bản (Clone) kịch bản này">[📋 Clone]</button>
+                <button type="button" class="btn btn-sm" onclick="editScenarioName('${s.id}')" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-subtle); font-size:10px; padding:2px 6px;" data-tooltip="Sửa tên kịch bản">[✏️ Sửa]</button>
+                <button type="button" class="btn btn-sm" onclick="setScenarioAsDefault('${s.id}')" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-strong); font-size:10px; padding:2px 6px;" data-tooltip="Đặt kịch bản này làm mặc định khi khởi động">[⭐ Mặc Định]</button>
+                <button type="button" class="btn btn-sm" onclick="deleteScenarioWithPin('${s.id}')" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--alert-critical-border); font-size:10px; padding:2px 6px;" data-tooltip="Xóa kịch bản (Yêu cầu mã PIN 2505)">[🗑️ Xóa]</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      if (count === 0) {
+        html = `<tr><td colspan="9" style="text-align:center; padding:18px; color:var(--text-dim); font-style:italic;">Không tìm thấy kịch bản nào khớp với điều kiện lọc!</td></tr>`;
+      }
+
+      tbody.innerHTML = html;
+      if (badge) badge.innerText = `${count} / ${scenariosMaster.length} kịch bản`;
+    }
+
+    function selectScenarioFromMaster(scnId) {
+      selectScenario(scnId);
+      closeScenarioMasterModal();
+    }
+
+    function startNewScenarioFromMasterModal() {
+      closeScenarioMasterModal();
+      startNewScenarioDraft();
+    }
+
+    function setScenarioAsDefault(scnId) {
+      scenariosMaster.forEach(s => s.isDefault = (s.id === scnId));
+      saveScenariosToStorage();
+      renderScenarioDropdown();
+      renderScenarioMasterTable();
+      showToastNotification(`⭐ Đã đặt '${scnId}' làm Kịch bản Mặc định khởi động!`);
+      syncToCloud(true);
+    }
+
+    function cloneScenario(scnId) {
+      const scn = scenariosMaster.find(s => s.id === scnId);
+      if (!scn) return;
+      const cloneObj = JSON.parse(JSON.stringify(scn));
+      const suffix = Math.floor(1000 + Math.random() * 9000);
+      cloneObj.id = `${scn.id}-CLONE-${suffix}`;
+      cloneObj.name = `Bản sao: ${scn.name || scn.id}`;
+      cloneObj.isDefault = false;
+      cloneObj.updatedAt = new Date().toISOString();
+
+      scenariosMaster.push(cloneObj);
+      saveScenariosToStorage();
+      renderScenarioDropdown();
+      renderScenarioMasterTable();
+      showToastNotification(`📋 Đã nhân bản kịch bản thành công: ${cloneObj.id}`);
+      syncToCloud(true);
+    }
+
+    function editScenarioName(scnId) {
+      const scn = scenariosMaster.find(s => s.id === scnId);
+      if (!scn) return;
+      const newName = prompt(`Nhập tên mới cho kịch bản [${scn.id}]:`, scn.name || scn.id);
+      if (newName && newName.trim() && newName.trim() !== scn.name) {
+        scn.name = newName.trim();
+        scn.updatedAt = new Date().toISOString();
+        saveScenariosToStorage();
+        renderScenarioDropdown();
+        renderScenarioMasterTable();
+        showToastNotification(`✏️ Đã đổi tên kịch bản thành: ${scn.name}`);
+        syncToCloud(true);
+      }
+    }
+
+    function deleteScenarioWithPin(scnId) {
+      if (scenariosMaster.length <= 1) {
+        alert("Bắt buộc phải giữ lại tối thiểu 1 Set kịch bản SSOT trong hệ thống!");
+        return;
+      }
+      const scn = scenariosMaster.find(s => s.id === scnId);
+      if (!scn) return;
+
+      const enteredPin = prompt(`🔐 XÁC THỰC BẢO MẬT CỦA GIÁM ĐỐC:\n\nBạn đang thực hiện thao tác XÓA VĨNH VIỄN kịch bản:\n[${scn.id}]\n\nVui lòng nhập Mã PIN 2505 để phê duyệt xóa:`);
+      if (enteredPin === null) return; // Người dùng bấm Hủy
+
+      if (enteredPin.trim() !== '2505') {
+        alert("❌ MÃ PIN KHÔNG CHÍNH XÁC!\n\nThao tác xóa kịch bản bị từ chối theo nguyên tắc L3 Approval Guard.");
+        return;
+      }
+
+      const wasDefault = scn.isDefault;
+      scenariosMaster = scenariosMaster.filter(s => s.id !== scnId);
+
+      if (wasDefault && scenariosMaster.length > 0) {
+        scenariosMaster[0].isDefault = true;
+      }
+
+      if (activeScenarioId === scnId && scenariosMaster.length > 0) {
+        activeScenarioId = scenariosMaster[0].id;
+        applyScenario(scenariosMaster[0]);
+      }
+
+      saveScenariosToStorage();
+      renderScenarioDropdown();
+      renderScenarioMasterTable();
+
+      // Gửi cờ adminPin: '2505' lên Cloud để xóa thật trên Vercel KV
+      syncToCloud(false, '2505');
+
+      showToastNotification(`🗑️ ĐÃ XÓA THÀNH CÔNG: Kịch bản '${scnId}' đã bị xóa vĩnh viễn trên Cloud & LocalStorage!`);
     }
 
     // Dynamic Label & Input Sync for Fees 3 ~ 14
@@ -5403,7 +6036,6 @@
 
         const terms = termsEl ? termsEl.value : 'FCA_LB';
         const vehicle = vehicleEl ? vehicleEl.value : 'HOWO_156';
-        const qty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
         const tripCount = tripCountEl ? (parseInt(tripCountEl.value) || 1) : 1;
         const tripCountUnit = (tripCountUnitEl ? tripCountUnitEl.innerText.trim() : '') || (vehicle === 'HOWO_156' ? 'xe HOWO 15.6m' : 'cont 40ft HC');
         const demurrageDays = demurrageDaysEl ? (parseInt(demurrageDaysEl.value) || 0) : 0;
@@ -5413,29 +6045,83 @@
         const fxRate = fxRateEl ? (parseFloat(fxRateEl.value) || 25790) : 25790;
         const quotePrice = quotePriceEl ? (parseFloat(quotePriceEl.value) || 0) : 15.80;
 
-      // 1. COGS
-      const defaultCogs = qty * supplier.pricePreVat;
-      const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : defaultCogs;
-      const vatRefund = cogsPreVat * supplier.vatRate;
+        // Ma trận 2 Tuyến Độc Lập
+        const transRouteEl = document.getElementById('transportRouteSelect');
+        const dossierRouteEl = document.getElementById('dossierRouteSelect');
+        const transRoute = transRouteEl ? transRouteEl.value : 'ROUTE_SAVANNAKHET';
+        const dossierRoute = dossierRouteEl ? dossierRouteEl.value : 'DOSSIER_FULL_SAVANNAKHET';
 
-      // 2. Freight (Khoản 3: Cước vận tải xe / cont)
-      const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
-      let unitFreight = carrier.howoRate;
-      if (vehicle === 'HOWO_156') {
-        unitFreight = carrier.howoRate || 22000000;
-      } else {
-        // CONT_40HC hoặc CONT_45HC
-        if (terms === 'FCA_LB') {
-          unitFreight = carrier.contLbRate !== undefined ? carrier.contLbRate : (carrier.howoRate || 22000000);
-        } else if (terms === 'CPT_MKD' || terms === 'DAP_MKD') {
-          unitFreight = carrier.contMkdRate !== undefined ? carrier.contMkdRate : ((carrier.contSvnRate || 35000000) + 3000000);
-        } else {
-          // CPT_SVN (Savannakhet - Lào)
-          unitFreight = carrier.contSvnRate || 35000000;
+        // 1. TÍNH TOÁN THEO HÌNH THỨC ĐÓNG HÀNG (SINGLE VS MIXED CARGO)
+        let totalMixedQty = 0;
+        let totalMixedCbm = 0;
+        let totalMixedGw = 0; // kg
+        let totalMixedNw = 0; // kg
+        let mixedCogs = 0;
+        let mixedVat = 0;
+
+        if (partnersMaster && partnersMaster.suppliers) {
+          partnersMaster.suppliers.forEach(s => {
+            const q = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+            totalMixedQty += q;
+            totalMixedCbm += q * (s.cbm || 0);
+            totalMixedGw += q * (s.grossWeight || 7.8);
+            totalMixedNw += q * (s.netWeight || 6.6);
+            mixedCogs += q * (s.pricePreVat || 0);
+            mixedVat += q * (s.pricePreVat || 0) * (s.vatRate || 0.08);
+          });
         }
-      }
-      let defaultFreight = isFreightActive ? (unitFreight * tripCount) : 0;
-      const freightBase = isFreightActive ? (partnersMaster.baselineOverrides['freight'] !== undefined ? partnersMaster.baselineOverrides['freight'] : defaultFreight) : 0;
+
+        let qty = 1300;
+        let defaultCogs = 0;
+        let vatRefund = 0;
+        let totalCbm = 0;
+        let totalGw = 0; // Tấn
+
+        if (packingMode === 'MIXED') {
+          qty = totalMixedQty;
+          if (boxQtyEl) boxQtyEl.value = totalMixedQty;
+          defaultCogs = mixedCogs;
+          vatRefund = mixedVat;
+          totalCbm = totalMixedCbm;
+          totalGw = totalMixedGw / 1000;
+        } else {
+          qty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
+          defaultCogs = qty * (supplier.pricePreVat || 0);
+          vatRefund = defaultCogs * (supplier.vatRate || 0.08);
+          totalCbm = qty * (supplier.cbm || 0.0785);
+          totalGw = (qty * (supplier.grossWeight || 7.8)) / 1000;
+        }
+
+        const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : defaultCogs;
+
+        // Cập nhật thông số kích thước và trọng lượng Single SKU
+        const lblSingleDims = document.getElementById('lblSingleSkuDims');
+        const lblSingleWeight = document.getElementById('lblSingleSkuWeight');
+        if (lblSingleDims) lblSingleDims.innerText = `DxRxC: ${supplier.dims || '585x270x497 mm'} (${supplier.cbm || 0.0785} m³)`;
+        if (lblSingleWeight) lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th (NW: ${supplier.netWeight || 6.6} kg)`;
+
+        // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải)
+        const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
+        let unitFreight = carrier.howoRate || 22000000;
+        if (vehicle === 'HOWO_156') {
+          unitFreight = carrier.howoRate || 22000000;
+        } else {
+          // CONT_40HC hoặc CONT_45HC
+          if (transRoute === 'ROUTE_LAO_BAO' || terms === 'FCA_LB') {
+            unitFreight = carrier.contLbRate !== undefined ? carrier.contLbRate : (carrier.howoRate || 22000000);
+          } else if (transRoute === 'ROUTE_SAVANNAKHET_DRY_PORT') {
+            unitFreight = (carrier.contSvnRate || 35000000) + 2000000; // Cước 35M + LOLO hạ bãi 2M = 37M
+          } else if (transRoute === 'ROUTE_MUKDAHAN' || terms === 'CPT_MKD' || terms === 'DAP_MKD') {
+            unitFreight = carrier.contMkdRate !== undefined ? carrier.contMkdRate : ((carrier.contSvnRate || 35000000) + 3000000);
+          } else {
+            // ROUTE_SAVANNAKHET (35.000.000 đ)
+            unitFreight = carrier.contSvnRate || 35000000;
+          }
+        }
+        let defaultFreight = isFreightActive ? (unitFreight * tripCount) : 0;
+        const freightBase = isFreightActive ? (partnersMaster.baselineOverrides['freight'] !== undefined ? partnersMaster.baselineOverrides['freight'] : defaultFreight) : 0;
+        const lblFr = document.getElementById('lblFreightVal');
+        if (lblFr) lblFr.innerText = `${formatVnd(freightBase)}`;
 
       // 3. Demurrage (Khoản 4: Lưu ca tính theo số lượng xe / cont)
       const isDemurrageActive = document.getElementById('chkDemurrage') ? document.getElementById('chkDemurrage').checked : true;
@@ -5506,15 +6192,18 @@
             : (agentLao.laoTransit || 11680000);
         }
       }
-      if (!isLaoNone && terms !== 'FCA_LB' && isLaoTransitActive) {
+      const isDossierExemptTransit = (dossierRoute === 'DOSSIER_LAO_BAO_ONLY' || dossierRoute === 'DOSSIER_LAO_BAO_HANDOVER' || terms === 'FCA_LB');
+      if (!isLaoNone && !isDossierExemptTransit && isLaoTransitActive) {
         defaultLaoTransit = perTripD8 * tripCount;
+      } else {
+        defaultLaoTransit = 0;
       }
       const laoTransit = isLaoTransitActive ? (partnersMaster.baselineOverrides['laoTransit'] !== undefined ? partnersMaster.baselineOverrides['laoTransit'] : defaultLaoTransit) : 0;
 
       const lblAgentLao = document.getElementById('lblAgentLao');
       if (lblAgentLao) {
-        if (terms === 'FCA_LB') {
-          lblAgentLao.innerHTML = '4. Quá cảnh Lào D8/T1 <small style="color:var(--text-dim);">[Miễn trừ FCA - Buyer tự chịu]</small>:';
+        if (isDossierExemptTransit) {
+          lblAgentLao.innerHTML = '4. Quá cảnh Lào D8/T1 <small style="color:var(--text-dim);">[Miễn trừ FCA/Lao Bảo - Không phát sinh]</small>:';
         } else {
           const thbRateStr = (agentLao && agentLao.transitThb && agentLao.transitThb > 0)
             ? ` <span style="color:var(--accent-gold); font-size:11px;">(${agentLao.transitThb.toLocaleString('vi-VN')} THB ~ ${(perTripD8/1e6).toFixed(2)}M/cont)</span>`
@@ -5775,6 +6464,88 @@
       } else {
         if (netBox) netBox.style.background = '#f8fafc';
         if (badge) badge.innerHTML = '<span class="status-dot dot-green"></span>HIỆU QUẢ: LÃI SAU THUẾ TNDN';
+      }
+
+      // =========================================================================
+      // CẬP NHẬT THƯỚC ĐO NHỊP ĐIỆU KÉP (DUAL CAPACITY HORIZON) & GỢI Ý NHỒI THÊM
+      // =========================================================================
+      let vMax = 78.5; // Cont 45ft HC
+      let wMax = 26.0; // Tấn hàng an toàn QL9
+      if (vehicle === 'CONT_40HC') {
+        vMax = 67.0;
+        wMax = 25.0;
+      } else if (vehicle === 'HOWO_156') {
+        vMax = 100.0;
+        wMax = 28.0;
+      }
+
+      const percentV = Math.min(100, Math.round((totalCbm / vMax) * 100));
+      const percentW = Math.min(100, Math.round((totalGw / wMax) * 100));
+
+      const barV = document.getElementById('barVolumeFill');
+      const lblV = document.getElementById('lblVolumeStats');
+      if (barV) {
+        barV.style.width = `${percentV}%`;
+        barV.style.background = (totalCbm > vMax) ? 'var(--alert-critical-border)' : ((totalCbm >= vMax * 0.95) ? 'var(--alert-success-text)' : 'var(--accent-gold)');
+      }
+      if (lblV) {
+        lblV.innerText = `${totalCbm.toFixed(1)} / ${vMax.toFixed(1)} m³ (${Math.round((totalCbm / vMax) * 100)}%)`;
+      }
+
+      const barW = document.getElementById('barWeightFill');
+      const lblW = document.getElementById('lblWeightStats');
+      if (barW) {
+        barW.style.width = `${percentW}%`;
+        barW.style.background = (totalGw > wMax) ? 'var(--alert-critical-border)' : 'var(--alert-success-text)';
+      }
+      if (lblW) {
+        lblW.innerText = `${totalGw.toFixed(2)} / ${wMax.toFixed(1)} tấn (${Math.round((totalGw / wMax) * 100)}%)`;
+      }
+
+      const warnEl = document.getElementById('capacityWarningText');
+      if (warnEl) {
+        if (totalGw > wMax) {
+          const overTons = (totalGw - wMax).toFixed(2);
+          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⛔ VI PHẠM TẢI TRỌNG CẦU ĐƯỜNG QL9:</span> Hàng quá tải <b>+${overTons} tấn</b> so với trần an toàn ${wMax}T! Nguy cơ bị phạt 14-40M và bị hạ tải cửa khẩu theo TT 46/2015/TT-BGTVT.`;
+        } else if (totalCbm > vMax) {
+          const overCbm = (totalCbm - vMax).toFixed(1);
+          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XE:</span> Thể tích hàng vượt <b>+${overCbm} m³</b> so với lòng xe ${vMax} m³!`;
+        } else if (totalCbm >= vMax * 0.95 && totalGw <= wMax) {
+          warnEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">✅ ĐÃ TỐI ƯU CÔNG SUẤT XE:</span> Lấp đầy ${Math.round((totalCbm / vMax) * 100)}% thể tích, tải trọng ${totalGw.toFixed(2)} tấn nằm trong khung an toàn QL9.`;
+        } else {
+          const remCbm = (vMax - totalCbm).toFixed(1);
+          const remTons = (wMax - totalGw).toFixed(2);
+          warnEl.innerHTML = `Còn dư <b>${remCbm} m³</b> thể tích và <b>${remTons} tấn</b> tải trọng. Có thể nhồi thêm sản phẩm!`;
+        }
+      }
+
+      // Gợi ý nhồi thêm 1-click
+      const recBox = document.getElementById('recommendBox');
+      const recContainer = document.getElementById('recommendPillsContainer');
+      const remCbm = vMax - totalCbm;
+      const remKg = (wMax - totalGw) * 1000;
+
+      if (remCbm > 0.05 && remKg > 10 && recBox && recContainer && partnersMaster && partnersMaster.suppliers) {
+        recBox.style.display = 'block';
+        let pillsHtml = '';
+        partnersMaster.suppliers.forEach(s => {
+          const maxByVol = Math.floor(remCbm / (s.cbm || 0.0785));
+          const maxByWeight = Math.floor(remKg / (s.grossWeight || 7.8));
+          const maxAdd = Math.min(maxByVol, maxByWeight);
+          if (maxAdd > 0) {
+            const shortName = s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+            pillsHtml += `
+              <button type="button" class="btn btn-sm recommend-pill" onclick="applyRecommendFill('${s.id}', ${maxAdd})" 
+                      style="font-size:10px; padding:2px 7px; background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); border-radius:12px; cursor:pointer;"
+                      title="Bấm để tự động điền +${maxAdd} thùng ${s.product} vào xe">
+                +${maxAdd} th ${shortName}
+              </button>
+            `;
+          }
+        });
+        recContainer.innerHTML = pillsHtml || '<span style="font-size:9.5px; color:var(--text-dim);">Không còn đủ thể tích/tải trọng để thêm nguyên thùng.</span>';
+      } else if (recBox) {
+        recBox.style.display = 'none';
       }
 
       // Update Eye Icon in Cost Table Header
@@ -10610,6 +11381,7 @@ ${amountSection}
     } else {
       onVehicleChange();
     }
+    renderMixedCargoTable();
 
     try {
       renderDossierPillarsTables();

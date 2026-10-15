@@ -2,11 +2,11 @@
 // Tuân thủ nghiêm ngặt nguyên tắc của Giám đốc: APPEND & UPDATE ONLY (CẤM TUYỆT ĐỐI XÓA MẤT DỮ LIỆU GỐC)
 
 const BASELINE_SUPPLIERS = [
-  { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", cbm: 0.0785, dims: "585x270x497 mm", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
-  { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", cbm: 0.0279, dims: "450x328x189 mm", cont45Qty: 2814, cont40Qty: 2250, howoQty: 3650 },
-  { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", cbm: 0.1066, dims: "620x430x400 mm", cont45Qty: 736, cont40Qty: 580, howoQty: 950 },
-  { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", cbm: 0.0723, dims: "530x440x310 mm", cont45Qty: 1086, cont40Qty: 850, howoQty: 1400 },
-  { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 }
+  { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", grossWeight: 7.80, netWeight: 6.60, cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+  { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", dimL: 450, dimW: 328, dimH: 189, cbm: 0.0279, dims: "450x328x189 mm", grossWeight: 8.18, netWeight: 7.20, cont45Qty: 2814, cont40Qty: 2250, howoQty: 3422 },
+  { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", dimL: 620, dimW: 430, dimH: 400, cbm: 0.1066, dims: "620x430x400 mm", grossWeight: 12.85, netWeight: 11.50, cont45Qty: 736, cont40Qty: 580, howoQty: 938 },
+  { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", dimL: 530, dimW: 440, dimH: 310, cbm: 0.0723, dims: "530x440x310 mm", grossWeight: 8.85, netWeight: 7.80, cont45Qty: 1086, cont40Qty: 850, howoQty: 1383 },
+  { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", dimL: 530, dimW: 430, dimH: 340, cbm: 0.0775, dims: "530x430x340 mm", grossWeight: 8.95, netWeight: 7.90, cont45Qty: 1013, cont40Qty: 800, howoQty: 1290 }
 ];
 
 const BASELINE_CARRIERS = [
@@ -321,18 +321,27 @@ export default async function handler(req, res) {
       }
     });
 
-    // 4. Hợp nhất Kịch bản (Scenarios) - CẤM XÓA
-    const existingScenarios = Array.isArray(existing.scenarios) ? existing.scenarios : [];
-    const incomingScenarios = Array.isArray(incoming.scenarios) ? incoming.scenarios : [];
-    const mergedScenarios = [...incomingScenarios];
-    existingScenarios.forEach(oldScn => {
-      const idx = mergedScenarios.findIndex(s => s.id === oldScn.id);
-      if (idx === -1) {
-        mergedScenarios.push(oldScn);
-      } else {
-        mergedScenarios[idx] = Object.assign({}, oldScn, mergedScenarios[idx]);
-      }
-    });
+    // 4. Hợp nhất Kịch bản (Scenarios) - Có phân quyền xóa cho Giám đốc bằng mã PIN 2505
+    const isAuthorizedAdmin = incoming.adminPin === '2505' || incoming.pin === '2505';
+    let mergedScenarios;
+
+    if (isAuthorizedAdmin) {
+      // Khi Giám đốc xác thực mã PIN 2505, cho phép áp dụng danh sách mới (xóa kịch bản rác trên Cloud)
+      mergedScenarios = Array.isArray(incoming.scenarios) ? [...incoming.scenarios] : [];
+    } else {
+      // Chế độ bảo vệ mặc định: Append & Update Only (Cấm xóa mất kịch bản)
+      const existingScenarios = Array.isArray(existing.scenarios) ? existing.scenarios : [];
+      const incomingScenarios = Array.isArray(incoming.scenarios) ? incoming.scenarios : [];
+      mergedScenarios = [...incomingScenarios];
+      existingScenarios.forEach(oldScn => {
+        const idx = mergedScenarios.findIndex(s => s.id === oldScn.id);
+        if (idx === -1) {
+          mergedScenarios.push(oldScn);
+        } else {
+          mergedScenarios[idx] = Object.assign({}, oldScn, mergedScenarios[idx]);
+        }
+      });
+    }
 
     const finalState = {
       suppliers: mergedSuppliers,
