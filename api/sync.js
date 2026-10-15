@@ -1,5 +1,13 @@
-// Vercel Serverless Function: Đồng bộ trạng thái Buồng lái CMH-TSC lên Vercel KV Storage
+// Vercel Serverless Function: Đồng bộ trạng thái Buồng lái CMH-TSC lên Vercel KV Storage (Upstash Redis)
 // Tuân thủ nghiêm ngặt nguyên tắc của Giám đốc: APPEND & UPDATE ONLY (CẤM TUYỆT ĐỐI XÓA MẤT DỮ LIỆU GỐC)
+
+const BASELINE_SUPPLIERS = [
+  { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", cbm: 0.0785, dims: "585x270x497 mm", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+  { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", cbm: 0.0279, dims: "450x328x189 mm", cont45Qty: 2814, cont40Qty: 2250, howoQty: 3650 },
+  { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", cbm: 0.1066, dims: "620x430x400 mm", cont45Qty: 736, cont40Qty: 580, howoQty: 950 },
+  { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", cbm: 0.0723, dims: "530x440x310 mm", cont45Qty: 1086, cont40Qty: 850, howoQty: 1400 },
+  { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 }
+];
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -12,10 +20,12 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Quét URL và Token Vercel KV / Upstash Redis
   const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
   const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
-  const STORAGE_KEY = 'CMH_TSC_STATE_SSOT_V1';
+  const STORAGE_KEY = 'CMH_TSC_STATE_SSOT_V2';
 
+  // Helper đọc từ KV qua REST (Xử lý an toàn chuỗi JSON lồng nhau)
   async function readKvState() {
     if (!kvUrl || !kvToken) return null;
     try {
@@ -25,24 +35,34 @@ export default async function handler(req, res) {
       if (!resp.ok) return null;
       const data = await resp.json();
       if (!data || data.result === null || data.result === undefined) return null;
-      const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
-      return parsed;
+      
+      let parsed = data.result;
+      while (typeof parsed === 'string') {
+        try {
+          parsed = JSON.parse(parsed);
+        } catch (e) {
+          break;
+        }
+      }
+      return parsed && typeof parsed === 'object' ? parsed : null;
     } catch (e) {
       console.error("KV read error:", e);
       return null;
     }
   }
 
+  // Helper ghi vào KV qua REST
   async function writeKvState(stateObj) {
     if (!kvUrl || !kvToken) return false;
     try {
+      const jsonStr = typeof stateObj === 'string' ? stateObj : JSON.stringify(stateObj);
       const resp = await fetch(`${kvUrl}/set/${STORAGE_KEY}`, {
         method: 'POST',
         headers: { 
           Authorization: `Bearer ${kvToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(typeof stateObj === 'string' ? stateObj : JSON.stringify(stateObj))
+        body: JSON.stringify(jsonStr)
       });
       return resp.ok;
     } catch (e) {
@@ -51,6 +71,7 @@ export default async function handler(req, res) {
     }
   }
 
+  // GET: Trả về trạng thái Cloud mới nhất
   if (req.method === 'GET') {
     if (!kvUrl || !kvToken) {
       return res.status(200).json({
@@ -60,7 +81,21 @@ export default async function handler(req, res) {
       });
     }
 
-    const cloudState = await readKvState();
+    let cloudState = await readKvState();
+    
+    // Nếu KV chưa có dữ liệu, tự động khởi tạo bằng BASELINE_SUPPLIERS
+    if (!cloudState || !Array.isArray(cloudState.suppliers) || cloudState.suppliers.length === 0) {
+      cloudState = {
+        suppliers: BASELINE_SUPPLIERS,
+        carriers: [],
+        agents: [],
+        scenarios: [],
+        updatedAt: new Date().toISOString(),
+        updatedBy: 'System Auto-Init'
+      };
+      await writeKvState(cloudState);
+    }
+
     return res.status(200).json({
       success: true,
       kvConnected: true,
@@ -69,6 +104,7 @@ export default async function handler(req, res) {
     });
   }
 
+  // POST: Đồng bộ và Lưu trạng thái mới
   if (req.method === 'POST') {
     let body = req.body;
     if (typeof body === 'string') {
@@ -86,17 +122,41 @@ export default async function handler(req, res) {
       });
     }
 
+    // Đọc trạng thái hiện có trên Cloud
     const existing = (await readKvState()) || {};
 
-    // 1. Hợp nhất Nhà cung cấp (Suppliers) - CẤM XÓA
-    const existingSuppliers = Array.isArray(existing.suppliers) ? existing.suppliers : [];
+    // ============================================================
+    // THUẬT TOÁN BẢO VỆ CHỈ ĐẠO CỦA GIÁM ĐỐC: "CHỈ DUY NHẤT VIỆC XÓA LÀ KHÔNG ĐƯỢC"
+    // (IMMUTABLE MERGE: UPDATE & APPEND ONLY - CẤM TUYỆT ĐỐI XÓA MẤT)
+    // ============================================================
+
+    // 1. Hợp nhất Nhà cung cấp (Suppliers):
+    // Phải luôn bảo toàn 100% BASELINE_SUPPLIERS và tất cả NCC đã từng tồn tại trên Cloud
+    const existingSuppliers = Array.isArray(existing.suppliers) && existing.suppliers.length > 0 
+      ? existing.suppliers 
+      : BASELINE_SUPPLIERS;
     const incomingSuppliers = Array.isArray(incoming.suppliers) ? incoming.suppliers : [];
+
+    // Danh sách ban đầu lấy từ incoming (cập nhật thông số mới nhất mà Giám đốc vừa sửa)
     const mergedSuppliers = [...incomingSuppliers];
 
+    // Khôi phục lại toàn bộ NCC từ existing nếu bị thiếu trên incoming (ngăn chặn hành vi bấm xóa trên UI)
     existingSuppliers.forEach(oldSup => {
-      const exists = mergedSuppliers.some(s => s.id === oldSup.id);
-      if (!exists) {
+      const idx = mergedSuppliers.findIndex(s => s.id === oldSup.id);
+      if (idx === -1) {
+        // Tự động khôi phục lại bản ghi bị thiếu
         mergedSuppliers.push(oldSup);
+      } else {
+        // Cập nhật các trường, giữ lại các thông số cấu trúc
+        mergedSuppliers[idx] = Object.assign({}, oldSup, mergedSuppliers[idx]);
+      }
+    });
+
+    // Đảm bảo 5 sản phẩm cốt lõi luôn luôn có mặt
+    BASELINE_SUPPLIERS.forEach(baseSup => {
+      const exists = mergedSuppliers.some(s => s.id === baseSup.id);
+      if (!exists) {
+        mergedSuppliers.push(baseSup);
       }
     });
 
@@ -105,8 +165,11 @@ export default async function handler(req, res) {
     const incomingCarriers = Array.isArray(incoming.carriers) ? incoming.carriers : [];
     const mergedCarriers = [...incomingCarriers];
     existingCarriers.forEach(oldCar => {
-      if (!mergedCarriers.some(c => c.id === oldCar.id)) {
+      const idx = mergedCarriers.findIndex(c => c.id === oldCar.id);
+      if (idx === -1) {
         mergedCarriers.push(oldCar);
+      } else {
+        mergedCarriers[idx] = Object.assign({}, oldCar, mergedCarriers[idx]);
       }
     });
 
@@ -115,8 +178,11 @@ export default async function handler(req, res) {
     const incomingAgents = Array.isArray(incoming.agents) ? incoming.agents : [];
     const mergedAgents = [...incomingAgents];
     existingAgents.forEach(oldAgt => {
-      if (!mergedAgents.some(a => a.id === oldAgt.id)) {
+      const idx = mergedAgents.findIndex(a => a.id === oldAgt.id);
+      if (idx === -1) {
         mergedAgents.push(oldAgt);
+      } else {
+        mergedAgents[idx] = Object.assign({}, oldAgt, mergedAgents[idx]);
       }
     });
 
@@ -125,8 +191,11 @@ export default async function handler(req, res) {
     const incomingScenarios = Array.isArray(incoming.scenarios) ? incoming.scenarios : [];
     const mergedScenarios = [...incomingScenarios];
     existingScenarios.forEach(oldScn => {
-      if (!mergedScenarios.some(s => s.id === oldScn.id)) {
+      const idx = mergedScenarios.findIndex(s => s.id === oldScn.id);
+      if (idx === -1) {
         mergedScenarios.push(oldScn);
+      } else {
+        mergedScenarios[idx] = Object.assign({}, oldScn, mergedScenarios[idx]);
       }
     });
 
