@@ -9,6 +9,130 @@ const BASELINE_SUPPLIERS = [
   { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 }
 ];
 
+const BASELINE_CARRIERS = [
+  { 
+    id: "CARRIER_VINH_THANH", 
+    name: "Vận Tải Vĩnh Thành (Chính Thức)", 
+    taxId: "3200722417", 
+    howoRate: 22000000, 
+    demHowoDomestic: 2000000, 
+    demHowoBorder: 2500000, 
+    contLbRate: 22000000,
+    contSvnRate: 35000000, 
+    contMkdRate: 38000000,
+    demContBorder: 2500000,
+    freeTimeCont: 48, 
+    demCont: 3000000,
+    carrierVatRate: 0.08
+  },
+  { 
+    id: "CARRIER_HIEP_MANH", 
+    name: "Tập Đoàn Hiệp Mạnh (Dự Phòng)", 
+    taxId: "2803082035", 
+    howoRate: 22000000, 
+    demHowoDomestic: 2000000, 
+    demHowoBorder: 2500000, 
+    contLbRate: 22000000,
+    contSvnRate: 35000000, 
+    contMkdRate: 38000000,
+    demContBorder: 2500000,
+    freeTimeCont: 48, 
+    demCont: 3000000,
+    carrierVatRate: 0.08
+  },
+  { 
+    id: "CARRIER_DUC_LONG", 
+    name: "Đức Long Logistics QL9", 
+    taxId: "3001854992", 
+    howoRate: 21500000, 
+    demHowoDomestic: 1800000, 
+    demHowoBorder: 2400000, 
+    contLbRate: 21500000,
+    contSvnRate: 34500000, 
+    contMkdRate: 37500000,
+    demContBorder: 2400000,
+    freeTimeCont: 48, 
+    demCont: 3200000,
+    carrierVatRate: 0.08
+  },
+  { 
+    id: "CARRIER_HOANG_HA", 
+    name: "Hoàng Hà Container Transit", 
+    taxId: "0201948577", 
+    howoRate: 23000000, 
+    demHowoDomestic: 2000000, 
+    demHowoBorder: 2500000, 
+    contLbRate: 23000000,
+    contSvnRate: 34000000, 
+    contMkdRate: 37000000,
+    demContBorder: 2500000,
+    freeTimeCont: 48, 
+    demCont: 3200000,
+    carrierVatRate: 0.08
+  }
+];
+
+const BASELINE_AGENTS = [
+  { 
+    id: "AGT_BINH_AN", 
+    name: "Bình An Logistics (Forwarder Trọn Gói / HQ Lao Bảo)", 
+    taxId: "3200727091", 
+    desc: "HQ Lao Bảo & C/O Form D (3M) + Biên phòng (1.5M) + Quá cảnh Lào & Bến bãi trọn gói", 
+    customsFee: 3000000, 
+    coFee: 1000000, 
+    borderGuard: 1500000, 
+    laoTransitFee: 2000000, 
+    inspectionFee: 1000000, 
+    inspectionOtFee: 2000000, 
+    coExpressFee: 2000000, 
+    transitThb: 0,
+    fxThbRate: 730,
+    laoTransitD8: 4300000, 
+    lolo: 2000000,
+    vnDocs: 3000000, 
+    borderGuardOld: 1500000,
+    laoTransit: 4300000 
+  },
+  { 
+    id: "AGT_NGAN_HUNG", 
+    name: "Ngân Hùng Logistics (Quá cảnh Lào & Hiện trường)", 
+    taxId: "3200854911", 
+    desc: "Tờ khai D8/T1 + Áp tải + Kẹp chì Lào (EWEC QL9) & HQ Lao Bảo", 
+    customsFee: 3000000, 
+    coFee: 1000000, 
+    borderGuard: 1500000, 
+    laoTransitFee: 2000000, 
+    inspectionFee: 1000000, 
+    inspectionOtFee: 2000000, 
+    coExpressFee: 2000000, 
+    transitThb: 16000,
+    fxThbRate: 730,
+    laoTransitD8: 11680000, 
+    lolo: 2000000,
+    vnDocs: 3000000, 
+    laoTransit: 11680000 
+  },
+  { 
+    id: "AGT_ANH_TAN", 
+    name: "Anh Tân (Bãi Savannakhet & Hiện trường)", 
+    taxId: "3200984511", 
+    desc: "Cẩu bãi hạ cont LOLO + Bãi sang xe Savannakhet Dry Port & Hiện trường", 
+    customsFee: 3000000, 
+    coFee: 1000000, 
+    borderGuard: 1500000, 
+    laoTransitFee: 2000000, 
+    inspectionFee: 1000000, 
+    inspectionOtFee: 2000000, 
+    coExpressFee: 2000000, 
+    transitThb: 16000,
+    fxThbRate: 730,
+    laoTransitD8: 11680000, 
+    lolo: 2000000,
+    vnDocs: 3000000, 
+    laoTransit: 11680000 
+  }
+];
+
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
@@ -23,7 +147,7 @@ export default async function handler(req, res) {
   // Quét URL và Token Vercel KV / Upstash Redis
   const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
   const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
-  const STORAGE_KEY = 'CMH_TSC_STATE_SSOT_V2';
+  const STORAGE_KEY = 'CMH_TSC_STATE_SSOT_PROD_V1';
 
   // Helper đọc từ KV qua REST (Xử lý an toàn chuỗi JSON lồng nhau)
   async function readKvState() {
@@ -83,15 +207,15 @@ export default async function handler(req, res) {
 
     let cloudState = await readKvState();
     
-    // Nếu KV chưa có dữ liệu, tự động khởi tạo bằng BASELINE_SUPPLIERS
+    // Nếu KV chưa có dữ liệu, tự động khởi tạo bằng bộ SSOT Chuẩn
     if (!cloudState || !Array.isArray(cloudState.suppliers) || cloudState.suppliers.length === 0) {
       cloudState = {
         suppliers: BASELINE_SUPPLIERS,
-        carriers: [],
-        agents: [],
+        carriers: BASELINE_CARRIERS,
+        agents: BASELINE_AGENTS,
         scenarios: [],
         updatedAt: new Date().toISOString(),
-        updatedBy: 'System Auto-Init'
+        updatedBy: 'System Auto-Init (SSOT Production)'
       };
       await writeKvState(cloudState);
     }
@@ -131,28 +255,21 @@ export default async function handler(req, res) {
     // ============================================================
 
     // 1. Hợp nhất Nhà cung cấp (Suppliers):
-    // Phải luôn bảo toàn 100% BASELINE_SUPPLIERS và tất cả NCC đã từng tồn tại trên Cloud
     const existingSuppliers = Array.isArray(existing.suppliers) && existing.suppliers.length > 0 
       ? existing.suppliers 
       : BASELINE_SUPPLIERS;
     const incomingSuppliers = Array.isArray(incoming.suppliers) ? incoming.suppliers : [];
-
-    // Danh sách ban đầu lấy từ incoming (cập nhật thông số mới nhất mà Giám đốc vừa sửa)
     const mergedSuppliers = [...incomingSuppliers];
 
-    // Khôi phục lại toàn bộ NCC từ existing nếu bị thiếu trên incoming (ngăn chặn hành vi bấm xóa trên UI)
     existingSuppliers.forEach(oldSup => {
       const idx = mergedSuppliers.findIndex(s => s.id === oldSup.id);
       if (idx === -1) {
-        // Tự động khôi phục lại bản ghi bị thiếu
         mergedSuppliers.push(oldSup);
       } else {
-        // Cập nhật các trường, giữ lại các thông số cấu trúc
         mergedSuppliers[idx] = Object.assign({}, oldSup, mergedSuppliers[idx]);
       }
     });
 
-    // Đảm bảo 5 sản phẩm cốt lõi luôn luôn có mặt
     BASELINE_SUPPLIERS.forEach(baseSup => {
       const exists = mergedSuppliers.some(s => s.id === baseSup.id);
       if (!exists) {
@@ -161,9 +278,12 @@ export default async function handler(req, res) {
     });
 
     // 2. Hợp nhất Nhà xe (Carriers) - CẤM XÓA
-    const existingCarriers = Array.isArray(existing.carriers) ? existing.carriers : [];
+    const existingCarriers = Array.isArray(existing.carriers) && existing.carriers.length > 0
+      ? existing.carriers
+      : BASELINE_CARRIERS;
     const incomingCarriers = Array.isArray(incoming.carriers) ? incoming.carriers : [];
     const mergedCarriers = [...incomingCarriers];
+
     existingCarriers.forEach(oldCar => {
       const idx = mergedCarriers.findIndex(c => c.id === oldCar.id);
       if (idx === -1) {
@@ -173,16 +293,31 @@ export default async function handler(req, res) {
       }
     });
 
+    BASELINE_CARRIERS.forEach(baseCar => {
+      if (!mergedCarriers.some(c => c.id === baseCar.id)) {
+        mergedCarriers.push(baseCar);
+      }
+    });
+
     // 3. Hợp nhất Đại lý (Agents) - CẤM XÓA
-    const existingAgents = Array.isArray(existing.agents) ? existing.agents : [];
+    const existingAgents = Array.isArray(existing.agents) && existing.agents.length > 0
+      ? existing.agents
+      : BASELINE_AGENTS;
     const incomingAgents = Array.isArray(incoming.agents) ? incoming.agents : [];
     const mergedAgents = [...incomingAgents];
+
     existingAgents.forEach(oldAgt => {
       const idx = mergedAgents.findIndex(a => a.id === oldAgt.id);
       if (idx === -1) {
         mergedAgents.push(oldAgt);
       } else {
         mergedAgents[idx] = Object.assign({}, oldAgt, mergedAgents[idx]);
+      }
+    });
+
+    BASELINE_AGENTS.forEach(baseAgt => {
+      if (!mergedAgents.some(a => a.id === baseAgt.id)) {
+        mergedAgents.push(baseAgt);
       }
     });
 
