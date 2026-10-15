@@ -2591,10 +2591,7 @@
         { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", cbm: 0.0279, dims: "450x328x189 mm", cont45Qty: 2814, cont40Qty: 2250, howoQty: 3650 },
         { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", cbm: 0.1066, dims: "620x430x400 mm", cont45Qty: 736, cont40Qty: 580, howoQty: 950 },
         { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", cbm: 0.0723, dims: "530x440x310 mm", cont45Qty: 1086, cont40Qty: 850, howoQty: 1400 },
-        { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 },
-        { id: "SUP_ORION", name: "Orion Vina Food", taxId: "0303864722", product: "Snack Bắp O'Star", pricePreVat: 360000, vatRate: 0.08, spec: "30g x 240 gói/thùng", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
-        { id: "SUP_HUU_NGHI", name: "Hữu Nghị Food", taxId: "0102148765", product: "Bánh Quy Tipo", pricePreVat: 320000, vatRate: 0.08, spec: "250g x 24 hộp/thùng", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
-        { id: "SUP_RICHY", name: "Richy Group", taxId: "0101569874", product: "Bánh Gạo Jinju", pricePreVat: 345000, vatRate: 0.08, spec: "150g x 30 gói/thùng", cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 }
+        { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", cbm: 0.0775, dims: "530x430x340 mm", cont45Qty: 1013, cont40Qty: 800, howoQty: 1300 }
       ],
       carriers: [
         { 
@@ -2728,10 +2725,12 @@
     // Load from LocalStorage with smart migration for granular fee keys
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
+            // Lọc bỏ triệt để các ID sản phẩm ảo không có trong DEFAULT_PARTNERS_MASTER
+            parsed.suppliers = parsed.suppliers.filter(s => DEFAULT_PARTNERS_MASTER.suppliers.some(def => def.id === s.id));
             DEFAULT_PARTNERS_MASTER.suppliers.forEach(defSup => {
               const existing = parsed.suppliers.find(s => s.id === defSup.id);
               if (!existing) {
@@ -2792,7 +2791,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_7', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_8', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
@@ -4556,8 +4555,15 @@
         alert("Bắt buộc phải giữ lại tối thiểu 1 Nhà cung cấp!");
         return;
       }
+      const removed = partnersMaster.suppliers[idx];
       partnersMaster.suppliers.splice(idx, 1);
+      savePartnersToStorage();
       renderPartnerModalTables();
+      renderArea2Dropdowns();
+      recalculate();
+      if (typeof showToastNotification === 'function') {
+        showToastNotification(`🗑️ Đã xóa Nhà cung cấp: ${removed.name} (${removed.product})`);
+      }
     }
 
     function addNewCarrierRow() {
