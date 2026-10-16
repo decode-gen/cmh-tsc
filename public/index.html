@@ -2043,11 +2043,11 @@
         <table class="data-table" style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11px; border:1px solid #000;">
           <thead>
             <tr style="background:#f1f5f9; font-weight:bold; border-bottom:1.5px solid #000; color:#000;">
-              <th style="width:24%; border:1px solid #000; padding:4px 6px;">Mức biên độ mục tiêu / Target Level</th>
-              <th style="width:24%; border:1px solid #000; padding:4px 6px;">Ý nghĩa chiến lược / Strategic Meaning</th>
-              <th class="text-right" style="width:13%; border:1px solid #000; padding:4px 6px;">Đơn giá / Price (USD)</th>
-              <th class="text-right" style="width:15%; border:1px solid #000; padding:4px 6px;">Doanh thu / Revenue (USD)</th>
-              <th class="text-right" style="width:14%; border:1px solid #000; padding:4px 6px;">Lãi thực sau thuế (VNĐ)</th>
+              <th style="width:18%; border:1px solid #000; padding:4px 6px;">Mức biên độ mục tiêu / Target Level</th>
+              <th style="width:17%; border:1px solid #000; padding:4px 6px;">Ý nghĩa chiến lược / Strategic Meaning</th>
+              <th class="text-right" style="width:26%; border:1px solid #000; padding:4px 6px;">Đơn giá đề xuất / Proposed Price (USD)</th>
+              <th class="text-right" style="width:14%; border:1px solid #000; padding:4px 6px;">Doanh thu / Revenue (USD)</th>
+              <th class="text-right" style="width:15%; border:1px solid #000; padding:4px 6px;">Lãi thực sau thuế (VNĐ)</th>
               <th class="text-center" style="width:10%; border:1px solid #000; padding:4px 6px;">Biên ròng / Margin</th>
             </tr>
           </thead>
@@ -4895,6 +4895,53 @@
       showToastNotification("↺ Đã đưa số lượng thùng hàng ghép về 0!");
     }
 
+    function applyProposedMarginPrices(marginRate) {
+      if (!window._currentCalcData) return;
+      const d = window._currentCalcData;
+      const m = parseFloat(marginRate);
+      if (isNaN(m)) return;
+
+      if (d.packingMode === 'MIXED') {
+        if (!d.mixedSkuItems || d.mixedSkuItems.length === 0) {
+          showToastNotification("⚠️ Không có sản phẩm nào trong cont để áp dụng giá!");
+          return;
+        }
+        const totalLogistics = d.totalDirectLogistics || 0;
+        const totalQty = (d.qty && d.qty > 0) ? d.qty : 1;
+        const logPerBoxVnd = totalLogistics / totalQty;
+        const fx = (d.fxRate && d.fxRate > 0) ? d.fxRate : 25790;
+
+        d.mixedSkuItems.forEach(item => {
+          const cogsItemVnd = item.pricePreVat || 0;
+          const totalCostItemVnd = cogsItemVnd + logPerBoxVnd;
+          const proposedP = +((totalCostItemVnd / (1 - m)) / fx).toFixed(2);
+          currentMixedPrices[item.id] = proposedP;
+          const sup = partnersMaster.suppliers.find(s => s.id === item.id);
+          if (sup) sup.quoteUsd = proposedP;
+        });
+
+        renderMixedCargoTable();
+        recalculate();
+        showToastNotification(`✨ Đã áp dụng bộ giá đề xuất cho ${d.mixedSkuItems.length} sản phẩm (Biên mục tiêu ${(m * 100).toFixed(0)}%)!`);
+      } else {
+        const reqRevVnd = d.totalCostVnd / (1 - m);
+        const reqPriceUsd = +((reqRevVnd / (d.qty || 1)) / (d.fxRate || 25790)).toFixed(2);
+        applyProposedSinglePrice(reqPriceUsd, m);
+      }
+    }
+
+    function applyProposedSinglePrice(priceUsd, marginRate) {
+      const p = parseFloat(priceUsd);
+      if (isNaN(p) || p <= 0) return;
+      const qEl = document.getElementById('quotePrice');
+      if (qEl) {
+        qEl.value = p.toFixed(2);
+        recalculate();
+        const mText = (marginRate !== undefined) ? ` (Biên mục tiêu ${(marginRate * 100).toFixed(0)}%)` : '';
+        showToastNotification(`✨ Đã áp dụng đơn giá chào bán $${p.toFixed(2)} USD/thùng${mText}!`);
+      }
+    }
+
     function toggleQuickAddSkuForm() {
       const box = document.getElementById('quickAddSkuBox');
       if (!box) return;
@@ -7630,6 +7677,57 @@
         const netProfitRow = cashProfitRow > 0 ? (cashProfitRow - citTaxRow) : cashProfitRow;
         const netMarginRow = reqRevVnd > 0 ? (netProfitRow / reqRevVnd) : 0;
 
+        let proposedPriceCellHtml = '';
+        const isMixed = (packingMode === 'MIXED' && mixedSkuItems && mixedSkuItems.length > 0);
+
+        if (isMixed) {
+          const logPerBoxVnd = qty > 0 ? (totalDirectLogistics / qty) : 0;
+          let skuRowsHtml = '';
+
+          mixedSkuItems.forEach(item => {
+            const itemCostVnd = (item.pricePreVat || 0) + logPerBoxVnd;
+            const itemReqPriceUsd = ((itemCostVnd / (1 - m.margin)) / fxRate);
+            skuRowsHtml += `
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; font-family:var(--font-mono, monospace); line-height:1.45; border-bottom:1px dashed #e2e8f0; padding:1.5px 0;">
+                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:145px;" title="${item.product} (${item.qty.toLocaleString('vi-VN')} thùng)">
+                  <b style="color:#b45309;">[${item.skuCode}]</b> ${item.shortName} <small style="color:#64748b; font-size:9px;">(${item.qty}th)</small>:
+                </span>
+                <b style="color:#0f172a; margin-left:4px; font-size:10.5px;">$${itemReqPriceUsd.toFixed(2)}</b>
+              </div>
+            `;
+          });
+
+          proposedPriceCellHtml = `
+            <div style="font-size:12.5px; font-weight:bold; color:#000; text-align:right;">
+              $${reqPriceUsd.toFixed(2)} <span style="font-size:9px; color:#64748b; font-weight:normal;">(BQ/th)</span>
+            </div>
+            <div style="margin-top:3px; padding:3px 5px; background:rgba(0,0,0,0.025); border:1px solid #cbd5e1; border-radius:3px; text-align:left;">
+              ${skuRowsHtml}
+            </div>
+            <button type="button" class="btn btn-sm no-print" onclick="applyProposedMarginPrices(${m.margin})" 
+                    style="margin-top:3px; width:100%; font-size:9px; padding:2px 4px; background:#fff; border:1px solid #0284c7; color:#0284c7; font-weight:bold; cursor:pointer; border-radius:2px; display:flex; align-items:center; justify-content:center; gap:2px;"
+                    title="Áp dụng ngay bộ giá đề xuất đạt mức biên ${(m.margin*100).toFixed(0)}% này lên bảng chọn sản phẩm phía trên">
+              <span>⚡</span> Áp dụng bộ giá này
+            </button>
+          `;
+        } else {
+          const singleSkuTag = singleSkuCode || (supplier ? getSupplierSkuCode(supplier) : 'SKU');
+          const singleShort = supplier ? (supplier.product || '').replace('Snack Lợi Đạt ', '').replace('Snack ', '') : '';
+          proposedPriceCellHtml = `
+            <div style="font-size:13.5px; font-weight:bold; color:#000; text-align:right;">
+              $${reqPriceUsd.toFixed(2)} <span style="font-size:9.5px; color:#64748b; font-weight:normal;">/thùng</span>
+            </div>
+            <div style="font-size:9.5px; color:#475569; text-align:right; font-style:italic; margin-top:2px;">
+              <b style="color:#b45309;">[${singleSkuTag}]</b> ${singleShort}
+            </div>
+            <button type="button" class="btn btn-sm no-print" onclick="applyProposedSinglePrice(${reqPriceUsd}, ${m.margin})" 
+                    style="margin-top:3px; width:100%; font-size:9px; padding:2px 4px; background:#fff; border:1px solid #0284c7; color:#0284c7; font-weight:bold; cursor:pointer; border-radius:2px; display:flex; align-items:center; justify-content:center; gap:2px;"
+                    title="Áp dụng giá $${reqPriceUsd.toFixed(2)} vào ô giá chào bán phía trên">
+              <span>⚡</span> Áp dụng giá này
+            </button>
+          `;
+        }
+
         pricingHtml += `<tr>
           <td class="font-bold" style="border:1px solid #000; padding:4px 6px;">
             ${m.name}
@@ -7639,8 +7737,8 @@
             ${m.desc}
             <div style="font-size:9px; color:#666; font-style:italic;">${m.descEn}</div>
           </td>
-          <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; color:#000; font-size:13.5px;">$${reqPriceUsd.toFixed(2)}</td>
-          <td class="text-right" style="border:1px solid #000; padding:4px 6px;">$${totalRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+          <td class="text-right" style="border:1px solid #000; padding:4px 6px;">${proposedPriceCellHtml}</td>
+          <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; color:#000; font-size:13px;">$${totalRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
           <td class="text-right" style="border:1px solid #000; padding:4px 6px;">
             <div style="font-size:13.5px; font-weight:bold; color:#059669;">${formatVnd(netProfitRow)}</div>
             <div style="font-size:10px; color:#666; margin-top:2px;">Dòng tiền: ${formatVnd(cashProfitRow)} · Thuế: ${formatVnd(citTaxRow)}</div>
@@ -8538,11 +8636,15 @@
 
       box(35, curY, W - 70, 28, '#f1f5f9', '#000000', 1.2);
       text('Mức biên độ mục tiêu / Target Margin Scenario', 55, curY + 19, 'bold 13.5px "Times New Roman", serif', '#000000');
-      text('Đơn giá / Price (USD)', 820, curY + 19, 'bold 13.5px "Times New Roman", serif', '#000000', 'right');
+      text('Đơn giá đề xuất / Proposed Price (USD)', 820, curY + 19, 'bold 13.5px "Times New Roman", serif', '#000000', 'right');
       text('Doanh thu / Revenue (USD)', 1150, curY + 19, 'bold 13.5px "Times New Roman", serif', '#000000', 'right');
       text('Lãi sau thuế / NPAT (VNĐ)', 1550, curY + 19, 'bold 13.5px "Times New Roman", serif', '#000000', 'right');
       text('Tỷ suất / Margin', 1650, curY + 19, 'bold 13.5px "Times New Roman", serif', '#000000');
       curY += 28;
+      const isMixCanvas = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
+      const rowH2 = isMixCanvas ? 42 : rowH;
+      const logPerBoxVndCanvas = (d.qty > 0 && d.totalDirectLogistics) ? (d.totalDirectLogistics / d.qty) : 0;
+
       d.targetMargins.forEach((m, idx) => {
         const reqRevVnd = d.totalCostVnd / (1 - m.margin);
         const reqPriceUsd = (reqRevVnd / d.qty) / d.fxRate;
@@ -8553,14 +8655,26 @@
         const netMarginRow = reqRevVnd > 0 ? (netProfitRow / reqRevVnd) : 0;
 
         const bg = idx % 2 === 0 ? '#ffffff' : '#fcfcfc';
-        box(35, curY, W - 70, rowH, bg, '#e5e7eb', 1);
+        box(35, curY, W - 70, rowH2, bg, '#e5e7eb', 1);
         const label = m.name + (m.nameEn ? ' / ' + m.nameEn : '') + ' (' + m.desc + ')';
-        text(label, 55, curY + 21, '14.5px "Times New Roman", serif', '#111827');
-        text('$' + reqPriceUsd.toFixed(2), 820, curY + 21, 'bold 15px "Times New Roman", serif', '#000000', 'right');
-        text('$' + totalRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}), 1150, curY + 21, '15px "Times New Roman", serif', '#000000', 'right');
-        text(formatVnd(netProfitRow), 1550, curY + 21, 'bold 15px "Times New Roman", serif', '#000000', 'right');
-        text((netMarginRow * 100).toFixed(1) + '%', 1650, curY + 21, '14.5px "Times New Roman", serif', '#111827');
-        curY += rowH;
+        text(label, 55, curY + (isMixCanvas ? 19 : 21), '14.5px "Times New Roman", serif', '#111827');
+
+        if (isMixCanvas) {
+          text('$' + reqPriceUsd.toFixed(2) + ' (BQ)', 820, curY + 17, 'bold 14.5px "Times New Roman", serif', '#000000', 'right');
+          const skuPricesStr = d.mixedSkuItems.map(it => {
+            const itCost = (it.pricePreVat || 0) + logPerBoxVndCanvas;
+            const itPrice = ((itCost / (1 - m.margin)) / d.fxRate).toFixed(2);
+            return `[${it.skuCode}]: $${itPrice}`;
+          }).join('  |  ');
+          text(skuPricesStr, 820, curY + 34, '12px "Times New Roman", serif', '#4b5563', 'right');
+        } else {
+          text('$' + reqPriceUsd.toFixed(2), 820, curY + 21, 'bold 15px "Times New Roman", serif', '#000000', 'right');
+        }
+
+        text('$' + totalRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}), 1150, curY + (isMixCanvas ? 25 : 21), '15px "Times New Roman", serif', '#000000', 'right');
+        text(formatVnd(netProfitRow), 1550, curY + (isMixCanvas ? 25 : 21), 'bold 15px "Times New Roman", serif', '#000000', 'right');
+        text((netMarginRow * 100).toFixed(1) + '%', 1650, curY + (isMixCanvas ? 25 : 21), '14.5px "Times New Roman", serif', '#111827');
+        curY += rowH2;
       });
 
       // 6. KHỐI KÝ VÀ PHÊ DUYỆT (THỂ THỨC VĂN BẢN DOANH NGHIỆP CHUẨN MỰC)
@@ -8687,6 +8801,9 @@
       });
 
       let marginsHtml = '';
+      const isMixPlan = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
+      const logPerBoxVndPlan = (d.qty > 0 && d.totalDirectLogistics) ? (d.totalDirectLogistics / d.qty) : 0;
+
       d.targetMargins.forEach(m => {
         const reqRevVnd = d.totalCostVnd / (1 - m.margin);
         const reqPriceUsd = (reqRevVnd / d.qty) / d.fxRate;
@@ -8696,10 +8813,21 @@
         const netProfitRow = cashProfitRow > 0 ? (cashProfitRow - citTaxRow) : cashProfitRow;
         const netMarginRow = reqRevVnd > 0 ? (netProfitRow / reqRevVnd) : 0;
         const mLabel = m.name + (m.nameEn ? ` <span style="font-size:7.5px; color:#444;">(${m.nameEn})</span>` : '') + ` <span style="font-size:7.5px; color:#555;">[${m.desc}]</span>`;
+
+        let pricePrintHtml = `$${reqPriceUsd.toFixed(2)}`;
+        if (isMixPlan) {
+          const skuPricesStr = d.mixedSkuItems.map(it => {
+            const itCost = (it.pricePreVat || 0) + logPerBoxVndPlan;
+            const itPrice = ((itCost / (1 - m.margin)) / d.fxRate).toFixed(2);
+            return `[${it.skuCode}]: $${itPrice}`;
+          }).join(' · ');
+          pricePrintHtml = `<div style="font-weight:bold;">$${reqPriceUsd.toFixed(2)} <span style="font-weight:normal; font-size:7px;">(BQ)</span></div><div style="font-size:7px; color:#333; line-height:1.2;">${skuPricesStr}</div>`;
+        }
+
         marginsHtml += `
           <tr>
             <td style="padding:1.5px 3px; border:1px solid #000;">${mLabel}</td>
-            <td style="text-align:right; font-weight:bold; padding:1.5px 3px; border:1px solid #000;">$${reqPriceUsd.toFixed(2)}</td>
+            <td style="text-align:right; font-weight:bold; padding:1.5px 3px; border:1px solid #000;">${pricePrintHtml}</td>
             <td style="text-align:right; padding:1.5px 3px; border:1px solid #000;">$${totalRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
             <td style="text-align:right; font-weight:bold; padding:1.5px 3px; border:1px solid #000;">${formatVnd(netProfitRow)}</td>
             <td style="padding:1.5px 3px; border:1px solid #000; text-align:right;">${(netMarginRow * 100).toFixed(1)}%</td>
@@ -8884,10 +9012,10 @@
                 <thead>
                   <tr style="background:#f1f5f9;">
                     <th style="border:1px solid #000; padding:1.5px 3px; text-align:left;">Mức giá phân tích / Margin Scenario</th>
-                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:65px;">Đơn giá / Price ($)</th>
-                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:75px;">Doanh thu / Revenue ($)</th>
-                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:80px;">Lãi sau thuế / NPAT (đ)</th>
-                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:55px;">Tỷ suất / Margin</th>
+                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:80px;">Đơn giá đề xuất ($)</th>
+                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:70px;">Doanh thu ($)</th>
+                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:75px;">Lãi sau thuế (đ)</th>
+                    <th style="border:1px solid #000; padding:1.5px 3px; text-align:right; width:50px;">Tỷ suất</th>
                   </tr>
                 </thead>
                 <tbody>
