@@ -1222,7 +1222,7 @@
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-              <span style="font-size:10.5px; font-weight:bold; color:var(--text-main);">⚖️ TẢI TRỌNG HÀNG (QL9):</span>
+              <span style="font-size:10.5px; font-weight:bold; color:var(--text-main);">⚖️ TẢI TRỌNG HÀNG (ĐĂNG KIỂM):</span>
               <span id="lblWeightStats" style="font-size:10.5px; font-weight:bold; font-family:var(--font-mono, monospace);">0.0 / 26.0 tấn (0%)</span>
             </div>
             <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:3px;">
@@ -2919,7 +2919,7 @@
           unit: "thùng",
           dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", 
           grossWeight: 7.80, netWeight: 6.60, weightLabel: "~8.80Kg cả bì / 6.60Kg tịnh",
-          cont45Qty: 817, cont40Qty: 697, howoQty: 1041 
+          cont45Qty: 817, cont40Qty: 697, howoQty: 992 
         },
         { 
           id: "SUP_LOI_DAT_MY_DEO_CAY", 
@@ -2937,7 +2937,7 @@
           unit: "thùng",
           dimL: 450, dimW: 328, dimH: 189, cbm: 0.0278964, dims: "450x328x189 mm", 
           grossWeight: 8.18, netWeight: null, weightLabel: "~8.18Kg",
-          cont45Qty: 2300, cont40Qty: 1962, howoQty: 2200 
+          cont45Qty: 2300, cont40Qty: 1962, howoQty: 2795 
         },
         { 
           id: "SUP_LOI_DAT_MY_CAY", 
@@ -2955,7 +2955,7 @@
           unit: "thùng",
           dimL: 620, dimW: 430, dimH: 400, cbm: 0.10664, dims: "620x430x400 mm", 
           grossWeight: 12.85, netWeight: null, weightLabel: "12.85Kg",
-          cont45Qty: 602, cont40Qty: 514, howoQty: 767 
+          cont45Qty: 602, cont40Qty: 514, howoQty: 731 
         },
         { 
           id: "SUP_LOI_DAT_XIEN_NUONG", 
@@ -2973,7 +2973,7 @@
           unit: "thùng",
           dimL: 530, dimW: 440, dimH: 310, cbm: 0.072292, dims: "530x440x310 mm", 
           grossWeight: 8.85, netWeight: null, weightLabel: "~8.85Kg",
-          cont45Qty: 888, cont40Qty: 758, howoQty: 1131 
+          cont45Qty: 888, cont40Qty: 758, howoQty: 1079 
         },
         { 
           id: "SUP_LOI_DAT_MY_TOM_HUM", 
@@ -2991,7 +2991,7 @@
           unit: "thùng",
           dimL: 530, dimW: 430, dimH: 340, cbm: 0.077486, dims: "530x430x340 mm", 
           grossWeight: 8.95, netWeight: null, weightLabel: "~8.95Kg",
-          cont45Qty: 828, cont40Qty: 706, howoQty: 1055 
+          cont45Qty: 828, cont40Qty: 706, howoQty: 1006 
         }
       ],
       carriers: [
@@ -4890,9 +4890,10 @@
       const gw = Math.max(0.1, parseFloat(gwEl ? gwEl.value : 8.5) || 8.5);
 
       const newId = 'SUP_CUSTOM_' + skuCode + '_' + Date.now().toString().slice(-4);
-      const cont45Qty = Math.max(100, Math.floor(78.5 / cbm));
-      const cont40Qty = Math.max(100, Math.floor(67.0 / cbm));
-      const howoQty = Math.max(100, Math.floor(100.0 / cbm));
+      // Thể tích danh nghĩa xếp được thực tế (/cmh-cargo-calc) — chưa có mốc thực địa riêng cho SKU mới
+      const cont45Qty = Math.max(100, Math.floor(64.2 / cbm));
+      const cont40Qty = Math.max(100, Math.floor(54.9 / cbm));
+      const howoQty = Math.max(100, Math.floor(78.1 / cbm));
 
       const newSup = {
         id: newId,
@@ -7172,14 +7173,18 @@
       // =========================================================================
       // CẬP NHẬT THƯỚC ĐO NHỊP ĐIỆU KÉP (DUAL CAPACITY HORIZON) & GỢI Ý NHỒI THÊM
       // =========================================================================
-      let vMax = 78.5; // Cont 45ft HC
-      let wMax = 26.0; // Tấn hàng an toàn QL9
+      // vMax = THỂ TÍCH DANH NGHĨA XẾP ĐƯỢC THỰC TẾ (/cmh-cargo-calc), không phải thể tích lòng xe:
+      //   Cont45 = 2,300 th MDC thực địa × 0.0278964 m³ ≈ 64.2 · Cont40 = 1,962 × 0.0278964 ≈ 54.8 (→ 54.9 để MCT 514 th không báo tràn do làm tròn)
+      //   HOWO 15.6m = 2,795 × 0.0278964 ≈ 78.1 (cận dưới lưới 3D, lọt lòng cam kết 15.50×2.45×2.85 m)
+      // wMax HOWO = 33.05 T theo đăng kiểm sơ mi rơ moóc 74R-009.89 (hồ sơ pháp lý phương tiện Vĩnh Thành).
+      let vMax = 64.2; // Cont 45ft HC
+      let wMax = 26.0;
       if (vehicle === 'CONT_40HC') {
-        vMax = 67.0;
+        vMax = 54.9;
         wMax = 25.0;
       } else if (vehicle === 'HOWO_156') {
-        vMax = 100.0;
-        wMax = 28.0;
+        vMax = 78.1;
+        wMax = 33.05;
       }
 
       const percentV = Math.min(100, Math.round((totalCbm / vMax) * 100));
@@ -7209,12 +7214,12 @@
       if (warnEl) {
         if (totalGw > wMax) {
           const overTons = (totalGw - wMax).toFixed(2);
-          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⛔ VI PHẠM TẢI TRỌNG CẦU ĐƯỜNG QL9:</span> Hàng quá tải <b>+${overTons} tấn</b> so với trần an toàn ${wMax}T! Nguy cơ bị phạt 14-40M và bị hạ tải cửa khẩu theo TT 46/2015/TT-BGTVT.`;
+          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⛔ VƯỢT TẢI TRỌNG CHO PHÉP:</span> Hàng vượt <b>+${overTons} tấn</b> so với tải trọng ${wMax}T của phương tiện! Nguy cơ bị xử phạt và buộc hạ tải theo quy định tải trọng hiện hành (TT 12/2025/TT-BXD).`;
         } else if (totalCbm > vMax) {
           const overCbm = (totalCbm - vMax).toFixed(1);
-          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XE:</span> Thể tích hàng vượt <b>+${overCbm} m³</b> so với lòng xe ${vMax} m³!`;
+          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XẾP THỰC TẾ:</span> Hàng vượt <b>+${overCbm} m³</b> so với ${vMax} m³ xếp được thực tế (đã trừ phình thùng, khe hở, khoảng thao tác)!`;
         } else if (totalCbm >= vMax * 0.95 && totalGw <= wMax) {
-          warnEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">✅ ĐÃ TỐI ƯU CÔNG SUẤT XE:</span> Lấp đầy ${Math.round((totalCbm / vMax) * 100)}% thể tích, tải trọng ${totalGw.toFixed(2)} tấn nằm trong khung an toàn QL9.`;
+          warnEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">✅ ĐÃ TỐI ƯU CÔNG SUẤT XE:</span> Lấp đầy ${Math.round((totalCbm / vMax) * 100)}% thể tích xếp thực tế, tải trọng ${totalGw.toFixed(2)} tấn trong giới hạn ${wMax}T.`;
         } else {
           const remCbm = (vMax - totalCbm).toFixed(1);
           const remTons = (wMax - totalGw).toFixed(2);
