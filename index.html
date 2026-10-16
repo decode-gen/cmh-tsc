@@ -2998,7 +2998,7 @@
           stt: 2,
           name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
           taxId: "[CHỜ XÁC NHẬN]", 
-          product: "Sanck Mỳ Cây Thơm Ngon", 
+          product: "Snack Lợi Đạt Mỳ Cây Thơm Ngon", 
           packagingLabel: "Snack Lợi Đạt Mỳ Cây Thơm Ngon (LỢI ĐẠT FOOD)",
           priceIncVat: 624999.92, 
           pricePreVat: 578703.63, 
@@ -3016,7 +3016,7 @@
           stt: 3,
           name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
           taxId: "[CHỜ XÁC NHẬN]", 
-          product: "Sanck Vị Xiên Nướng", 
+          product: "Snack Lợi Đạt Vị Xiên Nướng", 
           packagingLabel: "Snack Lợi Đạt Vị Xiên Nướng (LỢI ĐẠT FOOD)",
           priceIncVat: 364999.64, 
           pricePreVat: 337962.63, 
@@ -3193,6 +3193,27 @@
       return initials || 'SKU';
     }
 
+    // Hàm chuẩn hóa tên gọi hiển thị ngắn gọn & chính xác thương hiệu theo chuẩn SSOT
+    function getProductShortName(s) {
+      if (!s) return '';
+      const prod = (typeof s === 'string') ? s : (s.product || '');
+      const supId = (typeof s === 'object' && s.id) ? s.id : '';
+      const sku = (typeof s === 'object' && s.skuCode) ? s.skuCode : '';
+
+      // Quẩy Giòn Giòn của Thiên Long bắt buộc phải giữ đầy đủ chữ "Snack Quẩy Giòn Giòn"
+      if (supId === 'SUP_THIEN_LONG' || sku === 'QGG' || prod.includes('Quẩy Giòn Giòn')) {
+        return 'Snack Quẩy Giòn Giòn';
+      }
+
+      // Tự động triệt tiêu lỗi gõ nhầm Sanck -> Snack
+      let cleaned = prod.replace(/Sanck/g, 'Snack');
+
+      // Đối với các sản phẩm Lợi Đạt, bỏ tiền tố thương hiệu dài "Snack Lợi Đạt " để tên ngắn gọn
+      cleaned = cleaned.replace(/^Snack\s+Lợi\s+Đạt\s+/i, '').replace(/^Lợi\s+Đạt\s+/i, '');
+
+      return cleaned.trim();
+    }
+
     let partnersMaster = JSON.parse(JSON.stringify(DEFAULT_PARTNERS_MASTER));
     let isBaselineEditMode = false;
     let isPinAuthenticated = false;
@@ -3210,7 +3231,7 @@
     // Load from LocalStorage with smart migration for granular fee keys and exact unrounded Product DNA
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_3') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_2') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
@@ -3248,6 +3269,15 @@
                 if (existing.quoteUsd === undefined) {
                   existing.quoteUsd = defSup.quoteUsd;
                 }
+              }
+            });
+            // Tự động rà soát và triệt tiêu dứt điểm lỗi gõ nhầm Sanck -> Snack cho mọi SKU
+            parsed.suppliers.forEach(s => {
+              if (s.product && s.product.includes('Sanck')) {
+                s.product = s.product.replace(/Sanck/g, 'Snack');
+              }
+              if (s.id === 'SUP_THIEN_LONG' || s.skuCode === 'QGG') {
+                s.product = 'Snack Quẩy Giòn Giòn';
               }
             });
           }
@@ -3296,7 +3326,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_1', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_3', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
@@ -4734,23 +4764,32 @@
         const cbm = (qty * (s.cbm || 0)).toFixed(2);
         const gw = (qty * (s.grossWeight || 7.8) / 1000).toFixed(2);
         const lineRevUsd = (qty * unitQuoteUsd);
-        const shortName = s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+        const shortName = getProductShortName(s);
         const skuCode = getSupplierSkuCode(s);
         const costUsd = ((s.pricePreVat || 0) / fx).toFixed(2);
+        const dimStr = s.dims || (s.dimL && s.dimW && s.dimH ? `${s.dimL}x${s.dimW}x${s.dimH} mm` : 'Đang cập nhật');
+        const cbmPerBoxStr = Number(s.cbm || 0).toFixed(4);
+        const gwPerBoxStr = Number(s.grossWeight || 7.8).toFixed(2);
 
         html += `
           <tr style="border-bottom:1px solid var(--border-subtle); background:${qty > 0 ? 'transparent' : 'rgba(0,0,0,0.015)'};">
             <td style="padding:4px 4px;">
-              <div style="display:flex; align-items:center; gap:4px;">
+              <div style="display:flex; align-items:flex-start; gap:4px;">
                 <button type="button" onclick="removeSkuFromMixedSession('${s.id}')" 
-                        style="width:18px; height:18px; line-height:14px; padding:0; font-size:12px; font-weight:bold; color:var(--alert-critical-text); background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.35); border-radius:3px; cursor:pointer; flex-shrink:0;"
+                        style="width:18px; height:18px; line-height:14px; padding:0; font-size:12px; font-weight:bold; color:var(--alert-critical-text); background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.35); border-radius:3px; cursor:pointer; flex-shrink:0; margin-top:2px;"
                         title="Gỡ sản phẩm [${skuCode}] ${shortName} khỏi phiên ghép cont này">×</button>
-                <div style="overflow:hidden;">
-                  <div style="font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:145px;" title="${s.product} (${s.name})">
+                <div style="overflow:hidden; width:100%;">
+                  <div style="font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${s.product} (${s.name})">
                     <span style="display:inline-block; background:rgba(234,179,8,0.16); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); border-radius:2px; padding:0 3px; font-size:9px; font-family:monospace; margin-right:3px;">${skuCode}</span>${shortName}
                   </div>
-                  <div style="font-size:9px; color:var(--text-muted); margin-top:1px;">
-                    ${s.priceIncVat ? `Đã VAT: <b style="color:var(--alert-success-text);">${formatExactProductPriceVnd(s.priceIncVat)}</b> (Chưa VAT: ${formatExactProductPriceVnd(s.pricePreVat)})` : `Gốc: <b>${formatExactProductPriceVnd(s.pricePreVat)}</b>`} (~$${costUsd}) · ${s.weightLabel || (s.grossWeight ? s.grossWeight + 'kg' : '')}
+                  <!-- Dòng kích thước thùng & trọng lượng phục vụ căn thể tích / tải trọng tối ưu chi phí -->
+                  <div style="font-size:9px; font-family:var(--font-mono, monospace); margin-top:2px; line-height:1.3; background:rgba(2,132,199,0.06); border:1px solid rgba(2,132,199,0.22); border-radius:2px; padding:1px 4px; display:inline-block;" title="Kích thước thùng carton DxRxC (mm) · Thể tích m³/thùng · Trọng lượng cả bì GW kg/thùng">
+                    <span style="color:#0284c7; font-weight:bold;">DxRxC: ${dimStr}</span>
+                    <span style="color:#0f172a; font-weight:bold; margin-left:3px;">· ${cbmPerBoxStr} m³</span>
+                    <span style="color:#b45309; font-weight:bold; margin-left:3px;">· GW: ${gwPerBoxStr} kg</span>
+                  </div>
+                  <div style="font-size:8.5px; color:var(--text-muted); margin-top:1.5px;">
+                    ${s.priceIncVat ? `Đã VAT: <b style="color:var(--alert-success-text);">${formatExactProductPriceVnd(s.priceIncVat)}</b> (Chưa: ${formatExactProductPriceVnd(s.pricePreVat)})` : `Gốc: <b>${formatExactProductPriceVnd(s.pricePreVat)}</b>`} (~$${costUsd}) · <span style="color:#334155;">Cont45: <b>${s.cont45Qty || '—'}</b> th · HOWO: <b>${s.howoQty || '—'}</b> th</span>
                   </div>
                 </div>
               </div>
@@ -4790,9 +4829,12 @@
           restoreBar.style.display = 'flex';
           selRestore.innerHTML = removedSuppliers.map(rs => {
             const code = getSupplierSkuCode(rs);
-            const sName = rs.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+            const sName = getProductShortName(rs);
             const pText = rs.priceIncVat ? `Đã VAT: ${formatExactProductPriceVnd(rs.priceIncVat)}` : `Gốc: ${formatExactProductPriceVnd(rs.pricePreVat)}`;
-            return `<option value="${rs.id}">[${code}] ${sName} (${pText} · Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
+            const dText = rs.dims || (rs.dimL && rs.dimW && rs.dimH ? `${rs.dimL}x${rs.dimW}x${rs.dimH} mm` : '');
+            const cbmText = Number(rs.cbm || 0).toFixed(4) + ' m³';
+            const gwText = (rs.grossWeight || 7.8) + ' kg';
+            return `<option value="${rs.id}">[${code}] ${sName} (${dText} · ${cbmText} · ${gwText} | Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
           }).join('');
         } else {
           restoreBar.style.display = 'none';
@@ -4840,7 +4882,7 @@
       currentMixedCargo[supId] = 0;
       const sup = partnersMaster.suppliers.find(s => s.id === supId);
       const code = getSupplierSkuCode(sup);
-      const name = sup ? sup.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '') : supId;
+      const name = sup ? getProductShortName(sup) : supId;
       renderMixedCargoTable();
       recalculate();
       showToastNotification(`🗑️ Đã gỡ [${code}] ${name} khỏi phiên ghép cont! (Có thể thêm lại ở thanh dưới bảng)`);
@@ -4858,7 +4900,7 @@
       }
       const sup = partnersMaster.suppliers.find(s => s.id === supId);
       const code = getSupplierSkuCode(sup);
-      const name = sup ? sup.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '') : supId;
+      const name = sup ? getProductShortName(sup) : supId;
       renderMixedCargoTable();
       recalculate();
       showToastNotification(`➕ Đã đưa [${code}] ${name} (+${currentMixedCargo[supId]} thùng) vào phiên ghép cont!`);
@@ -6826,12 +6868,15 @@
                 id: s.id,
                 skuCode,
                 product: s.product,
-                shortName: s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', ''),
+                shortName: getProductShortName(s),
                 qty: q,
                 unitP,
                 pricePreVat: s.pricePreVat || 0,
                 revUsd: q * unitP,
-                cogsVnd: q * (s.pricePreVat || 0)
+                cogsVnd: q * (s.pricePreVat || 0),
+                dims: s.dims || (s.dimL && s.dimW && s.dimH ? `${s.dimL}x${s.dimW}x${s.dimH} mm` : ''),
+                cbm: s.cbm || 0,
+                grossWeight: s.grossWeight || 7.8
               });
             }
           });
@@ -7357,7 +7402,7 @@
           const maxAdd = Math.min(maxByVol, maxByWeight);
           if (maxAdd > 0) {
             const skuC = getSupplierSkuCode(s);
-            const shortName = s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+            const shortName = getProductShortName(s);
             pillsHtml += `
               <button type="button" class="btn btn-sm recommend-pill" onclick="applyRecommendFill('${s.id}', ${maxAdd})" 
                       style="font-size:10px; padding:2px 7px; background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); border-radius:12px; cursor:pointer;"
@@ -7712,7 +7757,7 @@
           `;
         } else {
           const singleSkuTag = singleSkuCode || (supplier ? getSupplierSkuCode(supplier) : 'SKU');
-          const singleShort = supplier ? (supplier.product || '').replace('Snack Lợi Đạt ', '').replace('Snack ', '') : '';
+          const singleShort = supplier ? getProductShortName(supplier) : '';
           proposedPriceCellHtml = `
             <div style="font-size:13.5px; font-weight:bold; color:#000; text-align:right;">
               $${reqPriceUsd.toFixed(2)} <span style="font-size:9.5px; color:#64748b; font-weight:normal;">/thùng</span>
