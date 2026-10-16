@@ -2919,7 +2919,7 @@
           unit: "thùng",
           dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", 
           grossWeight: 7.80, netWeight: 6.60, weightLabel: "~8.80Kg cả bì / 6.60Kg tịnh",
-          cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 
+          cont45Qty: 817, cont40Qty: 697, howoQty: 1041 
         },
         { 
           id: "SUP_LOI_DAT_MY_DEO_CAY", 
@@ -2937,7 +2937,7 @@
           unit: "thùng",
           dimL: 450, dimW: 328, dimH: 189, cbm: 0.0278964, dims: "450x328x189 mm", 
           grossWeight: 8.18, netWeight: null, weightLabel: "~8.18Kg",
-          cont45Qty: 2814, cont40Qty: 2401, howoQty: 3584 
+          cont45Qty: 2300, cont40Qty: 1962, howoQty: 2200 
         },
         { 
           id: "SUP_LOI_DAT_MY_CAY", 
@@ -2955,7 +2955,7 @@
           unit: "thùng",
           dimL: 620, dimW: 430, dimH: 400, cbm: 0.10664, dims: "620x430x400 mm", 
           grossWeight: 12.85, netWeight: null, weightLabel: "12.85Kg",
-          cont45Qty: 736, cont40Qty: 628, howoQty: 938 
+          cont45Qty: 602, cont40Qty: 514, howoQty: 767 
         },
         { 
           id: "SUP_LOI_DAT_XIEN_NUONG", 
@@ -2973,7 +2973,7 @@
           unit: "thùng",
           dimL: 530, dimW: 440, dimH: 310, cbm: 0.072292, dims: "530x440x310 mm", 
           grossWeight: 8.85, netWeight: null, weightLabel: "~8.85Kg",
-          cont45Qty: 1086, cont40Qty: 926, howoQty: 1383 
+          cont45Qty: 888, cont40Qty: 758, howoQty: 1131 
         },
         { 
           id: "SUP_LOI_DAT_MY_TOM_HUM", 
@@ -2991,7 +2991,7 @@
           unit: "thùng",
           dimL: 530, dimW: 430, dimH: 340, cbm: 0.077486, dims: "530x430x340 mm", 
           grossWeight: 8.95, netWeight: null, weightLabel: "~8.95Kg",
-          cont45Qty: 1013, cont40Qty: 864, howoQty: 1290 
+          cont45Qty: 828, cont40Qty: 706, howoQty: 1055 
         }
       ],
       carriers: [
@@ -3157,7 +3157,7 @@
     // Load from LocalStorage with smart migration for granular fee keys and exact unrounded Product DNA
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
@@ -3243,7 +3243,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_0', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_1', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
