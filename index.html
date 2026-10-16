@@ -1127,27 +1127,87 @@
             </div>
           </div>
 
-          <!-- 1B. BẢNG GHÉP CONT ĐA SẢN PHẨM (MIXED CARGO TABLE) -->
+          <!-- 1B. BẢNG GHÉP CONT ĐA SẢN PHẨM & ĐỊNH GIÁ RIÊNG TỪNG SP (MIXED CARGO & MULTI-PRICE TABLE) -->
           <div id="panelMixedSku" style="display:none; margin-bottom:8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 6px;">
-            <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-              <span>📦 Bảng Phân Bổ Hàng Ghép (5 Sản Phẩm SSOT):</span>
-              <a href="javascript:void(0)" onclick="resetMixedCargo()" style="color:var(--text-dim); text-decoration:none; font-size:10px;">[↺ Xóa Trắng]</a>
+            <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+              <span>📦 Bảng Hàng Ghép & Giá Bán Riêng Từng SP:</span>
+              <div style="display:flex; gap:5px; align-items:center;">
+                <button type="button" class="btn btn-sm" onclick="toggleQuickAddSkuForm()" style="font-size:10px; padding:1px 6px; background:rgba(16,185,129,0.12); color:var(--alert-success-text); border:1px solid rgba(16,185,129,0.35); font-weight:bold;" title="Tạo nhanh 1 sản phẩm mới ngay trong phiên mô phỏng">[+ SP Mới]</button>
+                <button type="button" class="btn btn-sm" onclick="restoreDefaultMixedCargo()" style="font-size:10px; padding:1px 6px; background:var(--bg-cockpit-panel); color:var(--accent-blue); border:1px solid var(--border-subtle);" title="Khôi phục đủ 5 sản phẩm chuẩn SSOT">[↺ Khôi Phục 5 SP]</button>
+                <button type="button" class="btn btn-sm" onclick="resetMixedCargo()" style="font-size:10px; padding:1px 6px; background:var(--bg-cockpit-panel); color:var(--text-dim); border:1px solid var(--border-subtle);" title="Đưa số thùng về 0">[0 Thùng]</button>
+              </div>
             </div>
-            <div style="max-height:165px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:2px;">
+
+            <!-- FORM TẠO NHANH SẢN PHẨM MỚI TRONG PHIÊN MÔ PHỎNG (QUICK-ADD SKU INLINE) -->
+            <div id="quickAddSkuBox" style="display:none; background:var(--bg-cockpit-panel); border:1px dashed var(--accent-gold); border-radius:3px; padding:6px; margin-bottom:6px; font-size:10.5px;">
+              <div style="font-weight:bold; color:var(--accent-gold); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                <span>✨ THÊM NHANH SẢN PHẨM MỚI VÀO BỘ DỮ LIỆU & PHIÊN GHÉP CONT:</span>
+                <a href="javascript:void(0)" onclick="toggleQuickAddSkuForm()" style="color:var(--text-muted); text-decoration:none;">[Đóng ✕]</a>
+              </div>
+              <div style="display:grid; grid-template-columns: 1.6fr 0.7fr 1fr 0.8fr; gap:4px; margin-bottom:4px;">
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Tên sản phẩm *</label>
+                  <input type="text" id="qaSkuName" class="form-control" placeholder="VD: Bánh Gạo Cay" style="font-size:10.5px; padding:2px 4px; height:22px;" oninput="autoFillQuickAddSkuCode()">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Mã chữ (SKU)</label>
+                  <input type="text" id="qaSkuCode" class="form-control font-bold" placeholder="VD: BGC" maxlength="5" style="font-size:10.5px; padding:2px 4px; height:22px; text-transform:uppercase; color:var(--accent-gold);">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Giá gốc (đ/th)</label>
+                  <input type="number" id="qaSkuCostVnd" class="form-control" value="337000" step="1000" style="font-size:10.5px; padding:2px 4px; height:22px;">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Giá bán ($/th)</label>
+                  <input type="number" id="qaSkuQuoteUsd" class="form-control font-bold" value="15.80" step="0.1" style="font-size:10.5px; padding:2px 4px; height:22px; color:var(--alert-success-text);">
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 0.8fr 0.8fr 0.8fr auto; gap:4px; align-items:end;">
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Nhà cung cấp</label>
+                  <input type="text" id="qaSkuSupplier" class="form-control" value="Lợi Đạt Hải Phòng" style="font-size:10.5px; padding:2px 4px; height:22px;">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Số thùng ghép</label>
+                  <input type="number" id="qaSkuInitQty" class="form-control font-bold" value="200" step="10" style="font-size:10.5px; padding:2px 4px; height:22px;">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Thể tích (m³/th)</label>
+                  <input type="number" id="qaSkuCbm" class="form-control" value="0.072" step="0.001" style="font-size:10.5px; padding:2px 4px; height:22px;">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Trọng lượng (kg)</label>
+                  <input type="number" id="qaSkuGw" class="form-control" value="8.5" step="0.1" style="font-size:10.5px; padding:2px 4px; height:22px;">
+                </div>
+                <button type="button" class="btn btn-sm" onclick="saveQuickAddSku()" style="height:22px; padding:0 8px; font-size:10.5px; background:var(--alert-success-text); color:#fff; font-weight:bold; border:none;">[✓ Thêm SP]</button>
+              </div>
+            </div>
+
+            <div style="max-height:285px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:2px;">
               <table style="width:100%; border-collapse:collapse; font-size:10.5px; text-align:left;">
                 <thead>
                   <tr style="background:var(--bg-cockpit-panel); border-bottom:1px solid var(--border-subtle); color:var(--text-muted);">
-                    <th style="padding:3px 4px;">Sản phẩm</th>
-                    <th style="padding:3px 2px; text-align:center;">Dims & GW</th>
-                    <th style="padding:3px 2px; width:70px; text-align:center;">Số Thùng</th>
-                    <th style="padding:3px 4px; text-align:right;">CBM</th>
-                    <th style="padding:3px 4px; text-align:right;">Tấn</th>
+                    <th style="padding:4px 4px;">Sản phẩm · Mã SKU · Giá gốc</th>
+                    <th style="padding:4px 2px; width:62px; text-align:center;">Số Thùng</th>
+                    <th style="padding:4px 2px; width:66px; text-align:center; color:var(--accent-gold);">Giá Bán ($)</th>
+                    <th style="padding:4px 4px; text-align:right;">Thành Tiền & Quy mô</th>
                   </tr>
                 </thead>
                 <tbody id="mixedCargoTableBody">
                   <!-- Populated dynamically via JS -->
                 </tbody>
               </table>
+            </div>
+
+            <!-- THANH TỔNG HỢP DOANH THU ĐA SẢN PHẨM & CHỌN THÊM SẢN PHẨM VÀO CONT -->
+            <div id="mixedCargoSummaryBar" style="margin-top:4px; padding:4px 6px; background:rgba(37,99,235,0.06); border:1px solid var(--border-subtle); border-radius:2px; font-size:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+              <span id="lblMixedTotalSummary">Tổng: <b>0 thùng</b></span>
+              <span id="lblMixedRevSummary" style="color:var(--alert-success-text); font-weight:bold;">Doanh thu: $0.00</span>
+            </div>
+            <div id="mixedCargoRestoreBar" style="display:none; margin-top:4px; padding:4px 6px; background:var(--bg-cockpit-panel); border:1px dashed var(--border-strong); border-radius:2px; align-items:center; justify-content:space-between; gap:5px;">
+              <span style="font-size:10px; color:var(--text-muted); white-space:nowrap;">➕ Thêm SP vào cont:</span>
+              <select id="selRestoreMixedSku" class="form-control" style="flex:1; height:22px; font-size:10.5px; padding:1px 4px;"></select>
+              <button type="button" class="btn btn-sm" onclick="addSelectedSkuToMixedSession()" style="height:22px; padding:0 8px; font-size:10px; background:var(--accent-blue); color:#fff; font-weight:bold; border:none; white-space:nowrap;">[+ Đưa Vào Cont]</button>
             </div>
           </div>
 
@@ -1401,8 +1461,11 @@
             </select>
           </div>
           <div class="form-group" style="flex:1;">
-            <label>Giá chào dự kiến (USD/thùng)</label>
-            <input type="number" id="quotePrice" class="form-control" value="15.80" step="0.1" oninput="recalculate()" onchange="recalculate()">
+            <label id="lblQuotePriceInput">Giá chào dự kiến (USD/thùng)</label>
+            <input type="number" id="quotePrice" class="form-control font-bold" value="15.80" step="0.1" oninput="onSingleQuotePriceInput(this.value)" onchange="onSingleQuotePriceInput(this.value)">
+            <div id="quotePriceMixedHint" style="display:none; font-size:9.5px; color:var(--accent-gold); margin-top:2px;">
+              ⚖️ Giá BQ gia quyền (Nhập giá riêng từng SP ở bảng trên)
+            </div>
           </div>
         </div>
 
@@ -2014,7 +2077,9 @@
                   <th>Tên Nhà Cung Cấp</th>
                   <th>Mã số thuế</th>
                   <th>Tên sản phẩm</th>
+                  <th class="text-center" style="width:75px;">Mã SP (SKU)</th>
                   <th class="text-right">Giá mua chưa VAT (VNĐ/thùng)</th>
+                  <th class="text-right" style="color:var(--accent-gold);">Giá bán chuẩn (USD/thùng)</th>
                   <th class="text-center">Thuế VAT (%)</th>
                   <th class="text-center">Kích thước & Đóng Cont 45ft</th>
                   <th class="text-center" style="width:130px;">Thao tác riêng</th>
@@ -2839,11 +2904,11 @@
     // SSOT MASTER PARTNERS DATABASE (STORAGE IN LOCALSTORAGE)
     const DEFAULT_PARTNERS_MASTER = {
       suppliers: [
-        { id: "SUP_THIEN_LONG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, vatRate: 0.08, spec: "22g x 300 cốc/thùng", dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", grossWeight: 7.80, netWeight: 6.60, cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
-        { id: "SUP_LOI_DAT_MY_DEO_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", dimL: 450, dimW: 328, dimH: 189, cbm: 0.0279, dims: "450x328x189 mm", grossWeight: 8.18, netWeight: 7.20, cont45Qty: 2814, cont40Qty: 2250, howoQty: 3422 },
-        { id: "SUP_LOI_DAT_MY_CAY", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", dimL: 620, dimW: 430, dimH: 400, cbm: 0.1066, dims: "620x430x400 mm", grossWeight: 12.85, netWeight: 11.50, cont45Qty: 736, cont40Qty: 580, howoQty: 938 },
-        { id: "SUP_LOI_DAT_XIEN_NUONG", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", dimL: 530, dimW: 440, dimH: 310, cbm: 0.0723, dims: "530x440x310 mm", grossWeight: 8.85, netWeight: 7.80, cont45Qty: 1086, cont40Qty: 850, howoQty: 1383 },
-        { id: "SUP_LOI_DAT_MY_TOM_HUM", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", dimL: 530, dimW: 430, dimH: 340, cbm: 0.0775, dims: "530x430x340 mm", grossWeight: 8.95, netWeight: 7.90, cont45Qty: 1013, cont40Qty: 800, howoQty: 1290 }
+        { id: "SUP_THIEN_LONG", skuCode: "QGG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, quoteUsd: 15.80, vatRate: 0.08, spec: "22g x 300 cốc/thùng", dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", grossWeight: 7.80, netWeight: 6.60, cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
+        { id: "SUP_LOI_DAT_MY_DEO_CAY", skuCode: "MDC", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, quoteUsd: 15.80, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", dimL: 450, dimW: 328, dimH: 189, cbm: 0.0279, dims: "450x328x189 mm", grossWeight: 8.18, netWeight: 7.20, cont45Qty: 2814, cont40Qty: 2250, howoQty: 3422 },
+        { id: "SUP_LOI_DAT_MY_CAY", skuCode: "MCT", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, quoteUsd: 26.50, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", dimL: 620, dimW: 430, dimH: 400, cbm: 0.1066, dims: "620x430x400 mm", grossWeight: 12.85, netWeight: 11.50, cont45Qty: 736, cont40Qty: 580, howoQty: 938 },
+        { id: "SUP_LOI_DAT_XIEN_NUONG", skuCode: "VXN", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, quoteUsd: 15.80, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", dimL: 530, dimW: 440, dimH: 310, cbm: 0.0723, dims: "530x440x310 mm", grossWeight: 8.85, netWeight: 7.80, cont45Qty: 1086, cont40Qty: 850, howoQty: 1383 },
+        { id: "SUP_LOI_DAT_MY_TOM_HUM", skuCode: "MTH", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, quoteUsd: 15.80, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", dimL: 530, dimW: 430, dimH: 340, cbm: 0.0775, dims: "530x430x340 mm", grossWeight: 8.95, netWeight: 7.90, cont45Qty: 1013, cont40Qty: 800, howoQty: 1290 }
       ],
       carriers: [
         { 
@@ -2970,6 +3035,27 @@
       baselineOverrides: {}
     };
 
+    // Hàm xác định luận trích xuất Mã Ký Tự Chữ Cái Sản Phẩm (SKU Code) chuẩn /cmh-namid V2.0
+    function getSupplierSkuCode(sup) {
+      if (!sup) return 'QGG';
+      if (sup.skuCode && String(sup.skuCode).trim()) {
+        return String(sup.skuCode).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      }
+      const mapById = {
+        'SUP_THIEN_LONG': 'QGG',
+        'SUP_LOI_DAT_MY_DEO_CAY': 'MDC',
+        'SUP_LOI_DAT_MY_CAY': 'MCT',
+        'SUP_LOI_DAT_XIEN_NUONG': 'VXN',
+        'SUP_LOI_DAT_MY_TOM_HUM': 'MTH'
+      };
+      if (mapById[sup.id]) return mapById[sup.id];
+      const rawName = (sup.product || 'SP').replace(/Snack\s+Lợi\s+Đạt\s+/i, '').replace(/Snack\s+/i, '').trim();
+      const noAccent = rawName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+      const words = noAccent.split(/\s+/).filter(Boolean);
+      const initials = words.map(w => w[0].toUpperCase()).join('').replace(/[^A-Z0-9]/g, '').slice(0, 4);
+      return initials || 'SKU';
+    }
+
     let partnersMaster = JSON.parse(JSON.stringify(DEFAULT_PARTNERS_MASTER));
     let isBaselineEditMode = false;
     let isPinAuthenticated = false;
@@ -2981,14 +3067,16 @@
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
-            // Lọc bỏ triệt để các ID sản phẩm ảo không có trong DEFAULT_PARTNERS_MASTER
-            parsed.suppliers = parsed.suppliers.filter(s => DEFAULT_PARTNERS_MASTER.suppliers.some(def => def.id === s.id));
+            // Giữ các sản phẩm chuẩn SSOT và các sản phẩm mới do người dùng chủ động tạo (isCustom hoặc SUP_NEW_ / SUP_CUSTOM_)
+            parsed.suppliers = parsed.suppliers.filter(s => DEFAULT_PARTNERS_MASTER.suppliers.some(def => def.id === s.id) || s.isCustom || String(s.id).startsWith('SUP_NEW_') || String(s.id).startsWith('SUP_CUSTOM_'));
             DEFAULT_PARTNERS_MASTER.suppliers.forEach(defSup => {
               const existing = parsed.suppliers.find(s => s.id === defSup.id);
               if (!existing) {
                 parsed.suppliers.push(defSup);
               } else {
                 Object.assign(existing, {
+                  skuCode: existing.skuCode || defSup.skuCode,
+                  quoteUsd: existing.quoteUsd !== undefined ? existing.quoteUsd : defSup.quoteUsd,
                   dimL: defSup.dimL,
                   dimW: defSup.dimW,
                   dimH: defSup.dimH,
@@ -3415,6 +3503,20 @@
       SUP_LOI_DAT_XIEN_NUONG: 300,
       SUP_LOI_DAT_MY_TOM_HUM: 200
     };
+    let currentMixedPrices = {
+      SUP_THIEN_LONG: 15.80,
+      SUP_LOI_DAT_MY_DEO_CAY: 15.80,
+      SUP_LOI_DAT_MY_CAY: 26.50,
+      SUP_LOI_DAT_XIEN_NUONG: 15.80,
+      SUP_LOI_DAT_MY_TOM_HUM: 15.80
+    };
+    let activeMixedSupplierIds = [
+      'SUP_THIEN_LONG',
+      'SUP_LOI_DAT_MY_DEO_CAY',
+      'SUP_LOI_DAT_MY_CAY',
+      'SUP_LOI_DAT_XIEN_NUONG',
+      'SUP_LOI_DAT_MY_TOM_HUM'
+    ];
     const CMH_SYNC_CHANNEL_NAME = 'CMH_COCKPIT_CROSS_SYNC_BUS_V2';
     const CMH_STORAGE_KEY = 'CMH_SYNC_ORDER_EXPENSES_V2';
 
@@ -4027,6 +4129,8 @@
         chkPhyto: document.getElementById('chkPhyto') ? document.getElementById('chkPhyto').checked : false,
         packingMode: packingMode || 'SINGLE',
         mixedCargo: JSON.parse(JSON.stringify(currentMixedCargo || {})),
+        mixedPrices: JSON.parse(JSON.stringify(currentMixedPrices || {})),
+        activeMixedSupplierIds: JSON.parse(JSON.stringify(activeMixedSupplierIds || [])),
         transportRoute: document.getElementById('transportRouteSelect') ? document.getElementById('transportRouteSelect').value : 'ROUTE_SAVANNAKHET',
         dossierRoute: document.getElementById('dossierRouteSelect') ? document.getElementById('dossierRouteSelect').value : 'DOSSIER_FULL_SAVANNAKHET',
         baselineOverrides: JSON.parse(JSON.stringify(partnersMaster.baselineOverrides || {})),
@@ -4063,15 +4167,23 @@
       if (document.getElementById('fxRate') && scn.fxRate !== undefined) document.getElementById('fxRate').value = scn.fxRate;
 
       // 2b. Packing Mode & Ghép Cont
+      if (scn.mixedCargo) {
+        currentMixedCargo = JSON.parse(JSON.stringify(scn.mixedCargo));
+      }
+      if (scn.mixedPrices) {
+        currentMixedPrices = Object.assign({}, currentMixedPrices, scn.mixedPrices);
+      }
+      if (Array.isArray(scn.activeMixedSupplierIds) && scn.activeMixedSupplierIds.length > 0) {
+        activeMixedSupplierIds = JSON.parse(JSON.stringify(scn.activeMixedSupplierIds));
+      } else if (partnersMaster && partnersMaster.suppliers) {
+        activeMixedSupplierIds = partnersMaster.suppliers.map(s => s.id);
+      }
       if (scn.packingMode) {
         setPackingMode(scn.packingMode);
       } else {
         setPackingMode('SINGLE');
       }
-      if (scn.mixedCargo) {
-        currentMixedCargo = JSON.parse(JSON.stringify(scn.mixedCargo));
-        renderMixedCargoTable();
-      }
+      renderMixedCargoTable();
 
       // 2c. Ma trận 2 Tuyến Độc Lập
       if (document.getElementById('transportRouteSelect') && scn.transportRoute) {
@@ -4118,12 +4230,15 @@
 
       // 5. Cập nhật UI & tính toán
       updateBinhAnLeftPanelLabels();
-      onSupplierChange();
+      onSupplierChange(true);
       onVehicleChange();
       
-      // Giữ đúng số thùng của kịch bản (nếu có khác chuẩn)
+      // Giữ đúng số thùng và đơn giá của kịch bản (nếu có khác chuẩn)
       if (document.getElementById('boxQty') && scn.boxQty !== undefined) {
         document.getElementById('boxQty').value = scn.boxQty;
+      }
+      if (document.getElementById('quotePrice') && scn.quotePrice !== undefined) {
+        document.getElementById('quotePrice').value = scn.quotePrice;
       }
       recalculate();
 
@@ -4386,18 +4501,47 @@
       const btnMixed = document.getElementById('btnModeMixed');
       const panelSingle = document.getElementById('panelSingleSku');
       const panelMixed = document.getElementById('panelMixedSku');
+      const quoteHint = document.getElementById('quotePriceMixedHint');
+      const lblQuote = document.getElementById('lblQuotePriceInput');
 
       if (packingMode === 'MIXED') {
         if (btnSingle) btnSingle.classList.remove('active');
         if (btnMixed) btnMixed.classList.add('active');
         if (panelSingle) panelSingle.style.display = 'none';
         if (panelMixed) panelMixed.style.display = 'block';
+        if (quoteHint) quoteHint.style.display = 'block';
+        if (lblQuote) lblQuote.innerText = 'Giá chào BQ gia quyền ($/thùng)';
         renderMixedCargoTable();
       } else {
         if (btnSingle) btnSingle.classList.add('active');
         if (btnMixed) btnMixed.classList.remove('active');
         if (panelSingle) panelSingle.style.display = 'block';
         if (panelMixed) panelMixed.style.display = 'none';
+        if (quoteHint) quoteHint.style.display = 'none';
+        if (lblQuote) lblQuote.innerText = 'Giá chào dự kiến (USD/thùng)';
+        // Khi quay về chế độ Đơn 1 Sản phẩm, đồng bộ lại giá chào của sản phẩm đơn đang chọn
+        const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+        const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+        if (sup) {
+          const singlePrice = (currentMixedPrices && currentMixedPrices[sup.id] !== undefined) ? currentMixedPrices[sup.id] : (sup.quoteUsd || 15.80);
+          const qEl = document.getElementById('quotePrice');
+          if (qEl) qEl.value = Number(singlePrice).toFixed(2);
+        }
+      }
+      recalculate();
+    }
+
+    function onSingleQuotePriceInput(val) {
+      const p = parseFloat(val);
+      if (!isNaN(p) && p >= 0) {
+        if (packingMode === 'SINGLE') {
+          const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+          if (supId) {
+            currentMixedPrices[supId] = p;
+          }
+        } else if (packingMode === 'MIXED') {
+          // Nếu người dùng gõ trực tiếp vào ô Giá BQ ở chế độ MIXED, áp dụng cho các sản phẩm chưa có giá riêng hoặc cập nhật đồng loạt theo ý muốn
+        }
       }
       recalculate();
     }
@@ -4407,36 +4551,91 @@
       if (!tbody) return;
       if (!partnersMaster || !partnersMaster.suppliers) return;
 
+      if (!Array.isArray(activeMixedSupplierIds) || activeMixedSupplierIds.length === 0) {
+        activeMixedSupplierIds = partnersMaster.suppliers.map(s => s.id);
+      }
+
+      const fx = parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25790) || 25790;
       let html = '';
+      const removedSuppliers = [];
+
       partnersMaster.suppliers.forEach(s => {
+        if (!activeMixedSupplierIds.includes(s.id)) {
+          removedSuppliers.push(s);
+          return;
+        }
         const qty = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+        const unitQuoteUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined)
+          ? currentMixedPrices[s.id]
+          : (s.quoteUsd !== undefined ? s.quoteUsd : 15.80);
+        currentMixedPrices[s.id] = unitQuoteUsd;
+
         const cbm = (qty * (s.cbm || 0)).toFixed(2);
         const gw = (qty * (s.grossWeight || 7.8) / 1000).toFixed(2);
+        const lineRevUsd = (qty * unitQuoteUsd);
         const shortName = s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+        const skuCode = getSupplierSkuCode(s);
+        const costUsd = ((s.pricePreVat || 0) / fx).toFixed(2);
 
         html += `
-          <tr style="border-bottom:1px solid var(--border-subtle);">
-            <td style="padding:3px 4px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;" title="${s.product}">
-              ${shortName}
-            </td>
-            <td style="padding:3px 2px; text-align:center; font-size:9.5px; color:var(--text-muted);">
-              ${s.dims || ''}<br><span style="color:var(--accent-gold); font-weight:bold;">${s.grossWeight || 7.8}kg</span>
+          <tr style="border-bottom:1px solid var(--border-subtle); background:${qty > 0 ? 'transparent' : 'rgba(0,0,0,0.015)'};">
+            <td style="padding:4px 4px;">
+              <div style="display:flex; align-items:center; gap:4px;">
+                <button type="button" onclick="removeSkuFromMixedSession('${s.id}')" 
+                        style="width:18px; height:18px; line-height:14px; padding:0; font-size:12px; font-weight:bold; color:var(--alert-critical-text); background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.35); border-radius:3px; cursor:pointer; flex-shrink:0;"
+                        title="Gỡ sản phẩm [${skuCode}] ${shortName} khỏi phiên ghép cont này">×</button>
+                <div style="overflow:hidden;">
+                  <div style="font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:145px;" title="${s.product} (${s.name})">
+                    <span style="display:inline-block; background:rgba(234,179,8,0.16); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); border-radius:2px; padding:0 3px; font-size:9px; font-family:monospace; margin-right:3px;">${skuCode}</span>${shortName}
+                  </div>
+                  <div style="font-size:9px; color:var(--text-muted); margin-top:1px;">
+                    Gốc: <b>${Math.round(s.pricePreVat || 0).toLocaleString('vi-VN')}đ</b> (~$${costUsd}) · ${s.grossWeight || 7.8}kg
+                  </div>
+                </div>
+              </div>
             </td>
             <td style="padding:3px 2px; text-align:center;">
               <input type="number" class="mixed-cargo-inp" value="${qty}" min="0" step="10" 
                      oninput="onMixedQtyChange('${s.id}', this.value)" 
-                     style="width:62px; height:20px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-main); border-radius:2px;">
+                     style="width:58px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-main); border-radius:2px;"
+                     title="Số lượng thùng ${shortName}">
             </td>
-            <td style="padding:3px 4px; text-align:right; font-family:var(--font-mono, monospace); font-size:10px;">
-              <span id="mixedCbm_${s.id}">${cbm}</span>
+            <td style="padding:3px 2px; text-align:center;">
+              <input type="number" class="mixed-price-inp" value="${Number(unitQuoteUsd).toFixed(2)}" min="0" step="0.1" 
+                     oninput="onMixedPriceChange('${s.id}', this.value)" 
+                     style="width:62px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--accent-gold); background:var(--bg-card); color:var(--alert-success-text); border-radius:2px;"
+                     title="Đơn giá chào bán USD/thùng riêng cho ${shortName} (Giá gốc: $${costUsd})">
             </td>
-            <td style="padding:3px 4px; text-align:right; font-family:var(--font-mono, monospace); font-size:10px; font-weight:bold;">
-              <span id="mixedGw_${s.id}">${gw}</span>
+            <td style="padding:3px 4px; text-align:right; font-family:var(--font-mono, monospace); font-size:9.5px;">
+              <div style="font-weight:bold; color:var(--text-main); font-size:10.5px;" id="mixedRev_${s.id}">$${lineRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+              <div style="color:var(--text-muted); font-size:9px;">
+                <span id="mixedCbm_${s.id}">${cbm}</span>m³ · <span id="mixedGw_${s.id}" style="font-weight:bold;">${gw}</span>T
+              </div>
             </td>
           </tr>
         `;
       });
+
+      if (!html) {
+        html = `<tr><td colspan="4" style="padding:10px; text-align:center; color:var(--text-dim); font-style:italic;">Chưa có sản phẩm nào trong cont. Hãy chọn thêm ở thanh bên dưới hoặc bấm [↺ Khôi Phục 5 SP].</td></tr>`;
+      }
       tbody.innerHTML = html;
+
+      // Cập nhật thanh chọn thêm sản phẩm đã gỡ (Restore / Add SKU Bar)
+      const restoreBar = document.getElementById('mixedCargoRestoreBar');
+      const selRestore = document.getElementById('selRestoreMixedSku');
+      if (restoreBar && selRestore) {
+        if (removedSuppliers.length > 0) {
+          restoreBar.style.display = 'flex';
+          selRestore.innerHTML = removedSuppliers.map(rs => {
+            const code = getSupplierSkuCode(rs);
+            const sName = rs.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
+            return `<option value="${rs.id}">[${code}] ${sName} (Gốc: ${Math.round(rs.pricePreVat || 0).toLocaleString('vi-VN')}đ · Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
+          }).join('');
+        } else {
+          restoreBar.style.display = 'none';
+        }
+      }
     }
 
     function onMixedQtyChange(supId, val) {
@@ -4444,13 +4643,84 @@
       currentMixedCargo[supId] = q;
 
       const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      const unitPrice = (currentMixedPrices && currentMixedPrices[supId] !== undefined) ? currentMixedPrices[supId] : (sup ? (sup.quoteUsd || 15.80) : 15.80);
       if (sup) {
         const cbmEl = document.getElementById(`mixedCbm_${supId}`);
         const gwEl = document.getElementById(`mixedGw_${supId}`);
+        const revEl = document.getElementById(`mixedRev_${supId}`);
         if (cbmEl) cbmEl.innerText = (q * (sup.cbm || 0)).toFixed(2);
         if (gwEl) gwEl.innerText = (q * (sup.grossWeight || 7.8) / 1000).toFixed(2);
+        if (revEl) revEl.innerText = '$' + (q * unitPrice).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
       }
       recalculate();
+    }
+
+    function onMixedPriceChange(supId, val) {
+      const p = Math.max(0, parseFloat(val) || 0);
+      currentMixedPrices[supId] = p;
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      if (sup) {
+        sup.quoteUsd = p;
+      }
+      const q = currentMixedCargo[supId] || 0;
+      const revEl = document.getElementById(`mixedRev_${supId}`);
+      if (revEl) {
+        revEl.innerText = '$' + (q * p).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      }
+      recalculate();
+    }
+
+    function removeSkuFromMixedSession(supId) {
+      if (!Array.isArray(activeMixedSupplierIds)) {
+        activeMixedSupplierIds = partnersMaster.suppliers.map(s => s.id);
+      }
+      activeMixedSupplierIds = activeMixedSupplierIds.filter(id => id !== supId);
+      currentMixedCargo[supId] = 0;
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      const code = getSupplierSkuCode(sup);
+      const name = sup ? sup.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '') : supId;
+      renderMixedCargoTable();
+      recalculate();
+      showToastNotification(`🗑️ Đã gỡ [${code}] ${name} khỏi phiên ghép cont! (Có thể thêm lại ở thanh dưới bảng)`);
+    }
+
+    function addSelectedSkuToMixedSession() {
+      const sel = document.getElementById('selRestoreMixedSku');
+      if (!sel || !sel.value) return;
+      const supId = sel.value;
+      if (!activeMixedSupplierIds.includes(supId)) {
+        activeMixedSupplierIds.push(supId);
+      }
+      if (!currentMixedCargo[supId] || currentMixedCargo[supId] <= 0) {
+        currentMixedCargo[supId] = 200; // Mặc định nạp 200 thùng để dễ thao tác
+      }
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      const code = getSupplierSkuCode(sup);
+      const name = sup ? sup.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '') : supId;
+      renderMixedCargoTable();
+      recalculate();
+      showToastNotification(`➕ Đã đưa [${code}] ${name} (+${currentMixedCargo[supId]} thùng) vào phiên ghép cont!`);
+    }
+
+    function restoreDefaultMixedCargo() {
+      if (!partnersMaster || !partnersMaster.suppliers) return;
+      activeMixedSupplierIds = partnersMaster.suppliers.map(s => s.id);
+      const defMap = {
+        SUP_THIEN_LONG: 400,
+        SUP_LOI_DAT_MY_DEO_CAY: 800,
+        SUP_LOI_DAT_MY_CAY: 200,
+        SUP_LOI_DAT_XIEN_NUONG: 300,
+        SUP_LOI_DAT_MY_TOM_HUM: 200
+      };
+      partnersMaster.suppliers.forEach(s => {
+        currentMixedCargo[s.id] = defMap[s.id] !== undefined ? defMap[s.id] : 200;
+        if (currentMixedPrices[s.id] === undefined) {
+          currentMixedPrices[s.id] = s.quoteUsd || 15.80;
+        }
+      });
+      renderMixedCargoTable();
+      recalculate();
+      showToastNotification("↺ Đã khôi phục đầy đủ danh sách sản phẩm ghép cont chuẩn SSOT!");
     }
 
     function resetMixedCargo() {
@@ -4460,17 +4730,136 @@
       });
       renderMixedCargoTable();
       recalculate();
-      showToastNotification("↺ Đã xóa trắng số lượng hàng ghép!");
+      showToastNotification("↺ Đã đưa số lượng thùng hàng ghép về 0!");
+    }
+
+    function toggleQuickAddSkuForm() {
+      const box = document.getElementById('quickAddSkuBox');
+      if (!box) return;
+      box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+      if (box.style.display === 'block') {
+        const inp = document.getElementById('qaSkuName');
+        if (inp) inp.focus();
+      }
+    }
+
+    function autoFillQuickAddSkuCode() {
+      const nameInp = document.getElementById('qaSkuName');
+      const codeInp = document.getElementById('qaSkuCode');
+      if (!nameInp || !codeInp) return;
+      const raw = nameInp.value.trim();
+      if (!raw) {
+        codeInp.value = '';
+        return;
+      }
+      const noAccent = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+      const words = noAccent.replace(/Snack\s+/i, '').split(/\s+/).filter(Boolean);
+      codeInp.value = words.map(w => w[0].toUpperCase()).join('').replace(/[^A-Z0-9]/g, '').slice(0, 4);
+    }
+
+    function saveQuickAddSku() {
+      const nameEl = document.getElementById('qaSkuName');
+      const codeEl = document.getElementById('qaSkuCode');
+      const costEl = document.getElementById('qaSkuCostVnd');
+      const quoteEl = document.getElementById('qaSkuQuoteUsd');
+      const supEl = document.getElementById('qaSkuSupplier');
+      const qtyEl = document.getElementById('qaSkuInitQty');
+      const cbmEl = document.getElementById('qaSkuCbm');
+      const gwEl = document.getElementById('qaSkuGw');
+
+      const prodName = nameEl ? nameEl.value.trim() : '';
+      if (!prodName) {
+        alert("Vui lòng nhập Tên sản phẩm mới!");
+        if (nameEl) nameEl.focus();
+        return;
+      }
+      const skuCode = (codeEl && codeEl.value.trim()) ? codeEl.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : getSupplierSkuCode({ product: prodName });
+      const pricePreVat = Math.max(0, parseFloat(costEl ? costEl.value : 337000) || 337000);
+      const quoteUsd = Math.max(0, parseFloat(quoteEl ? quoteEl.value : 15.80) || 15.80);
+      const supName = (supEl && supEl.value.trim()) ? supEl.value.trim() : 'Nhà Cung Cấp Mới';
+      const initQty = Math.max(0, parseInt(qtyEl ? qtyEl.value : 200) || 200);
+      const cbm = Math.max(0.001, parseFloat(cbmEl ? cbmEl.value : 0.072) || 0.072);
+      const gw = Math.max(0.1, parseFloat(gwEl ? gwEl.value : 8.5) || 8.5);
+
+      const newId = 'SUP_CUSTOM_' + skuCode + '_' + Date.now().toString().slice(-4);
+      const cont45Qty = Math.max(100, Math.floor(78.5 / cbm));
+      const cont40Qty = Math.max(100, Math.floor(67.0 / cbm));
+      const howoQty = Math.max(100, Math.floor(100.0 / cbm));
+
+      const newSup = {
+        id: newId,
+        skuCode: skuCode,
+        isCustom: true,
+        name: supName,
+        taxId: "[MÔ PHỎNG]",
+        product: prodName.startsWith('Snack') ? prodName : `Snack ${prodName}`,
+        pricePreVat: pricePreVat,
+        quoteUsd: quoteUsd,
+        vatRate: 0.08,
+        spec: `Quy cách chuẩn (~${gw}kg)`,
+        dimL: 500, dimW: 400, dimH: 360,
+        cbm: cbm,
+        dims: `500x400x360 mm`,
+        grossWeight: gw,
+        netWeight: Math.max(0.1, +(gw * 0.88).toFixed(2)),
+        cont45Qty, cont40Qty, howoQty
+      };
+
+      partnersMaster.suppliers.push(newSup);
+      currentMixedCargo[newId] = initQty;
+      currentMixedPrices[newId] = quoteUsd;
+      if (!activeMixedSupplierIds.includes(newId)) {
+        activeMixedSupplierIds.push(newId);
+      }
+
+      savePartnersToStorage();
+      renderArea2Dropdowns();
+      renderMixedCargoTable();
+      recalculate();
+
+      if (nameEl) nameEl.value = '';
+      if (codeEl) codeEl.value = '';
+      const box = document.getElementById('quickAddSkuBox');
+      if (box) box.style.display = 'none';
+
+      showToastNotification(`✨ Đã tạo & thêm sản phẩm [${skuCode}] ${newSup.product} (${initQty} thùng · Giá bán $${quoteUsd.toFixed(2)}) vào phiên mô phỏng!`);
     }
 
     function applyRecommendFill(supId, addQty) {
       if (!addQty || addQty <= 0) return;
+      const curSingleSupId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      const skuCode = getSupplierSkuCode(sup);
+      const name = sup ? sup.product : supId;
+
+      if (packingMode === 'SINGLE') {
+        if (supId === curSingleSupId) {
+          const boxEl = document.getElementById('boxQty');
+          if (boxEl) boxEl.value = (parseInt(boxEl.value) || 0) + addQty;
+          recalculate();
+          showToastNotification(`💡 Đã nhồi thêm +${addQty} thùng [${skuCode}] ${name} vào xe!`);
+          return;
+        } else {
+          const boxEl = document.getElementById('boxQty');
+          const curSingleQty = boxEl ? (parseInt(boxEl.value) || 0) : 0;
+          activeMixedSupplierIds = [curSingleSupId, supId];
+          partnersMaster.suppliers.forEach(s => {
+            if (s.id === curSingleSupId) currentMixedCargo[s.id] = curSingleQty;
+            else if (s.id === supId) currentMixedCargo[s.id] = addQty;
+            else currentMixedCargo[s.id] = 0;
+          });
+          setPackingMode('MIXED');
+          showToastNotification(`💡 Đã chuyển sang Ghép Cont và nhồi thêm +${addQty} thùng [${skuCode}] ${name}!`);
+          return;
+        }
+      }
+      if (!activeMixedSupplierIds.includes(supId)) {
+        activeMixedSupplierIds.push(supId);
+      }
       currentMixedCargo[supId] = (currentMixedCargo[supId] || 0) + addQty;
       renderMixedCargoTable();
       recalculate();
-      const sup = partnersMaster.suppliers.find(s => s.id === supId);
-      const name = sup ? sup.product : supId;
-      showToastNotification(`💡 Đã nhồi thêm +${addQty} thùng ${name} vào xe!`);
+      showToastNotification(`💡 Đã nhồi thêm +${addQty} thùng [${skuCode}] ${name} vào xe!`);
     }
 
     // =========================================================================
@@ -4880,8 +5269,10 @@
       partnersMaster.suppliers.forEach(s => {
         const opt = document.createElement('option');
         opt.value = s.id;
+        const sku = getSupplierSkuCode(s);
+        const qUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd || 15.80);
         const c45Text = s.cont45Qty ? ` | Cont45: ${s.cont45Qty.toLocaleString('vi-VN')} th` : '';
-        opt.innerText = `${s.name} (${s.product} - ${s.pricePreVat.toLocaleString('vi-VN')} đ/th${c45Text})`;
+        opt.innerText = `[${sku}] ${s.product} — Gốc: ${s.pricePreVat.toLocaleString('vi-VN')}đ | Bán: $${Number(qUsd).toFixed(2)}${c45Text}`;
         supSelect.appendChild(opt);
       });
       if (curSup && [...supSelect.options].some(o => o.value === curSup)) {
@@ -4967,7 +5358,7 @@
         agtYard.value = 'AGT_ANH_TAN';
       }
 
-      onSupplierChange();
+      onSupplierChange(true);
     }
 
     function updateVehicleSelectLabels(sup) {
@@ -4989,17 +5380,29 @@
       }
     }
 
-    function onSupplierChange() {
+    function onSupplierChange(keepCurrentQuote) {
       const supId = document.getElementById('supplierSelect').value;
       const sup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+      const skuCode = getSupplierSkuCode(sup);
       
-      document.getElementById('infoProdName').innerText = sup.product;
+      document.getElementById('infoProdName').innerText = `[${skuCode}] ${sup.product}`;
       document.getElementById('infoSupplierName').innerText = `${sup.name} (MST: ${sup.taxId})`;
       document.getElementById('infoBuyPrice').innerText = sup.pricePreVat.toLocaleString('vi-VN');
       document.getElementById('infoVatRate').innerText = (sup.vatRate * 100).toFixed(0);
       document.getElementById('kpiVatRateSub').innerText = `${(sup.vatRate * 100).toFixed(0)}% Tiền mua hàng Nhà máy`;
-      document.getElementById('printCommodity').innerText = sup.product;
-      document.getElementById('printItemTitle').innerText = sup.product;
+      document.getElementById('printCommodity').innerText = `[${skuCode}] ${sup.product}`;
+      document.getElementById('printItemTitle').innerText = `[${skuCode}] ${sup.product}`;
+
+      // Tự động nạp Giá chào bán USD riêng của sản phẩm khi người dùng chuyển đổi sản phẩm trên buồng lái
+      if (!keepCurrentQuote && packingMode === 'SINGLE') {
+        const prodQuote = (currentMixedPrices && currentMixedPrices[sup.id] !== undefined)
+          ? currentMixedPrices[sup.id]
+          : (sup.quoteUsd !== undefined ? sup.quoteUsd : 15.80);
+        const quoteInput = document.getElementById('quotePrice');
+        if (quoteInput) {
+          quoteInput.value = Number(prodQuote).toFixed(2);
+        }
+      }
 
       // Cập nhật nhãn sức chứa các loại xe theo sản phẩm đang chọn
       updateVehicleSelectLabels(sup);
@@ -5114,12 +5517,16 @@
       const supBody = document.getElementById('suppliersTableBody');
       supBody.innerHTML = '';
       partnersMaster.suppliers.forEach((s, idx) => {
+        const sku = getSupplierSkuCode(s);
+        const qUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd !== undefined ? s.quoteUsd : 15.80);
         supBody.innerHTML += `
           <tr id="sup_row_${idx}">
             <td><input type="text" class="form-control inp-sup-name" style="font-size:12px; padding:3px 6px;" value="${s.name}"></td>
             <td><input type="text" class="form-control inp-sup-tax" style="font-size:12px; padding:3px 6px; width:110px;" value="${s.taxId}"></td>
             <td><input type="text" class="form-control inp-sup-prod" style="font-size:12px; padding:3px 6px;" value="${s.product}"></td>
+            <td class="text-center"><input type="text" class="form-control text-center font-bold inp-sup-sku" maxlength="6" style="font-size:12px; padding:3px 4px; width:65px; text-transform:uppercase; color:var(--accent-gold); margin:0 auto;" value="${sku}"></td>
             <td><input type="number" class="form-control text-right inp-sup-price" style="font-size:12px; padding:3px 6px;" value="${s.pricePreVat}"></td>
+            <td><input type="number" class="form-control text-right font-bold inp-sup-quote" step="0.1" style="font-size:12px; padding:3px 6px; color:var(--alert-success-text);" value="${Number(qUsd).toFixed(2)}"></td>
             <td class="text-center"><input type="number" class="form-control text-center inp-sup-vat" style="font-size:12px; padding:3px 6px; width:55px; display:inline-block;" value="${(s.vatRate*100).toFixed(0)}">%</td>
             <td class="text-center" style="font-size:11px; padding:3px 6px;">
               <div style="font-family:monospace; color:var(--text-main); font-weight:bold;">${s.dims || 'N/A'}</div>
@@ -5217,20 +5624,31 @@
         const name = row.querySelector('.inp-sup-name').value.trim();
         const taxId = row.querySelector('.inp-sup-tax').value.trim();
         const product = row.querySelector('.inp-sup-prod').value.trim();
+        const skuInp = row.querySelector('.inp-sup-sku');
+        const skuCode = (skuInp && skuInp.value.trim()) ? skuInp.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : getSupplierSkuCode({ product });
         const pricePreVat = parseFloat(row.querySelector('.inp-sup-price').value) || 0;
+        const quoteInp = row.querySelector('.inp-sup-quote');
+        const quoteUsd = quoteInp ? (parseFloat(quoteInp.value) || 15.80) : (partnersMaster.suppliers[idx].quoteUsd || 15.80);
         const vatRate = (parseFloat(row.querySelector('.inp-sup-vat').value) || 8) / 100;
 
         partnersMaster.suppliers[idx] = Object.assign(partnersMaster.suppliers[idx], {
-          name, taxId, product, pricePreVat, vatRate
+          name, taxId, product, skuCode, pricePreVat, quoteUsd, vatRate
         });
+        currentMixedPrices[partnersMaster.suppliers[idx].id] = quoteUsd;
 
         savePartnersToStorage();
         renderArea2Dropdowns();
+        renderMixedCargoTable();
+        const curSupId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+        if (packingMode === 'SINGLE' && curSupId === partnersMaster.suppliers[idx].id) {
+          const qEl = document.getElementById('quotePrice');
+          if (qEl) qEl.value = Number(quoteUsd).toFixed(2);
+        }
         recalculate();
         syncToCloud(true);
 
         highlightRowSuccess(row);
-        showToastNotification(`✅ Đã lưu & đồng bộ biểu phí cho Nhà cung cấp: ${name}!`);
+        showToastNotification(`✅ Đã lưu & đồng bộ sản phẩm [${skuCode}] ${product}: Giá gốc ${pricePreVat.toLocaleString('vi-VN')}đ | Giá bán $${quoteUsd.toFixed(2)}!`);
       }, "Lưu và cập nhật biểu phí Nhà cung cấp");
     }
 
@@ -5317,15 +5735,31 @@
     }
 
     function addNewSupplierRow() {
+      const newId = "SUP_NEW_" + Date.now();
       partnersMaster.suppliers.push({
-        id: "SUP_NEW_" + Date.now(),
+        id: newId,
+        skuCode: "SPM",
+        isCustom: true,
         name: "Nhà Cung Cấp Mới",
         taxId: "0100000000",
-        product: "Sản phẩm thực phẩm mới",
-        pricePreVat: 300000,
+        product: "Snack Sản Phẩm Mới",
+        pricePreVat: 337000,
+        quoteUsd: 15.80,
         vatRate: 0.08,
-        spec: "Quy cách chuẩn"
+        spec: "Quy cách chuẩn (~8.0kg)",
+        cbm: 0.075,
+        dims: "500x400x375 mm",
+        grossWeight: 8.0,
+        netWeight: 7.0,
+        cont45Qty: 1000,
+        cont40Qty: 800,
+        howoQty: 1300
       });
+      currentMixedCargo[newId] = 0;
+      currentMixedPrices[newId] = 15.80;
+      if (Array.isArray(activeMixedSupplierIds) && !activeMixedSupplierIds.includes(newId)) {
+        activeMixedSupplierIds.push(newId);
+      }
       renderPartnerModalTables();
     }
 
@@ -5336,9 +5770,17 @@
       }
       const removed = partnersMaster.suppliers[idx];
       partnersMaster.suppliers.splice(idx, 1);
+      if (removed && removed.id) {
+        delete currentMixedCargo[removed.id];
+        delete currentMixedPrices[removed.id];
+        if (Array.isArray(activeMixedSupplierIds)) {
+          activeMixedSupplierIds = activeMixedSupplierIds.filter(id => id !== removed.id);
+        }
+      }
       savePartnersToStorage();
       renderPartnerModalTables();
       renderArea2Dropdowns();
+      renderMixedCargoTable();
       recalculate();
       if (typeof showToastNotification === 'function') {
         showToastNotification(`🗑️ Đã xóa Nhà cung cấp: ${removed.name} (${removed.product})`);
@@ -5411,7 +5853,14 @@
             s.name = row.querySelector('.inp-sup-name').value.trim();
             s.taxId = row.querySelector('.inp-sup-tax').value.trim();
             s.product = row.querySelector('.inp-sup-prod').value.trim();
+            const skuInp = row.querySelector('.inp-sup-sku');
+            s.skuCode = (skuInp && skuInp.value.trim()) ? skuInp.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : getSupplierSkuCode(s);
             s.pricePreVat = parseFloat(row.querySelector('.inp-sup-price').value) || 0;
+            const quoteInp = row.querySelector('.inp-sup-quote');
+            if (quoteInp) {
+              s.quoteUsd = parseFloat(quoteInp.value) || 15.80;
+              currentMixedPrices[s.id] = s.quoteUsd;
+            }
             s.vatRate = (parseFloat(row.querySelector('.inp-sup-vat').value) || 8) / 100;
           }
         });
@@ -6054,7 +6503,7 @@
         const depositPercentVal = (wireCount === 1) ? 100 : (depositPercentEl ? (parseFloat(depositPercentEl.value) || 30) : 30);
         const depositRate = depositPercentVal / 100;
         const fxRate = fxRateEl ? (parseFloat(fxRateEl.value) || 25790) : 25790;
-        const quotePrice = quotePriceEl ? (parseFloat(quotePriceEl.value) || 0) : 15.80;
+        let quotePrice = quotePriceEl ? (parseFloat(quotePriceEl.value) || 0) : 15.80;
 
         // Ma trận 2 Tuyến Độc Lập
         const transRouteEl = document.getElementById('transportRouteSelect');
@@ -6062,24 +6511,56 @@
         const transRoute = transRouteEl ? transRouteEl.value : 'ROUTE_SAVANNAKHET';
         const dossierRoute = dossierRouteEl ? dossierRouteEl.value : 'DOSSIER_FULL_SAVANNAKHET';
 
-        // 1. TÍNH TOÁN THEO HÌNH THỨC ĐÓNG HÀNG (SINGLE VS MIXED CARGO)
+        // 1. TÍNH TOÁN THEO HÌNH THỨC ĐÓNG HÀNG (SINGLE VS MIXED CARGO) & GIÁ BÁN RIÊNG TỪNG SẢN PHẨM
         let totalMixedQty = 0;
         let totalMixedCbm = 0;
         let totalMixedGw = 0; // kg
         let totalMixedNw = 0; // kg
         let mixedCogs = 0;
         let mixedVat = 0;
+        let mixedRevenueUsd = 0;
+        let mixedSkuItems = [];
 
         if (partnersMaster && partnersMaster.suppliers) {
+          if (!activeMixedSupplierIds || !Array.isArray(activeMixedSupplierIds)) {
+            activeMixedSupplierIds = partnersMaster.suppliers.map(s => s.id);
+          }
           partnersMaster.suppliers.forEach(s => {
+            if (!activeMixedSupplierIds.includes(s.id)) return;
             const q = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+            const unitP = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd || 15.80);
             totalMixedQty += q;
             totalMixedCbm += q * (s.cbm || 0);
             totalMixedGw += q * (s.grossWeight || 7.8);
             totalMixedNw += q * (s.netWeight || 6.6);
             mixedCogs += q * (s.pricePreVat || 0);
             mixedVat += q * (s.pricePreVat || 0) * (s.vatRate || 0.08);
+            mixedRevenueUsd += q * unitP;
+            if (q > 0) {
+              const skuCode = getSupplierSkuCode(s);
+              mixedSkuItems.push({
+                id: s.id,
+                skuCode,
+                product: s.product,
+                shortName: s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', ''),
+                qty: q,
+                unitP,
+                pricePreVat: s.pricePreVat || 0,
+                revUsd: q * unitP,
+                cogsVnd: q * (s.pricePreVat || 0)
+              });
+            }
           });
+        }
+
+        // Cập nhật thanh tổng hợp trong bảng Ghép Cont
+        const lblMixSum = document.getElementById('lblMixedTotalSummary');
+        if (lblMixSum) {
+          lblMixSum.innerText = `${totalMixedQty.toLocaleString('vi-VN')} thùng · ${totalMixedCbm.toFixed(1)} m³ · ${(totalMixedGw / 1000).toFixed(2)} T`;
+        }
+        const lblMixRev = document.getElementById('lblMixedRevSummary');
+        if (lblMixRev) {
+          lblMixRev.innerText = `G.Vốn: ${(mixedCogs / 1e6).toFixed(1)}M | DT: $${mixedRevenueUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
         }
 
         let qty = 1300;
@@ -6095,6 +6576,11 @@
           vatRefund = mixedVat;
           totalCbm = totalMixedCbm;
           totalGw = totalMixedGw / 1000;
+          const weightedQuotePrice = totalMixedQty > 0 ? (mixedRevenueUsd / totalMixedQty) : quotePrice;
+          quotePrice = weightedQuotePrice;
+          if (quotePriceEl && document.activeElement !== quotePriceEl) {
+            quotePriceEl.value = weightedQuotePrice.toFixed(2);
+          }
         } else {
           qty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
           defaultCogs = qty * (supplier.pricePreVat || 0);
@@ -6106,10 +6592,11 @@
         const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : defaultCogs;
 
         // Cập nhật thông số kích thước và trọng lượng Single SKU
+        const singleSkuCode = getSupplierSkuCode(supplier);
         const lblSingleDims = document.getElementById('lblSingleSkuDims');
         const lblSingleWeight = document.getElementById('lblSingleSkuWeight');
-        if (lblSingleDims) lblSingleDims.innerText = `DxRxC: ${supplier.dims || '585x270x497 mm'} (${supplier.cbm || 0.0785} m³)`;
-        if (lblSingleWeight) lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th (NW: ${supplier.netWeight || 6.6} kg)`;
+        if (lblSingleDims) lblSingleDims.innerText = `[${singleSkuCode}] DxRxC: ${supplier.dims || '585x270x497 mm'} (${supplier.cbm || 0.0785} m³)`;
+        if (lblSingleWeight) lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th · Giá gốc: ${formatVnd(supplier.pricePreVat || 337000)}`;
 
         // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải)
         const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
@@ -6304,8 +6791,8 @@
       const totalBaseCostPerBoxVnd = qty > 0 ? (totalCostVnd / qty) : 0;
       const totalBaseCostPerBoxUsd = totalBaseCostPerBoxVnd / fxRate;
 
-      // 10. REVENUE & P&L VỚI THUẾ THU NHẬP DOANH NGHIỆP 20% (CIT)
-      const revenueUsd = qty * quotePrice;
+      // 10. REVENUE & P&L VỚI THUẾ THU NHẬP DOANH NGHIỆP 20% (CIT) - ĐA BIẾN GIÁ THEO TỪNG SẢN PHẨM
+      const revenueUsd = (packingMode === 'MIXED') ? mixedRevenueUsd : (qty * quotePrice);
       const revenueVnd = revenueUsd * fxRate;
 
       // Lợi nhuận dòng tiền trước thuế (EBT - Tiền tươi trước thuế)
@@ -6358,8 +6845,13 @@
         if (kpiTotalExtra) kpiTotalExtra.innerText = 'Lãi thực + Hoàn thuế 1331';
       }
 
-      // Cập nhật các trường Thông tin đơn hàng & Kế hoạch trực tiếp (Live Executive Sheet)
-      const curScnId = document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : 'SCN-DEFAULT';
+      // Cập nhật các trường Thông tin đơn hàng & Kế hoạch trực tiếp (Live Executive Sheet) với Mã Ký Tự Sản Phẩm (/cmh-namid V2.0)
+      const liveNidObj = computeSsotNameId();
+      const curScnId = liveNidObj ? liveNidObj.id : (document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : 'SCN-DEFAULT');
+      const scnNameEl = document.getElementById('scenarioName');
+      if (scnNameEl && document.activeElement !== scnNameEl) {
+        scnNameEl.value = curScnId;
+      }
       const dossierCodeEl = document.getElementById('liveDossierCode');
       if (dossierCodeEl) dossierCodeEl.innerText = curScnId;
 
@@ -6367,7 +6859,13 @@
       if (dossierTimeEl) dossierTimeEl.innerText = new Date().toLocaleString('vi-VN');
 
       const liveProdEl = document.getElementById('liveInfoProd');
-      if (liveProdEl) liveProdEl.innerText = `${supplier.product} (Crispy Stick Snack)`;
+      if (liveProdEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          liveProdEl.innerText = `Ghép Cont (${mixedSkuItems.length} mã): ` + mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ');
+        } else {
+          liveProdEl.innerText = `[${singleSkuCode}] ${supplier.product} (${supplier.spec || 'Crispy Stick Snack'})`;
+        }
+      }
 
       const liveTermsEl = document.getElementById('liveInfoTerms');
       if (liveTermsEl) liveTermsEl.innerText = `Incoterms 2020 ${terms.replace('_',' ')}`;
@@ -6376,7 +6874,13 @@
       if (liveVolEl) liveVolEl.innerText = `${tripCount} ${tripCountUnit} (${qty.toLocaleString('vi-VN')} thùng / boxes)`;
 
       const liveSupEl = document.getElementById('liveInfoSupplier');
-      if (liveSupEl) liveSupEl.innerText = `${supplier.name} (MST / Tax ID: ${supplier.taxId})`;
+      if (liveSupEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          liveSupEl.innerText = `Đa Nhà cung cấp (${mixedSkuItems.map(it => it.skuCode).join(', ')})`;
+        } else {
+          liveSupEl.innerText = `${supplier.name} (MST / Tax ID: ${supplier.taxId})`;
+        }
+      }
 
       const liveCarEl = document.getElementById('liveInfoCarrier');
       if (liveCarEl) liveCarEl.innerText = carrier.name;
@@ -6385,7 +6889,13 @@
       if (liveAgtEl) liveAgtEl.innerText = agentVnName;
 
       const liveBuyEl = document.getElementById('liveInfoBuyPrice');
-      if (liveBuyEl) liveBuyEl.innerText = `${formatVnd(supplier.pricePreVat)}/thùng`;
+      if (liveBuyEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          liveBuyEl.innerText = `BQ: ${formatVnd(cogsPerBoxVnd)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(', ') + `)`;
+        } else {
+          liveBuyEl.innerText = `${formatVnd(supplier.pricePreVat)}/thùng [${singleSkuCode}]`;
+        }
+      }
 
       const liveVatEl = document.getElementById('liveInfoVatRate');
       if (liveVatEl) liveVatEl.innerText = `${(supplier.vatRate * 100).toFixed(0)}%`;
@@ -6394,7 +6904,13 @@
       if (liveFxEl) liveFxEl.innerText = `${fxRate.toLocaleString('vi-VN')} VND/USD`;
 
       const liveQuoteEl = document.getElementById('liveInfoQuotePrice');
-      if (liveQuoteEl) liveQuoteEl.innerText = `$${quotePrice.toFixed(2)} USD/thùng`;
+      if (liveQuoteEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          liveQuoteEl.innerText = `BQ: $${quotePrice.toFixed(2)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(', ') + `)`;
+        } else {
+          liveQuoteEl.innerText = `$${quotePrice.toFixed(2)} USD/thùng [${singleSkuCode}]`;
+        }
+      }
 
       // Cập nhật bóc tách Module 1 trên Live Sheet
       const cogsUsdEl = document.getElementById('kpiCogsPerBoxUsd');
@@ -6544,12 +7060,13 @@
           const maxByWeight = Math.floor(remKg / (s.grossWeight || 7.8));
           const maxAdd = Math.min(maxByVol, maxByWeight);
           if (maxAdd > 0) {
+            const skuC = getSupplierSkuCode(s);
             const shortName = s.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
             pillsHtml += `
               <button type="button" class="btn btn-sm recommend-pill" onclick="applyRecommendFill('${s.id}', ${maxAdd})" 
                       style="font-size:10px; padding:2px 7px; background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); border-radius:12px; cursor:pointer;"
-                      title="Bấm để tự động điền +${maxAdd} thùng ${s.product} vào xe">
-                +${maxAdd} th ${shortName}
+                      title="Bấm để tự động điền +${maxAdd} thùng [${skuC}] ${s.product} vào xe">
+                +${maxAdd} th [${skuC}] ${shortName}
               </button>
             `;
           }
@@ -6575,8 +7092,18 @@
       }
 
       // Populate Cost Table (BILINGUAL)
+      const cogsRowName = (packingMode === 'MIXED' && mixedSkuItems.length > 0)
+        ? `Giá vốn mua hàng ghép cont chưa VAT (COGS - ${mixedSkuItems.length} mã SP)`
+        : `Giá vốn mua hàng chưa VAT (COGS) [${singleSkuCode}]`;
+      const cogsRowProvider = (packingMode === 'MIXED' && mixedSkuItems.length > 0)
+        ? `Đa NCC (${mixedSkuItems.map(it => it.skuCode).join(', ')})`
+        : supplier.name;
+      const cogsRowNote = (packingMode === 'MIXED' && mixedSkuItems.length > 0)
+        ? mixedSkuItems.map(it => `${it.skuCode}: ${it.qty}th×${(it.pricePreVat/1000).toFixed(0)}k`).join(' + ')
+        : `Đơn giá: ${formatVnd(supplier.pricePreVat)}/th × ${qty.toLocaleString('vi-VN')} th (VAT ${(supplier.vatRate*100).toFixed(0)}%)`;
+
       const costRows = [
-        { key: "cogs", name: "Giá vốn mua hàng chưa VAT (COGS)", nameEn: "Factory Purchase Cost (Excl. VAT)", provider: supplier.name, providerEn: "Factory Supplier", amount: cogsPreVat, note: `Hóa đơn VAT ${(supplier.vatRate*100).toFixed(0)}% (TK 632)`, noteEn: "Commercial Invoice (Acc. 632)" },
+        { key: "cogs", name: cogsRowName, nameEn: "Factory Purchase Cost (Excl. VAT)", provider: cogsRowProvider, providerEn: "Factory Supplier", amount: cogsPreVat, note: cogsRowNote, noteEn: "Commercial Invoice (Acc. 632)" },
         { key: "vat", name: "Thuế GTGT đầu vào hoàn lại (Tạm tính)", nameEn: "Refundable Input VAT (Estimated)", provider: "Nhà nước hoàn", providerEn: "State Budget Refund", amount: vatRefund, note: `Quỹ hoàn thuế TK 1331 (${(supplier.vatRate*100).toFixed(0)}%)`, noteEn: "Input VAT Refund Fund (Acc. 1331)" }
       ];
 
@@ -6880,7 +7407,8 @@
       // Lưu trạng thái tính toán để kết xuất ảnh chụp Canvas HD 2X Retina
       window._currentCalcData = {
         supplier, carrier, activeAgentVn, agentVnName, agentLao, agentYard,
-        terms, vehicle, qty, tripCount,
+        terms, vehicle, qty, tripCount, tripCountUnit,
+        packingMode, mixedSkuItems, singleSkuCode, liveScnId: curScnId,
         demurrageDays, wireCount, depositPercent: depositPercentVal, depositRate,
         depositAmount: revenueUsd * depositRate,
         balanceAmount: (wireCount === 1) ? 0 : (revenueUsd * (1 - depositRate)),
@@ -7127,8 +7655,8 @@
     }
 
     // ==========================================
-    // THUẬT TOÁN ĐỊNH DANH SSOT NAME ID (DETERMINISTIC NAMING ENGINE)
-    // 100% THUẬT TOÁN QUY TẮC CỨNG - KHÔNG CÓ CAN THIỆP AI
+    // THUẬT TOÁN ĐỊNH DANH SSOT NAME ID V2.0 (/cmh-namid STANDARD - CÓ MÃ KÝ TỰ CHỮ CÁI SẢN PHẨM)
+    // 100% THUẬT TOÁN QUY TẮC CỨNG - HỖ TRỢ CẢ ĐƠN 1 SP (SINGLE) VÀ GHÉP CONT ĐA SP (MIXED)
     // ==========================================
     function computeSsotNameId(overrideOrderRef) {
       // 1. Incoterms & Destination
@@ -7167,15 +7695,51 @@
         vehLabel = 'Cont 45HC';
       }
 
-      // 3. Trip Count & Box Quantity
+      // 3. Trip Count, Product SKU Code(s) & Box Quantity (/cmh-namid V2.0)
       const trips = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
-      const qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
       const vehTag = trips > 1 ? `${trips}${vehCode}` : vehCode;
-      const qtyTag = `${qty}T`;
+
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+      const singleSkuCode = getSupplierSkuCode(sup);
+
+      let qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
+      let qtyTag = `${singleSkuCode}_${qty}T`;
+      let prodName = sup ? `[${singleSkuCode}] ${sup.product}` : `[${singleSkuCode}] Snack Quẩy Giòn Giòn`;
+      let labelSkuSummary = `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} thùng`;
+
+      if (packingMode === 'MIXED' && partnersMaster && partnersMaster.suppliers) {
+        const mixTokens = [];
+        const mixLabels = [];
+        let mixTotal = 0;
+        const activeIds = (activeMixedSupplierIds && Array.isArray(activeMixedSupplierIds))
+          ? activeMixedSupplierIds
+          : partnersMaster.suppliers.map(s => s.id);
+        partnersMaster.suppliers.forEach(s => {
+          if (!activeIds.includes(s.id)) return;
+          const q = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+          if (q > 0) {
+            const c = getSupplierSkuCode(s);
+            mixTokens.push(`${c}${q}`);
+            mixLabels.push(`${c}(${q})`);
+            mixTotal += q;
+          }
+        });
+        qty = mixTotal;
+        if (mixTokens.length > 0) {
+          qtyTag = `MIX_${mixTokens.join('_')}-${mixTotal}T`;
+          prodName = `Ghép Cont (${mixTokens.length} SP): ${mixLabels.join(' + ')}`;
+          labelSkuSummary = `Ghép ${mixLabels.join('+')} = ${mixTotal.toLocaleString('vi-VN')} thùng`;
+        } else {
+          qtyTag = `MIX_0T`;
+          prodName = `Ghép Cont (0 thùng)`;
+          labelSkuSummary = `Ghép Cont (0 thùng)`;
+        }
+      }
 
       // 4. Carrier Code
       const carId = document.getElementById('carrierSelect') ? document.getElementById('carrierSelect').value : '';
-      const carrier = partnersMaster.carriers.find(c => c.id === carId) || partnersMaster.carriers[0];
+      const carrier = (partnersMaster && partnersMaster.carriers) ? (partnersMaster.carriers.find(c => c.id === carId) || partnersMaster.carriers[0]) : null;
       let carCode = 'VT';
       let carLabel = 'Vĩnh Thành';
       if (carrier) {
@@ -7190,18 +7754,16 @@
         }
       }
 
-      // 5. Product Name
-      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
-      const sup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
-      const prodName = sup ? sup.product : 'Snack Quẩy Giòn Giòn';
-
       // 6. Buyer / Customer Tag & 7. Order Reference Seed (/cmh-namid Standard)
       const currentName = (document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : '') || '';
       
       let buyerTag = 'DIX';
-      if (/BIGC/i.test(currentName)) buyerTag = 'BIGC';
+      const buyerSeedMatch = currentName.match(/-([A-Z0-9]{2,8})-(\d{6})\b/);
+      if (buyerSeedMatch && !['VT', 'HM', 'DL', 'HH', 'CAR'].includes(buyerSeedMatch[1])) {
+        buyerTag = buyerSeedMatch[1];
+      } else if (/BIGC/i.test(currentName)) buyerTag = 'BIGC';
       else if (/CP/i.test(currentName)) buyerTag = 'CP';
-      else if (/LAO/i.test(currentName)) buyerTag = 'LAO';
+      else if (/\bLAO\b/i.test(currentName) && !/-LAO$/i.test(currentName)) buyerTag = 'LAO';
       else if (/THAI/i.test(currentName)) buyerTag = 'THAI';
 
       // Trích xuất mã gốc đơn hàng 6 số YYMMNN (Root Order Seed)
@@ -7236,12 +7798,12 @@
         modifierDesc = `Phát sinh: ${modArr.join(' + ')}`;
       }
 
-      // Assembling Machine SSOT ID (/cmh-namid Standard)
+      // Assembling Machine SSOT ID (/cmh-namid V2.0 Standard)
       const generatedId = `SCN-${termsCode}-${vehTag}-${qtyTag}-${carCode}-${buyerTag}-${orderRef}${modifierCode}`;
 
       // Assembling Human-Readable Label
       const tripsStr = trips > 1 ? ` (${trips} xe/cont)` : '';
-      const generatedLabel = `${termsLabel} · ${vehLabel}${tripsStr} (${qty.toLocaleString('vi-VN')} thùng) - ${carLabel} | ${buyerTag} #${orderRef}`;
+      const generatedLabel = `${termsLabel} · ${vehLabel}${tripsStr} [${labelSkuSummary}] - ${carLabel} | ${buyerTag} #${orderRef}`;
 
       return {
         id: generatedId,
@@ -7435,10 +7997,13 @@
       }, 60);
     }
 
-    function _renderHdCanvasSnapshot(scale = 2) {
+    function _renderHdCanvasSnapshot(scale = 2, silentModal = false) {
       recalculate();
       const d = window._currentCalcData;
       if (!d) return;
+
+      const liveNid = computeSsotNameId();
+      const curScnId = (liveNid && liveNid.id) ? liveNid.id : (d.liveScnId || 'SCN-DEFAULT');
 
       // Estimate initial canvas height, then tightly crop to actual content
       const canvas = document.createElement('canvas');
@@ -7487,14 +8052,14 @@
       text('KẾ HOẠCH KINH DOANH & DỰ TOÁN ĐỊNH GIÁ XUẤT KHẨU / EXPORT BUSINESS PLAN & PRICING', 55, 114, 'bold 16px "Times New Roman", serif', '#111827');
       text('Mã số thuế / Tax ID: 0109469047 | Trụ sở / Head Office: Tòa nhà CEO Tower, Phạm Hùng, Phường Từ Liêm, Hà Nội', 55, 135, '13.5px "Times New Roman", serif', '#374151');
 
-      // Khung quản trị hồ sơ góc phải (Chuẩn mực hành chính, độ rộng 560px triệt tiêu 100% tràn chữ)
-      const dossierBoxW = 560;
+      // Khung quản trị hồ sơ góc phải (Chuẩn mực hành chính, độ rộng 580px triệt tiêu 100% tràn chữ)
+      const dossierBoxW = 580;
       const dossierBoxX = W - 35 - dossierBoxW;
       box(dossierBoxX, 42, dossierBoxW, 98, '#ffffff', '#000000', 1.2);
       text('HỒ SƠ DỰ TOÁN KINH DOANH', dossierBoxX + 14, 64, 'bold 13.5px "Times New Roman", serif', '#000000');
       text('BUSINESS DOSSIER', dossierBoxX + 14, 78, 'italic 11px "Times New Roman", serif', '#4b5563');
-      const curScnId = document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : 'SCN-DEFAULT';
-      text('Mã hồ sơ / Code: ' + curScnId, dossierBoxX + 14, 103, 'bold 12px "Courier New", monospace', '#000000');
+      const codeFontSize = curScnId.length > 52 ? 'bold 10px "Courier New", monospace' : (curScnId.length > 44 ? 'bold 11px "Courier New", monospace' : 'bold 12px "Courier New", monospace');
+      text('Mã hồ sơ / Code: ' + curScnId, dossierBoxX + 14, 103, codeFontSize, '#000000');
       text('Thời gian lập / Date: ' + new Date().toLocaleString('vi-VN'), dossierBoxX + 14, 126, '12.5px "Times New Roman", serif', '#374151');
 
       // 2. THÔNG TIN ĐƠN HÀNG & ĐIỀU KIỆN THƯƠNG MẠI (BILINGUAL ORDER DETAILS)
@@ -7502,16 +8067,30 @@
       box(35, curY, W - 70, 115, '#ffffff', '#000000', 1.5);
       text('THÔNG TIN ĐƠN HÀNG & ĐIỀU KIỆN THƯƠNG MẠI / ORDER DETAILS & TRADE TERMS', 55, curY + 28, 'bold 18px "Times New Roman", serif', '#000000');
 
-      // Cột 1
-      text('• Tên hàng hóa / Commodity: ' + d.supplier.product + ' (Quy cách / Spec: ' + d.supplier.spec + ' | Mã HS / HS Code: 1905.90.80)', 55, curY + 56, '15px "Times New Roman", serif', '#111827');
-      text('• Bên bán (Nhà cung cấp) / Seller (Supplier): ' + d.supplier.name + ' (MST / Tax ID: ' + d.supplier.taxId + ')', 55, curY + 80, '15px "Times New Roman", serif', '#374151');
-      text('• Đơn giá xuất xưởng / Ex-work: ' + formatVnd(d.supplier.pricePreVat) + '/thùng | Thuế suất GTGT / Input VAT: ' + (d.supplier.vatRate*100).toFixed(0) + '%', 55, curY + 104, '15px "Times New Roman", serif', '#374151');
-
-      // Cột 2
       const midX = 1100;
-      text('• Điều kiện giao hàng / Incoterms: ' + d.terms.replace('_', ' ') + ' | Quy mô / Volume: ' + d.tripCount + ' ' + d.tripCountUnit + ' (' + d.qty.toLocaleString('vi-VN') + ' thùng)', midX, curY + 56, 'bold 15px "Times New Roman", serif', '#000000');
-      text('• Đơn vị vận tải / Carrier: ' + d.carrier.name + ' | Đại lý HQ / Customs Broker: ' + d.agentVnName, midX, curY + 80, '15px "Times New Roman", serif', '#374151');
-      text('• Tỷ giá / FX Rate: ' + d.fxRate.toLocaleString('vi-VN') + ' VND/USD | Đơn giá chào bán / Quoted Price: $' + d.quotePrice.toFixed(2) + ' USD/thùng', midX, curY + 104, 'bold 15px "Times New Roman", serif', '#000000');
+      if (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0) {
+        const mixCommStr = d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ');
+        const mixBuyStr = d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(' | ');
+        const mixQuoteStr = d.mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(' | ');
+        // Cột 1
+        text('• Hàng hóa ghép cont (' + d.mixedSkuItems.length + ' SP): ' + mixCommStr, 55, curY + 56, 'bold 14px "Times New Roman", serif', '#111827');
+        text('• Bên bán (Nhà cung cấp) / Seller: Đa Nhà cung cấp (' + d.mixedSkuItems.map(it => it.skuCode).join(', ') + ' | HS Code: 1905.90.80)', 55, curY + 80, '14.5px "Times New Roman", serif', '#374151');
+        text('• Giá vốn từng mã / Ex-work: ' + mixBuyStr + ' (BQ: ' + formatVnd(d.cogsPerBoxVnd) + '/th | VAT 8%)', 55, curY + 104, '14px "Times New Roman", serif', '#374151');
+        // Cột 2
+        text('• Điều kiện giao hàng / Incoterms: ' + d.terms.replace('_', ' ') + ' | Quy mô / Volume: ' + d.tripCount + ' ' + d.tripCountUnit + ' (' + d.qty.toLocaleString('vi-VN') + ' thùng)', midX, curY + 56, 'bold 15px "Times New Roman", serif', '#000000');
+        text('• Đơn vị vận tải / Carrier: ' + d.carrier.name + ' | Đại lý HQ / Customs Broker: ' + d.agentVnName, midX, curY + 80, '15px "Times New Roman", serif', '#374151');
+        text('• Tỷ giá: ' + d.fxRate.toLocaleString('vi-VN') + ' đ/USD | Giá bán từng mã: ' + mixQuoteStr + ' (BQ: $' + d.quotePrice.toFixed(2) + '/th)', midX, curY + 104, 'bold 14px "Times New Roman", serif', '#000000');
+      } else {
+        const skuTag = d.singleSkuCode || getSupplierSkuCode(d.supplier);
+        // Cột 1
+        text('• Tên hàng hóa / Commodity: [' + skuTag + '] ' + d.supplier.product + ' (Quy cách / Spec: ' + d.supplier.spec + ' | HS Code: 1905.90.80)', 55, curY + 56, 'bold 15px "Times New Roman", serif', '#111827');
+        text('• Bên bán (Nhà cung cấp) / Seller (Supplier): ' + d.supplier.name + ' (MST / Tax ID: ' + d.supplier.taxId + ')', 55, curY + 80, '15px "Times New Roman", serif', '#374151');
+        text('• Đơn giá xuất xưởng / Ex-work [' + skuTag + ']: ' + formatVnd(d.supplier.pricePreVat) + '/thùng | Thuế suất GTGT / Input VAT: ' + (d.supplier.vatRate*100).toFixed(0) + '%', 55, curY + 104, '15px "Times New Roman", serif', '#374151');
+        // Cột 2
+        text('• Điều kiện giao hàng / Incoterms: ' + d.terms.replace('_', ' ') + ' | Quy mô / Volume: ' + d.tripCount + ' ' + d.tripCountUnit + ' ([' + skuTag + '] ' + d.qty.toLocaleString('vi-VN') + ' thùng)', midX, curY + 56, 'bold 15px "Times New Roman", serif', '#000000');
+        text('• Đơn vị vận tải / Carrier: ' + d.carrier.name + ' | Đại lý HQ / Customs Broker: ' + d.agentVnName, midX, curY + 80, '15px "Times New Roman", serif', '#374151');
+        text('• Tỷ giá / FX Rate: ' + d.fxRate.toLocaleString('vi-VN') + ' VND/USD | Đơn giá chào bán [' + skuTag + ']: $' + d.quotePrice.toFixed(2) + ' USD/thùng', midX, curY + 104, 'bold 15px "Times New Roman", serif', '#000000');
+      }
 
       // 3. HÀNG CHỈ SỐ QUẢN TRỊ TÀI CHÍNH (5 MODULES SẮP XẾP CHUẨN MỰC TỪ GIÁ VỐN -> GIÁ BÁN -> LÃI)
       curY = 295;
@@ -7781,20 +8360,18 @@
       const dlBtn = document.getElementById('btnDownloadScreenshot');
       if (dlBtn) {
         dlBtn.href = dataUrl;
-        let scnCode = 'SCN-DEFAULT';
-        const codeEl = document.getElementById('liveDossierCode');
-        if (codeEl && codeEl.textContent.trim()) {
-          scnCode = codeEl.textContent.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
-        }
+        const scnCode = curScnId.replace(/[^a-zA-Z0-9_-]/g, '_');
         const now = new Date();
         const pad = (n) => String(n).padStart(2, '0');
         const timeStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
         dlBtn.download = `CMH_PLAN_A4_${scnCode}_${timeStr}.png`;
       }
 
-      const modal = document.getElementById('screenshotModalBackdrop');
-      if (modal) modal.style.display = 'flex';
-      showToastNotification("✅ Đã kết xuất ảnh Kế hoạch A4 Đen Trắng vừa khít thành công!");
+      if (!silentModal) {
+        const modal = document.getElementById('screenshotModalBackdrop');
+        if (modal) modal.style.display = 'flex';
+        showToastNotification(`✅ Đã kết xuất ảnh Kế hoạch A4 (${curScnId}) thành công!`);
+      }
     }
 
     // RENDER A4 PLAN HTML FOR PRINT & PDF EXPORT
@@ -7806,7 +8383,8 @@
       const container = document.getElementById('a4PlanPrintContainer');
       if (!container) return;
 
-      const curScnId = document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : 'SCN-DEFAULT';
+      const liveNid = computeSsotNameId();
+      const curScnId = (liveNid && liveNid.id) ? liveNid.id : (d.liveScnId || 'SCN-DEFAULT');
       const timeStr = new Date().toLocaleString('vi-VN');
 
       const q = d.qty || 1;
@@ -7875,6 +8453,21 @@
         `;
       });
 
+      const isMixPrint = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
+      const skuTagPrint = d.singleSkuCode || getSupplierSkuCode(d.supplier);
+      const commHtmlPrint = isMixPrint
+        ? `Ghép Cont (${d.mixedSkuItems.length} SP): ` + d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ')
+        : `[${skuTagPrint}] ${d.supplier.product} (${d.supplier.spec} | HS Code: 1905.90.80)`;
+      const supHtmlPrint = isMixPrint
+        ? `Đa Nhà cung cấp (${d.mixedSkuItems.map(it => it.skuCode).join(', ')})`
+        : `${d.supplier.name} (MST / Tax ID: ${d.supplier.taxId})`;
+      const exWorkHtmlPrint = isMixPrint
+        ? d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(' | ') + ` (BQ: ${formatVnd(cogsPerBoxVnd)}/th)`
+        : `[${skuTagPrint}] ${formatVnd(d.supplier.pricePreVat)}/thùng (Thuế GTGT / Input VAT: 8%)`;
+      const quoteHtmlPrint = isMixPrint
+        ? d.mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(' | ') + ` (BQ: $${d.quotePrice.toFixed(2)}/th)`
+        : `[${skuTagPrint}] $${d.quotePrice.toFixed(2)} USD/thùng`;
+
       container.innerHTML = `
         <div style="font-family:'Times New Roman', serif; color:#000; background:#fff; line-height:1.25; padding:0; margin:0; box-sizing:border-box;">
           <!-- TIÊU ĐỀ PHÁP NHÂN & HỒ SƠ DỰ TOÁN (BILINGUAL CORPORATE HEADER) -->
@@ -7895,16 +8488,16 @@
           <!-- THÔNG TIN ĐƠN HÀNG & ĐIỀU KIỆN THƯƠNG MẠI (BILINGUAL ORDER DETAILS) -->
           <table style="width:100%; border-collapse:collapse; margin-bottom:4px; font-size:8.5px;">
             <tr>
-              <td style="border:1px solid #000; padding:2px 4px; width:50%;"><b>Tên hàng hóa / Commodity:</b> ${d.supplier.product} (${d.supplier.spec} | HS Code: 1905.90.80)</td>
+              <td style="border:1px solid #000; padding:2px 4px; width:50%;"><b>Tên hàng hóa / Commodity:</b> ${commHtmlPrint}</td>
               <td style="border:1px solid #000; padding:2px 4px; width:50%;"><b>Điều kiện giao hàng / Incoterms:</b> Incoterms 2020 ${d.terms.replace('_',' ')} | <b>Quy mô / Volume:</b> ${d.qty.toLocaleString('vi-VN')} thùng (${d.tripCount} ${d.tripCountUnit})</td>
             </tr>
             <tr>
-              <td style="border:1px solid #000; padding:2px 4px;"><b>Bên bán (Nhà cung cấp) / Seller (Supplier):</b> ${d.supplier.name} (MST / Tax ID: ${d.supplier.taxId})</td>
+              <td style="border:1px solid #000; padding:2px 4px;"><b>Bên bán (Nhà cung cấp) / Seller (Supplier):</b> ${supHtmlPrint}</td>
               <td style="border:1px solid #000; padding:2px 4px;"><b>Đơn vị vận chuyển / Carrier:</b> ${d.carrier.name} | <b>Đại lý HQ / Customs Broker:</b> ${d.agentVnName}</td>
             </tr>
             <tr>
-              <td style="border:1px solid #000; padding:2px 4px;"><b>Đơn giá xuất xưởng / Ex-work:</b> ${formatVnd(d.supplier.pricePreVat)}/thùng (Thuế GTGT / Input VAT: 8%)</td>
-              <td style="border:1px solid #000; padding:2px 4px;"><b>Tỷ giá / FX Rate:</b> ${d.fxRate.toLocaleString('vi-VN')} VND/USD | <b>Đơn giá chào bán / Quoted Price:</b> $${d.quotePrice.toFixed(2)} USD/thùng</td>
+              <td style="border:1px solid #000; padding:2px 4px;"><b>Đơn giá xuất xưởng / Ex-work:</b> ${exWorkHtmlPrint}</td>
+              <td style="border:1px solid #000; padding:2px 4px;"><b>Tỷ giá / FX Rate:</b> ${d.fxRate.toLocaleString('vi-VN')} VND/USD | <b>Đơn giá chào bán / Quoted Price:</b> ${quoteHtmlPrint}</td>
             </tr>
           </table>
 
@@ -8209,9 +8802,7 @@
 
     // DOWNLOAD DIRECT HIGH-RESOLUTION A4 PDF
     function downloadPlanA4PDF() {
-      if (!window._lastSnapshotCanvas || window._lastSnapshotCanvas.width < 4400) {
-        _renderHdCanvasSnapshot(2);
-      }
+      _renderHdCanvasSnapshot(2, true);
       const canvas = window._lastSnapshotCanvas;
       if (!canvas) {
         showToastNotification("⚠️ Không tìm thấy bản vẽ kế hoạch!");
@@ -8221,22 +8812,15 @@
       setTimeout(() => {
         try {
           const pdfBlob = generatePdfBlobFromCanvas(canvas);
-          let scnCode = 'SCN-DEFAULT';
-          const codeEl = document.getElementById('liveDossierCode');
-          if (codeEl && codeEl.textContent.trim()) {
-            scnCode = codeEl.textContent.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
-          } else {
-            const scnInput = document.getElementById('scenarioName');
-            if (scnInput && scnInput.value.trim()) {
-              scnCode = scnInput.value.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
-            }
-          }
+          const liveNid = computeSsotNameId();
+          const rawScnCode = (liveNid && liveNid.id) ? liveNid.id : (document.getElementById('liveDossierCode') ? document.getElementById('liveDossierCode').textContent.trim() : 'SCN-DEFAULT');
+          const scnCode = rawScnCode.replace(/[^a-zA-Z0-9_-]/g, '_');
           const now = new Date();
           const pad = (n) => String(n).padStart(2, '0');
           const timeStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
           const filename = `CMH_PLAN_A4_${scnCode}_${timeStr}.pdf`;
           triggerFileDownload(pdfBlob, filename);
-          showToastNotification("✅ Đã tải file PDF A4 Kế hoạch độ nét cao thành công!");
+          showToastNotification(`✅ Đã tải file PDF A4 (${rawScnCode}) thành công!`);
         } catch (err) {
           console.error(err);
           showToastNotification("❌ Lỗi khi sinh PDF: " + err.message);
@@ -8246,9 +8830,7 @@
 
     // DIRECT A4 LANDSCAPE PRINT (PURE BLACK 1-PAGE VIA BROWSER PRINT)
     function printPlanA4Direct() {
-      if (!window._lastSnapshotCanvas || window._lastSnapshotCanvas.width < 4400) {
-        _renderHdCanvasSnapshot(2);
-      }
+      _renderHdCanvasSnapshot(2, true);
       const canvas = window._lastSnapshotCanvas;
       if (!canvas) {
         showToastNotification("⚠️ Không tìm thấy bản vẽ kế hoạch!");
