@@ -1800,7 +1800,7 @@
         <div id="supplierInfoBox" style="padding:8px 10px; background:var(--bg-cockpit-panel); border-radius:3px; font-size:11px; color:var(--text-muted); border:1px solid var(--border-subtle);">
           <div><b>Sản phẩm:</b> <span id="infoProdName">Snack Quẩy Giòn Giòn</span> (HS: 1905.90.80)</div>
           <div><b>Nhà cung cấp:</b> <span id="infoSupplierName">Thiên Long Phú Thọ</span> (MST: 5400512548)</div>
-          <div><b>Đơn giá mua:</b> <span id="infoBuyPrice">337,000</span> đ/thùng (chưa VAT) | VAT: <span id="infoVatRate">8</span>%</div>
+          <div><b>Đơn giá mua:</b> <span id="infoBuyPrice"><b style="color:var(--alert-success-text);">364,999.64đ</b> (gốc đã VAT) · Chưa VAT: <b>337,962.63đ</b></span> | VAT: <span id="infoVatRate">8</span>%</div>
         </div>
       </div>
 
@@ -2078,10 +2078,11 @@
                   <th>Mã số thuế</th>
                   <th>Tên sản phẩm</th>
                   <th class="text-center" style="width:75px;">Mã SP (SKU)</th>
-                  <th class="text-right">Giá mua chưa VAT (VNĐ/thùng)</th>
+                  <th class="text-right" style="color:var(--alert-success-text);">Đơn Giá (đã VAT) ★ Báo Giá Gốc</th>
+                  <th class="text-right">Giá mua chưa VAT (8%)</th>
                   <th class="text-right" style="color:var(--accent-gold);">Giá bán chuẩn (USD/thùng)</th>
                   <th class="text-center">Thuế VAT (%)</th>
-                  <th class="text-center">Kích thước & Đóng Cont 45ft</th>
+                  <th class="text-center">Kích thước & Trọng lượng</th>
                   <th class="text-center" style="width:130px;">Thao tác riêng</th>
                 </tr>
               </thead>
@@ -2904,11 +2905,94 @@
     // SSOT MASTER PARTNERS DATABASE (STORAGE IN LOCALSTORAGE)
     const DEFAULT_PARTNERS_MASTER = {
       suppliers: [
-        { id: "SUP_THIEN_LONG", skuCode: "QGG", name: "Thiên Long Phú Thọ", taxId: "5400512548", product: "Snack Quẩy Giòn Giòn", pricePreVat: 337000, quoteUsd: 15.80, vatRate: 0.08, spec: "22g x 300 cốc/thùng", dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", grossWeight: 7.80, netWeight: 6.60, cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 },
-        { id: "SUP_LOI_DAT_MY_DEO_CAY", skuCode: "MDC", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ dẻo cay", pricePreVat: 337963, quoteUsd: 15.80, vatRate: 0.08, spec: "300 PCS/thùng (~8.18kg)", dimL: 450, dimW: 328, dimH: 189, cbm: 0.0279, dims: "450x328x189 mm", grossWeight: 8.18, netWeight: 7.20, cont45Qty: 2814, cont40Qty: 2250, howoQty: 3422 },
-        { id: "SUP_LOI_DAT_MY_CAY", skuCode: "MCT", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Mỳ Cây Thơm Ngon", pricePreVat: 578704, quoteUsd: 26.50, vatRate: 0.08, spec: "500 PCS/thùng (12.85kg)", dimL: 620, dimW: 430, dimH: 400, cbm: 0.1066, dims: "620x430x400 mm", grossWeight: 12.85, netWeight: 11.50, cont45Qty: 736, cont40Qty: 580, howoQty: 938 },
-        { id: "SUP_LOI_DAT_XIEN_NUONG", skuCode: "VXN", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Vị Xiên Nướng", pricePreVat: 337963, quoteUsd: 15.80, vatRate: 0.08, spec: "300 PCS/thùng (~8.85kg)", dimL: 530, dimW: 440, dimH: 310, cbm: 0.0723, dims: "530x440x310 mm", grossWeight: 8.85, netWeight: 7.80, cont45Qty: 1086, cont40Qty: 850, howoQty: 1383 },
-        { id: "SUP_LOI_DAT_MY_TOM_HUM", skuCode: "MTH", name: "Lợi Đạt Hải Phòng", taxId: "[CHỜ CUNG CẤP]", product: "Snack Lợi Đạt Mỳ Tôm Hùm", pricePreVat: 337963, quoteUsd: 15.80, vatRate: 0.08, spec: "300 PCS/thùng (~8.95kg)", dimL: 530, dimW: 430, dimH: 340, cbm: 0.0775, dims: "530x430x340 mm", grossWeight: 8.95, netWeight: 7.90, cont45Qty: 1013, cont40Qty: 800, howoQty: 1290 }
+        { 
+          id: "SUP_THIEN_LONG", 
+          skuCode: "QGG", 
+          name: "Thiên Long Phú Thọ", 
+          taxId: "5400512548", 
+          product: "Snack Quẩy Giòn Giòn", 
+          priceIncVat: 363960.00,
+          pricePreVat: 337000.00, 
+          quoteUsd: 15.80, 
+          vatRate: 0.08, 
+          spec: "22g x 300 cốc/thùng", 
+          unit: "thùng",
+          dimL: 585, dimW: 270, dimH: 497, cbm: 0.0785, dims: "585x270x497 mm", 
+          grossWeight: 7.80, netWeight: 6.60, weightLabel: "~8.80Kg cả bì / 6.60Kg tịnh",
+          cont45Qty: 1000, cont40Qty: 800, howoQty: 1300 
+        },
+        { 
+          id: "SUP_LOI_DAT_MY_DEO_CAY", 
+          skuCode: "MDC", 
+          stt: 1,
+          name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
+          taxId: "[CHỜ XÁC NHẬN]", 
+          product: "Snack Lợi Đạt Mỳ dẻo cay", 
+          packagingLabel: "Snack Lợi Đạt Mỳ dẻo cay (LỢI ĐẠT FOOD)",
+          priceIncVat: 364999.64, 
+          pricePreVat: 337962.63, 
+          quoteUsd: 15.80, 
+          vatRate: 0.08, 
+          spec: "300PCS/thùng", 
+          unit: "thùng",
+          dimL: 450, dimW: 328, dimH: 189, cbm: 0.0278964, dims: "450x328x189 mm", 
+          grossWeight: 8.18, netWeight: null, weightLabel: "~8.18Kg",
+          cont45Qty: 2814, cont40Qty: 2401, howoQty: 3584 
+        },
+        { 
+          id: "SUP_LOI_DAT_MY_CAY", 
+          skuCode: "MCT", 
+          stt: 2,
+          name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
+          taxId: "[CHỜ XÁC NHẬN]", 
+          product: "Sanck Mỳ Cây Thơm Ngon", 
+          packagingLabel: "Snack Lợi Đạt Mỳ Cây Thơm Ngon (LỢI ĐẠT FOOD)",
+          priceIncVat: 624999.92, 
+          pricePreVat: 578703.63, 
+          quoteUsd: 26.50, 
+          vatRate: 0.08, 
+          spec: "500PCS/thùng", 
+          unit: "thùng",
+          dimL: 620, dimW: 430, dimH: 400, cbm: 0.10664, dims: "620x430x400 mm", 
+          grossWeight: 12.85, netWeight: null, weightLabel: "12.85Kg",
+          cont45Qty: 736, cont40Qty: 628, howoQty: 938 
+        },
+        { 
+          id: "SUP_LOI_DAT_XIEN_NUONG", 
+          skuCode: "VXN", 
+          stt: 3,
+          name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
+          taxId: "[CHỜ XÁC NHẬN]", 
+          product: "Sanck Vị Xiên Nướng", 
+          packagingLabel: "Snack Lợi Đạt Vị Xiên Nướng (LỢI ĐẠT FOOD)",
+          priceIncVat: 364999.64, 
+          pricePreVat: 337962.63, 
+          quoteUsd: 15.80, 
+          vatRate: 0.08, 
+          spec: "300PCS/thùng", 
+          unit: "thùng",
+          dimL: 530, dimW: 440, dimH: 310, cbm: 0.072292, dims: "530x440x310 mm", 
+          grossWeight: 8.85, netWeight: null, weightLabel: "~8.85Kg",
+          cont45Qty: 1086, cont40Qty: 926, howoQty: 1383 
+        },
+        { 
+          id: "SUP_LOI_DAT_MY_TOM_HUM", 
+          skuCode: "MTH", 
+          stt: 4,
+          name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
+          taxId: "[CHỜ XÁC NHẬN]", 
+          product: "Snack Lợi Đạt Mỳ Tôm Hùm", 
+          packagingLabel: "Snack Lợi Đạt Mỳ Tôm Hùm (LỢI ĐẠT FOOD)",
+          priceIncVat: 364999.64, 
+          pricePreVat: 337962.63, 
+          quoteUsd: 15.80, 
+          vatRate: 0.08, 
+          spec: "300PCS/thùng", 
+          unit: "thùng",
+          dimL: 530, dimW: 430, dimH: 340, cbm: 0.077486, dims: "530x430x340 mm", 
+          grossWeight: 8.95, netWeight: null, weightLabel: "~8.95Kg",
+          cont45Qty: 1013, cont40Qty: 864, howoQty: 1290 
+        }
       ],
       carriers: [
         { 
@@ -3060,10 +3144,20 @@
     let isBaselineEditMode = false;
     let isPinAuthenticated = false;
 
-    // Load from LocalStorage with smart migration for granular fee keys
+    // Hàm định dạng tiền tệ sản phẩm giữ nguyên độ chính xác thập phân (Cấm làm tròn số lẻ của báo giá gốc)
+    function formatExactProductPriceVnd(num) {
+      if (num === undefined || num === null || isNaN(num)) return '0 đ';
+      const n = Number(num);
+      if (Math.abs(n - Math.round(n)) > 0.001) {
+        return n.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' đ';
+      }
+      return Math.round(n).toLocaleString('vi-VN') + ' đ';
+    }
+
+    // Load from LocalStorage with smart migration for granular fee keys and exact unrounded Product DNA
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
@@ -3072,22 +3166,35 @@
             DEFAULT_PARTNERS_MASTER.suppliers.forEach(defSup => {
               const existing = parsed.suppliers.find(s => s.id === defSup.id);
               if (!existing) {
-                parsed.suppliers.push(defSup);
+                parsed.suppliers.push(JSON.parse(JSON.stringify(defSup)));
               } else {
+                // Khóa cứng ADN sản phẩm SSOT theo ảnh báo giá gốc (Cấm làm tròn, cấm dữ liệu ảo)
                 Object.assign(existing, {
-                  skuCode: existing.skuCode || defSup.skuCode,
-                  quoteUsd: existing.quoteUsd !== undefined ? existing.quoteUsd : defSup.quoteUsd,
+                  name: defSup.name,
+                  taxId: defSup.taxId,
+                  product: defSup.product,
+                  packagingLabel: defSup.packagingLabel,
+                  skuCode: defSup.skuCode,
+                  priceIncVat: defSup.priceIncVat,
+                  pricePreVat: defSup.pricePreVat,
+                  vatRate: defSup.vatRate,
+                  spec: defSup.spec,
+                  unit: defSup.unit,
+                  weightLabel: defSup.weightLabel,
+                  grossWeight: defSup.grossWeight,
+                  netWeight: defSup.netWeight,
                   dimL: defSup.dimL,
                   dimW: defSup.dimW,
                   dimH: defSup.dimH,
-                  grossWeight: defSup.grossWeight,
-                  netWeight: defSup.netWeight,
                   cbm: defSup.cbm,
                   dims: defSup.dims,
                   cont45Qty: defSup.cont45Qty,
                   cont40Qty: defSup.cont40Qty,
                   howoQty: defSup.howoQty
                 });
+                if (existing.quoteUsd === undefined) {
+                  existing.quoteUsd = defSup.quoteUsd;
+                }
               }
             });
           }
@@ -3136,7 +3243,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V4_9', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_0', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
@@ -4589,7 +4696,7 @@
                     <span style="display:inline-block; background:rgba(234,179,8,0.16); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); border-radius:2px; padding:0 3px; font-size:9px; font-family:monospace; margin-right:3px;">${skuCode}</span>${shortName}
                   </div>
                   <div style="font-size:9px; color:var(--text-muted); margin-top:1px;">
-                    Gốc: <b>${Math.round(s.pricePreVat || 0).toLocaleString('vi-VN')}đ</b> (~$${costUsd}) · ${s.grossWeight || 7.8}kg
+                    ${s.priceIncVat ? `Đã VAT: <b style="color:var(--alert-success-text);">${formatExactProductPriceVnd(s.priceIncVat)}</b> (Chưa VAT: ${formatExactProductPriceVnd(s.pricePreVat)})` : `Gốc: <b>${formatExactProductPriceVnd(s.pricePreVat)}</b>`} (~$${costUsd}) · ${s.weightLabel || (s.grossWeight ? s.grossWeight + 'kg' : '')}
                   </div>
                 </div>
               </div>
@@ -4630,7 +4737,8 @@
           selRestore.innerHTML = removedSuppliers.map(rs => {
             const code = getSupplierSkuCode(rs);
             const sName = rs.product.replace('Snack Lợi Đạt ', '').replace('Snack ', '');
-            return `<option value="${rs.id}">[${code}] ${sName} (Gốc: ${Math.round(rs.pricePreVat || 0).toLocaleString('vi-VN')}đ · Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
+            const pText = rs.priceIncVat ? `Đã VAT: ${formatExactProductPriceVnd(rs.priceIncVat)}` : `Gốc: ${formatExactProductPriceVnd(rs.pricePreVat)}`;
+            return `<option value="${rs.id}">[${code}] ${sName} (${pText} · Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
           }).join('');
         } else {
           restoreBar.style.display = 'none';
@@ -5272,7 +5380,10 @@
         const sku = getSupplierSkuCode(s);
         const qUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd || 15.80);
         const c45Text = s.cont45Qty ? ` | Cont45: ${s.cont45Qty.toLocaleString('vi-VN')} th` : '';
-        opt.innerText = `[${sku}] ${s.product} — Gốc: ${s.pricePreVat.toLocaleString('vi-VN')}đ | Bán: $${Number(qUsd).toFixed(2)}${c45Text}`;
+        const priceInfo = s.priceIncVat
+          ? `Đã VAT: ${formatExactProductPriceVnd(s.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(s.pricePreVat)}đ)`
+          : `Gốc: ${formatExactProductPriceVnd(s.pricePreVat)}đ`;
+        opt.innerText = `[${sku}] ${s.product} — ${priceInfo} | Bán: $${Number(qUsd).toFixed(2)}${c45Text}`;
         supSelect.appendChild(opt);
       });
       if (curSup && [...supSelect.options].some(o => o.value === curSup)) {
@@ -5387,7 +5498,14 @@
       
       document.getElementById('infoProdName').innerText = `[${skuCode}] ${sup.product}`;
       document.getElementById('infoSupplierName').innerText = `${sup.name} (MST: ${sup.taxId})`;
-      document.getElementById('infoBuyPrice').innerText = sup.pricePreVat.toLocaleString('vi-VN');
+      const buyPriceEl = document.getElementById('infoBuyPrice');
+      if (buyPriceEl) {
+        if (sup.priceIncVat) {
+          buyPriceEl.innerHTML = `<b style="color:var(--alert-success-text);">${formatExactProductPriceVnd(sup.priceIncVat)}đ</b> (gốc đã VAT) · Chưa VAT: <b>${formatExactProductPriceVnd(sup.pricePreVat)}đ</b>`;
+        } else {
+          buyPriceEl.innerText = `${formatExactProductPriceVnd(sup.pricePreVat)}đ`;
+        }
+      }
       document.getElementById('infoVatRate').innerText = (sup.vatRate * 100).toFixed(0);
       document.getElementById('kpiVatRateSub').innerText = `${(sup.vatRate * 100).toFixed(0)}% Tiền mua hàng Nhà máy`;
       document.getElementById('printCommodity').innerText = `[${skuCode}] ${sup.product}`;
@@ -5511,6 +5629,35 @@
       }, 1200);
     }
 
+    // Helper: auto compute pre-VAT <-> with-VAT in Partners Modal
+    function onSupVatPriceInput(idx) {
+      const row = document.getElementById(`sup_row_${idx}`);
+      if (!row) return;
+      const vatRateInp = row.querySelector('.inp-sup-vat');
+      const vatRate = (parseFloat(vatRateInp ? vatRateInp.value : 8) || 8) / 100;
+      const vatPrice = parseFloat(row.querySelector('.inp-sup-price-vat').value);
+      if (!isNaN(vatPrice)) {
+        const preVat = Math.round((vatPrice / (1 + vatRate)) * 100) / 100;
+        row.querySelector('.inp-sup-price').value = preVat.toFixed(2);
+      }
+    }
+
+    function onSupPreVatPriceInput(idx) {
+      const row = document.getElementById(`sup_row_${idx}`);
+      if (!row) return;
+      const vatRateInp = row.querySelector('.inp-sup-vat');
+      const vatRate = (parseFloat(vatRateInp ? vatRateInp.value : 8) || 8) / 100;
+      const prePrice = parseFloat(row.querySelector('.inp-sup-price').value);
+      if (!isNaN(prePrice)) {
+        const vatPrice = Math.round(prePrice * (1 + vatRate) * 100) / 100;
+        row.querySelector('.inp-sup-price-vat').value = vatPrice.toFixed(2);
+      }
+    }
+
+    function onSupVatRateChange(idx) {
+      onSupVatPriceInput(idx);
+    }
+
     // Render Master Modal Tables with Per-Enterprise Save Buttons
     function renderPartnerModalTables() {
       // 1. Suppliers Table
@@ -5525,9 +5672,10 @@
             <td><input type="text" class="form-control inp-sup-tax" style="font-size:12px; padding:3px 6px; width:110px;" value="${s.taxId}"></td>
             <td><input type="text" class="form-control inp-sup-prod" style="font-size:12px; padding:3px 6px;" value="${s.product}"></td>
             <td class="text-center"><input type="text" class="form-control text-center font-bold inp-sup-sku" maxlength="6" style="font-size:12px; padding:3px 4px; width:65px; text-transform:uppercase; color:var(--accent-gold); margin:0 auto;" value="${sku}"></td>
-            <td><input type="number" class="form-control text-right inp-sup-price" style="font-size:12px; padding:3px 6px;" value="${s.pricePreVat}"></td>
+            <td><input type="number" step="0.01" class="form-control text-right font-bold inp-sup-price-vat" oninput="onSupVatPriceInput(${idx})" style="font-size:12px; padding:3px 6px; color:var(--alert-success-text);" value="${s.priceIncVat !== undefined ? s.priceIncVat : ''}"></td>
+            <td><input type="number" step="0.01" class="form-control text-right inp-sup-price" oninput="onSupPreVatPriceInput(${idx})" style="font-size:12px; padding:3px 6px;" value="${s.pricePreVat}"></td>
             <td><input type="number" class="form-control text-right font-bold inp-sup-quote" step="0.1" style="font-size:12px; padding:3px 6px; color:var(--alert-success-text);" value="${Number(qUsd).toFixed(2)}"></td>
-            <td class="text-center"><input type="number" class="form-control text-center inp-sup-vat" style="font-size:12px; padding:3px 6px; width:55px; display:inline-block;" value="${(s.vatRate*100).toFixed(0)}">%</td>
+            <td class="text-center"><input type="number" class="form-control text-center inp-sup-vat" oninput="onSupVatRateChange(${idx})" style="font-size:12px; padding:3px 6px; width:55px; display:inline-block;" value="${(s.vatRate*100).toFixed(0)}">%</td>
             <td class="text-center" style="font-size:11px; padding:3px 6px;">
               <div style="font-family:monospace; color:var(--text-main); font-weight:bold;">${s.dims || 'N/A'}</div>
               <div style="color:var(--accent-gold); font-size:10px;">Cont45: <b>${(s.cont45Qty || 1000).toLocaleString('vi-VN')}</b> th (${s.cbm || '0.0785'} m³)</div>
@@ -5626,13 +5774,21 @@
         const product = row.querySelector('.inp-sup-prod').value.trim();
         const skuInp = row.querySelector('.inp-sup-sku');
         const skuCode = (skuInp && skuInp.value.trim()) ? skuInp.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : getSupplierSkuCode({ product });
-        const pricePreVat = parseFloat(row.querySelector('.inp-sup-price').value) || 0;
+        const priceVatInp = row.querySelector('.inp-sup-price-vat');
+        const pricePreInp = row.querySelector('.inp-sup-price');
+        const vatRate = (parseFloat(row.querySelector('.inp-sup-vat').value) || 8) / 100;
+        let priceIncVat = (priceVatInp && priceVatInp.value !== '') ? (parseFloat(priceVatInp.value) || 0) : undefined;
+        let pricePreVat = (pricePreInp && pricePreInp.value !== '') ? (parseFloat(pricePreInp.value) || 0) : 0;
+        if (priceIncVat !== undefined && (!pricePreVat || isNaN(pricePreVat))) {
+          pricePreVat = Math.round((priceIncVat / (1 + vatRate)) * 100) / 100;
+        } else if (pricePreVat && priceIncVat === undefined) {
+          priceIncVat = Math.round(pricePreVat * (1 + vatRate) * 100) / 100;
+        }
         const quoteInp = row.querySelector('.inp-sup-quote');
         const quoteUsd = quoteInp ? (parseFloat(quoteInp.value) || 15.80) : (partnersMaster.suppliers[idx].quoteUsd || 15.80);
-        const vatRate = (parseFloat(row.querySelector('.inp-sup-vat').value) || 8) / 100;
 
         partnersMaster.suppliers[idx] = Object.assign(partnersMaster.suppliers[idx], {
-          name, taxId, product, skuCode, pricePreVat, quoteUsd, vatRate
+          name, taxId, product, skuCode, priceIncVat, pricePreVat, quoteUsd, vatRate
         });
         currentMixedPrices[partnersMaster.suppliers[idx].id] = quoteUsd;
 
@@ -5648,7 +5804,8 @@
         syncToCloud(true);
 
         highlightRowSuccess(row);
-        showToastNotification(`✅ Đã lưu & đồng bộ sản phẩm [${skuCode}] ${product}: Giá gốc ${pricePreVat.toLocaleString('vi-VN')}đ | Giá bán $${quoteUsd.toFixed(2)}!`);
+        const vatDisp = priceIncVat ? `Đã VAT: ${formatExactProductPriceVnd(priceIncVat)}đ | ` : '';
+        showToastNotification(`✅ Đã lưu & đồng bộ sản phẩm [${skuCode}] ${product}: ${vatDisp}Chưa VAT: ${formatExactProductPriceVnd(pricePreVat)}đ | Giá bán $${quoteUsd.toFixed(2)}!`);
       }, "Lưu và cập nhật biểu phí Nhà cung cấp");
     }
 
@@ -5743,14 +5900,15 @@
         name: "Nhà Cung Cấp Mới",
         taxId: "0100000000",
         product: "Snack Sản Phẩm Mới",
-        pricePreVat: 337000,
+        priceIncVat: 363960.00,
+        pricePreVat: 337000.00,
         quoteUsd: 15.80,
         vatRate: 0.08,
         spec: "Quy cách chuẩn (~8.0kg)",
         cbm: 0.075,
         dims: "500x400x375 mm",
         grossWeight: 8.0,
-        netWeight: 7.0,
+        netWeight: null,
         cont45Qty: 1000,
         cont40Qty: 800,
         howoQty: 1300
@@ -5855,13 +6013,23 @@
             s.product = row.querySelector('.inp-sup-prod').value.trim();
             const skuInp = row.querySelector('.inp-sup-sku');
             s.skuCode = (skuInp && skuInp.value.trim()) ? skuInp.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : getSupplierSkuCode(s);
-            s.pricePreVat = parseFloat(row.querySelector('.inp-sup-price').value) || 0;
+            const vatInp = row.querySelector('.inp-sup-vat');
+            s.vatRate = (parseFloat(vatInp ? vatInp.value : 8) || 8) / 100;
+            const priceVatInp = row.querySelector('.inp-sup-price-vat');
+            const pricePreInp = row.querySelector('.inp-sup-price');
+            if (priceVatInp && priceVatInp.value !== '') {
+              s.priceIncVat = parseFloat(priceVatInp.value) || 0;
+            }
+            if (pricePreInp && pricePreInp.value !== '') {
+              s.pricePreVat = parseFloat(pricePreInp.value) || 0;
+            } else if (s.priceIncVat !== undefined) {
+              s.pricePreVat = Math.round((s.priceIncVat / (1 + s.vatRate)) * 100) / 100;
+            }
             const quoteInp = row.querySelector('.inp-sup-quote');
             if (quoteInp) {
               s.quoteUsd = parseFloat(quoteInp.value) || 15.80;
               currentMixedPrices[s.id] = s.quoteUsd;
             }
-            s.vatRate = (parseFloat(row.querySelector('.inp-sup-vat').value) || 8) / 100;
           }
         });
         // 2. Carriers
@@ -6596,7 +6764,12 @@
         const lblSingleDims = document.getElementById('lblSingleSkuDims');
         const lblSingleWeight = document.getElementById('lblSingleSkuWeight');
         if (lblSingleDims) lblSingleDims.innerText = `[${singleSkuCode}] DxRxC: ${supplier.dims || '585x270x497 mm'} (${supplier.cbm || 0.0785} m³)`;
-        if (lblSingleWeight) lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th · Giá gốc: ${formatVnd(supplier.pricePreVat || 337000)}`;
+        if (lblSingleWeight) {
+          const pVatText = supplier.priceIncVat
+            ? `Đã VAT: ${formatExactProductPriceVnd(supplier.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(supplier.pricePreVat || 337000)}đ)`
+            : `Giá gốc: ${formatExactProductPriceVnd(supplier.pricePreVat || 337000)}đ`;
+          lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th · ${pVatText}`;
+        }
 
         // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải)
         const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
@@ -6893,7 +7066,10 @@
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
           liveBuyEl.innerText = `BQ: ${formatVnd(cogsPerBoxVnd)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(', ') + `)`;
         } else {
-          liveBuyEl.innerText = `${formatVnd(supplier.pricePreVat)}/thùng [${singleSkuCode}]`;
+          const buyStr = supplier.priceIncVat
+            ? `${formatExactProductPriceVnd(supplier.priceIncVat)}đ (gốc đã VAT) · ${formatExactProductPriceVnd(supplier.pricePreVat)}đ (chưa VAT)`
+            : `${formatExactProductPriceVnd(supplier.pricePreVat)}đ/thùng`;
+          liveBuyEl.innerText = `${buyStr} [${singleSkuCode}]`;
         }
       }
 
@@ -7498,7 +7674,9 @@
           name: "1. Giá vốn mua hàng chưa VAT (COGS)",
           provider: `${d.supplier.name} (MST: ${d.supplier.taxId})`,
           amount: d.cogsPreVat,
-          note: `Đơn giá mua gốc từ Nhà máy: ${d.supplier.pricePreVat.toLocaleString('vi-VN')} đ/thùng`
+          note: d.supplier.priceIncVat
+            ? `Báo giá gốc đã VAT: ${formatExactProductPriceVnd(d.supplier.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ)`
+            : `Đơn giá mua gốc từ Nhà máy: ${formatExactProductPriceVnd(d.supplier.pricePreVat)} đ/thùng`
         },
         {
           name: (d.terms === 'FCA_LB' ? "2. Cước vận tải giao tại CK Lao Bảo (FCA)" : "2. Cước vận tải xe / cont"),
@@ -8085,7 +8263,10 @@
         // Cột 1
         text('• Tên hàng hóa / Commodity: [' + skuTag + '] ' + d.supplier.product + ' (Quy cách / Spec: ' + d.supplier.spec + ' | HS Code: 1905.90.80)', 55, curY + 56, 'bold 15px "Times New Roman", serif', '#111827');
         text('• Bên bán (Nhà cung cấp) / Seller (Supplier): ' + d.supplier.name + ' (MST / Tax ID: ' + d.supplier.taxId + ')', 55, curY + 80, '15px "Times New Roman", serif', '#374151');
-        text('• Đơn giá xuất xưởng / Ex-work [' + skuTag + ']: ' + formatVnd(d.supplier.pricePreVat) + '/thùng | Thuế suất GTGT / Input VAT: ' + (d.supplier.vatRate*100).toFixed(0) + '%', 55, curY + 104, '15px "Times New Roman", serif', '#374151');
+        const exWorkStr = d.supplier.priceIncVat
+          ? formatExactProductPriceVnd(d.supplier.priceIncVat) + 'đ (đã VAT) / ' + formatExactProductPriceVnd(d.supplier.pricePreVat) + 'đ (chưa VAT)'
+          : formatExactProductPriceVnd(d.supplier.pricePreVat) + 'đ/thùng';
+        text('• Đơn giá xuất xưởng / Ex-work [' + skuTag + ']: ' + exWorkStr + ' | Thuế suất GTGT / Input VAT: ' + (d.supplier.vatRate*100).toFixed(0) + '%', 55, curY + 104, '15px "Times New Roman", serif', '#374151');
         // Cột 2
         text('• Điều kiện giao hàng / Incoterms: ' + d.terms.replace('_', ' ') + ' | Quy mô / Volume: ' + d.tripCount + ' ' + d.tripCountUnit + ' ([' + skuTag + '] ' + d.qty.toLocaleString('vi-VN') + ' thùng)', midX, curY + 56, 'bold 15px "Times New Roman", serif', '#000000');
         text('• Đơn vị vận tải / Carrier: ' + d.carrier.name + ' | Đại lý HQ / Customs Broker: ' + d.agentVnName, midX, curY + 80, '15px "Times New Roman", serif', '#374151');
@@ -8463,7 +8644,9 @@
         : `${d.supplier.name} (MST / Tax ID: ${d.supplier.taxId})`;
       const exWorkHtmlPrint = isMixPrint
         ? d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(' | ') + ` (BQ: ${formatVnd(cogsPerBoxVnd)}/th)`
-        : `[${skuTagPrint}] ${formatVnd(d.supplier.pricePreVat)}/thùng (Thuế GTGT / Input VAT: 8%)`;
+        : (d.supplier.priceIncVat
+            ? `[${skuTagPrint}] ${formatExactProductPriceVnd(d.supplier.priceIncVat)}đ (gốc đã VAT) / ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ (chưa VAT)`
+            : `[${skuTagPrint}] ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ/thùng (Thuế GTGT / Input VAT: ${(d.supplier.vatRate*100).toFixed(0)}%)`);
       const quoteHtmlPrint = isMixPrint
         ? d.mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(' | ') + ` (BQ: $${d.quotePrice.toFixed(2)}/th)`
         : `[${skuTagPrint}] $${d.quotePrice.toFixed(2)} USD/thùng`;
@@ -11152,7 +11335,7 @@ ${amountSection}
                 </td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">Thùng</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(cogsUnitPrice)}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatExactProductPriceVnd(cogsUnitPrice)} đ</td>
                 <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(cogsTotal)}</td>
               </tr>
               <tr>
@@ -11169,7 +11352,7 @@ ${amountSection}
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
             <b>ĐIỀU KHOẢN VẬN HÀNH & BẢO ĐẢM HOÀN THUẾ:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Đã bao gồm bốc xếp:</b> Giá bán ${formatVnd(cogsUnitPrice)}/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng.</li>
+              <li><b>Đã bao gồm bốc xếp:</b> Giá bán ${formatExactProductPriceVnd(cogsUnitPrice)} đ/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng.</li>
               <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc 30%): ${formatVnd(depositVnd)}. Đợt 2 (70%): ${formatVnd(balanceVnd)} khi xuất hóa đơn GTGT.</li>
               <li><b>Cam kết hồ sơ thuế:</b> Bên Bán cam kết cung cấp đầy đủ bảng kê hóa đơn nguyên liệu đầu vào và chịu trách nhiệm bảo lãnh hoàn thuế GTGT 0% cho Bên Mua.</li>
             </ol>
@@ -11618,7 +11801,7 @@ ${amountSection}
                 <td style="border:1px solid #000; padding:5px;"><b>2. Giá vốn mua hàng (${supName}):</b></td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${cogsTotal.toLocaleString('vi-VN')} đ</td>
-                <td style="border:1px solid #000; padding:5px;">${qty.toLocaleString('vi-VN')} thùng x ${formatVnd(cogsUnitPrice)} (gồm bốc xếp)</td>
+                <td style="border:1px solid #000; padding:5px;">${qty.toLocaleString('vi-VN')} thùng x ${formatExactProductPriceVnd(cogsUnitPrice)} đ (gồm bốc xếp)</td>
               </tr>
               <tr>
                 <td style="border:1px solid #000; padding:5px;"><b>3. Thuế GTGT đầu vào được hoàn (${(vatRate * 100).toFixed(0)}%):</b></td>
