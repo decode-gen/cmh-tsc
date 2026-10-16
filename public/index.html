@@ -1092,15 +1092,79 @@
       <div class="card">
         <div class="card-header">
           <span>⚙️ BẢNG ĐIỀU KHIỂN KỊCH BẢN (KHUNG SỐ 2)</span>
-          <span style="font-size:11px; color:var(--text-dim);">Chắp vá phương án tùy ý</span>
+          <span style="font-size:11px; color:var(--text-dim);">Quy trình tác nghiệp chuẩn hóa</span>
         </div>
 
-        <!-- 1. BỘ GHÉP ĐỐI TÁC, KÍCH THƯỚC, TRỌNG LƯỢNG & GHÉP CONT -->
+                <!-- ========================================================================= -->
+        <!-- KHỐI 0: SET KỊCH BẢN SSOT & ĐỊNH DANH NAME ID (/cmh-namid) -->
+        <!-- ========================================================================= -->
+        <div style="background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 12px; margin-bottom:10px; border-left:3px solid var(--accent-gold);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:4px;">
+            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+              <span style="font-size:12px; font-weight:bold; color:var(--text-main); white-space:nowrap;">📑 0. SET KỊCH BẢN SSOT:</span>
+              <span id="currentScenarioBadge" style="font-size:10px; font-weight:bold; padding:2px 6px; border-radius:3px; background:rgba(234, 179, 8, 0.15); color:var(--accent-gold); border:1px solid rgba(234, 179, 8, 0.3); white-space:nowrap;">[⭐ MẶC ĐỊNH]</span>
+            </div>
+            <div style="display:inline-flex; gap:4px; align-items:center; flex-shrink:0;">
+              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-strong); font-size:10.5px; font-weight:bold; padding:2px 6px; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⭐ Chốt set này làm mặc định khởi động">[⭐ Mặc Định]</button>
+              <button type="button" class="btn btn-sm" onclick="resetScenariosToStandard()" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); font-size:10.5px; padding:2px 6px; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="🔄 Dọn dẹp sạch kịch bản mô phỏng, chỉ giữ lại Đơn thực tế #269901 SSOT">[🔄 Reset SSOT]</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+              <label style="font-size:11px; color:var(--text-muted); margin-bottom:0;">Chọn Set Kịch Bản Đã Lưu (SSOT Presets):</label>
+              <span style="color:var(--text-dim); font-size:10.5px;" id="lblScenarioCount">1 kịch bản SSOT</span>
+            </div>
+            <div style="display:flex; gap:5px; align-items:center;">
+              <div class="combobox-wrapper" id="scenarioComboboxWrapper">
+                <div style="display: flex; align-items: center; position: relative;">
+                  <input type="text" id="scenarioSearchInput" class="form-control font-bold" 
+                         placeholder="🔍 Gõ mã kịch bản, tuyến, loại xe, số thùng để tìm..." 
+                         autocomplete="off"
+                         onfocus="openScenarioDropdown()" 
+                         oninput="filterScenarioDropdown()" 
+                         onkeydown="handleScenarioComboboxKeydown(event)"
+                         style="width: 100%; height: 28px; font-size: 12px; padding-right: 26px; background: var(--bg-card); color: var(--text-main);">
+                  <button type="button" onclick="toggleScenarioDropdown(event)" 
+                          data-tooltip="Mở danh sách kịch bản SSOT"
+                          style="position: absolute; right: 2px; top: 2px; bottom: 2px; width: 22px; background: transparent; border: none; cursor: pointer; color: var(--text-dim); font-size: 10px; display: flex; align-items: center; justify-content: center;">
+                    ▼
+                  </button>
+                </div>
+                <!-- Custom Dropdown Menu -->
+                <div id="scenarioDropdownMenu" class="combobox-menu" style="display: none;"></div>
+              </div>
+              <select id="scenarioSelect" style="display:none;" onchange="onScenarioSelectChange()"></select>
+              <button type="button" id="btnNewScenario" class="btn btn-sm" onclick="startNewScenarioDraft()" style="background:var(--accent-gold); color:#000; font-weight:bold; border:none; font-size:11px; padding:2px 9px; height:28px; white-space:nowrap; border-radius:2px; cursor:pointer;" data-tooltip="Bắt đầu thiết lập kịch bản mới (chọn biến trước, sinh tên sau)">➕ Tạo Mới</button>
+              <button type="button" class="btn btn-sm" onclick="deleteCurrentScenario()" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--border-strong); font-size:11px; padding:2px 6px; height:28px; border-radius:2px; cursor:pointer;" data-tooltip="Xóa Set Kịch Bản Đang Chọn">🗑️</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:2px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+              <label style="font-size:11px; color:var(--text-muted); margin-bottom:0;">
+                Name ID Kịch Bản (<code style="color:var(--accent-gold); font-size:11px;">/cmh-namid</code> SSOT):
+              </label>
+              <span id="nidRuleBadge" style="font-size:10.5px; color:var(--accent-gold); font-family:monospace; cursor:pointer;" onclick="openNidGeneratorModal()" data-tooltip="Xem bảng bóc tách 8 quy tắc cấu thành Name ID chuẩn">[⚡ Bóc Tách N.ID]</span>
+            </div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <input type="text" id="scenarioName" name="scenarioName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control font-bold" value="" oninput="onScenarioNameInput()" style="flex:1; font-size:12.5px; height:28px; font-family:monospace; background:var(--bg-card); color:var(--accent-gold); letter-spacing:0.3px;" placeholder="⚡ Hãy chọn thông số bên dưới, rồi bấm [⚡ Sinh N.ID]...">
+              <button type="button" id="btnGenerateNid" class="btn btn-sm" onclick="generateAndApplyNameId()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.4);" data-tooltip="⚡ Quét toàn bộ thông số trên buồng lái & tự động sinh Name ID chuẩn /cmh-namid (100% thuật toán cứng, không dùng AI)">[⚡ Sinh N.ID]</button>
+              <button type="button" id="btnSaveScenario" class="btn btn-sm" onclick="saveCurrentScenario()" style="background:var(--accent-blue); color:#fff; font-size:11px; font-weight:bold; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer;" data-tooltip="Xác nhận & Lưu toàn bộ tham số vào Set kịch bản này">[💾 Lưu Set]</button>
+            </div>
+            <div id="nidHelperText" style="font-size:10.5px; color:var(--text-dim); margin-top:4px;">
+              💡 Quy trình chuẩn: <b>(1)</b> Chọn các biến số bên dưới ➔ <b>(2)</b> Bấm <b>[⚡ Sinh N.ID]</b> để xuất hiện tên ➔ <b>(3)</b> Bấm <b>[💾 Lưu Set]</b>.
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KHỐI 1: HÀNG HÓA & ĐƠN GIÁ CHÀO BÁN USD/THÙNG (QUY VỀ 1 VỊ TRÍ DUY NHẤT) -->
+        <!-- ========================================================================= -->
         <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
           <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-            <span style="white-space:nowrap;">🧩 ĐỐI TÁC & PHƯƠNG ÁN ĐÓNG HÀNG:</span>
+            <span style="white-space:nowrap;">📦 1. HÀNG HÓA & ĐƠN GIÁ CHÀO BÁN:</span>
             <div style="display:inline-flex; gap:4px; align-items:center; flex-shrink:0;">
-              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:10.5px; padding:2px 6px; border:none; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⭐ Chốt toàn bộ cấu hình đang chạy làm Kịch bản Mặc định">[⭐ Mặc Định]</button>
               <button type="button" class="btn btn-sm" onclick="openScenarioMasterModal()" style="background:var(--accent-blue); color:#fff; font-weight:bold; font-size:10.5px; padding:2px 6px; border:none; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⚙️ Mở Trung tâm Quản trị Kịch bản Toàn năng (Yêu cầu xác thực Admin)">[⚙️ Kịch Bản]</button>
               <a href="javascript:void(0)" onclick="openPartnerMasterModal()" style="color:var(--text-muted); text-decoration:none; font-size:10.5px; white-space:nowrap;" data-tooltip="Cài đặt bảng giá NCC & Đại lý">[⚙ Giá NCC]</a>
             </div>
@@ -1115,13 +1179,24 @@
             </div>
           </div>
 
-          <!-- 1A. CHỌN ĐƠN SẢN PHẨM (SINGLE SKU) -->
-          <div id="panelSingleSku" class="form-group" style="margin-bottom:8px;">
-            <label>1. Nhà Cung Cấp & Sản Phẩm Đơn:</label>
-            <select id="supplierSelect" class="form-control" onchange="onSupplierChange()">
-              <!-- Dynamically populated from partnersMaster -->
-            </select>
-            <div id="singleSkuSpecBadge" style="font-size:10.5px; color:var(--text-muted); margin-top:3px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.02); padding:2px 4px; border-radius:2px;">
+          <!-- 1A. CHỌN ĐƠN SẢN PHẨM (SINGLE SKU) KÈM Ô NHẬP GIÁ CHÀO BÁN TRỰC TIẾP -->
+          <div id="panelSingleSku" style="margin-bottom:8px;">
+            <div style="display:grid; grid-template-columns: 1.55fr 1fr; gap:6px; margin-bottom:4px; align-items:end;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label style="font-size:11px; margin-bottom:2px; white-space:nowrap;">Nhà Cung Cấp & Sản Phẩm Đơn:</label>
+                <select id="supplierSelect" class="form-control" onchange="onSupplierChange()" style="font-size:11.5px; height:28px; padding:2px 6px;">
+                  <!-- Dynamically populated from partnersMaster -->
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label id="lblQuotePriceInput" style="font-size:11px; margin-bottom:2px; color:var(--alert-success-text); font-weight:bold; white-space:nowrap;">Giá Chào Bán ($/th):</label>
+                <input type="number" id="quotePrice" class="form-control font-bold" value="15.80" step="0.1" oninput="onSingleQuotePriceInput(this.value)" onchange="onSingleQuotePriceInput(this.value)" style="font-size:13px; height:28px; color:var(--alert-success-text); text-align:center; background:var(--bg-card); border-color:var(--alert-success-text);">
+              </div>
+            </div>
+            <div id="quotePriceMixedHint" style="display:none; font-size:9.5px; color:var(--accent-gold); margin-top:2px;">
+              ⚖️ Giá BQ gia quyền (Nhập giá riêng từng SP ở bảng bên dưới)
+            </div>
+            <div id="singleSkuSpecBadge" style="font-size:10.5px; color:var(--text-muted); margin-top:3px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.02); padding:3px 6px; border-radius:2px; border:1px solid var(--border-subtle);">
               <span id="lblSingleSkuDims">DxRxC: 585x270x497 mm (0.0785 m³)</span>
               <span id="lblSingleSkuWeight" style="color:var(--accent-gold); font-weight:bold;">GW: 6.6 kg/th</span>
             </div>
@@ -1210,9 +1285,40 @@
               <button type="button" class="btn btn-sm" onclick="addSelectedSkuToMixedSession()" style="height:22px; padding:0 8px; font-size:10px; background:var(--accent-blue); color:#fff; font-weight:bold; border:none; white-space:nowrap;">[+ Đưa Vào Cont]</button>
             </div>
           </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KHỐI 2: PHƯƠNG TIỆN VẬN TẢI, SỐ LƯỢNG & SỨC CHỨA THỰC TẾ -->
+        <!-- ========================================================================= -->
+        <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
+            🚛 2. PHƯƠNG TIỆN VẬN TẢI & SỨC CHỨA:
+          </div>
+
+          <div class="form-row" style="margin-bottom:6px;">
+            <div class="form-group" style="flex:1.4;">
+              <label style="font-size:11px; margin-bottom:2px;">Phương tiện vận tải:</label>
+              <select id="vehicleSelect" class="form-control" onchange="onVehicleChange()" style="font-size:11.5px; height:28px;">
+                <option value="HOWO_156" selected>Xe HOWO 15.6m (1,300 thùng)</option>
+                <option value="CONT_40HC">Cont 40ft HC (800 thùng)</option>
+                <option value="CONT_45HC">Cont 45ft HC (1,000 thùng)</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:0.8;">
+              <label style="font-size:11px; margin-bottom:2px;">Số xe / cont:</label>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <input type="number" id="tripCount" class="form-control text-center font-bold" value="1" min="1" max="50" oninput="onTripCountChange()" onchange="onTripCountChange()" style="font-size:13px; height:28px; width:52px;">
+                <span style="font-size:10px; color:var(--text-muted); line-height:1.2;" id="tripCountUnit">xe HOWO</span>
+              </div>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label style="font-size:11px; margin-bottom:2px;">Tổng số thùng:</label>
+              <input type="number" id="boxQty" class="form-control font-bold" value="1300" oninput="recalculate()" onchange="recalculate()" style="font-size:13px; height:28px; color:var(--accent-gold); text-align:center;">
+            </div>
+          </div>
 
           <!-- THƯỚC ĐO NHỊP ĐIỆU KÉP: DUAL CAPACITY HORIZON (THỂ TÍCH & TẢI TRỌNG) -->
-          <div id="capacityHorizonBox" style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 8px; margin-bottom:8px;">
+          <div id="capacityHorizonBox" style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
               <span style="font-size:10.5px; font-weight:bold; color:var(--text-main);">📦 THỂ TÍCH XẾP XE (CBM):</span>
               <span id="lblVolumeStats" style="font-size:10.5px; font-weight:bold; font-family:var(--font-mono, monospace);">0.0 / 78.5 m³ (0%)</span>
@@ -1241,15 +1347,76 @@
               <div id="recommendPillsContainer" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
             </div>
           </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KHỐI 3: TỶ GIÁ NGOẠI TỆ & ĐIỀU KHOẢN THANH TOÁN -->
+        <!-- ========================================================================= -->
+        <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
+            💵 3. TỶ GIÁ NGOẠI TỆ & ĐIỀU KHOẢN THANH TOÁN:
+          </div>
+
+          <!-- REAL-TIME MB BANK FX ROW (ICON ONLY CHUẨN /cmh-ui) -->
+          <div class="form-group" style="margin-bottom:8px;">
+            <label style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:2px;">
+              <span>Tỷ giá USD/VND (Thực nhận bán ngoại tệ MB Bank):</span>
+              <button type="button" class="btn-icon-3d" onclick="fetchMbBankRate()" data-tooltip="Cập nhật tỷ giá trực tuyến (Trừ âm 250đ USD & đồng bộ Baht Thái)" style="width:26px; height:22px; font-size:11px;">
+                <span>[⚡]</span>
+              </button>
+            </label>
+            <input type="number" id="fxRate" class="form-control" value="25797.45" step="0.01" oninput="recalculate()" onchange="recalculate()" style="font-size:12px; height:28px;">
+            <div id="fxStatusBadge" style="font-size:10.5px; color:var(--alert-success-text); margin-top:2px;">
+              <span class="status-dot dot-green"></span>MB Bank Thực Nhận: 25.797,45 đ · THB: 730 đ (Bấm [⚡] để lấy giá ngày)
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group" style="flex:1; margin-bottom:0;">
+              <label style="font-size:11px; margin-bottom:2px;">Số đợt thanh toán ngoại tệ:</label>
+              <select id="bankWireCount" class="form-control" onchange="onBankWireCountChange()" style="font-size:11px; height:28px;">
+                <option value="1">1 đợt 100% ($47 USD phí)</option>
+                <option value="2" selected>2 đợt cọc & tất toán ($94 USD)</option>
+              </select>
+            </div>
+            <div class="form-group" id="depositPercentGroup" style="flex:1; margin-bottom:0;">
+              <label style="font-size:11px; margin-bottom:2px;">% Cọc Đợt 1 (Advance):</label>
+              <select id="depositPercentSelect" class="form-control" onchange="recalculate()" style="font-size:11px; height:28px;">
+                <option value="30" selected>30% cọc / 70% tất toán (Chuẩn SSOT)</option>
+                <option value="20">20% cọc / 80% tất toán</option>
+                <option value="40">40% cọc / 60% tất toán (Thực chiến 269901)</option>
+                <option value="50">50% cọc / 50% tất toán</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KHỐI 4: HÌNH THỨC GIAO HÀNG (INCOTERMS 2020) & VỊ TRÍ GIAO HÀNG (2 TUYẾN) -->
+        <!-- ========================================================================= -->
+        <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
+            🌐 4. ĐIỀU KIỆN INCOTERMS 2020 & TUYẾN GIAO HÀNG:
+          </div>
+
+          <div class="form-group" style="margin-bottom:8px;">
+            <label style="font-size:11px; margin-bottom:2px;">Điều kiện Incoterms 2020:</label>
+            <select id="incotermsSelect" class="form-control" onchange="recalculate()" style="font-size:11.5px; height:28px;">
+              <option value="FCA_LB">FCA Lao Bao (Việt Nam)</option>
+              <option value="CPT_SVN" selected>CPT Savannakhet (Lào)</option>
+              <option value="CPT_MKD">CPT Mukdahan (Thái Lan)</option>
+              <option value="DAP_MKD">DAP Mukdahan (Thái Lan)</option>
+            </select>
+          </div>
 
           <!-- MA TRẬN PHÂN TÁCH 2 TUYẾN: TUYẾN VẬN TẢI & TUYẾN HỒ SƠ -->
-          <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 8px; margin-bottom:8px;">
-            <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:4px;">
+          <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 8px;">
+            <div style="font-size:10.5px; font-weight:bold; color:var(--text-main); margin-bottom:4px;">
               🛣️ MA TRẬN 2 TUYẾN NGOẠI THƯƠNG ĐỘC LẬP:
             </div>
             
             <div class="form-group" style="margin-bottom:5px;">
-              <label style="font-size:10.5px; margin-bottom:2px;">A. Tuyến Vận Tải Thực Tế (Nơi Xe Giao Hàng):</label>
+              <label style="font-size:10px; margin-bottom:2px;">A. Tuyến Vận Tải Thực Tế (Nơi Xe Giao Hàng):</label>
               <select id="transportRouteSelect" class="form-control" onchange="onTransportRouteChange()" style="font-size:11px; height:26px; padding:2px 6px;">
                 <option value="ROUTE_LAO_BAO">Cửa khẩu Lao Bảo (Việt Nam) — Cước nội địa 22M</option>
                 <option value="ROUTE_SAVANNAKHET" selected>Savannakhet (Lào) — Chạy thẳng xe 35M</option>
@@ -1259,7 +1426,7 @@
             </div>
 
             <div class="form-group" style="margin-bottom:0;">
-              <label style="font-size:10.5px; margin-bottom:2px;">B. Tuyến Hồ Sơ Hải Quan & Pháp Lý:</label>
+              <label style="font-size:10px; margin-bottom:2px;">B. Tuyến Hồ Sơ Hải Quan & Pháp Lý:</label>
               <select id="dossierRouteSelect" class="form-control" onchange="onDossierRouteChange()" style="font-size:11px; height:26px; padding:2px 6px;">
                 <option value="DOSSIER_FULL_SAVANNAKHET" selected>Cấp 3: Trọn Gói Thông Quan VN + Quá Cảnh Lào D8/T1 Đến Savannakhet (Full CPT)</option>
                 <option value="DOSSIER_LAO_BAO_ONLY">Cấp 1: Chỉ Thông Quan VN & Ra Khỏi Lao Bảo (FCA Border — Miễn Quá Cảnh D8 11.68M)</option>
@@ -1270,11 +1437,20 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KHỐI 5: ĐỐI TÁC DỊCH VỤ & CƯỚC VẬN CHUYỂN CỐ ĐỊNH -->
+        <!-- ========================================================================= -->
+        <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
+            🤝 5. ĐỐI TÁC DỊCH VỤ & CƯỚC VẬN CHUYỂN:
+          </div>
 
           <!-- CHỌN ĐƠN VỊ VẬN TẢI -->
           <div class="form-group" style="margin-bottom:6px;">
-            <label>2. Đơn vị Vận tải (Nhà xe / Container):</label>
-            <select id="carrierSelect" class="form-control" onchange="recalculate()">
+            <label style="font-size:11px; margin-bottom:2px;">Đơn vị Vận tải (Nhà xe / Container):</label>
+            <select id="carrierSelect" class="form-control" onchange="recalculate()" style="font-size:11.5px; height:28px;">
               <!-- Dynamically populated from partnersMaster -->
             </select>
           </div>
@@ -1294,449 +1470,325 @@
           </div>
 
           <!-- CHỌN ĐẠI LÝ HẢI QUAN VN & C/O -->
-          <div class="form-row">
-            <div class="form-group">
-              <label>3. Hải quan VN & C/O:</label>
-              <select id="agentVnSelect" class="form-control" onchange="onAgentVnChange()">
+          <div class="form-row" style="margin-bottom:6px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:11px; margin-bottom:2px;">Hải quan VN & C/O:</label>
+              <select id="agentVnSelect" class="form-control" onchange="onAgentVnChange()" style="font-size:11px; height:28px;">
                 <!-- Dynamically populated -->
               </select>
             </div>
-            <div class="form-group">
-              <label id="lblAgentLao">4. Quá cảnh Lào D8/T1:</label>
-              <select id="agentLaoSelect" class="form-control" onchange="recalculate()">
+            <div class="form-group" style="margin-bottom:0;">
+              <label id="lblAgentLao" style="font-size:11px; margin-bottom:2px;">Quá cảnh Lào D8/T1:</label>
+              <select id="agentLaoSelect" class="form-control" onchange="recalculate()" style="font-size:11px; height:28px;">
                 <!-- Dynamically populated -->
               </select>
             </div>
           </div>
 
           <!-- CHỌN ĐẠI LÝ BẾN BÃI & LOLO -->
-          <div class="form-group">
-            <label>5. Bến bãi & Nâng hạ cont (LOLO):</label>
-            <select id="agentYardSelect" class="form-control" onchange="recalculate()">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:11px; margin-bottom:2px;">Bến bãi & Nâng hạ cont (LOLO):</label>
+            <select id="agentYardSelect" class="form-control" onchange="recalculate()" style="font-size:11.5px; height:28px;">
               <!-- Dynamically populated -->
             </select>
           </div>
         </div>
 
-        <!-- 2. THAM SỐ GIAO HÀNG & SET KỊCH BẢN SSOT (/cmh-namid) -->
-        <div style="background:var(--bg-cockpit-panel); border:1px solid var(--border-strong); border-radius:4px; padding:10px 12px; margin-bottom:12px; border-left:3px solid var(--accent-gold);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:4px;">
-            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-              <span style="font-size:12px; font-weight:bold; color:var(--text-main); white-space:nowrap;">📑 SET KỊCH BẢN SSOT:</span>
-              <span id="currentScenarioBadge" style="font-size:10px; font-weight:bold; padding:2px 6px; border-radius:3px; background:rgba(234, 179, 8, 0.15); color:var(--accent-gold); border:1px solid rgba(234, 179, 8, 0.3); white-space:nowrap;">[⭐ MẶC ĐỊNH]</span>
+        <!-- ========================================================================= -->
+        <!-- KHỐI 6: CHI PHÍ HIỆN TRƯỜNG & PHÁT SINH CỬA KHẨU -->
+        <!-- ========================================================================= -->
+        <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
+            📋 6. CHI PHÍ HIỆN TRƯỜNG & PHÁT SINH CỬA KHẨU:
+          </div>
+
+          <!-- TIỀN LƯU XE / LƯU CONT -->
+          <div class="form-group" id="demurrageContGroup" style="display:none; margin-bottom:6px;">
+            <label id="lblDemurrageCont" style="font-size:11px; margin-bottom:2px;">Lưu cont Lào (vượt 48h free-time · 3tr/cont/ngày):</label>
+            <input type="number" id="demurrageDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()" style="font-size:11.5px; height:26px;">
+          </div>
+
+          <div class="form-row" id="demurrageHowoGroup" style="display:flex; margin-bottom:6px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:10.5px; margin-bottom:2px;">Lưu xe nội địa (Phú Thọ/dọc đường · 2tr/xe/ngày):</label>
+              <input type="number" id="demHowoDomesticDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()" style="font-size:11.5px; height:26px;">
             </div>
-            <div style="display:inline-flex; gap:4px; align-items:center; flex-shrink:0;">
-              <button type="button" class="btn btn-sm" onclick="saveAsDefaultScenario()" style="background:var(--bg-card); color:var(--accent-gold); border:1px solid var(--border-strong); font-size:10.5px; font-weight:bold; padding:2px 6px; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="⭐ Chốt set này làm mặc định khởi động">[⭐ Mặc Định]</button>
-              <button type="button" class="btn btn-sm" onclick="resetScenariosToStandard()" style="background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border-subtle); font-size:10.5px; padding:2px 6px; border-radius:2px; cursor:pointer; white-space:nowrap;" data-tooltip="🔄 Dọn dẹp sạch kịch bản mô phỏng, chỉ giữ lại Đơn thực tế #269901 SSOT">[🔄 Reset SSOT]</button>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:10.5px; margin-bottom:2px;">Lưu xe Cửa khẩu Lao Bảo (32BBG02 · 2.5tr/xe/ngày):</label>
+              <input type="number" id="demHowoBorderDays" class="form-control" value="1" min="0" max="10" oninput="recalculate()" onchange="recalculate()" style="font-size:11.5px; height:26px;">
+            </div>
+          </div>
+          <div class="fee-item-row" id="row_demurrage" style="margin-top:2px; margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
+            <div class="fee-item-left">
+              <label class="checkbox-item" style="margin-bottom:0; font-size:11px; flex:1; cursor:pointer;">
+                <input type="checkbox" id="chkDemurrage" onchange="recalculate()" checked>
+                <span id="lblDemurrageFee">Khoản 4: Tiền lưu xe / lưu ca: <b id="lblDemurrageVal">2.500.000 đ</b></span>
+              </label>
+            </div>
+            <div class="fee-item-right">
+              <input type="number" id="inpFee_demurrage" class="form-control fee-inline-input" style="display:none; width:115px;" step="500000" placeholder="Tiền lưu xe VND" oninput="onSingleFeeInputChange('demurrage', this.value)" onchange="recalculate()">
+              <button type="button" class="btn-single-lock" id="btnLock_demurrage" onclick="toggleSingleFeeLock('demurrage')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                <span class="lock-glyph">🔒</span>
+              </button>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-              <label style="font-size:11px; color:var(--text-muted); margin-bottom:0;">Chọn Set Kịch Bản Đã Lưu (SSOT Presets):</label>
-              <span style="color:var(--text-dim); font-size:10.5px;" id="lblScenarioCount">1 kịch bản SSOT</span>
+          <!-- GÓI DỊCH VỤ & CHI PHÍ PHÁT SINH ĐẠI LÝ BÌNH AN (ĐỐI SOÁT ĐƠN 269901) -->
+          <div class="contingency-box" id="customsAgentBox" style="border-left: 3px solid #2563eb; background: var(--bg-card); margin-bottom: 8px;">
+            <div class="contingency-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span id="lblAgentVnTitle">📑 ĐẠI LÝ HẢI QUAN & C/O: BÌNH AN LOGISTICS (HĐ 269901)</span>
+              <span style="font-size:10px; color:var(--text-dim);">Hóa đơn VAT 8%</span>
             </div>
-            <div style="display:flex; gap:5px; align-items:center;">
-              <div class="combobox-wrapper" id="scenarioComboboxWrapper">
-                <div style="display: flex; align-items: center; position: relative;">
-                  <input type="text" id="scenarioSearchInput" class="form-control font-bold" 
-                         placeholder="🔍 Gõ mã kịch bản, tuyến, loại xe, số thùng để tìm..." 
-                         autocomplete="off"
-                         onfocus="openScenarioDropdown()" 
-                         oninput="filterScenarioDropdown()" 
-                         onkeydown="handleScenarioComboboxKeydown(event)"
-                         style="width: 100%; height: 28px; font-size: 12px; padding-right: 26px; background: var(--bg-card); color: var(--text-main);">
-                  <button type="button" onclick="toggleScenarioDropdown(event)" 
-                          data-tooltip="Mở danh sách kịch bản SSOT"
-                          style="position: absolute; right: 2px; top: 2px; bottom: 2px; width: 22px; background: transparent; border: none; cursor: pointer; color: var(--text-dim); font-size: 10px; display: flex; align-items: center; justify-content: center;">
-                    ▼
-                  </button>
-                </div>
-                <!-- Custom Dropdown Menu -->
-                <div id="scenarioDropdownMenu" class="combobox-menu" style="display: none;"></div>
+
+            <!-- 1. CÁC KHOẢN TIÊU CHUẨN CỐ ĐỊNH / CHUYẾN -->
+            <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+              <span>1. Các khoản tiêu chuẩn cố định / chuyến:</span>
+              <small style="color:var(--text-dim); font-size:10px;">(Khoản 6, 7, 8 P&L)</small>
+            </div>
+            <div class="fee-item-row" id="row_baCustoms">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnCustoms" onchange="recalculate()" checked>
+                  <span id="lblBinhAnCustoms">Thủ tục HQ Lao Bảo (Tờ khai B11): <b id="val_baCustoms" class="fee-val-text">3.000.000 đ</b></span>
+                </label>
               </div>
-              <select id="scenarioSelect" style="display:none;" onchange="onScenarioSelectChange()"></select>
-              <button type="button" id="btnNewScenario" class="btn btn-sm" onclick="startNewScenarioDraft()" style="background:var(--accent-gold); color:#000; font-weight:bold; border:none; font-size:11px; padding:2px 9px; height:28px; white-space:nowrap; border-radius:2px; cursor:pointer;" data-tooltip="Bắt đầu thiết lập kịch bản mới (chọn biến trước, sinh tên sau)">➕ Tạo Mới</button>
-              <button type="button" class="btn btn-sm" onclick="deleteCurrentScenario()" style="background:var(--bg-card); color:var(--alert-critical-text); border:1px solid var(--border-strong); font-size:11px; padding:2px 6px; height:28px; border-radius:2px; cursor:pointer;" data-tooltip="Xóa Set Kịch Bản Đang Chọn">🗑️</button>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_baCustoms" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCustoms', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baCustoms" onclick="toggleSingleFeeLock('baCustoms')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+            <div class="fee-item-row" id="row_baCO">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnCO" onchange="recalculate()" checked>
+                  <span id="lblBinhAnCO">Dịch vụ xin C/O Form D (eCoSys): <b id="val_baCO" class="fee-val-text">1.000.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_baCO" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCO', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baCO" onclick="toggleSingleFeeLock('baCO')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+            <div class="fee-item-row" id="row_baBorder">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnBorderGuard" onchange="recalculate()" checked>
+                  <span id="lblBinhAnBorderGuard">Thủ tục Biên phòng & Giám sát bãi 32BBG02: <b id="val_baBorder" class="fee-val-text">1.500.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_baBorder" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baBorder', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baBorder" onclick="toggleSingleFeeLock('baBorder')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. CÁC KHOẢN PHÁT SINH TÙY BIẾN THEO THỰC TẾ -->
+            <div style="border-top:1px dashed var(--border-subtle); margin:8px 0 6px 0; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:bold; color:var(--alert-warning-text);">2. Các khoản phát sinh tùy biến theo thực tế:</span>
+              <small style="color:var(--text-dim); font-size:10px;">(Khoản 9, 10, 11, 12 P&L)</small>
+            </div>
+
+            <div class="fee-item-row" id="row_baTransit">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnTransit" onchange="recalculate()">
+                  <span id="lblBinhAnTransit">Thủ tục transit xe Lào (Bình An): <b id="val_baTransit" class="fee-val-text">2.000.000 đ/xe</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <select id="binhAnTransitTrucks" class="form-control" style="width:65px; padding:2px 4px; font-size:11px; height:22px;" onchange="recalculate()">
+                  <option value="1">1 xe</option>
+                  <option value="2" selected>2 xe</option>
+                  <option value="3">3 xe</option>
+                </select>
+                <input type="number" id="inpFee_baTransit" class="form-control fee-inline-input" style="display:none;" step="100000" placeholder="Đơn giá/xe" oninput="onSingleFeeInputChange('baTransit', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baTransit" onclick="toggleSingleFeeLock('baTransit')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="fee-item-row" id="row_baInsp">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnInspection" onchange="recalculate()">
+                  <span id="lblBinhAnInspection">Phí kiểm hóa bãi (Luồng Vàng/Đỏ): <b id="val_baInsp" class="fee-val-text">1.000.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_baInsp" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInsp', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baInsp" onclick="toggleSingleFeeLock('baInsp')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="fee-item-row" id="row_baInspOt">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnInspOvertime" onchange="recalculate()">
+                  <span id="lblBinhAnInspOvertime">Phí kiểm hóa ngoài giờ hành chính: <b id="val_baInspOt" class="fee-val-text">2.000.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_baInspOt" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInspOt', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baInspOt" onclick="toggleSingleFeeLock('baInspOt')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="fee-item-row" id="row_baCoExpress">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkBinhAnCOExpress" onchange="recalculate()">
+                  <span id="lblBinhAnCOExpress">Phí dịch vụ duyệt C/O nhanh ngoài giờ: <b id="val_baCoExpress" class="fee-val-text">2.000.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_baCoExpress" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCoExpress', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_baCoExpress" onclick="toggleSingleFeeLock('baCoExpress')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. QUÁ CẢNH LÀO, BẾN BÃI & NÂNG HẠ (LIÊN KẾT TRỌN GÓI) -->
+            <div style="border-top:1px dashed var(--border-subtle); margin:8px 0 6px 0; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:bold; color:var(--accent-blue);">3. Quá cảnh Lào, bến bãi & nâng hạ (Forwarder trọn gói):</span>
+              <small style="color:var(--text-dim); font-size:10px;">(Khoản 5, 13, 14 P&L)</small>
+            </div>
+
+            <div class="fee-item-row" id="row_laoTransit">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkLaoTransit" onchange="recalculate()" checked>
+                  <span id="lblLaoTransit">Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b id="val_laoTransit" class="fee-val-text">12.240.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_laoTransit" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('laoTransit', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_laoTransit" onclick="toggleSingleFeeLock('laoTransit')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="fee-item-row" id="row_yard">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkYardFee" onchange="recalculate()" checked>
+                  <span id="lblYardFee">Phí bến bãi & kiểm hóa cửa khẩu (32BBG02): <b id="val_yard" class="fee-val-text">1.500.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_yard" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('yard', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_yard" onclick="toggleSingleFeeLock('yard')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="fee-item-row" id="row_lolo">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkLoloFee" onchange="recalculate()">
+                  <span id="lblLoloFee">Cẩu bãi & nâng hạ cont LOLO: <b id="val_lolo" class="fee-val-text">0 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_lolo" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('lolo', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_lolo" onclick="toggleSingleFeeLock('lolo')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom:2px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-              <label style="font-size:11px; color:var(--text-muted); margin-bottom:0;">
-                Name ID Kịch Bản (<code style="color:var(--accent-gold); font-size:11px;">/cmh-namid</code> SSOT):
-              </label>
-              <span id="nidRuleBadge" style="font-size:10.5px; color:var(--accent-gold); font-family:monospace; cursor:pointer;" onclick="openNidGeneratorModal()" data-tooltip="Xem bảng bóc tách 8 quy tắc cấu thành Name ID chuẩn">[⚡ Bóc Tách N.ID]</span>
+          <!-- CÁC CHI PHÍ VẬN HÀNH & PHÁT SINH KHÁC -->
+          <div class="contingency-box">
+            <div class="contingency-title">
+              <span>🛡️ DỰ PHÒNG CHI PHÍ HIỆN TRƯỜNG & VẬN TẢI KHÁC:</span>
             </div>
-            <div style="display:flex; gap:4px; align-items:center;">
-              <input type="text" id="scenarioName" name="scenarioName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control font-bold" value="" oninput="onScenarioNameInput()" style="flex:1; font-size:12.5px; height:28px; font-family:monospace; background:var(--bg-card); color:var(--accent-gold); letter-spacing:0.3px;" placeholder="⚡ Hãy chọn thông số bên dưới, rồi bấm [⚡ Sinh N.ID]...">
-              <button type="button" id="btnGenerateNid" class="btn btn-sm" onclick="generateAndApplyNameId()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.4);" data-tooltip="⚡ Quét toàn bộ thông số trên buồng lái & tự động sinh Name ID chuẩn /cmh-namid (100% thuật toán cứng, không dùng AI)">[⚡ Sinh N.ID]</button>
-              <button type="button" id="btnSaveScenario" class="btn btn-sm" onclick="saveCurrentScenario()" style="background:var(--accent-blue); color:#fff; font-size:11px; font-weight:bold; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer;" data-tooltip="Xác nhận & Lưu toàn bộ tham số vào Set kịch bản này">[💾 Lưu Set]</button>
+            <div class="fee-item-row" id="row_insurance">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkInsurance" onchange="recalculate()" checked>
+                  <span>Bảo hiểm hàng hóa quốc tế đường bộ (0.2% giá trị hàng): <b id="val_insurance" class="fee-val-text">0 đ</b></span>
+                </label>
+              </div>
             </div>
-            <div id="nidHelperText" style="font-size:10.5px; color:var(--text-dim); margin-top:4px;">
-              💡 Quy trình chuẩn: <b>(1)</b> Chọn các biến số bên dưới ➔ <b>(2)</b> Bấm <b>[⚡ Sinh N.ID]</b> để xuất hiện tên ➔ <b>(3)</b> Bấm <b>[💾 Lưu Set]</b>.
+            <div class="fee-item-row" id="row_dunnage">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkDunnage" onchange="recalculate()">
+                  <span>Vật tư chèn lót túi khí & bốc xếp ngoài giờ: <b id="val_dunnage" class="fee-val-text">800.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_dunnage" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('dunnage', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_dunnage" onclick="toggleSingleFeeLock('dunnage')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Điều kiện Incoterms 2020</label>
-            <select id="incotermsSelect" class="form-control" onchange="recalculate()">
-              <option value="FCA_LB">FCA Lao Bao (Việt Nam)</option>
-              <option value="CPT_SVN" selected>CPT Savannakhet (Lào)</option>
-              <option value="CPT_MKD">CPT Mukdahan (Thái Lan)</option>
-              <option value="DAP_MKD">DAP Mukdahan (Thái Lan)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Phương tiện vận tải</label>
-            <select id="vehicleSelect" class="form-control" onchange="onVehicleChange()">
-              <option value="HOWO_156" selected>Xe HOWO 15.6m (1,300 thùng)</option>
-              <option value="CONT_40HC">Cont 40ft HC (800 thùng)</option>
-              <option value="CONT_45HC">Cont 45ft HC (1,000 thùng)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Số lượng xe / cont hàng:</label>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <input type="number" id="tripCount" class="form-control text-center font-bold" value="1" min="1" max="50" oninput="onTripCountChange()" onchange="onTripCountChange()" style="font-size:13.5px; width:70px;">
-              <span style="font-size:11.5px; color:var(--text-muted);" id="tripCountUnit">xe HOWO 15.6m</span>
+            <div class="fee-item-row" id="row_crossDock">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkCrossDock" onchange="recalculate()">
+                  <span>Sang xe chuyển tải tại Cảng cạn Savannakhet: <b id="val_crossDock" class="fee-val-text">2.000.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_crossDock" class="form-control fee-inline-input" style="display:none;" step="500000" oninput="onSingleFeeInputChange('crossDock', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_crossDock" onclick="toggleSingleFeeLock('crossDock')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label>Tổng số thùng xuất khẩu:</label>
-            <input type="number" id="boxQty" class="form-control font-bold" value="1300" oninput="recalculate()" onchange="recalculate()" style="font-size:13.5px;">
-          </div>
-        </div>
-
-        <div class="form-group" id="demurrageContGroup" style="display:none;">
-          <label id="lblDemurrageCont">Lưu cont Lào (vượt 48h free-time · 3tr/cont/ngày):</label>
-          <input type="number" id="demurrageDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()">
-        </div>
-
-        <div class="form-row" id="demurrageHowoGroup" style="display:flex;">
-          <div class="form-group">
-            <label>Lưu xe nội địa (kho Phú Thọ/dọc đường · 2tr/xe/ngày)</label>
-            <input type="number" id="demHowoDomesticDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()">
-          </div>
-          <div class="form-group">
-            <label>Lưu xe Cửa khẩu Lao Bảo (32BBG02 · 2.5tr/xe/ngày)</label>
-            <input type="number" id="demHowoBorderDays" class="form-control" value="1" min="0" max="10" oninput="recalculate()" onchange="recalculate()">
-          </div>
-        </div>
-        <div class="fee-item-row" id="row_demurrage" style="margin-top:2px; margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
-          <div class="fee-item-left">
-            <label class="checkbox-item" style="margin-bottom:0; font-size:11px; flex:1; cursor:pointer;">
-              <input type="checkbox" id="chkDemurrage" onchange="recalculate()" checked>
-              <span id="lblDemurrageFee">Khoản 4: Tiền lưu xe / lưu ca: <b id="lblDemurrageVal">2.500.000 đ</b></span>
-            </label>
-          </div>
-          <div class="fee-item-right">
-            <input type="number" id="inpFee_demurrage" class="form-control fee-inline-input" style="display:none; width:115px;" step="500000" placeholder="Tiền lưu xe VND" oninput="onSingleFeeInputChange('demurrage', this.value)" onchange="recalculate()">
-            <button type="button" class="btn-single-lock" id="btnLock_demurrage" onclick="toggleSingleFeeLock('demurrage')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-              <span class="lock-glyph">🔒</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group" style="flex:1;">
-            <label>Số đợt thanh toán ngoại tệ</label>
-            <select id="bankWireCount" class="form-control" onchange="onBankWireCountChange()">
-              <option value="1">1 đợt 100% ($47 USD phí)</option>
-              <option value="2" selected>2 đợt cọc & tất toán ($94 USD)</option>
-            </select>
-          </div>
-          <div class="form-group" id="depositPercentGroup" style="flex:1;">
-            <label>% Cọc Đợt 1 (Advance)</label>
-            <select id="depositPercentSelect" class="form-control" onchange="recalculate()">
-              <option value="30" selected>30% cọc / 70% tất toán (Chuẩn SSOT)</option>
-              <option value="20">20% cọc / 80% tất toán</option>
-              <option value="40">40% cọc / 60% tất toán (Thực chiến 269901)</option>
-              <option value="50">50% cọc / 50% tất toán</option>
-            </select>
-          </div>
-          <div class="form-group" style="flex:1;">
-            <label id="lblQuotePriceInput">Giá chào dự kiến (USD/thùng)</label>
-            <input type="number" id="quotePrice" class="form-control font-bold" value="15.80" step="0.1" oninput="onSingleQuotePriceInput(this.value)" onchange="onSingleQuotePriceInput(this.value)">
-            <div id="quotePriceMixedHint" style="display:none; font-size:9.5px; color:var(--accent-gold); margin-top:2px;">
-              ⚖️ Giá BQ gia quyền (Nhập giá riêng từng SP ở bảng trên)
+            <div class="fee-item-row" id="row_weighbridge">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkWeighbridge" onchange="recalculate()">
+                  <span>Phí Cân xe tải trọng bãi Lao Bảo: <b id="val_weighbridge" class="fee-val-text">200.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_weighbridge" class="form-control fee-inline-input" style="display:none;" step="50000" oninput="onSingleFeeInputChange('weighbridge', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_weighbridge" onclick="toggleSingleFeeLock('weighbridge')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
+            </div>
+            <div class="fee-item-row" id="row_phyto">
+              <div class="fee-item-left">
+                <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
+                  <input type="checkbox" id="chkPhyto" onchange="recalculate()">
+                  <span>Phí Chứng thư Kiểm dịch Thực vật / CFS / ATTP: <b id="val_phyto" class="fee-val-text">1.500.000 đ</b></span>
+                </label>
+              </div>
+              <div class="fee-item-right">
+                <input type="number" id="inpFee_phyto" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('phyto', this.value)" onchange="recalculate()">
+                <button type="button" class="btn-single-lock" id="btnLock_phyto" onclick="toggleSingleFeeLock('phyto')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
+                  <span class="lock-glyph">🔒</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-
-        <!-- REAL-TIME MB BANK FX ROW (ICON ONLY CHUẨN /cmh-ui) -->
-        <div class="form-group">
-          <label style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Tỷ giá USD/VND (Thực nhận bán ngoại tệ MB Bank):</span>
-            <button type="button" class="btn-icon-3d" onclick="fetchMbBankRate()" data-tooltip="Cập nhật tỷ giá trực tuyến (Trừ âm 250đ USD & đồng bộ Baht Thái)" style="width:26px; height:24px; font-size:12px;">
-              <span>[⚡]</span>
-            </button>
-          </label>
-          <input type="number" id="fxRate" class="form-control" value="25797.45" step="0.01" oninput="recalculate()" onchange="recalculate()">
-          <div id="fxStatusBadge" style="font-size:11px; color:var(--alert-success-text); margin-top:2px;">
-            <span class="status-dot dot-green"></span>MB Bank Thực Nhận: 25.797,45 đ · THB: 730 đ (Bấm [⚡] để lấy giá ngày)
-          </div>
-        </div>
-
-        <!-- GÓI DỊCH VỤ & CHI PHÍ PHÁT SINH ĐẠI LÝ BÌNH AN (ĐỐI SOÁT ĐƠN 269901) -->
-        <div class="contingency-box" id="customsAgentBox" style="border-left: 3px solid #2563eb; background: var(--bg-card); margin-bottom: 12px;">
+        <!-- ========================================================================= -->
+        <!-- KHỐI 7: PHÁT SINH THỰC TẾ HẬU KIỂM & ĐỒNG BỘ MÔI GIỚI (BSC) -->
+        <!-- ========================================================================= -->
+        <div class="contingency-box" id="unforeseenExpensesContainer" style="border: 1px solid var(--accent-gold); background: rgba(234, 179, 8, 0.03); margin-top: 10px; margin-bottom: 10px;">
           <div class="contingency-title" style="display:flex; justify-content:space-between; align-items:center;">
-            <span id="lblAgentVnTitle">📑 ĐẠI LÝ HẢI QUAN & C/O: BÌNH AN LOGISTICS (HĐ 269901)</span>
-            <span style="font-size:10px; color:var(--text-dim);">Hóa đơn VAT 8%</span>
-          </div>
-
-          <!-- 1. CÁC KHOẢN TIÊU CHUẨN CỐ ĐỊNH / CHUYẾN -->
-          <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-            <span>1. Các khoản tiêu chuẩn cố định / chuyến:</span>
-            <small style="color:var(--text-dim); font-size:10px;">(Khoản 6, 7, 8 P&L)</small>
-          </div>
-          <div class="fee-item-row" id="row_baCustoms">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnCustoms" onchange="recalculate()" checked>
-                <span id="lblBinhAnCustoms">Thủ tục HQ Lao Bảo (Tờ khai B11): <b id="val_baCustoms" class="fee-val-text">3.000.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_baCustoms" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCustoms', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baCustoms" onclick="toggleSingleFeeLock('baCustoms')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-          <div class="fee-item-row" id="row_baCO">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnCO" onchange="recalculate()" checked>
-                <span id="lblBinhAnCO">Dịch vụ xin C/O Form D (eCoSys): <b id="val_baCO" class="fee-val-text">1.000.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_baCO" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCO', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baCO" onclick="toggleSingleFeeLock('baCO')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-          <div class="fee-item-row" id="row_baBorder">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnBorderGuard" onchange="recalculate()" checked>
-                <span id="lblBinhAnBorderGuard">Thủ tục Biên phòng & Giám sát bãi 32BBG02: <b id="val_baBorder" class="fee-val-text">1.500.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_baBorder" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baBorder', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baBorder" onclick="toggleSingleFeeLock('baBorder')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 2. CÁC KHOẢN PHÁT SINH TÙY BIẾN THEO THỰC TẾ -->
-          <div style="border-top:1px dashed var(--border-subtle); margin:8px 0 6px 0; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; font-weight:bold; color:var(--alert-warning-text);">2. Các khoản phát sinh tùy biến theo thực tế:</span>
-            <small style="color:var(--text-dim); font-size:10px;">(Khoản 9, 10, 11, 12 P&L)</small>
-          </div>
-
-          <div class="fee-item-row" id="row_baTransit">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnTransit" onchange="recalculate()">
-                <span id="lblBinhAnTransit">Thủ tục transit xe Lào (Bình An): <b id="val_baTransit" class="fee-val-text">2.000.000 đ/xe</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <select id="binhAnTransitTrucks" class="form-control" style="width:65px; padding:2px 4px; font-size:11px; height:22px;" onchange="recalculate()">
-                <option value="1">1 xe</option>
-                <option value="2" selected>2 xe</option>
-                <option value="3">3 xe</option>
-              </select>
-              <input type="number" id="inpFee_baTransit" class="form-control fee-inline-input" style="display:none;" step="100000" placeholder="Đơn giá/xe" oninput="onSingleFeeInputChange('baTransit', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baTransit" onclick="toggleSingleFeeLock('baTransit')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="fee-item-row" id="row_baInsp">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnInspection" onchange="recalculate()">
-                <span id="lblBinhAnInspection">Phí kiểm hóa bãi (Luồng Vàng/Đỏ): <b id="val_baInsp" class="fee-val-text">1.000.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_baInsp" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInsp', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baInsp" onclick="toggleSingleFeeLock('baInsp')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="fee-item-row" id="row_baInspOt">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnInspOvertime" onchange="recalculate()">
-                <span id="lblBinhAnInspOvertime">Phí kiểm hóa ngoài giờ hành chính: <b id="val_baInspOt" class="fee-val-text">2.000.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_baInspOt" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baInspOt', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baInspOt" onclick="toggleSingleFeeLock('baInspOt')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="fee-item-row" id="row_baCoExpress">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkBinhAnCOExpress" onchange="recalculate()">
-                <span id="lblBinhAnCOExpress">Phí dịch vụ duyệt C/O nhanh ngoài giờ: <b id="val_baCoExpress" class="fee-val-text">2.000.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_baCoExpress" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('baCoExpress', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_baCoExpress" onclick="toggleSingleFeeLock('baCoExpress')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 3. QUÁ CẢNH LÀO, BẾN BÃI & NÂNG HẠ (LIÊN KẾT TRỌN GÓI) -->
-          <div style="border-top:1px dashed var(--border-subtle); margin:8px 0 6px 0; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; font-weight:bold; color:var(--accent-blue);">3. Quá cảnh Lào, bến bãi & nâng hạ (Forwarder trọn gói):</span>
-            <small style="color:var(--text-dim); font-size:10px;">(Khoản 5, 13, 14 P&L)</small>
-          </div>
-
-          <div class="fee-item-row" id="row_laoTransit">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkLaoTransit" onchange="recalculate()" checked>
-                <span id="lblLaoTransit">Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b id="val_laoTransit" class="fee-val-text">12.240.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_laoTransit" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('laoTransit', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_laoTransit" onclick="toggleSingleFeeLock('laoTransit')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="fee-item-row" id="row_yard">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkYardFee" onchange="recalculate()" checked>
-                <span id="lblYardFee">Phí bến bãi & kiểm hóa cửa khẩu (32BBG02): <b id="val_yard" class="fee-val-text">1.500.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_yard" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('yard', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_yard" onclick="toggleSingleFeeLock('yard')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="fee-item-row" id="row_lolo">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkLoloFee" onchange="recalculate()">
-                <span id="lblLoloFee">Cẩu bãi & nâng hạ cont LOLO: <b id="val_lolo" class="fee-val-text">0 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_lolo" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('lolo', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_lolo" onclick="toggleSingleFeeLock('lolo')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- CÁC CHI PHÍ VẬN HÀNH & PHÁT SINH KHÁC -->
-        <div class="contingency-box">
-          <div class="contingency-title">
-            <span>🛡️ DỰ PHÒNG CHI PHÍ HIỆN TRƯỜNG & VẬN TẢI KHÁC:</span>
-          </div>
-          <div class="fee-item-row" id="row_insurance">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkInsurance" onchange="recalculate()" checked>
-                <span>Bảo hiểm hàng hóa quốc tế đường bộ (0.2% giá trị hàng): <b id="val_insurance" class="fee-val-text">0 đ</b></span>
-              </label>
-            </div>
-          </div>
-          <div class="fee-item-row" id="row_dunnage">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkDunnage" onchange="recalculate()">
-                <span>Vật tư chèn lót túi khí & bốc xếp ngoài giờ: <b id="val_dunnage" class="fee-val-text">800.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_dunnage" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('dunnage', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_dunnage" onclick="toggleSingleFeeLock('dunnage')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-          <div class="fee-item-row" id="row_crossDock">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkCrossDock" onchange="recalculate()">
-                <span>Sang xe chuyển tải tại Cảng cạn Savannakhet: <b id="val_crossDock" class="fee-val-text">2.000.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_crossDock" class="form-control fee-inline-input" style="display:none;" step="500000" oninput="onSingleFeeInputChange('crossDock', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_crossDock" onclick="toggleSingleFeeLock('crossDock')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-          <div class="fee-item-row" id="row_weighbridge">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkWeighbridge" onchange="recalculate()">
-                <span>Phí Cân xe tải trọng bãi Lao Bảo: <b id="val_weighbridge" class="fee-val-text">200.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_weighbridge" class="form-control fee-inline-input" style="display:none;" step="50000" oninput="onSingleFeeInputChange('weighbridge', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_weighbridge" onclick="toggleSingleFeeLock('weighbridge')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-          <div class="fee-item-row" id="row_phyto">
-            <div class="fee-item-left">
-              <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
-                <input type="checkbox" id="chkPhyto" onchange="recalculate()">
-                <span>Phí Chứng thư Kiểm dịch Thực vật / CFS / ATTP: <b id="val_phyto" class="fee-val-text">1.500.000 đ</b></span>
-              </label>
-            </div>
-            <div class="fee-item-right">
-              <input type="number" id="inpFee_phyto" class="form-control fee-inline-input" style="display:none;" step="100000" oninput="onSingleFeeInputChange('phyto', this.value)" onchange="recalculate()">
-              <button type="button" class="btn-single-lock" id="btnLock_phyto" onclick="toggleSingleFeeLock('phyto')" data-tooltip="Mở khóa sửa số tiền (Xác thực Giám đốc) · Tự động khóa sau 60s">
-                <span class="lock-glyph">🔒</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- KHỐI QUẢN TRỊ CHI PHÍ PHÁT SINH THỰC TẾ HẬU KIỂM ĐƠN HÀNG (DYNAMIC POST-EXECUTION ACTUAL COSTS) -->
-        <div class="contingency-box" id="unforeseenExpensesContainer" style="border: 1px solid var(--accent-gold); background: rgba(234, 179, 8, 0.03); margin-top: 10px;">
-          <div class="contingency-title" style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:bold; color:var(--text-main);">🛡️ PHÁT SINH THỰC TẾ HẬU KIỂM:</span>
+            <span style="font-weight:bold; color:var(--text-main);">🛡️ 7. PHÁT SINH THỰC TẾ HẬU KIỂM:</span>
             <span id="unforeseenCountBadge" style="font-size:10px; background:var(--bg-card); border:1px solid var(--border-subtle); padding:1px 6px; border-radius:3px;">0 khoản</span>
           </div>
 
@@ -1802,6 +1854,7 @@
           <div><b>Nhà cung cấp:</b> <span id="infoSupplierName">Thiên Long Phú Thọ</span> (MST: 5400512548)</div>
           <div><b>Đơn giá mua:</b> <span id="infoBuyPrice"><b style="color:var(--alert-success-text);">364,999.64đ</b> (gốc đã VAT) · Chưa VAT: <b>337,962.63đ</b></span> | VAT: <span id="infoVatRate">8</span>%</div>
         </div>
+
       </div>
 
       <!-- QUAD-PERSONA RULES CARD -->
