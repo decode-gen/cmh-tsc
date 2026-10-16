@@ -4688,6 +4688,7 @@
           if (qEl) qEl.value = Number(singlePrice).toFixed(2);
         }
       }
+      updateVehicleSelectLabels();
       recalculate();
     }
 
@@ -5529,6 +5530,20 @@
     function updateVehicleSelectLabels(sup) {
       const vehSelect = document.getElementById('vehicleSelect');
       if (!vehSelect) return;
+
+      if (packingMode === 'MIXED') {
+        for (let opt of vehSelect.options) {
+          if (opt.value === 'HOWO_156') {
+            opt.innerText = 'Xe HOWO 15.6m (Tối đa 78.1 m³ · 33.05T)';
+          } else if (opt.value === 'CONT_40HC') {
+            opt.innerText = 'Cont 40ft HC (Tối đa 54.9 m³ · 25.0T)';
+          } else if (opt.value === 'CONT_45HC') {
+            opt.innerText = 'Cont 45ft HC (Tối đa 64.2 m³ · 26.0T)';
+          }
+        }
+        return;
+      }
+
       const s = sup || (partnersMaster.suppliers.find(x => x.id === (document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '')) || partnersMaster.suppliers[0]);
       const howoCap = s.howoQty || 1300;
       const cont40Cap = s.cont40Qty || 800;
