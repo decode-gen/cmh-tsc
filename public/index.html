@@ -1081,7 +1081,7 @@
   <div id="volumeAlert" class="alert-banner no-print" style="display:none;">
     <span class="status-dot dot-red"></span>
     <div>
-      <b>CẢNH BÁO BẪY THỂ TÍCH (THE VOLUME TRAP):</b> Phương tiện là Container High Cube. Thể tích hữu dụng chỉ đóng được 800 - 1,000 thùng Snack Quẩy Giòn Giòn khiến cước vận tải đội thêm từ <b>+$0.70 đến +$1.03 USD/thùng</b>! Bắt buộc chào giá cao hơn giá FCA Lao Bảo.
+      <b>CẢNH BÁO BẪY THỂ TÍCH (THE VOLUME TRAP):</b> Phương tiện là Container High Cube. Thể tích hữu dụng thấp hơn tải trọng, cần kiểm soát số lượng thùng để tối ưu cước vận tải!
     </div>
   </div>
 
@@ -1887,8 +1887,8 @@
 
         <!-- THÔNG TIN SẢN PHẨM HIỆN TẠI -->
         <div id="supplierInfoBox" style="padding:8px 10px; background:var(--bg-cockpit-panel); border-radius:3px; font-size:11px; color:var(--text-muted); border:1px solid var(--border-subtle);">
-          <div><b>Sản phẩm:</b> <span id="infoProdName">Snack Quẩy Giòn Giòn</span> (HS: 1905.90.80)</div>
-          <div><b>Nhà cung cấp:</b> <span id="infoSupplierName">Thiên Long Phú Thọ</span> (MST: 5400512548)</div>
+          <div><b>Sản phẩm:</b> <span id="infoProdName">[QGG] Snack Quẩy Giòn Giòn</span> <span id="infoProdHs">(HS: 1905.90.80)</span></div>
+          <div><b>Nhà cung cấp:</b> <span id="infoSupplierName">Thiên Long Phú Thọ</span> <span id="infoSupplierTax">(MST: 5400512548)</span></div>
           <div><b>Đơn giá mua:</b> <span id="infoBuyPrice"><b style="color:var(--alert-success-text);">364,999.64đ</b> (gốc đã VAT) · Chưa VAT: <b>337,962.63đ</b></span> | VAT: <span id="infoVatRate">8</span>%</div>
         </div>
 
@@ -1972,7 +1972,7 @@
           <tr>
             <td style="border:1px solid #000; padding:4px 8px; width:50%;">
               <b>Tên hàng hóa / Commodity:</b> <span id="liveInfoProd">Snack Quẩy Giòn Giòn (Crispy Stick Snack)</span><br>
-              <span style="font-size:9.5px; color:#333;">Quy cách / Spec: 22g x 300 cốc/thùng | Mã HS / HS Code: 1905.90.80</span>
+              <span id="liveInfoSpec" style="font-size:9.5px; color:#333;">Quy cách / Spec: 22g x 300 cốc/thùng | Mã HS / HS Code: 1905.90.80</span>
             </td>
             <td style="border:1px solid #000; padding:4px 8px; width:50%;">
               <b>Điều kiện giao hàng / Incoterms:</b> <span id="liveInfoTerms">Incoterms 2020 CPT SVN</span><br>
@@ -2646,7 +2646,7 @@
         <div class="tab-bar" style="margin-bottom:12px;">
           <button class="tab-btn active" onclick="switchDossierTab('dossierTab01Buy', this)">1. 🌏 01_BUY (Khách Ngoại)</button>
           <button class="tab-btn" onclick="switchDossierTab('dossierTab02Cus', this)">2. 🏛️ 02_CUS (Hải Quan & Cửa Khẩu)</button>
-          <button class="tab-btn" onclick="switchDossierTab('dossierTab03Sup', this)">3. 🏭 03_SUP (Xưởng SX Thiên Long)</button>
+          <button id="btnTab03Sup" class="tab-btn" onclick="switchDossierTab('dossierTab03Sup', this)">3. 🏭 03_SUP (Xưởng SX Thiên Long)</button>
           <button class="tab-btn" onclick="switchDossierTab('dossierTab04Log', this)">4. 🚛 04_LOG (Vận Tải Vĩnh Thành)</button>
           <button class="tab-btn" onclick="switchDossierTab('dossierTab05Cod', this)">5. 📑 05_COD (C/O Mẫu D eCoSys)</button>
           <button class="tab-btn" onclick="switchDossierTab('dossierTab06Fin', this)">6. 💰 06_FIN (Kế Toán & Thuế 0%)</button>
@@ -2714,7 +2714,7 @@
         <!-- TAB 3: 03_SUP (XƯỞNG SX THIÊN LONG) -->
         <div id="dossierTab03Sup" class="dossier-tab-content" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-            <div style="background:rgba(217,119,6,0.06); border-left:3px solid #d97706; padding:6px 10px; font-size:11.5px; flex:1;">
+            <div id="lblTab03SupDesc" style="background:rgba(217,119,6,0.06); border-left:3px solid #d97706; padding:6px 10px; font-size:11.5px; flex:1;">
               <b>Đối tượng thụ hưởng:</b> Nhà máy Thiên Long (Phú Thọ). Giá vốn 337.000 đ/thùng (gồm bốc xếp), cam kết bảo lãnh hoàn thuế 0%.
             </div>
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('03_SUP')" style="background:#b45309; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
@@ -2743,7 +2743,7 @@
         <div id="dossierTab04Log" class="dossier-tab-content" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
             <div style="background:rgba(147,51,234,0.06); border-left:3px solid #9333ea; padding:6px 10px; font-size:11.5px; flex:1;">
-              <b>Đối tượng thụ hưởng:</b> Đơn vị vận tải Vĩnh Thành. <b>Bảo vệ Tầng 2:</b> Ẩn 100% giá vốn 337k và SĐT khách ngoại.
+              <b>Đối tượng thụ hưởng:</b> Đơn vị vận tải Vĩnh Thành. <b>Bảo vệ Tầng 2:</b> Ẩn 100% giá vốn mua hàng và SĐT khách ngoại.
             </div>
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('04_LOG')" style="background:#7e22ce; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 04_LOG]</span>
@@ -2936,10 +2936,10 @@
       </tr>
       <tr>
         <td><b>Commodity:</b> <span id="printCommodity">Snack Quẩy Giòn Giòn (Crispy Stick Snack)</span></td>
-        <td><b>HS Code:</b> 1905.90.80</td>
+        <td><b>HS Code:</b> <span id="printHsCode">1905.90.80</span></td>
       </tr>
       <tr>
-        <td><b>Packing:</b> 22g/cup x 300 cups/carton</td>
+        <td><b>Packing:</b> <span id="printPacking">22g/cup x 300 cups/carton</span></td>
         <td><b>Origin:</b> Vietnam (C/O Form D available)</td>
       </tr>
       <tr>
@@ -2959,7 +2959,7 @@
           <th class="text-right">Total Amount (USD)</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="printQuotationTbody">
         <tr>
           <td class="text-center">1</td>
           <td><b id="printItemTitle">Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br><small>Specification: 22g/cup, 300 cups/ctn. Volume: 0.0785 CBM/ctn</small></td>
@@ -3803,6 +3803,63 @@
         chkPhyto: false,
         baselineOverrides: {},
         unforeseenExpenses: []
+      },
+      {
+        id: "SCN-FCA_LB-HOWO-MIX_1900T-VT-DIX-260906",
+        name: "FCA Lao Bảo · HOWO 15.6m [Ghép QGG(400)+MDC(800)+MCT(200)+VXN(300)+MTH(200) = 1.900 thùng] - Vĩnh Thành | DIX #260906",
+        isDefault: false,
+        packingMode: "MIXED",
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
+        terms: "FCA_LB",
+        vehicle: "HOWO_156",
+        tripCount: 1,
+        boxQty: 1900,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 1,
+        bankWireCount: "2",
+        quotePrice: 17.06,
+        fxRate: 25790,
+        mixedCargo: {
+          SUP_THIEN_LONG: 400,
+          SUP_LOI_DAT_MY_DEO_CAY: 800,
+          SUP_LOI_DAT_MY_CAY: 200,
+          SUP_LOI_DAT_XIEN_NUONG: 300,
+          SUP_LOI_DAT_MY_TOM_HUM: 200
+        },
+        mixedPrices: {
+          SUP_THIEN_LONG: 15.80,
+          SUP_LOI_DAT_MY_DEO_CAY: 15.80,
+          SUP_LOI_DAT_MY_CAY: 26.50,
+          SUP_LOI_DAT_XIEN_NUONG: 15.80,
+          SUP_LOI_DAT_MY_TOM_HUM: 15.80
+        },
+        activeMixedSupplierIds: [
+          "SUP_THIEN_LONG",
+          "SUP_LOI_DAT_MY_DEO_CAY",
+          "SUP_LOI_DAT_MY_CAY",
+          "SUP_LOI_DAT_XIEN_NUONG",
+          "SUP_LOI_DAT_MY_TOM_HUM"
+        ],
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: false,
+        binhAnTransitTrucks: "1",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
       }
     ];
 
@@ -4010,38 +4067,43 @@
       const orderType = isCompleted ? 'COMPLETED' : 'SIMULATION';
       const orderTitle = curScn ? (curScn.name || curScn.id) : `Kịch bản ${derivedOrderId}`;
 
-      const qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 1300) || 1300;
-      const quotePrice = parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 15.80) || 15.80;
-      const fxRate = parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25797.45) || 25797.45;
+      recalculate();
+      const d = window._currentCalcData || {};
+      const isMixed = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
       const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : 'SUP_THIEN_LONG';
-      const supplier = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+      const supplier = d.supplier || partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
 
-      const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : (qty * supplier.pricePreVat);
+      const qty = d.qty || parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 1300) || 1300;
+      const quotePrice = d.quotePrice !== undefined ? d.quotePrice : (parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 15.80) || 15.80);
+      const fxRate = d.fxRate || parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25797.45) || 25797.45;
+
+      const cogsPreVat = isMixed ? (d.cogsPreVat || 0) : (partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : (qty * (supplier.pricePreVat || 337000)));
       
-      // Quỹ hoàn thuế GTGT 8% (TK 1331):
-      // Đơn 269901 chuẩn 1.300 thùng: 37.237.630 đ (Hàng 35.048.000 + Xe 1.760.000 + HQ 429.630)
-      const vatRefund = (qty === 1300 && supId === 'SUP_THIEN_LONG' && derivedOrderId === '269901')
+      const vatRefund = isMixed ? (d.vatRefund || 0) : ((qty === 1300 && supId === 'SUP_THIEN_LONG' && derivedOrderId === '269901')
         ? 37237630
-        : Math.round(cogsPreVat * supplier.vatRate + (22000000 * 0.08) + (5364000 * 0.08));
+        : Math.round(cogsPreVat * (supplier.vatRate || 0.08) + (22000000 * 0.08) + (5364000 * 0.08)));
 
-      // Doanh thu USD chuẩn: 1.300 thùng x 15.80 USD = 20.540 USD nếu là đơn 269901
-      const revUsd = (qty === 1300 && Math.abs(quotePrice - 15.80) < 0.01 && derivedOrderId === '269901') 
-        ? 20540 
-        : Number((qty * quotePrice).toFixed(2));
-      const revVnd = Math.round(revUsd * fxRate);
+      const revUsd = d.revUsd !== undefined ? d.revUsd : (
+        (qty === 1300 && Math.abs(quotePrice - 15.80) < 0.01 && derivedOrderId === '269901') 
+          ? 20540 
+          : Number((qty * quotePrice).toFixed(2))
+      );
+      const revVnd = d.revVnd !== undefined ? d.revVnd : Math.round(revUsd * fxRate);
 
       const totalUnforeseen = currentUnforeseenExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
       const totalUnforeseenVat = currentUnforeseenExpenses.filter(e => e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
       const totalUnforeseenNonVat = currentUnforeseenExpenses.filter(e => !e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
 
+      const liveNid = computeSsotNameId();
       const payload = {
         orderId: derivedOrderId,
-        orderName: orderTitle,
+        orderName: isMixed ? `Ghép Cont (${d.mixedSkuItems.length} SP: ${d.mixedSkuItems.map(it => it.skuCode).join('+')}) - ${qty}T` : ((liveNid && liveNid.name) ? liveNid.name : orderTitle),
+        commodity: isMixed ? d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ') : `[${d.singleSkuCode || getSupplierSkuCode(supplier)}] ${supplier.product}`,
         orderType: orderType,
-        scenarioId: activeScenarioId,
+        scenarioId: (liveNid && liveNid.id) ? liveNid.id : activeScenarioId,
         timestamp: new Date().toISOString(),
         boxQty: qty,
-        unitPriceVnd: supplier.pricePreVat,
+        unitPriceVnd: isMixed ? (cogsPreVat / qty) : (supplier.pricePreVat || 337000),
         unitPriceUsd: quotePrice,
         revenueUsd: revUsd,
         exchangeRate: fxRate,
@@ -4052,6 +4114,8 @@
         costFees: 270000,
         costBorderExtra: totalUnforeseen,
         vatRefund: vatRefund,
+        packingMode: isMixed ? 'MIXED' : 'SINGLE',
+        mixedSkuItems: isMixed ? d.mixedSkuItems : [],
         unforeseenExpenses: currentUnforeseenExpenses,
         totalUnforeseenWithInvoice: totalUnforeseenVat,
         totalUnforeseenNoInvoice: totalUnforeseenNonVat
@@ -4812,6 +4876,9 @@
 
     function setPackingMode(mode) {
       packingMode = mode || 'SINGLE';
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+        _currentDossierMode = 'LIVE_SCENARIO';
+      }
       const btnSingle = document.getElementById('btnModeSingle');
       const btnMixed = document.getElementById('btnModeMixed');
       const panelSingle = document.getElementById('panelSingleSku');
@@ -4980,6 +5047,9 @@
     }
 
     function onMixedQtyChange(supId, val) {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+        _currentDossierMode = 'LIVE_SCENARIO';
+      }
       const q = Math.max(0, parseInt(val) || 0);
       currentMixedCargo[supId] = q;
 
@@ -4997,6 +5067,9 @@
     }
 
     function onMixedPriceChange(supId, val) {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+        _currentDossierMode = 'LIVE_SCENARIO';
+      }
       const p = Math.max(0, parseFloat(val) || 0);
       currentMixedPrices[supId] = p;
       const sup = partnersMaster.suppliers.find(s => s.id === supId);
@@ -5792,12 +5865,21 @@
     }
 
     function onSupplierChange(keepCurrentQuote) {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+        _currentDossierMode = 'LIVE_SCENARIO';
+      }
       const supId = document.getElementById('supplierSelect').value;
       const sup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
       const skuCode = getSupplierSkuCode(sup);
       
-      document.getElementById('infoProdName').innerText = `[${skuCode}] ${sup.product}`;
-      document.getElementById('infoSupplierName').innerText = `${sup.name} (MST: ${sup.taxId})`;
+      const prodNameEl = document.getElementById('infoProdName');
+      const prodHsEl = document.getElementById('infoProdHs');
+      const supNameEl = document.getElementById('infoSupplierName');
+      const supTaxEl = document.getElementById('infoSupplierTax');
+      if (prodNameEl) prodNameEl.innerText = `[${skuCode}] ${sup.product}`;
+      if (prodHsEl) prodHsEl.innerText = `(HS: ${sup.hsCode || '1905.90.80'})`;
+      if (supNameEl) supNameEl.innerText = sup.name;
+      if (supTaxEl) supTaxEl.innerText = `(MST: ${sup.taxId})`;
       const buyPriceEl = document.getElementById('infoBuyPrice');
       if (buyPriceEl) {
         if (sup.priceIncVat) {
@@ -5825,17 +5907,19 @@
       // Cập nhật nhãn sức chứa các loại xe theo sản phẩm đang chọn
       updateVehicleSelectLabels(sup);
 
-      // Tự động cập nhật số lượng thùng xuất khẩu theo sản phẩm và loại xe đang chọn
-      const v = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
-      const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
-      let baseCap = 1000;
-      if (v === 'HOWO_156') baseCap = sup.howoQty || 1300;
-      else if (v === 'CONT_40HC') baseCap = sup.cont40Qty || 800;
-      else if (v === 'CONT_45HC') baseCap = sup.cont45Qty || 1000;
+      // Tự động cập nhật số lượng thùng xuất khẩu theo sản phẩm và loại xe đang chọn (chỉ khi ở chế độ Single)
+      if (packingMode !== 'MIXED') {
+        const v = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
+        const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
+        let baseCap = 1000;
+        if (v === 'HOWO_156') baseCap = sup.howoQty || 1300;
+        else if (v === 'CONT_40HC') baseCap = sup.cont40Qty || 800;
+        else if (v === 'CONT_45HC') baseCap = sup.cont45Qty || 1000;
 
-      const boxInput = document.getElementById('boxQty');
-      if (boxInput) {
-        boxInput.value = baseCap * tripCount;
+        const boxInput = document.getElementById('boxQty');
+        if (boxInput) {
+          boxInput.value = baseCap * tripCount;
+        }
       }
 
       recalculate();
@@ -6890,7 +6974,9 @@
         if (demContGroup) demContGroup.style.display = 'block';
         if (demHowoGroup) demHowoGroup.style.display = 'none';
       }
-      boxInput.value = baseCap * tripCount;
+      if (packingMode !== 'MIXED') {
+        boxInput.value = baseCap * tripCount;
+      }
 
       const baTrucks = document.getElementById('binhAnTransitTrucks');
       if (baTrucks) baTrucks.value = tripCount;
@@ -6909,7 +6995,9 @@
       else if (v === 'CONT_45HC') baseCap = (curSup && curSup.cont45Qty) ? curSup.cont45Qty : 1000;
 
       const tripCount = parseInt(document.getElementById('tripCount').value) || 1;
-      document.getElementById('boxQty').value = baseCap * tripCount;
+      if (packingMode !== 'MIXED') {
+        document.getElementById('boxQty').value = baseCap * tripCount;
+      }
 
       const baTrucks = document.getElementById('binhAnTransitTrucks');
       if (baTrucks) baTrucks.value = tripCount;
@@ -6925,6 +7013,38 @@
         depGroup.style.display = (val === '1') ? 'none' : 'block';
       }
       recalculate();
+    }
+
+    function getProductNetWeight(s) {
+      if (!s) return 6.6;
+      if (s.netWeight !== undefined && s.netWeight !== null && Number(s.netWeight) > 0) {
+        return Number(s.netWeight);
+      }
+      if (s.grossWeight && Number(s.grossWeight) > 0) {
+        const gw = Number(s.grossWeight);
+        const estimatedTare = gw > 10 ? 1.5 : (gw > 6 ? 1.2 : 0.8);
+        return Math.max(1, Math.round((gw - estimatedTare) * 100) / 100);
+      }
+      return 6.6;
+    }
+
+    function getProductGrossWeight(s) {
+      if (!s) return 7.8;
+      if (s.grossWeight !== undefined && s.grossWeight !== null && Number(s.grossWeight) > 0) {
+        return Number(s.grossWeight);
+      }
+      return 7.8;
+    }
+
+    function getProductCbm(s) {
+      if (!s) return 0.0785;
+      if (s.cbm !== undefined && s.cbm !== null && Number(s.cbm) > 0) {
+        return Number(s.cbm);
+      }
+      if (s.dimL && s.dimW && s.dimH) {
+        return Math.round((s.dimL * s.dimW * s.dimH / 1e9) * 1000000) / 1000000;
+      }
+      return 0.0785;
     }
 
     // MAIN RECALCULATION ENGINE (TÍNH TOÁN LÃI SAU THUẾ TNDN 20% VÀ ĐA NHIỆM ĐẠI LÝ)
@@ -6998,10 +7118,13 @@
             if (!activeMixedSupplierIds.includes(s.id)) return;
             const q = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
             const unitP = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd || 15.80);
+            const itCbm = getProductCbm(s);
+            const itGw = getProductGrossWeight(s);
+            const itNw = getProductNetWeight(s);
             totalMixedQty += q;
-            totalMixedCbm += q * (s.cbm || 0);
-            totalMixedGw += q * (s.grossWeight || 7.8);
-            totalMixedNw += q * (s.netWeight || 6.6);
+            totalMixedCbm += q * itCbm;
+            totalMixedGw += q * itGw;
+            totalMixedNw += q * itNw;
             mixedCogs += q * (s.pricePreVat || 0);
             mixedVat += q * (s.pricePreVat || 0) * (s.vatRate || 0.08);
             mixedRevenueUsd += q * unitP;
@@ -7017,9 +7140,15 @@
                 pricePreVat: s.pricePreVat || 0,
                 revUsd: q * unitP,
                 cogsVnd: q * (s.pricePreVat || 0),
-                dims: s.dims || (s.dimL && s.dimW && s.dimH ? `${s.dimL}x${s.dimW}x${s.dimH} mm` : ''),
-                cbm: s.cbm || 0,
-                grossWeight: s.grossWeight || 7.8
+                dims: s.dims || (s.dimL && s.dimW && s.dimH ? `${s.dimL}x${s.dimW}x${s.dimH} mm` : '585x270x497 mm'),
+                cbm: itCbm,
+                grossWeight: itGw,
+                netWeight: itNw,
+                spec: s.spec || 'Quy cách chuẩn xuất khẩu',
+                hsCode: s.hsCode || '1905.90.80',
+                supplierName: s.name || '',
+                taxId: s.taxId || '',
+                vatRate: (s.vatRate !== undefined) ? s.vatRate : 0.08
               });
             }
           });
@@ -7057,8 +7186,8 @@
           qty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
           defaultCogs = qty * (supplier.pricePreVat || 0);
           vatRefund = defaultCogs * (supplier.vatRate || 0.08);
-          totalCbm = qty * (supplier.cbm || 0.0785);
-          totalGw = (qty * (supplier.grossWeight || 7.8)) / 1000;
+          totalCbm = qty * getProductCbm(supplier);
+          totalGw = (qty * getProductGrossWeight(supplier)) / 1000;
         }
 
         const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : defaultCogs;
@@ -7335,12 +7464,41 @@
       const dossierTimeEl = document.getElementById('liveDossierTime');
       if (dossierTimeEl) dossierTimeEl.innerText = new Date().toLocaleString('vi-VN');
 
+      // Đồng bộ ô tìm kiếm / hiển thị kịch bản ở Header để phản ánh đúng sản phẩm / ghép cont
+      const scnSearchInput = document.getElementById('scenarioSearchInput');
+      const currentScnBadge = document.getElementById('currentScenarioBadge');
+      if (scnSearchInput && document.activeElement !== scnSearchInput) {
+        const loadedScn = scenariosMaster.find(s => s.id === activeScenarioId);
+        const isBaselineUntouched = (activeScenarioId === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && packingMode !== 'MIXED' && supId === 'SUP_THIEN_LONG' && qty === 1300);
+        if (isBaselineUntouched) {
+          scnSearchInput.value = `⭐ [${activeScenarioId}] ${loadedScn ? (loadedScn.name || activeScenarioId) : activeScenarioId}`;
+          if (currentScnBadge) currentScnBadge.innerHTML = `<span style="color:var(--accent-gold); font-size:10px; font-weight:bold; background:rgba(234, 179, 8, 0.15); padding:2px 6px; border-radius:3px; border:1px solid rgba(234, 179, 8, 0.3);">[⭐ MẶC ĐỊNH #269901]</span>`;
+        } else if (packingMode === 'MIXED') {
+          scnSearchInput.value = `📦 [${curScnId}] ${liveNidObj.name}`;
+          if (currentScnBadge) currentScnBadge.innerHTML = `<span style="color:#0284c7; font-size:10px; font-weight:bold; background:rgba(2, 132, 199, 0.15); padding:2px 6px; border-radius:3px; border:1px solid rgba(2, 132, 199, 0.35);">[⚡ GHÉP CONT ĐA SP]</span>`;
+        } else {
+          scnSearchInput.value = `⚡ [${curScnId}] ${liveNidObj.name}`;
+          if (currentScnBadge) currentScnBadge.innerHTML = `<span style="color:#059669; font-size:10px; font-weight:bold; background:rgba(5, 150, 105, 0.15); padding:2px 6px; border-radius:3px; border:1px solid rgba(5, 150, 105, 0.35);">[⚡ SP: ${singleSkuCode}]</span>`;
+        }
+      }
+
       const liveProdEl = document.getElementById('liveInfoProd');
       if (liveProdEl) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
           liveProdEl.innerText = `Ghép Cont (${mixedSkuItems.length} mã): ` + mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ');
         } else {
-          liveProdEl.innerText = `[${singleSkuCode}] ${supplier.product} (${supplier.spec || 'Crispy Stick Snack'})`;
+          liveProdEl.innerText = `[${singleSkuCode}] ${supplier.product}`;
+        }
+      }
+
+      const liveSpecEl = document.getElementById('liveInfoSpec');
+      if (liveSpecEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          const specsSummary = mixedSkuItems.map(it => `${it.skuCode}:${it.dims || 'Chuẩn'}`).join(' · ');
+          const hsSummary = [...new Set(mixedSkuItems.map(it => it.hsCode || '1905.90.80'))].join(', ');
+          liveSpecEl.innerText = `Quy cách / Spec: Đa quy cách (${specsSummary}) | Mã HS / HS Code: ${hsSummary}`;
+        } else {
+          liveSpecEl.innerText = `Quy cách / Spec: ${supplier.spec || 'Quy cách chuẩn xuất khẩu'} | Mã HS / HS Code: ${supplier.hsCode || '1905.90.80'}`;
         }
       }
 
@@ -7353,7 +7511,11 @@
       const liveSupEl = document.getElementById('liveInfoSupplier');
       if (liveSupEl) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
-          liveSupEl.innerText = `Đa Nhà cung cấp (${mixedSkuItems.map(it => it.skuCode).join(', ')})`;
+          const supNamesList = [...new Set(mixedSkuItems.map(it => {
+            const s = partnersMaster.suppliers.find(x => x.id === it.id);
+            return s ? s.name : 'NCC';
+          }))];
+          liveSupEl.innerText = `Đa Nhà cung cấp (${supNamesList.join(' + ')})`;
         } else {
           liveSupEl.innerText = `${supplier.name} (MST / Tax ID: ${supplier.taxId})`;
         }
@@ -7389,6 +7551,108 @@
           liveQuoteEl.innerText = `BQ: $${quotePrice.toFixed(2)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(', ') + `)`;
         } else {
           liveQuoteEl.innerText = `$${quotePrice.toFixed(2)} USD/thùng [${singleSkuCode}]`;
+        }
+      }
+
+      // ĐỒNG BỘ KHỐI THÔNG TIN SẢN PHẨM Ở CỘT TRÁI (#supplierInfoBox)
+      const infoProdEl = document.getElementById('infoProdName');
+      const infoProdHsEl = document.getElementById('infoProdHs');
+      const infoSupEl = document.getElementById('infoSupplierName');
+      const infoSupTaxEl = document.getElementById('infoSupplierTax');
+      const infoBuyEl = document.getElementById('infoBuyPrice');
+      const infoVatEl = document.getElementById('infoVatRate');
+      if (infoProdEl && infoSupEl && infoBuyEl && infoVatEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          infoProdEl.innerText = `Ghép Cont (${mixedSkuItems.length} mã: ${mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName}`).join(' + ')})`;
+          if (infoProdHsEl) infoProdHsEl.innerText = `(Đa HS: ${[...new Set(mixedSkuItems.map(it => it.hsCode || '1905.90.80'))].join(', ')})`;
+          const supSummary = [...new Set(mixedSkuItems.map(it => {
+            const s = partnersMaster.suppliers.find(x => x.id === it.id);
+            return s ? s.name : 'NCC';
+          }))].join(', ');
+          infoSupEl.innerText = `Đa Nhà Cung Cấp (${supSummary})`;
+          if (infoSupTaxEl) infoSupTaxEl.innerText = `([ĐA MST])`;
+          infoBuyEl.innerHTML = `BQ: <b>${formatVnd(cogsPerBoxVnd)}/th</b> (chưa VAT) · Đã VAT: <b>${formatVnd(cogsPerBoxVnd * 1.08)}/th</b>`;
+          infoVatEl.innerText = '8';
+        } else {
+          infoProdEl.innerText = `[${singleSkuCode}] ${supplier.product}`;
+          if (infoProdHsEl) infoProdHsEl.innerText = `(HS: ${supplier.hsCode || '1905.90.80'})`;
+          infoSupEl.innerText = supplier.name;
+          if (infoSupTaxEl) infoSupTaxEl.innerText = `(MST: ${supplier.taxId})`;
+          if (supplier.priceIncVat) {
+            infoBuyEl.innerHTML = `<b style="color:var(--alert-success-text);">${formatExactProductPriceVnd(supplier.priceIncVat)}đ</b> (gốc đã VAT) · Chưa VAT: <b>${formatExactProductPriceVnd(supplier.pricePreVat)}đ</b>`;
+          } else {
+            infoBuyEl.innerText = `${formatExactProductPriceVnd(supplier.pricePreVat)}đ`;
+          }
+          infoVatEl.innerText = (supplier.vatRate * 100).toFixed(0);
+        }
+      }
+
+      // ĐỒNG BỘ TAB 3 CỦA KHO HỒ SƠ 7 TRỤ CỘT (03_SUP)
+      const btnTab03 = document.getElementById('btnTab03Sup');
+      const lblTab03Desc = document.getElementById('lblTab03SupDesc');
+      if (btnTab03) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          btnTab03.innerText = `3. 🏭 03_SUP (Đa Nhà Cung Cấp - ${mixedSkuItems.length} SP)`;
+        } else {
+          btnTab03.innerText = `3. 🏭 03_SUP (${supplier.name})`;
+        }
+      }
+      if (lblTab03Desc) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> Đa Nhà cung cấp (${mixedSkuItems.map(it => it.skuCode).join(', ')}). Giá vốn bình quân: <b>${formatVnd(cogsPerBoxVnd)} đ/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.`;
+        } else {
+          lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> ${supplier.name} (MST: ${supplier.taxId}). Giá vốn: <b>${formatExactProductPriceVnd(supplier.pricePreVat)}/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.`;
+        }
+      }
+
+      // ĐỒNG BỘ CẢNH BÁO BẪY THỂ TÍCH (#volumeAlert)
+      const volAlertEl = document.getElementById('volumeAlert');
+      if (volAlertEl) {
+        const pName = (packingMode === 'MIXED' && mixedSkuItems.length > 0)
+          ? `hàng ghép đa sản phẩm (${mixedSkuItems.map(it => it.skuCode).join('+')})`
+          : `[${singleSkuCode}] ${supplier.product}`;
+        const capRange = (packingMode === 'MIXED')
+          ? `${qty.toLocaleString('vi-VN')}`
+          : `${(supplier.cont40Qty || 800).toLocaleString('vi-VN')} - ${(supplier.cont45Qty || 1000).toLocaleString('vi-VN')}`;
+        volAlertEl.innerHTML = `
+          <span class="status-dot dot-red"></span>
+          <div>
+            <b>CẢNH BÁO BẪY THỂ TÍCH (THE VOLUME TRAP):</b> Phương tiện là Container High Cube (${vehicle === 'CONT_45HC' ? '45ft HC' : (vehicle === 'CONT_40HC' ? '40ft HC' : 'Container')}). Thể tích hữu dụng chỉ đóng được <b>${capRange} thùng ${pName}</b> khiến cước vận tải đội thêm từ <b>+$0.70 đến +$1.03 USD/thùng</b>! Bắt buộc chào giá cao hơn giá FCA Lao Bảo.
+          </div>
+        `;
+      }
+
+      // ĐỒNG BỘ CÁC THẺ BÁO GIÁ IN ẤN
+      const printCommEl = document.getElementById('printCommodity');
+      const printHsEl = document.getElementById('printHsCode');
+      const printPackEl = document.getElementById('printPacking');
+      const printTitleEl = document.getElementById('printItemTitle');
+      if (printCommEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          printCommEl.innerText = `Ghép Cont (${mixedSkuItems.length} SP): ` + mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ');
+        } else {
+          printCommEl.innerText = `[${singleSkuCode}] ${supplier.product}`;
+        }
+      }
+      if (printHsEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          printHsEl.innerText = [...new Set(mixedSkuItems.map(it => it.hsCode || '1905.90.80'))].join(', ');
+        } else {
+          printHsEl.innerText = supplier.hsCode || '1905.90.80';
+        }
+      }
+      if (printPackEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          printPackEl.innerText = `Đa quy cách (Thùng carton chuẩn xuất khẩu)`;
+        } else {
+          printPackEl.innerText = `${supplier.spec || 'Quy cách chuẩn xuất khẩu'} (Dims: ${supplier.dims || 'Standard'})`;
+        }
+      }
+      if (printTitleEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          printTitleEl.innerText = `Assorted Snacks (Hàng ghép cont ${mixedSkuItems.length} mã: ${mixedSkuItems.map(it => it.skuCode).join(', ')})`;
+        } else {
+          printTitleEl.innerText = `[${singleSkuCode}] ${supplier.product}`;
         }
       }
 
@@ -7945,6 +8209,7 @@
         supplier, carrier, activeAgentVn, agentVnName, agentLao, agentYard,
         terms, vehicle, qty, tripCount, tripCountUnit,
         packingMode, mixedSkuItems, singleSkuCode, liveScnId: curScnId,
+        totalCbm, totalGw: (totalGw * 1000), totalNw: (packingMode === 'MIXED' ? totalMixedNw : (qty * getProductNetWeight(supplier))),
         demurrageDays, wireCount, depositPercent: depositPercentVal, depositRate,
         depositAmount: revenueUsd * depositRate,
         balanceAmount: (wireCount === 1) ? 0 : (revenueUsd * (1 - depositRate)),
@@ -8029,14 +8294,25 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
+      const isMixSheet = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
+      const cogsName = isMixSheet 
+        ? `1. Giá vốn mua hàng chưa VAT (COGS Đa NCC - ${d.mixedSkuItems.length} SP)` 
+        : `1. Giá vốn mua hàng chưa VAT (COGS) [${d.singleSkuCode || getSupplierSkuCode(d.supplier)}]`;
+      const cogsProvider = isMixSheet
+        ? `Đa Nhà Cung Cấp (${d.mixedSkuItems.map(it => it.shortName).join(', ')})`
+        : `${d.supplier.name} (MST: ${d.supplier.taxId})`;
+      const cogsNote = isMixSheet
+        ? `Giá vốn BQ: ${formatVnd(d.cogsPerBoxVnd)}/th · Chi tiết: ` + d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(' | ')
+        : (d.supplier.priceIncVat
+            ? `Báo giá gốc đã VAT: ${formatExactProductPriceVnd(d.supplier.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ)`
+            : `Đơn giá mua gốc từ Nhà máy: ${formatExactProductPriceVnd(d.supplier.pricePreVat)} đ/thùng`);
+
       let rows = [
         {
-          name: "1. Giá vốn mua hàng chưa VAT (COGS)",
-          provider: `${d.supplier.name} (MST: ${d.supplier.taxId})`,
+          name: cogsName,
+          provider: cogsProvider,
           amount: d.cogsPreVat,
-          note: d.supplier.priceIncVat
-            ? `Báo giá gốc đã VAT: ${formatExactProductPriceVnd(d.supplier.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ)`
-            : `Đơn giá mua gốc từ Nhà máy: ${formatExactProductPriceVnd(d.supplier.pricePreVat)} đ/thùng`
+          note: cogsNote
         },
         {
           name: (d.terms === 'FCA_LB' ? "2. Cước vận tải giao tại CK Lao Bảo (FCA)" : "2. Cước vận tải xe / cont"),
@@ -8243,7 +8519,7 @@
 
       let qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
       let qtyTag = `${singleSkuCode}_${qty}T`;
-      let prodName = sup ? `[${singleSkuCode}] ${sup.product}` : `[${singleSkuCode}] Snack Quẩy Giòn Giòn`;
+      let prodName = sup ? `[${singleSkuCode}] ${sup.product}` : `[${singleSkuCode}] Sản phẩm đơn`;
       let labelSkuSummary = `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} thùng`;
 
       if (packingMode === 'MIXED' && partnersMaster && partnersMaster.suppliers) {
@@ -8490,12 +8766,59 @@
     }
 
     function exportQuotationPDF() {
-      document.getElementById('printQty').innerText = document.getElementById('boxQty').value;
+      recalculate();
+      const d = window._currentCalcData || {};
+      const tbody = document.getElementById('printQuotationTbody');
+      const isMixed = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
       const p = parseFloat(document.getElementById('quotePrice').value) || 0;
       const q = parseInt(document.getElementById('boxQty').value) || 0;
-      document.getElementById('printUnitPrice').innerText = `$${p.toFixed(2)}`;
-      document.getElementById('printTotalAmount').innerText = `$${(p * q).toLocaleString('en-US', {minimumFractionDigits:2})}`;
-      document.getElementById('printTerms').innerText = document.getElementById('incotermsSelect').options[document.getElementById('incotermsSelect').selectedIndex].text;
+
+      if (tbody) {
+        if (isMixed) {
+          let tHtml = '';
+          d.mixedSkuItems.forEach((it, idx) => {
+            const lineTotal = (it.qty * it.unitP);
+            tHtml += `
+              <tr>
+                <td class="text-center">${idx + 1}</td>
+                <td><b>[${it.skuCode}] ${it.product}</b><br><small>Spec: ${it.dims || 'Standard'}. CBM: ${Number(it.cbm || 0).toFixed(4)} m³/ctn</small></td>
+                <td class="text-center font-bold">${it.qty.toLocaleString('vi-VN')}</td>
+                <td class="text-center">Cartons</td>
+                <td class="text-right font-bold">$${it.unitP.toFixed(2)}</td>
+                <td class="text-right font-bold">$${lineTotal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+              </tr>
+            `;
+          });
+          tHtml += `
+            <tr style="background:#f8fafc; font-weight:bold;">
+              <td colspan="2" class="text-right">TOTAL SUMMARY:</td>
+              <td class="text-center font-bold">${d.qty.toLocaleString('vi-VN')}</td>
+              <td class="text-center">Cartons</td>
+              <td class="text-right font-bold">$${d.quotePrice.toFixed(2)} (BQ)</td>
+              <td class="text-right font-bold" style="font-size:13px; color:var(--alert-success-text);">$${(d.revenueUsd || (p * q)).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+            </tr>
+          `;
+          tbody.innerHTML = tHtml;
+        } else {
+          const sup = d.supplier || partnersMaster.suppliers[0];
+          const sku = d.singleSkuCode || getSupplierSkuCode(sup);
+          tbody.innerHTML = `
+            <tr>
+              <td class="text-center">1</td>
+              <td><b>[${sku}] ${sup.product}</b><br><small>Specification: ${sup.spec || '22g/cup x 300 cups/ctn'}. Volume: ${sup.cbm || 0.0785} CBM/ctn</small></td>
+              <td class="text-center font-bold" id="printQty">${q.toLocaleString('vi-VN')}</td>
+              <td class="text-center">Cartons</td>
+              <td class="text-right font-bold" id="printUnitPrice">$${p.toFixed(2)}</td>
+              <td class="text-right font-bold" id="printTotalAmount">$${(p * q).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+            </tr>
+          `;
+        }
+      }
+
+      const termsSelect = document.getElementById('incotermsSelect');
+      if (termsSelect && document.getElementById('printTerms')) {
+        document.getElementById('printTerms').innerText = termsSelect.options[termsSelect.selectedIndex].text;
+      }
       window.print();
     }
 
@@ -8611,9 +8934,10 @@
         const mixCommStr = d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ');
         const mixBuyStr = d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(' | ');
         const mixQuoteStr = d.mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(' | ');
+        const mixHsSummary = [...new Set(d.mixedSkuItems.map(it => it.hsCode || '1905.90.80'))].join(', ');
         // Cột 1
         text('• Hàng hóa ghép cont (' + d.mixedSkuItems.length + ' SP): ' + mixCommStr, 55, curY + 56, 'bold 14px "Times New Roman", serif', '#111827');
-        text('• Bên bán (Nhà cung cấp) / Seller: Đa Nhà cung cấp (' + d.mixedSkuItems.map(it => it.skuCode).join(', ') + ' | HS Code: 1905.90.80)', 55, curY + 80, '14.5px "Times New Roman", serif', '#374151');
+        text('• Bên bán (Nhà cung cấp) / Seller: Đa Nhà cung cấp (' + d.mixedSkuItems.map(it => it.skuCode).join(', ') + ' | HS Code: ' + mixHsSummary + ')', 55, curY + 80, '14.5px "Times New Roman", serif', '#374151');
         text('• Giá vốn từng mã / Ex-work: ' + mixBuyStr + ' (BQ: ' + formatVnd(d.cogsPerBoxVnd) + '/th | VAT 8%)', 55, curY + 104, '14px "Times New Roman", serif', '#374151');
         // Cột 2
         text('• Điều kiện giao hàng / Incoterms: ' + d.terms.replace('_', ' ') + ' | Quy mô / Volume: ' + d.tripCount + ' ' + d.tripCountUnit + ' (' + d.qty.toLocaleString('vi-VN') + ' thùng)', midX, curY + 56, 'bold 15px "Times New Roman", serif', '#000000');
@@ -8621,8 +8945,10 @@
         text('• Tỷ giá: ' + d.fxRate.toLocaleString('vi-VN') + ' đ/USD | Giá bán từng mã: ' + mixQuoteStr + ' (BQ: $' + d.quotePrice.toFixed(2) + '/th)', midX, curY + 104, 'bold 14px "Times New Roman", serif', '#000000');
       } else {
         const skuTag = d.singleSkuCode || getSupplierSkuCode(d.supplier);
+        const singleHs = d.supplier ? (d.supplier.hsCode || '1905.90.80') : '1905.90.80';
+        const singleSpec = d.supplier ? (d.supplier.spec || 'Quy cách chuẩn xuất khẩu') : 'Quy cách chuẩn xuất khẩu';
         // Cột 1
-        text('• Tên hàng hóa / Commodity: [' + skuTag + '] ' + d.supplier.product + ' (Quy cách / Spec: ' + d.supplier.spec + ' | HS Code: 1905.90.80)', 55, curY + 56, 'bold 15px "Times New Roman", serif', '#111827');
+        text('• Tên hàng hóa / Commodity: [' + skuTag + '] ' + d.supplier.product + ' (Quy cách / Spec: ' + singleSpec + ' | HS Code: ' + singleHs + ')', 55, curY + 56, 'bold 15px "Times New Roman", serif', '#111827');
         text('• Bên bán (Nhà cung cấp) / Seller (Supplier): ' + d.supplier.name + ' (MST / Tax ID: ' + d.supplier.taxId + ')', 55, curY + 80, '15px "Times New Roman", serif', '#374151');
         const exWorkStr = d.supplier.priceIncVat
           ? formatExactProductPriceVnd(d.supplier.priceIncVat) + 'đ (đã VAT) / ' + formatExactProductPriceVnd(d.supplier.pricePreVat) + 'đ (chưa VAT)'
@@ -9029,7 +9355,7 @@
       const skuTagPrint = d.singleSkuCode || getSupplierSkuCode(d.supplier);
       const commHtmlPrint = isMixPrint
         ? `Ghép Cont (${d.mixedSkuItems.length} SP): ` + d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ')
-        : `[${skuTagPrint}] ${d.supplier.product} (${d.supplier.spec} | HS Code: 1905.90.80)`;
+        : `[${skuTagPrint}] ${d.supplier.product} (${d.supplier.spec} | HS Code: ${d.supplier.hsCode || '1905.90.80'})`;
       const supHtmlPrint = isMixPrint
         ? `Đa Nhà cung cấp (${d.mixedSkuItems.map(it => it.skuCode).join(', ')})`
         : `${d.supplier.name} (MST / Tax ID: ${d.supplier.taxId})`;
@@ -10106,9 +10432,22 @@
       }
 
       const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
-      const scnMatch = scn && (scn.id + ' ' + (scn.nameId || '')).match(/\b(26\d{4})\b/);
-      const orderRef = scnMatch ? scnMatch[1] : (executionDateCompact.slice(2, 6) + '01');
-      const contractCode = (scn && scn.nameId) ? scn.nameId : (scn ? scn.id : ('GSSDIX_FCA_' + orderRef));
+      let orderRef = executionDateCompact.slice(2, 6) + '01';
+      let contractCode = 'GSSDIX_FCA_' + orderRef;
+      try {
+        const ssot = computeSsotNameId();
+        if (ssot && ssot.breakdown && ssot.breakdown.orderRef) {
+          orderRef = ssot.breakdown.orderRef;
+        } else if (ssot && ssot.id) {
+          const m = ssot.id.match(/\b(26\d{4})\b/);
+          if (m) orderRef = m[1];
+        }
+        contractCode = (ssot && ssot.id) ? ssot.id : ('GSSDIX_FCA_' + orderRef);
+      } catch (err) {
+        const scnMatch = scn && (scn.id + ' ' + (scn.nameId || '')).match(/\b(26\d{4})\b/);
+        orderRef = scnMatch ? scnMatch[1] : (executionDateCompact.slice(2, 6) + '01');
+        contractCode = (scn && scn.nameId) ? scn.nameId : (scn ? scn.id : ('GSSDIX_FCA_' + orderRef));
+      }
       const poNo = 'PO' + orderRef;
       const invoiceNo = 'GSS-INV-' + orderRef;
       const pklNo = 'GSS-PKL-' + orderRef;
@@ -10184,7 +10523,12 @@
           hintBadge.style.color = '#93c5fd';
           hintBadge.textContent = '🔒 HĐ Khung: 09/09/2026';
         }
+        const btnTab03 = document.getElementById('btnTab03Sup');
+        const lblTab03Desc = document.getElementById('lblTab03SupDesc');
+        if (btnTab03) btnTab03.innerText = '3. 🏭 03_SUP (Xưởng SX Thiên Long)';
+        if (lblTab03Desc) lblTab03Desc.innerHTML = '<b>Đối tượng thụ hưởng:</b> Công ty TNHH Sản Xuất & Thương Mại Thiên Long (Phú Thọ). Giá vốn: <b>337.000đ/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.';
         try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
+        try { renderDossierPillarsTables(); } catch(e) { console.error(e); }
         // If current tab is master, switch back to tab 1
         const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
         if (activeTab && activeTab.textContent.includes('MASTER')) {
@@ -10226,6 +10570,7 @@
           hintBadge.textContent = `Tác nghiệp: ${displayDate}`;
         }
         try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
+        try { renderDossierPillarsTables(); } catch(e) { console.error(e); }
         // If current tab is master, switch back to tab 1
         const activeTab = document.querySelector('#orderDossierModal .tab-btn.active');
         if (activeTab && activeTab.textContent.includes('MASTER')) {
@@ -10288,27 +10633,27 @@
       if (backdrop) {
         backdrop.style.display = 'flex';
         
-        // BƯỚC 1: Render toàn bộ 7 bảng chứng từ NGAY LẬP TỨC để đảm bảo DOM có dữ liệu
-        try {
-          renderDossierPillarsTables();
-        } catch (e) {
-          console.error("Lỗi nạp bảng hồ sơ chứng từ:", e);
-        }
-
-        // BƯỚC 2: Cập nhật chế độ hiển thị & số liệu kịch bản an toàn
+        // BƯỚC 1: Cập nhật chế độ hiển thị & số liệu kịch bản an toàn TRƯỚC khi nạp dữ liệu
         try {
           recalculate();
           const d = window._currentCalcData || {};
           const qty = d.qty || 1300;
           const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
-          const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300;
+          const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300 && (d.packingMode !== 'MIXED') && (d.supplier && d.supplier.id === 'SUP_THIEN_LONG');
           
-          if (!_currentDossierMode) {
-            _currentDossierMode = isLockedBaseline ? 'ORIGINAL_269901' : 'LIVE_SCENARIO';
+          if (!isLockedBaseline) {
+            _currentDossierMode = 'LIVE_SCENARIO';
+          } else if (!_currentDossierMode) {
+            _currentDossierMode = 'ORIGINAL_269901';
           }
           setDossierSourceMode(_currentDossierMode);
         } catch (e) {
           console.error("Lỗi đồng bộ nguồn dữ liệu hồ sơ:", e);
+          try {
+            renderDossierPillarsTables();
+          } catch (err) {
+            console.error("Lỗi nạp bảng hồ sơ chứng từ dự phòng:", err);
+          }
         }
       }
     }
@@ -10430,16 +10775,69 @@
           buttons += `<button class="btn btn-sm" onclick="previewDossierDoc('${d.id}')" style="background:#2563eb; color:#fff; border:none; padding:2px 6px; font-size:11px;">[👁 In/Xem]</button>`;
         }
 
+        let displayNameVi = d.nameVi;
+        let displayNameEn = d.nameEn;
+        if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode === 'LIVE_SCENARIO') {
+          const curCalc = window._currentCalcData || {};
+          const curSupObj = curCalc.supplier || (partnersMaster && partnersMaster.suppliers ? partnersMaster.suppliers[0] : {});
+          if (d.id === 'FRM-PRO-02') {
+            if (curCalc.packingMode === 'MIXED') {
+              displayNameVi = `Đơn Đặt Hàng Mua Hàng Ghép Cont Đa NCC (${(curCalc.qty || 1000).toLocaleString('vi-VN')} Thùng)`;
+              displayNameEn = `Supplier Purchase Order (Mixed Cargo Multi-Factory)`;
+            } else {
+              const pName = curSupObj.product ? getProductShortName(curSupObj) : 'Hàng';
+              displayNameVi = `Đơn Đặt Hàng Mua ${pName} (${(curCalc.qty || 1000).toLocaleString('vi-VN')} Thùng)`;
+              displayNameEn = `Supplier Purchase Order (${curSupObj.name || 'Factory'})`;
+            }
+          } else if (d.id === 'FRM-PRO-01') {
+            if (curCalc.packingMode === 'MIXED') {
+              displayNameVi = `Hợp Đồng Cung Ứng Nội Địa Đa NCC (${(curCalc.mixedSkuItems || []).map(x => x.skuCode).join(', ')})`;
+              displayNameEn = `Master Domestic Supply Agreement (Multi-Supplier)`;
+            } else {
+              displayNameVi = `Hợp Đồng Cung Ứng Nội Địa (${curSupObj.name || 'Nhà Máy'})`;
+              displayNameEn = `Master Domestic Supply Agreement (${curSupObj.name || 'Factory'})`;
+            }
+          } else if (d.id === 'FRM-CUS-03') {
+            displayNameVi = `Bảng Định Mức Tiêu Hao BOM (${(curCalc.qty || 1000).toLocaleString('vi-VN')} Thùng)`;
+            displayNameEn = `Bill of Materials (BOM) Consumption Norm (${(curCalc.qty || 1000).toLocaleString('vi-VN')} Cartons)`;
+          } else if (d.id === 'FRM-LOG-02') {
+            if (curCalc.packingMode === 'MIXED') {
+              displayNameVi = `Lệnh Điều Xe Container PL01 (Kho Ghép Đa NCC - Lao Bảo)`;
+            } else {
+              const supLoc = curSupObj.id === 'SUP_THIEN_LONG' ? 'Phú Thọ' : (curSupObj.id === 'SUP_LOI_DAT' ? 'Hà Nội' : (curSupObj.name ? curSupObj.name.replace(/CÔNG TY (TNHH|CP)?\s*/i, '').trim() : 'Kho Xưởng'));
+              displayNameVi = `Lệnh Điều Xe Container PL01 (${supLoc} - Lao Bảo)`;
+            }
+            displayNameEn = `Transport Dispatch Order PL01 (${(curCalc.qty || 1000).toLocaleString('vi-VN')} Cartons)`;
+          } else if (d.id === 'FRM-COD-02') {
+            if (curCalc.packingMode === 'MIXED') {
+              displayNameVi = `Bản Cam Kết Xuất Xứ Hàng Hóa (Đa Nhà Sản Xuất)`;
+              displayNameEn = `Manufacturer Origin Declaration & Warranty (Multi-Factory)`;
+            } else {
+              displayNameVi = `Bản Cam Kết Xuất Xứ Hàng Hóa NSX (${curSupObj.name || 'Nhà Sản Xuất'})`;
+              displayNameEn = `Manufacturer Origin Declaration (${curSupObj.name || 'Factory'})`;
+            }
+          } else if (d.id === 'FRM-COD-03') {
+            if (curCalc.packingMode === 'MIXED') {
+              displayNameVi = `Thuyết Minh Quy Trình Công Nghệ Sản Xuất (Hàng Ghép Cont Đa Sản Phẩm)`;
+              displayNameEn = `Manufacturing Process Flow (Mixed Multi-Products)`;
+            } else {
+              const prodName = curSupObj.product || 'Hàng Hóa';
+              displayNameVi = `Thuyết Minh Quy Trình Công Nghệ Sản Xuất ${prodName}`;
+              displayNameEn = `Manufacturing Process Flow & Description (${prodName})`;
+            }
+          }
+        }
+
         html += `
           <tr>
             <td class="text-center">
-              <input type="checkbox" class="chk-dossier-doc" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${d.nameVi}" onchange="updateSelectedCountBadge()">
+              <input type="checkbox" class="chk-dossier-doc" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${displayNameVi}" onchange="updateSelectedCountBadge()">
             </td>
             <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
             <td><code style="font-size:11.5px; color:var(--text-main); font-weight:bold;">${d.code}</code></td>
             <td>
-              <b style="color:var(--text-main); font-size:12.5px;">${d.nameVi}</b><br>
-              <small style="color:var(--text-muted);">${d.nameEn}</small>
+              <b style="color:var(--text-main); font-size:12.5px;">${displayNameVi}</b><br>
+              <small style="color:var(--text-muted);">${displayNameEn}</small>
             </td>
             <td><span style="font-size:11px; color:var(--text-dim);">${d.layout}</span></td>
             <td class="text-center"><span class="brand-badge" style="font-size:10px; background:#064e3b; color:#6ee7b7;">${d.status}</span></td>
@@ -11183,7 +11581,17 @@ ${amountSection}
       const veh = d.vehicle || 'HOWO_156';
       const vehLabel = veh === 'CONT_45HC' ? 'Cont 45HC' : (veh === 'CONT_40HC' ? 'Cont 40HC' : 'HOWO 15.6m');
       const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
-      const scnName = scn ? (scn.name || scn.id) : '#269901 (Baseline)';
+      let scnName = scn ? (scn.name || scn.id) : '#269901 (Baseline)';
+      if (_currentDossierMode === 'LIVE_SCENARIO') {
+        try {
+          const ssot = computeSsotNameId();
+          if (ssot && ssot.name) {
+            scnName = ssot.name;
+          }
+        } catch (err) {
+          console.warn('computeSsotNameId error in syncDossierWithActiveScenario', err);
+        }
+      }
 
       // Cập nhật nhãn số lượng trên nút Live Mode Switcher
       const liveBtnLabel = document.getElementById('dossierModeLiveQtyLabel');
@@ -11205,16 +11613,20 @@ ${amountSection}
           </div>
         `;
       } else if (_currentDossierMode === 'LIVE_SCENARIO') {
+        const prodSummaryText = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0)
+          ? `Ghép Cont (${d.mixedSkuItems.length} SP)`
+          : (d.supplier ? (d.supplier.product || 'Sản phẩm đơn') : 'Sản phẩm đơn');
+        const liveTotalAmount = (d.packingMode === 'MIXED') ? (d.revenueUsd || totalAmount) : totalAmount;
         container.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="brand-badge" style="background:#0284c7; color:#fff; font-weight:bold; font-size:11.5px;">⚡ KỊCH BẢN ĐANG CHỌN (LIVE):</span>
             <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">${escapeHtml(scnName)}</b>
-            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#059669; color:#fff; font-weight:bold; font-size:11.5px;">${qty.toLocaleString('vi-VN')} Thùng · ${vehLabel}</span>
+            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#059669; color:#fff; font-weight:bold; font-size:11.5px;">${qty.toLocaleString('vi-VN')} Thùng · ${vehLabel} · ${escapeHtml(prodSummaryText)}</span>
             <span class="brand-badge" style="background:#d97706; color:#fff; font-weight:bold; font-size:11.5px;">$${quotePrice.toFixed(2)} USD · ${termsLabel}</span>
-            <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">Tổng: $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
+            <span class="brand-badge" style="background:#1e3a8a; color:#93c5fd; font-weight:bold; font-size:11.5px;">Tổng: $${liveTotalAmount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} USD</span>
           </div>
           <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
-            ⚡ <b>Đồng bộ dữ liệu biến BTS:</b> Mọi tính năng <b>[👁 In/Xem]</b>, <b>[📄 Tải Bản Word .DOC]</b>, <b>[🖨 In Trực Tiếp]</b>, <b>[📋 Copy TT]</b> và <b>[🖼 Tạo Ảnh]</b> sinh chứng từ trực tiếp theo kịch bản <b>${qty.toLocaleString('vi-VN')} Thùng ($${quotePrice.toFixed(2)} USD)</b>. Các nút tải tĩnh [⬇ .DOCX]/[⬇ .PDF] trong danh sách là phôi tham chiếu từ đơn gốc #269901.
+            ⚡ <b>Đồng bộ dữ liệu biến BTS:</b> Mọi tính năng <b>[👁 In/Xem]</b>, <b>[📄 Tải Bản Word .DOC]</b>, <b>[🖨 In Trực Tiếp]</b>, <b>[📋 Copy TT]</b> và <b>[🖼 Tạo Ảnh]</b> sinh chứng từ trực tiếp theo kịch bản <b>${qty.toLocaleString('vi-VN')} Thùng (${escapeHtml(prodSummaryText)} - $${quotePrice.toFixed(2)} USD)</b>. Các nút tải tĩnh [⬇ .DOCX]/[⬇ .PDF] trong danh sách là phôi tham chiếu từ đơn gốc #269901.
           </div>
         `;
       } else {
@@ -11272,14 +11684,18 @@ ${amountSection}
         } else if (_currentDossierMode === 'LIVE_SCENARIO') {
           const qty = d.qty || 1000;
           const quotePrice = d.quotePrice || 16.00;
-          const totalAmount = qty * quotePrice;
+          const totalAmount = (d.packingMode === 'MIXED') ? (d.revenueUsd || (qty * quotePrice)) : (qty * quotePrice);
           const curTerms = d.terms ? (d.terms.replace('_', ' ') + ' (INCOTERMS 2020)') : 'CPT SAVANNAKHET';
+          const prodSummaryText = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0)
+            ? `Ghép Cont (${d.mixedSkuItems.length} SP)`
+            : (d.supplier ? (d.supplier.product || 'Sản phẩm đơn') : 'Sản phẩm đơn');
           liveSyncBanner = `
             <div class="no-print" style="margin-bottom:14px; background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:4px; padding:8px 12px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:12px; color:#1e40af; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
               <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 <b>⚡ ĐANG ĐỒNG BỘ THEO KỊCH BẢN LIVE BUỒNG LÁI (BTS):</b> 
                 <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">${qty.toLocaleString('vi-VN')} Thùng</span> · 
                 <span style="background:#dbeafe; padding:2px 6px; border-radius:3px; font-weight:bold; color:#1e3a8a;">$${quotePrice.toFixed(2)} USD</span> · 
+                <span style="background:#ecfdf5; color:#065f46; padding:2px 6px; border-radius:3px; font-weight:bold;">📦 ${escapeHtml(prodSummaryText)}</span> · 
                 <span style="background:#fef3c7; color:#854d0e; padding:2px 6px; border-radius:3px; font-weight:bold;">📅 Ngày Lập: ${dateInfo.executionDate}</span> · 
                 <span style="background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:3px; font-weight:bold;">🔒 HĐ Khung Mẹ: 09/09/2026</span>
               </div>
@@ -11367,6 +11783,7 @@ ${amountSection}
       const d = window._currentCalcData || {};
       const dateInfo = getDossierExecutionDateInfo();
       const isOriginal = dateInfo.isOriginal;
+      const isMixed = !isOriginal && (d.packingMode === 'MIXED') && (d.mixedSkuItems && d.mixedSkuItems.length > 0);
       const masterContractDate = dateInfo.masterContractDate;
       const executionDate = dateInfo.executionDate;
       const executionDateCompact = dateInfo.executionDateCompact;
@@ -11394,7 +11811,7 @@ ${amountSection}
       } else {
         qty = d.qty || 1000;
         quotePrice = d.quotePrice || 16.00;
-        totalAmount = qty * quotePrice;
+        totalAmount = isMixed ? (d.revenueUsd || (d.mixedSkuItems.reduce((s, it) => s + it.revUsd, 0))) : (qty * quotePrice);
         wireCount = (d.wireCount !== undefined) ? Number(d.wireCount) : (document.getElementById('bankWireCount') ? (parseInt(document.getElementById('bankWireCount').value) || 2) : 2);
         depPercentVal = (d.depositPercent !== undefined) ? Number(d.depositPercent) : (wireCount === 1 ? 100 : (document.getElementById('depositPercentSelect') ? (parseInt(document.getElementById('depositPercentSelect').value) || 30) : 30));
         if (wireCount === 1) {
@@ -11412,14 +11829,24 @@ ${amountSection}
       }
 
       const supObj = (d.supplier && typeof d.supplier === 'object') ? d.supplier : (partnersMaster.suppliers[0] || {});
-      const supName = supObj.name ? (supObj.name.includes('CÔNG TY') ? supObj.name : `CÔNG TY TNHH BÁNH KẸO ${supObj.name.toUpperCase()}`) : 'CÔNG TY TNHH BÁNH KẸO THIÊN LONG (PHÚ THỌ)';
-      const supTaxId = supObj.taxId || '5400512548';
-      const prodName = supObj.product || 'Crispy Stick Snack (Snack Quẩy Giòn Giòn)';
-      const prodSpec = supObj.spec || '22g/cốc x 300 cốc/thùng';
-      const cogsUnitPrice = supObj.pricePreVat || 337000;
-      const cogsTotal = qty * cogsUnitPrice;
+      const supName = isMixed 
+        ? `Đa Nhà Cung Cấp (${[...new Set(d.mixedSkuItems.map(it => it.shortName))].join(', ')})`
+        : (supObj.name ? (supObj.name.includes('CÔNG TY') ? supObj.name : `CÔNG TY TNHH BÁNH KẸO ${supObj.name.toUpperCase()}`) : 'CÔNG TY TNHH BÁNH KẸO THIÊN LONG (PHÚ THỌ)');
+      const supTaxId = isMixed ? '[ĐA MST NHÀ MÁY]' : (supObj.taxId || '5400512548');
+      const prodName = isOriginal 
+        ? 'Crispy Stick Snack (Snack Quẩy Giòn Giòn)' 
+        : (isMixed ? 'Hàng Bách Hóa Bánh Kẹo Đóng Ghép Đa Mã SP' : (supObj.product || 'Crispy Stick Snack'));
+      const prodSpec = isOriginal 
+        ? '22g/cốc x 300 cốc/thùng' 
+        : (isMixed ? 'Đa quy cách đóng thùng theo danh mục hàng ghép' : (supObj.spec || '22g/cốc x 300 cốc/thùng'));
+      const prodDims = isOriginal 
+        ? '585 x 270 x 497 mm' 
+        : (isMixed ? 'Đa kích thước' : (supObj.dims || '585 x 270 x 497 mm'));
+
+      const cogsUnitPrice = isMixed ? (qty > 0 ? (d.cogsPreVat / qty) : 0) : (supObj.pricePreVat || 337000);
+      const cogsTotal = isMixed ? (d.cogsPreVat || 0) : (qty * cogsUnitPrice);
       const vatRate = (supObj.vatRate !== undefined) ? supObj.vatRate : 0.08;
-      const vatTotal = cogsTotal * vatRate;
+      const vatTotal = isMixed ? (d.vatRefund || (cogsTotal * vatRate)) : (cogsTotal * vatRate);
       const grandTotalSup = cogsTotal + vatTotal;
       const depositVnd = (wireCount === 1) ? grandTotalSup : (grandTotalSup * (depPercentVal / 100));
       const balanceVnd = (wireCount === 1) ? 0 : (grandTotalSup - depositVnd);
@@ -11432,12 +11859,66 @@ ${amountSection}
       const agentVnName = agentVnObj.name ? (agentVnObj.name.includes('CÔNG TY') ? agentVnObj.name : `CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI ${agentVnObj.name.replace(/\s*\(.*?\)\s*/g, '').toUpperCase()}`) : 'CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI BÌNH AN';
       const agentVnTax = agentVnObj.taxId || '3200727091';
 
-      const netWeight = (qty * 6.6).toLocaleString('vi-VN');
-      const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
-      const totalCbm = (qty * 0.0785).toFixed(2);
+      // Tính chính xác trọng lượng NW, GW, CBM cho Single hoặc Mixed
+      let netWeightNum, grossWeightNum, totalCbmNum;
+      if (isOriginal) {
+        netWeightNum = qty * 6.6;
+        grossWeightNum = qty * 8.5;
+        totalCbmNum = qty * 0.0785;
+      } else if (isMixed) {
+        netWeightNum = d.mixedSkuItems.reduce((s, it) => s + (it.qty * (it.netWeight || 6.6)), 0);
+        grossWeightNum = d.mixedSkuItems.reduce((s, it) => s + (it.qty * (it.grossWeight || 7.8)), 0);
+        totalCbmNum = d.mixedSkuItems.reduce((s, it) => s + (it.qty * (it.cbm || 0)), 0);
+      } else {
+        netWeightNum = qty * getProductNetWeight(supObj);
+        grossWeightNum = qty * getProductGrossWeight(supObj);
+        totalCbmNum = qty * getProductCbm(supObj);
+      }
+      const netWeight = Math.round(netWeightNum).toLocaleString('vi-VN');
+      const grossWeight = Math.round(grossWeightNum).toLocaleString('vi-VN');
+      const totalCbm = totalCbmNum.toFixed(2);
 
       if (docId === 'FRM-TRD-02') {
         // Buyer Purchase Order (Addendum 01 PO)
+        let poTableRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            poTableRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${idx + 1}</td>
+                <td style="border:1px solid #000; padding:5px;">
+                  <b>${escapeHtml(it.product)}</b><br>
+                  <small>Spec: ${escapeHtml(it.spec || 'Standard')}. Dims: ${escapeHtml(it.dims || 'Standard')}. NW: ${(it.qty * (it.netWeight || 6.6)).toFixed(1)} kg, GW: ${(it.qty * (it.grossWeight || 7.8)).toFixed(1)} kg. Origin: Vietnam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${escapeHtml(it.hsCode || '1905.90.80')}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')} Ctns</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${it.unitP.toFixed(2)}</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${it.revUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+              </tr>
+            `;
+          });
+        } else {
+          poTableRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:5px; text-align:center;">1</td>
+              <td style="border:1px solid #000; padding:5px;">
+                <b>${escapeHtml(prodName)}</b><br>
+                <small>Spec: ${escapeHtml(prodSpec)}. Dims: ${escapeHtml(prodDims)}. NW: ${netWeight} kg, GW: ${grossWeight} kg. Origin: Vietnam.</small>
+              </td>
+              <td style="border:1px solid #000; padding:5px; text-align:center;">${supObj.hsCode || '1905.90.80'}</td>
+              <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
+              <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
+              <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+            </tr>
+          `;
+        }
+
+        const poLoadingPoint = isOriginal
+          ? 'Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.'
+          : (isMixed 
+              ? `Consolidated Multi-Supplier Warehouses (${[...new Set(d.mixedSkuItems.map(it => it.supplierName || it.shortName))].join(', ')}), Vietnam.`
+              : `${supObj.name} Factory, Vietnam.`);
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
@@ -11471,17 +11952,7 @@ ${amountSection}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="border:1px solid #000; padding:5px; text-align:center;">1</td>
-                <td style="border:1px solid #000; padding:5px;">
-                  <b>Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br>
-                  <small>Spec: 22g/cup x 300 cups/carton (30 cups x 10 bags/box). NW: 6.6 kg/ctn, GW: 8.5 kg/ctn. Origin: Vietnam.</small>
-                </td>
-                <td style="border:1px solid #000; padding:5px; text-align:center;">1905.90.80</td>
-                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
-                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
-              </tr>
+              ${poTableRows}
               <tr style="font-weight:bold; background:#f8fafc;">
                 <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL ORDER AMOUNT (${curTerms}):</td>
                 <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
@@ -11492,7 +11963,7 @@ ${amountSection}
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
             <b>COMMERCIAL TERMS & PAYMENT SCHEDULE:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Delivery Terms:</b> ${curTerms}. Loading point: Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.</li>
+              <li><b>Delivery Terms:</b> ${curTerms}. Loading point: ${poLoadingPoint}</li>
               ${wireCount === 1 ? `
               <li><b>Payment Term:</b> T/T 100% Full Payment into Seller's USD Account at MB Bank (Vietnam) in advance of customs release at Lao Bao Border Gate ($${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD).</li>
               ` : `
@@ -11526,8 +11997,39 @@ ${amountSection}
 
       } else if (docId === 'FRM-TRD-03') {
         // Commercial Invoice
-        const netWeight = (qty * 6.6).toLocaleString('vi-VN');
-        const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+        let invTableRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            invTableRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${idx + 1}</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>${escapeHtml(it.product)}</b><br>
+                  <small>Specification: ${escapeHtml(it.spec || 'Standard')}. Dims: ${escapeHtml(it.dims || 'Standard')}. Origin: Vietnam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${escapeHtml(it.hsCode || '1905.90.80')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')} Ctns</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${it.unitP.toFixed(2)}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${it.revUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+              </tr>
+            `;
+          });
+        } else {
+          invTableRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+              <td style="border:1px solid #000; padding:4px;">
+                <b>${escapeHtml(prodName)}</b><br>
+                <small>Specification: ${escapeHtml(prodSpec)}. Dims: ${escapeHtml(prodDims)}. Origin: Vietnam.</small>
+              </td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${supObj.hsCode || '1905.90.80'}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+            </tr>
+          `;
+        }
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
             <div style="font-size:18px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
@@ -11567,17 +12069,7 @@ ${amountSection}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
-                <td style="border:1px solid #000; padding:4px;">
-                  <b>${prodName}</b><br>
-                  <small>Specification: ${prodSpec}. Total units: ${(qty * 300).toLocaleString('vi-VN')}. Origin: Vietnam.</small>
-                </td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">1905.90.80</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Ctns</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
-              </tr>
+              ${invTableRows}
               <tr style="font-weight:bold; background:#f8fafc;">
                 <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL INVOICE AMOUNT (${curTerms}):</td>
                 <td style="border:1px solid #000; padding:6px; text-align:right; font-size:12.5px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
@@ -11611,9 +12103,50 @@ ${amountSection}
 
       } else if (docId === 'FRM-TRD-04') {
         // Packing List
-        const totalCbm = (qty * 0.0785).toFixed(2);
-        const netWeight = (qty * 6.6).toLocaleString('vi-VN');
-        const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+        let pklTableRows = '';
+        if (isMixed) {
+          let pkgCounter = 0;
+          d.mixedSkuItems.forEach(it => {
+            const startPkg = pkgCounter + 1;
+            const endPkg = pkgCounter + it.qty;
+            pkgCounter = endPkg;
+            const itNw = Math.round(it.qty * (it.netWeight || 6.6)).toLocaleString('vi-VN');
+            const itGw = Math.round(it.qty * (it.grossWeight || 7.8)).toLocaleString('vi-VN');
+            const itCbm = (it.qty * (it.cbm || 0)).toFixed(2);
+            pklTableRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${String(startPkg).padStart(4, '0')} - ${String(endPkg).padStart(4, '0')}</td>
+                <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(it.product)}</b><br><small>[${escapeHtml(it.skuCode)}] ${escapeHtml(it.shortName)}</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${escapeHtml(it.spec || 'Standard')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${escapeHtml(it.dims || 'Standard')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${itNw}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${itGw}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${itCbm}</td>
+              </tr>
+            `;
+          });
+        } else {
+          pklTableRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">0001 - ${String(qty).padStart(4, '0')}</td>
+              <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(prodName)}</b></td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${escapeHtml(prodSpec)}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${escapeHtml(prodDims)}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${netWeight}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${grossWeight}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${totalCbm}</td>
+            </tr>
+          `;
+        }
+
+        const pklLoadingFactory = isOriginal
+          ? 'Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.'
+          : (isMixed 
+              ? `Consolidated Multi-Supplier Warehouses (${[...new Set(d.mixedSkuItems.map(it => it.supplierName || it.shortName))].join(', ')}), Vietnam.`
+              : `${supObj.name} Factory, Vietnam.`);
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
             <div style="font-size:17px; font-weight:bold;">GLOBAL SOLUTION SERVICE CO., LTD</div>
@@ -11650,16 +12183,7 @@ ${amountSection}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">0001 - ${qty}</td>
-                <td style="border:1px solid #000; padding:4px;"><b>Crispy Stick Snack</b><br><small>Snack Quẩy Giòn Giòn</small></td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">22g/cup x 300 cups</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">585 x 270 x 497</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${netWeight}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${grossWeight}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${totalCbm}</td>
-              </tr>
+              ${pklTableRows}
               <tr style="font-weight:bold; background:#f8fafc;">
                 <td colspan="4" style="border:1px solid #000; padding:5px; text-align:right;">TOTAL SUMMARY:</td>
                 <td style="border:1px solid #000; padding:5px; text-align:center;">${qty.toLocaleString('vi-VN')} Cartons</td>
@@ -11672,7 +12196,7 @@ ${amountSection}
 
           <div style="border:1px solid #000; padding:8px; font-size:11.5px; margin-bottom:16px;">
             <b>LOGISTICS & TRUCK SEAL INVARIANT:</b><br>
-            • <b>Loading Factory:</b> Thien Long Factory, Phu Ninh Dist., Phu Tho Prov., Vietnam.<br>
+            • <b>Loading Factory:</b> ${pklLoadingFactory}<br>
             • <b>Truck / Container Plate:</b> 19C-123.45 / 19R-678.90 | <b>Customs Bullet Seal No.:</b> VN-CUS-${executionDateCompact.slice(0, 4)}-${orderRef}<br>
             • <i>Note: Actual container tare and gross weighbridge certificate will be attached at Border Gate.</i>
           </div>
@@ -11690,20 +12214,67 @@ ${amountSection}
         openDossierDocPreviewModal(`PACKING LIST (${pklNo})`, html);
 
       } else if (docId === 'FRM-PRO-02') {
-        // Supplier PO (Nhà cung cấp được chọn trên Buồng Lái)
+        // Supplier PO (Nhà cung cấp được chọn trên Buồng Lái hoặc Đa NCC ghép cont)
+        let proTableRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            proTableRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${idx + 1}</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>${escapeHtml(it.product)}</b><br>
+                  <small>Nhà máy: ${escapeHtml(it.supplierName)} | Quy cách: ${escapeHtml(it.spec || 'Standard')}. Bao gồm bốc xếp lên xe.</small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatExactProductPriceVnd(it.pricePreVat)} đ</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(it.cogsVnd)}</td>
+              </tr>
+            `;
+          });
+        } else {
+          proTableRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+              <td style="border:1px solid #000; padding:4px;">
+                <b>${escapeHtml(prodName)}</b><br>
+                <small>Quy cách: ${escapeHtml(prodSpec)}. Bao gồm bốc xếp lên xe.</small>
+              </td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">Thùng</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatExactProductPriceVnd(cogsUnitPrice)} đ</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(cogsTotal)}</td>
+            </tr>
+          `;
+        }
+
+        const supHeaderName = isMixed 
+          ? `Đa Nhà Cung Cấp Hàng Ghép Cont (${[...new Set(d.mixedSkuItems.map(it => it.shortName))].join(', ')})`
+          : `${supName} — MST: ${supTaxId}`;
+        const supHeaderAddress = isMixed 
+          ? `Hệ thống kho xưởng các nhà sản xuất tại Việt Nam`
+          : `Kho Xưởng Nhà Máy ${supName}, Việt Nam`;
+        const supRepSign = isMixed ? 'ĐẠI DIỆN CÁC NHÀ MÁY CUNG ỨNG' : `ĐẠI DIỆN BÊN BÁN (NHÀ MÁY)<br>${supName}`;
+
+        const msaCode = isOriginal 
+          ? 'GSS-TL-MSA-2026' 
+          : (isMixed 
+              ? 'GSS-MIX-MSA-2026' 
+              : `GSS-${(supObj.skuCode || getSupplierSkuCode(supObj) || 'SUP')}-MSA-2026`);
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
             <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
             <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Phường Từ Liêm, Hà Nội | MST: 0109469047</div>
             <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">ĐƠN ĐẶT HÀNG MUA HÀNG NỘI ĐỊA (PHỤ LỤC PO)</div>
             <div style="font-size:12px;">Số: PL01/${contractCode}-SUP/GSS | Ngày: ${executionDate}</div>
-            <div style="font-size:11px; color:#475569;">Căn cứ HĐ Nguyên tắc Cung ứng số GSS-TL-MSA-2026 ký ngày ${masterContractDate}</div>
+            <div style="font-size:11px; color:#475569;">Căn cứ HĐ Nguyên tắc Cung ứng số ${msaCode} ký ngày ${masterContractDate}</div>
           </div>
 
           <div style="margin-bottom:12px; font-size:12.5px;">
             <b>Bên Mua:</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE — Đại diện: Ông Nguyễn Văn Trung (Giám đốc)<br>
-            <b>Bên Bán (Nhà sản xuất):</b> ${supName} — MST: ${supTaxId}<br>
-            <b>Địa chỉ xưởng:</b> Kho Xưởng Nhà Máy ${supName}, Việt Nam
+            <b>Bên Bán:</b> ${supHeaderName}<br>
+            <b>Địa chỉ xưởng:</b> ${supHeaderAddress}
           </div>
 
           <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
@@ -11718,17 +12289,7 @@ ${amountSection}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
-                <td style="border:1px solid #000; padding:4px;">
-                  <b>${prodName}</b><br>
-                  <small>Quy cách: ${prodSpec}. Bao gồm bốc xếp lên xe.</small>
-                </td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">Thùng</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatExactProductPriceVnd(cogsUnitPrice)} đ</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(cogsTotal)}</td>
-              </tr>
+              ${proTableRows}
               <tr>
                 <td colspan="5" style="border:1px solid #000; padding:4px; text-align:right;">Thuế GTGT đầu vào (${(vatRate * 100).toFixed(0)}%):</td>
                 <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(vatTotal)}</td>
@@ -11743,8 +12304,8 @@ ${amountSection}
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
             <b>ĐIỀU KHOẢN VẬN HÀNH & BẢO ĐẢM HOÀN THUẾ:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Đã bao gồm bốc xếp:</b> Giá bán ${formatExactProductPriceVnd(cogsUnitPrice)} đ/thùng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng.</li>
-              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc 30%): ${formatVnd(depositVnd)}. Đợt 2 (70%): ${formatVnd(balanceVnd)} khi xuất hóa đơn GTGT.</li>
+              <li><b>Đã bao gồm bốc xếp:</b> Đơn giá mua hàng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng sản xuất.</li>
+              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc ${depPercentVal}%): ${formatVnd(depositVnd)}. Đợt 2 (${100 - depPercentVal}%): ${formatVnd(balanceVnd)} khi xuất hóa đơn GTGT.</li>
               <li><b>Cam kết hồ sơ thuế:</b> Bên Bán cam kết cung cấp đầy đủ bảng kê hóa đơn nguyên liệu đầu vào và chịu trách nhiệm bảo lãnh hoàn thuế GTGT 0% cho Bên Mua.</li>
             </ol>
           </div>
@@ -11752,9 +12313,8 @@ ${amountSection}
           <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
             <tr>
               <td style="width:50%; vertical-align:top;">
-                <b>ĐẠI DIỆN BÊN BÁN (NHÀ MÁY)</b><br>
-                ${supName}<br><br><br><br>
-                <b>GIÁM ĐỐC</b>
+                <b>${supRepSign}</b><br><br><br><br>
+                <b>GIÁM ĐỐC / ĐẠI DIỆN</b>
               </td>
               <td style="width:50%; vertical-align:top;">
                 <b>ĐẠI DIỆN BÊN MUA</b><br>
@@ -11768,6 +12328,39 @@ ${amountSection}
 
       } else if (docId === 'FRM-LOG-01') {
         // Trucking Waybill (ẨN GIÁ VỐN THEO RULE BẢO VỆ TẦNG 2)
+        let logTableRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach(it => {
+            logTableRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(it.product)}</b><br><small>Mã HS: ${escapeHtml(it.hsCode || '1905.90.80')}</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${Math.round(it.qty * (it.netWeight || 6.6)).toLocaleString('vi-VN')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${Math.round(it.qty * (it.grossWeight || 7.8)).toLocaleString('vi-VN')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${(it.qty * (it.cbm || 0)).toFixed(2)} CBM</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Nguyên đai nguyên kiện, khô ráo 100%</td>
+              </tr>
+            `;
+          });
+        } else {
+          logTableRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(prodName)}</b><br><small>Mã HS: ${supObj.hsCode || '1905.90.80'}</small></td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${netWeight} kg</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${grossWeight} kg</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${totalCbm} CBM</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">Nguyên đai nguyên kiện, khô ráo 100%</td>
+            </tr>
+          `;
+        }
+
+        const logOrigin = isOriginal
+          ? 'Kho Nhà máy Thien Long, Phú Thọ, Việt Nam'
+          : (isMixed 
+              ? `Các điểm bốc hàng theo danh mục hàng ghép cont (${d.mixedSkuItems.map(it => it.skuCode).join(', ')})`
+              : `Kho Nhà máy ${supName}, Việt Nam`);
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
             <div style="font-size:17px; font-weight:bold;">${carrierName}</div>
@@ -11779,7 +12372,7 @@ ${amountSection}
 
           <div style="margin-bottom:10px; font-size:12px;">
             <b>Người gửi hàng (Shipper):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE (GSS) — MST: 0109469047<br>
-            <b>Địa điểm nhận hàng (Origin):</b> Kho Nhà máy ${supName}, Việt Nam<br>
+            <b>Địa điểm nhận hàng (Origin):</b> ${logOrigin}<br>
             <b>Địa điểm trả hàng (Destination):</b> Cửa khẩu Quốc tế Lao Bảo, Huyện Hướng Hóa, Tỉnh Quảng Trị<br>
             <b>Người nhận hàng (Consignee):</b> Theo chỉ định của Tờ khai Hải quan B11 (GSS)
           </div>
@@ -11796,13 +12389,14 @@ ${amountSection}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="border:1px solid #000; padding:4px;"><b>${prodName}</b><br><small>Mã HS: 1905.90.80</small></td>
-                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 6.6).toLocaleString('vi-VN')} kg</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 8.5).toLocaleString('vi-VN')} kg</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">${(qty * 0.0785).toFixed(2)} CBM</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">Nguyên đai nguyên kiện, khô ráo 100%</td>
+              ${logTableRows}
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td style="border:1px solid #000; padding:4px;">TỔNG CỘNG:</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${netWeight} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${grossWeight} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${totalCbm} CBM</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Đủ điều kiện xuất khẩu</td>
               </tr>
             </tbody>
           </table>
@@ -11996,8 +12590,41 @@ ${amountSection}
 
       } else if (docId === 'FRM-CUS-01') {
         // Customs Export Declaration B11
-        const netWeight = (qty * 6.6).toLocaleString('vi-VN');
-        const grossWeight = (qty * 8.5).toLocaleString('vi-VN');
+        let cusTableRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            cusTableRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${String(idx + 1).padStart(2, '0')}</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>${escapeHtml(it.product)}</b><br>
+                  <small>Quy cách: ${escapeHtml(it.spec || 'Standard')}. Hàng mới 100%, xuất xứ Việt Nam.</small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${escapeHtml(it.hsCode || '1905.90.80')}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${it.unitP.toFixed(2)}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${it.revUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">0%</td>
+              </tr>
+            `;
+          });
+        } else {
+          cusTableRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">01</td>
+              <td style="border:1px solid #000; padding:4px;">
+                <b>${escapeHtml(prodName)}</b><br>
+                <small>Quy cách: ${escapeHtml(prodSpec)}. Hàng mới 100%, xuất xứ Việt Nam.</small>
+              </td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${supObj.hsCode || '1905.90.80'}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">0%</td>
+            </tr>
+          `;
+        }
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
@@ -12062,18 +12689,7 @@ ${amountSection}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">01</td>
-                <td style="border:1px solid #000; padding:4px;">
-                  <b>${prodName}</b><br>
-                  <small>Quy cách: ${prodSpec}. Hàng mới 100%, xuất xứ Việt Nam.</small>
-                </td>
-                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">1905.90.80</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${quotePrice.toFixed(2)}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:center;">0%</td>
-              </tr>
+              ${cusTableRows}
               <tr style="font-weight:bold; background:#f8fafc;">
                 <td colspan="5" style="border:1px solid #000; padding:5px; text-align:right;">TỔNG TRỊ GIÁ TÍNH THUẾ HẢI QUAN (${curTerms}):</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-size:12px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
@@ -12109,6 +12725,13 @@ ${amountSection}
 
       } else if (docId === 'FRM-TRD-01') {
         // Sales Contract Framework
+        const trd01Clause1 = isMixed
+          ? `Hàng bách hóa bánh kẹo xuất khẩu đóng ghép đa mã sản phẩm (${d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.product}`).join('; ')}), xuất xứ Việt Nam.`
+          : `${escapeHtml(prodName)}, quy cách ${escapeHtml(prodSpec)}, xuất xứ Việt Nam.`;
+        const trd01Clause2 = isMixed
+          ? `Tổng giá trị đơn hàng $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD (Giá bình quân gia quyền: $${quotePrice.toFixed(2)} USD/thùng) theo điều kiện ${curTerms}. Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.`
+          : `Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.${!isOriginal ? ` Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.` : ''}`;
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
             <div style="font-size:16px; font-weight:bold;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
@@ -12132,8 +12755,8 @@ ${amountSection}
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:14px;">
             <b>CÁC ĐIỀU KHOẢN CỐT LÕI (CORE INVARIANTS):</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Điều 1 (Hàng hóa):</b> ${prodName}, quy cách ${prodSpec}, xuất xứ Việt Nam.</li>
-              <li><b>Điều 2 (Giá cả & Giao nhận):</b> Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.${!isOriginal ? ` Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.` : ''}</li>
+              <li><b>Điều 1 (Hàng hóa):</b> ${trd01Clause1}</li>
+              <li><b>Điều 2 (Giá cả & Giao nhận):</b> ${trd01Clause2}</li>
               <li><b>Điều 3 (Phương thức thanh toán):</b> ${wireCount === 1 
                 ? `T/T 100% Full Payment ($${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD) bằng đồng USD vào tài khoản MB Bank của Bên Bán trước khi thông quan giải phóng hàng tại cửa khẩu Lao Bảo.` 
                 : `T/T 2 đợt bằng đồng USD vào tài khoản MB Bank của Bên Bán (Đợt 1 đặt cọc ${depPercentVal}% tương đương $${depositAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD khi ký PO, Đợt 2 thanh toán ${100 - depPercentVal}% tương đương $${balanceAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD trước khi thông quan giải phóng hàng tại cửa khẩu Lao Bảo).`}</li>
@@ -12164,6 +12787,13 @@ ${amountSection}
         const fx = d.fxRate || 25790;
         const totalVndRevenue = totalAmount * fx;
         const grossProfit = totalVndRevenue - cogsTotal;
+        const finCogsLabel = isMixed 
+          ? `2. Giá vốn mua hàng (Đa NCC: ${d.mixedSkuItems.map(it => it.skuCode).join(', ')}):`
+          : `2. Giá vốn mua hàng (${supName}):`;
+        const finCogsNote = isMixed
+          ? `${qty.toLocaleString('vi-VN')} thùng (Giá vốn bình quân: ${formatVnd(cogsUnitPrice)}/th, gồm bốc xếp)`
+          : `${qty.toLocaleString('vi-VN')} thùng x ${formatExactProductPriceVnd(cogsUnitPrice)} đ (gồm bốc xếp)`;
+
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
             <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
@@ -12189,10 +12819,10 @@ ${amountSection}
                 <td style="border:1px solid #000; padding:5px;">Thuế suất GTGT 0% theo TT 219/2013</td>
               </tr>
               <tr>
-                <td style="border:1px solid #000; padding:5px;"><b>2. Giá vốn mua hàng (${supName}):</b></td>
+                <td style="border:1px solid #000; padding:5px;"><b>${finCogsLabel}</b></td>
                 <td style="border:1px solid #000; padding:5px; text-align:right;">-</td>
                 <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${cogsTotal.toLocaleString('vi-VN')} đ</td>
-                <td style="border:1px solid #000; padding:5px;">${qty.toLocaleString('vi-VN')} thùng x ${formatExactProductPriceVnd(cogsUnitPrice)} đ (gồm bốc xếp)</td>
+                <td style="border:1px solid #000; padding:5px;">${finCogsNote}</td>
               </tr>
               <tr>
                 <td style="border:1px solid #000; padding:5px;"><b>3. Thuế GTGT đầu vào được hoàn (${(vatRate * 100).toFixed(0)}%):</b></td>
