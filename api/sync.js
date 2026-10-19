@@ -224,6 +224,34 @@ export default async function handler(req, res) {
     }
   }
 
+    function upgradeDefaultScenarioToCont45Svn(scenariosList) {
+      if (!Array.isArray(scenariosList) || scenariosList.length === 0) return scenariosList || [];
+      const targetDefId = 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
+      const oldDefId = 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901';
+      const list = scenariosList.filter(Boolean).map(s => Object.assign({}, s));
+      const curDef = list.find(s => s.isDefault);
+      if (!curDef || curDef.id === oldDefId) {
+        list.forEach(s => {
+          s.isDefault = (s.id === targetDefId);
+          if (s.id === targetDefId) {
+            s.terms = s.terms || 'CPT_SVN';
+            s.vehicle = s.vehicle || 'CONT_45HC';
+            s.transportRoute = s.transportRoute || 'ROUTE_SAVANNAKHET';
+            s.dossierRoute = s.dossierRoute || 'DOSSIER_FULL_SAVANNAKHET';
+          }
+          if (s.id === oldDefId) {
+            s.isCompletedOrder = true;
+          }
+        });
+      }
+      const defIdx = list.findIndex(s => s.isDefault);
+      if (defIdx > 0) {
+        const [defItem] = list.splice(defIdx, 1);
+        list.unshift(defItem);
+      }
+      return list;
+    }
+
   // GET: Trả về trạng thái Cloud mới nhất
   if (req.method === 'GET') {
     if (!kvUrl || !kvToken) {
@@ -243,12 +271,19 @@ export default async function handler(req, res) {
         carriers: BASELINE_CARRIERS,
         agents: BASELINE_AGENTS,
         scenarios: [],
+        activeScenarioId: 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO',
         updatedAt: new Date().toISOString(),
         updatedBy: 'System Auto-Init (SSOT Production)'
       };
       await writeKvState(cloudState);
     } else {
       cloudState.suppliers = upgradeLoiDatSuppliers(cloudState.suppliers);
+      if (Array.isArray(cloudState.scenarios)) {
+        cloudState.scenarios = upgradeDefaultScenarioToCont45Svn(cloudState.scenarios);
+      }
+      if (!cloudState.activeScenarioId || cloudState.activeScenarioId === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901') {
+        cloudState.activeScenarioId = 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
+      }
     }
 
     return res.status(200).json({
@@ -385,12 +420,15 @@ export default async function handler(req, res) {
       });
     }
 
+    mergedScenarios = upgradeDefaultScenarioToCont45Svn(mergedScenarios);
+    let resolvedActiveScnId = incoming.activeScenarioId || existing.activeScenarioId || 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
+
     const finalState = {
       suppliers: mergedSuppliers,
       carriers: mergedCarriers,
       agents: mergedAgents,
       scenarios: mergedScenarios,
-      activeScenarioId: incoming.activeScenarioId || existing.activeScenarioId || null,
+      activeScenarioId: resolvedActiveScnId,
       updatedAt: new Date().toISOString(),
       updatedBy: 'GSS Director (Solo-Operator)'
     };

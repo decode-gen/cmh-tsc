@@ -1385,28 +1385,28 @@
         <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
           <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
             <span>🚛 2. PHƯƠNG TIỆN VẬN TẢI & SỨC CHỨA:</span>
-            <span id="badgeBoxShippedTotal" style="font-size:10px; color:var(--alert-success-text); font-family:var(--font-mono, monospace);">Xếp xe: 1,300 th</span>
+            <span id="badgeBoxShippedTotal" style="font-size:10px; color:var(--alert-success-text); font-family:var(--font-mono, monospace);">Xếp xe: 817 th</span>
           </div>
 
           <div class="form-row" style="margin-bottom:6px;">
             <div class="form-group" style="flex:1.4;">
               <label style="font-size:11px; margin-bottom:2px;">Phương tiện vận tải:</label>
               <select id="vehicleSelect" class="form-control" onchange="onVehicleChange()" style="font-size:11.5px; height:28px;">
-                <option value="HOWO_156" selected>Xe HOWO 15.6m (1,300 thùng)</option>
-                <option value="CONT_40HC">Cont 40ft HC (800 thùng)</option>
-                <option value="CONT_45HC">Cont 45ft HC (1,000 thùng)</option>
+                <option value="CONT_45HC" selected>Cont 45ft HC (817 thùng)</option>
+                <option value="CONT_40HC">Cont 40ft HC (697 thùng)</option>
+                <option value="HOWO_156">Xe HOWO 15.6m (992 thùng)</option>
               </select>
             </div>
             <div class="form-group" style="flex:0.8;">
               <label style="font-size:11px; margin-bottom:2px;">Số xe / cont:</label>
               <div style="display:flex; align-items:center; gap:4px;">
                 <input type="number" id="tripCount" class="form-control text-center font-bold" value="1" min="1" max="50" oninput="onTripCountChange()" onchange="onTripCountChange()" style="font-size:13px; height:28px; width:52px;">
-                <span style="font-size:10px; color:var(--text-muted); line-height:1.2;" id="tripCountUnit">xe HOWO</span>
+                <span style="font-size:10px; color:var(--text-muted); line-height:1.2;" id="tripCountUnit">cont 45HC</span>
               </div>
             </div>
             <div class="form-group" style="flex:1;">
               <label id="lblBoxQtyInput" style="font-size:11px; margin-bottom:2px;" title="Số lượng thùng đặt mua tính tiền (Chưa cộng số thùng tặng khuyến mãi)">Thùng đặt mua:</label>
-              <input type="number" id="boxQty" class="form-control font-bold" value="1300" oninput="onSingleBoxQtyInput(this.value)" onchange="onSingleBoxQtyInput(this.value)" style="font-size:13px; height:28px; color:var(--accent-gold); text-align:center;">
+              <input type="number" id="boxQty" class="form-control font-bold" value="817" oninput="onSingleBoxQtyInput(this.value)" onchange="onSingleBoxQtyInput(this.value)" style="font-size:13px; height:28px; color:var(--accent-gold); text-align:center;">
             </div>
           </div>
 
@@ -3645,19 +3645,29 @@
             hasChanges = true;
           }
           if (Array.isArray(s.scenarios) && s.scenarios.length > 0) {
-            scenariosMaster = s.scenarios;
+            scenariosMaster = enforceCont45SavannakhetDefaultOnScenarios(s.scenarios);
             if (typeof saveScenariosToStorage === 'function') saveScenariosToStorage();
             hasChanges = true;
           }
           if (s.activeScenarioId && typeof activeScenarioId !== 'undefined') {
-            activeScenarioId = s.activeScenarioId;
+            if (s.activeScenarioId === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901') {
+              const defScn = scenariosMaster.find(sc => sc.isDefault) || scenariosMaster[0];
+              activeScenarioId = defScn ? defScn.id : 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
+            } else {
+              activeScenarioId = s.activeScenarioId;
+            }
           }
 
           if (hasChanges) {
             savePartnersToStorage();
             renderArea2Dropdowns();
             if (typeof renderScenarioDropdown === 'function') renderScenarioDropdown();
-            recalculate();
+            const targetScn = scenariosMaster.find(sc => sc.id === activeScenarioId) || scenariosMaster.find(sc => sc.isDefault) || scenariosMaster[0];
+            if (targetScn && typeof applyScenario === 'function' && !isDraftMode) {
+              applyScenario(targetScn);
+            } else {
+              recalculate();
+            }
           }
 
           if (syncDot) syncDot.className = 'status-dot dot-green';
@@ -3684,18 +3694,58 @@
     // SCENARIO PRESETS & SSOT MASTER ENGINE (/cmh-namid Standard)
     // ==========================================
     // CHUẨN HÓA SSOT KẾT HỢP DỰ TOÁN BÁO GIÁ (/cmh-namid & /cmh-tk)
-    // Bao gồm Đơn hàng thực tế #269901 và Kịch bản khảo sát giá CPT Savannakhet Cont 45F 1.000 thùng ($16 USD)
+    // Cấu trúc mặc định: Xe Cont 45ft HC & Giao hàng tại Savannakhet (CPT_SVN + ROUTE_SAVANNAKHET + DOSSIER_FULL_SAVANNAKHET)
     const DEFAULT_SCENARIOS_MASTER = [
       {
-        id: "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901",
-        name: "FCA Lao Bảo · HOWO 15.6m (1.300 thùng) - Vĩnh Thành | DIX #269901 SSOT",
+        id: "SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO",
+        name: "CPT Savannakhet · Cont 45HC (1.000 thùng) - $16.00 USD - Vĩnh Thành | DIX #260905 [MẶC ĐỊNH]",
         isDefault: true,
         supplierId: "SUP_THIEN_LONG",
         carrierId: "CARRIER_VINH_THANH",
         agentVnId: "AGT_BINH_AN",
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
+        terms: "CPT_SVN",
+        transportRoute: "ROUTE_SAVANNAKHET",
+        dossierRoute: "DOSSIER_FULL_SAVANNAKHET",
+        vehicle: "CONT_45HC",
+        tripCount: 1,
+        boxQty: 1000,
+        demurrageDays: 0,
+        demHowoDomesticDays: 0,
+        demHowoBorderDays: 0,
+        bankWireCount: "2",
+        quotePrice: 16.00,
+        fxRate: 25790,
+        chkBinhAnCustoms: true,
+        chkBinhAnCO: true,
+        chkBinhAnBorderGuard: true,
+        chkBinhAnTransit: true,
+        binhAnTransitTrucks: "1",
+        chkBinhAnInspection: false,
+        chkBinhAnInspOvertime: false,
+        chkBinhAnCOExpress: false,
+        chkInsurance: true,
+        chkDunnage: false,
+        chkCrossDock: false,
+        chkWeighbridge: false,
+        chkPhyto: false,
+        baselineOverrides: {},
+        unforeseenExpenses: []
+      },
+      {
+        id: "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901",
+        name: "FCA Lao Bảo · HOWO 15.6m (1.300 thùng) - Vĩnh Thành | DIX #269901 SSOT",
+        isDefault: false,
+        isCompletedOrder: true,
+        supplierId: "SUP_THIEN_LONG",
+        carrierId: "CARRIER_VINH_THANH",
+        agentVnId: "AGT_BINH_AN",
+        agentLaoId: "AGT_NGAN_HUNG",
+        agentYardId: "AGT_ANH_TAN",
         terms: "FCA_LB",
+        transportRoute: "ROUTE_LAO_BAO",
+        dossierRoute: "DOSSIER_LAO_BAO_HANDOVER",
         vehicle: "HOWO_156",
         tripCount: 1,
         boxQty: 1300,
@@ -3729,41 +3779,6 @@
           { id: 'EXP-269901-07', name: 'Thủ tục transit xe phía Lào sang VN nhận hàng', amount: 2000000, category: 'BORDER', hasInvoice: false, invoiceNo: '', note: 'Chi tác nghiệp xe Lào' },
           { id: 'EXP-269901-08', name: 'Chi phí phát sinh ngoài tác nghiệp (chuyển cá nhân)', amount: 1450000, category: 'OTHER', hasInvoice: false, invoiceNo: '', note: 'Cân xe, bến bãi phụ' }
         ]
-      },
-      {
-        id: "SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO",
-        name: "CPT Savannakhet · Cont 45HC (1.000 thùng) - $16.00 USD - Vĩnh Thành | DIX #260905",
-        isDefault: false,
-        supplierId: "SUP_THIEN_LONG",
-        carrierId: "CARRIER_VINH_THANH",
-        agentVnId: "AGT_BINH_AN",
-        agentLaoId: "AGT_NGAN_HUNG",
-        agentYardId: "AGT_ANH_TAN",
-        terms: "CPT_SVN",
-        vehicle: "CONT_45HC",
-        tripCount: 1,
-        boxQty: 1000,
-        demurrageDays: 0,
-        demHowoDomesticDays: 0,
-        demHowoBorderDays: 0,
-        bankWireCount: "2",
-        quotePrice: 16.00,
-        fxRate: 25790,
-        chkBinhAnCustoms: true,
-        chkBinhAnCO: true,
-        chkBinhAnBorderGuard: true,
-        chkBinhAnTransit: true,
-        binhAnTransitTrucks: "1",
-        chkBinhAnInspection: false,
-        chkBinhAnInspOvertime: false,
-        chkBinhAnCOExpress: false,
-        chkInsurance: true,
-        chkDunnage: false,
-        chkCrossDock: false,
-        chkWeighbridge: false,
-        chkPhyto: false,
-        baselineOverrides: {},
-        unforeseenExpenses: []
       },
       {
         id: "SCN-CPT_SVN-HOWO-1300T-VT-DIX-260902-LAO",
@@ -3965,7 +3980,7 @@
     ];
 
     let scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
-    let activeScenarioId = "SCN-FCA_LB-HOWO-1300T-VT-DIX-269901";
+    let activeScenarioId = "SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO";
     let isDraftMode = false;
     let currentUnforeseenExpenses = [];
     let packingMode = 'SINGLE'; // 'SINGLE' hoặc 'MIXED'
@@ -4270,37 +4285,70 @@
       window.location.href = targetUrl;
     }
 
+    function enforceCont45SavannakhetDefaultOnScenarios(rawList) {
+      let merged = Array.isArray(rawList) ? rawList.filter(Boolean).map(s => Object.assign({}, s)) : [];
+      const targetDefId = 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
+      const oldDefId = 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901';
+
+      // Đảm bảo toàn bộ kịch bản gốc trong DEFAULT_SCENARIOS_MASTER luôn tồn tại (Append & Update Only)
+      DEFAULT_SCENARIOS_MASTER.forEach(defScn => {
+        const existingIdx = merged.findIndex(s => s && s.id === defScn.id);
+        if (existingIdx === -1) {
+          merged.push(JSON.parse(JSON.stringify(defScn)));
+        } else {
+          if (!merged[existingIdx].unforeseenExpenses && defScn.unforeseenExpenses) {
+            merged[existingIdx].unforeseenExpenses = JSON.parse(JSON.stringify(defScn.unforeseenExpenses));
+          }
+          if (!merged[existingIdx].transportRoute && defScn.transportRoute) {
+            merged[existingIdx].transportRoute = defScn.transportRoute;
+          }
+          if (!merged[existingIdx].dossierRoute && defScn.dossierRoute) {
+            merged[existingIdx].dossierRoute = defScn.dossierRoute;
+          }
+        }
+      });
+
+      // Tự động dọn dẹp nếu có kịch bản bị dính tên autofill tài khoản
+      merged.forEach(s => {
+        if (s && s.name && (s.name.includes('decode9') || s.name === 'admin' || s.name === 'gss_director')) {
+          const def = DEFAULT_SCENARIOS_MASTER.find(d => d.id === s.id);
+          s.name = def ? def.name : s.id;
+        }
+        if (s && s.id === oldDefId) {
+          s.isCompletedOrder = true;
+        }
+      });
+
+      // Chuyển cờ Mặc định (isDefault) từ kịch bản FCA_LB/HOWO cũ sang Cont 45ft HC · CPT Savannakhet
+      const currentDefault = merged.find(s => s.isDefault);
+      if (!currentDefault || currentDefault.id === oldDefId) {
+        merged.forEach(s => {
+          s.isDefault = (s.id === targetDefId);
+        });
+      }
+
+      // Đưa kịch bản Cont 45ft HC Savannakhet (hoặc kịch bản đang được đặt Mặc định) lên vị trí đầu tiên
+      const defIdx = merged.findIndex(s => s.isDefault);
+      if (defIdx > 0) {
+        const [defItem] = merged.splice(defIdx, 1);
+        merged.unshift(defItem);
+      }
+
+      return merged;
+    }
+
     function loadScenariosFromStorage() {
       try {
-        // Nâng cấp khóa lưu trữ sang V5 để bảo toàn kịch bản Cont 45F Savannakhet $16 USD và đơn thực tế
+        // Nâng cấp khóa lưu trữ sang V6: Chuyển cấu trúc mặc định sang Xe Cont 45ft HC & Giao hàng tại Savannakhet (kế thừa đầy đủ kịch bản từ V5)
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
-        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V5');
+        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V6') || localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V5');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            let merged = [...parsed];
-            // Luôn đảm bảo các kịch bản mặc định trong DEFAULT_SCENARIOS_MASTER tồn tại
-            DEFAULT_SCENARIOS_MASTER.forEach(defScn => {
-              const existingIdx = merged.findIndex(s => s && s.id === defScn.id);
-              if (existingIdx === -1) {
-                merged.push(JSON.parse(JSON.stringify(defScn)));
-              } else {
-                if (!merged[existingIdx].unforeseenExpenses && defScn.unforeseenExpenses) {
-                  merged[existingIdx].unforeseenExpenses = JSON.parse(JSON.stringify(defScn.unforeseenExpenses));
-                }
-              }
-            });
-            // Tự động dọn dẹp nếu có kịch bản bị dính tên autofill tài khoản
-            merged.forEach(s => {
-              if (s && s.name && (s.name.includes('decode9') || s.name === 'admin' || s.name === 'gss_director')) {
-                const def = DEFAULT_SCENARIOS_MASTER.find(d => d.id === s.id);
-                s.name = def ? def.name : s.id;
-              }
-            });
-            scenariosMaster = merged;
+            scenariosMaster = enforceCont45SavannakhetDefaultOnScenarios(parsed);
           } else {
             scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
           }
@@ -4321,7 +4369,9 @@
 
     function saveScenariosToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V5', JSON.stringify(scenariosMaster));
+        const payload = JSON.stringify(scenariosMaster);
+        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V6', payload);
+        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V5', payload);
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
@@ -4589,16 +4639,16 @@
         agentVnId: document.getElementById('agentVnSelect') ? document.getElementById('agentVnSelect').value : 'AGT_BINH_AN',
         agentLaoId: document.getElementById('agentLaoSelect') ? document.getElementById('agentLaoSelect').value : 'AGT_NGAN_HUNG',
         agentYardId: document.getElementById('agentYardSelect') ? document.getElementById('agentYardSelect').value : 'AGT_ANH_TAN',
-        terms: document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'FCA_LB',
-        vehicle: document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_40HC',
+        terms: document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'CPT_SVN',
+        vehicle: document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC',
         tripCount: parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1,
-        boxQty: parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800,
+        boxQty: parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 1000) || 1000,
         demurrageDays: parseInt(document.getElementById('demurrageDays') ? document.getElementById('demurrageDays').value : 0) || 0,
         demHowoDomesticDays: parseInt(document.getElementById('demHowoDomesticDays') ? document.getElementById('demHowoDomesticDays').value : 0) || 0,
-        demHowoBorderDays: parseInt(document.getElementById('demHowoBorderDays') ? document.getElementById('demHowoBorderDays').value : 1) || 1,
+        demHowoBorderDays: parseInt(document.getElementById('demHowoBorderDays') ? document.getElementById('demHowoBorderDays').value : 0) || 0,
         bankWireCount: document.getElementById('bankWireCount') ? document.getElementById('bankWireCount').value : '2',
         depositPercent: document.getElementById('depositPercentSelect') ? document.getElementById('depositPercentSelect').value : '30',
-        quotePrice: parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 17.50) || 17.50,
+        quotePrice: parseFloat(document.getElementById('quotePrice') ? document.getElementById('quotePrice').value : 16.00) || 16.00,
         fxRate: parseFloat(document.getElementById('fxRate') ? document.getElementById('fxRate').value : 25790) || 25790,
         chkBinhAnCustoms: document.getElementById('chkBinhAnCustoms') ? document.getElementById('chkBinhAnCustoms').checked : true,
         chkBinhAnCO: document.getElementById('chkBinhAnCO') ? document.getElementById('chkBinhAnCO').checked : true,
@@ -4841,16 +4891,33 @@
       isDraftMode = true;
       activeScenarioId = 'DRAFT_NEW';
 
+      // Tự động đặt cấu trúc mặc định khi tạo kịch bản mới: Xe Cont 45ft HC & Giao hàng tại Savannakhet
+      if (document.getElementById('vehicleSelect')) {
+        document.getElementById('vehicleSelect').value = 'CONT_45HC';
+      }
+      if (document.getElementById('incotermsSelect')) {
+        document.getElementById('incotermsSelect').value = 'CPT_SVN';
+      }
+      if (document.getElementById('transportRouteSelect')) {
+        document.getElementById('transportRouteSelect').value = 'ROUTE_SAVANNAKHET';
+      }
+      if (document.getElementById('dossierRouteSelect')) {
+        document.getElementById('dossierRouteSelect').value = 'DOSSIER_FULL_SAVANNAKHET';
+        onDossierRouteChange(true);
+      }
+      onSupplierChange(true);
+      onVehicleChange();
+
       const searchInput = document.getElementById('scenarioSearchInput');
       if (searchInput) {
-        searchInput.value = '📝 [ĐANG THIẾT LẬP KỊCH BẢN MỚI]';
+        searchInput.value = '📝 [ĐANG THIẾT LẬP KỊCH BẢN MỚI · CONT 45HC · SAVANNAKHET]';
       }
 
       // Làm trống ô Name ID để người dùng thiết lập biến trước!
       const nameInput = document.getElementById('scenarioName');
       if (nameInput) {
         nameInput.value = '';
-        nameInput.placeholder = '👉 Hãy chọn các thông số bên dưới, rồi bấm nút [⚡ Sinh N.ID]...';
+        nameInput.placeholder = '👉 Đã đặt mặc định Cont 45ft HC & CPT Savannakhet — bấm [⚡ Sinh N.ID]...';
         nameInput.style.borderColor = 'var(--accent-gold)';
         nameInput.focus();
       }
@@ -4863,10 +4930,10 @@
 
       const helper = document.getElementById('nidHelperText');
       if (helper) {
-        helper.innerHTML = '<span style="color:var(--accent-gold); font-weight:bold;">⚡ Đang soạn kịch bản mới:</span> Hãy chọn Incoterms, Loại xe, Số thùng, Đơn vị vận tải... Sau đó bấm <b>[⚡ Sinh N.ID]</b>!';
+        helper.innerHTML = '<span style="color:var(--accent-gold); font-weight:bold;">⚡ Đang soạn kịch bản mới (Mặc định: Cont 45ft HC · CPT Savannakhet):</span> Hãy kiểm tra Số thùng, Đơn vị vận tải... Sau đó bấm <b>[⚡ Sinh N.ID]</b>!';
       }
 
-      showToastNotification("➕ Bắt đầu tạo mới: Hãy chọn các thông số giao hàng bên dưới, sau đó bấm [⚡ Sinh N.ID]!");
+      showToastNotification("➕ Tạo mới (Mặc định: Cont 45ft HC & Giao tại Savannakhet): Hãy kiểm tra thông số bên dưới rồi bấm [⚡ Sinh N.ID]!");
     }
 
     function generateAndApplyNameId() {
@@ -4992,19 +5059,20 @@
     }
 
     function resetScenariosToStandard() {
-      if (!confirm("Bạn có chắc chắn muốn RESET danh sách kịch bản về các thiết lập chuẩn (gồm Đơn thực tế #269901 và Kịch bản khảo sát giá Vĩnh Thành Cont 45F Savannakhet $16 USD)?")) return;
+      if (!confirm("Bạn có chắc chắn muốn RESET danh sách kịch bản về các thiết lập chuẩn (Mặc định: Cont 45ft HC · CPT Savannakhet $16 USD và Đơn thực tế #269901)?")) return;
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V1');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
       localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V5');
+      localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V6');
       scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
       activeScenarioId = scenariosMaster[0].id;
       isDraftMode = false;
       saveScenariosToStorage();
       renderScenarioDropdown();
       applyScenario(scenariosMaster[0]);
-      showToastNotification("🔄 ĐÃ RESET THÀNH CÔNG! Đã khôi phục các kịch bản chuẩn SSOT.");
+      showToastNotification("🔄 ĐÃ RESET THÀNH CÔNG! Đã khôi phục cấu trúc mặc định Cont 45ft HC & CPT Savannakhet.");
     }
 
     function deleteCurrentScenario() {
@@ -5879,14 +5947,14 @@
               <div style="font-size:9.5px; color:var(--text-dim); margin-top:2px;">Cập nhật: ${s.updatedAt ? new Date(s.updatedAt).toLocaleString('vi-VN') : 'Gốc'}</div>
             </td>
             <td style="text-align:center; font-size:10.5px;">
-              <b>${s.vehicle || 'HOWO_156'}</b><br>${modeBadge}
+              <b>${s.vehicle || 'CONT_45HC'}</b><br>${modeBadge}
             </td>
             <td style="text-align:right; font-family:var(--font-mono, monospace); font-size:11px;">
               <b>${(s.boxQty || 0).toLocaleString('vi-VN')}</b> thùng<br>
               <span style="font-size:9.5px; color:var(--text-dim);">${s.tripCount || 1} chuyến</span>
             </td>
             <td style="font-size:11px;">
-              <b>${s.terms || 'FCA_LB'}</b><br>
+              <b>${s.terms || 'CPT_SVN'}</b><br>
               <span style="font-size:9.5px; color:var(--text-dim);">${s.transportRoute || 'Savannakhet'}</span>
             </td>
             <td style="text-align:right; font-family:var(--font-mono, monospace); font-size:11px;">
@@ -6067,8 +6135,8 @@
 
       // 3. Nhóm 3: Quá cảnh Lào, bến bãi & nâng hạ (Khoản 13, 14, 5)
       const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
-      const vehicle = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'HOWO_156';
-      const terms = document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'FCA_LB';
+      const vehicle = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
+      const terms = document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'CPT_SVN';
 
       const agtLaoId = document.getElementById('agentLaoSelect') ? document.getElementById('agentLaoSelect').value : 'AGT_NGAN_HUNG';
       const selectedAgentLao = partnersMaster.agents ? partnersMaster.agents.find(a => a.id === agtLaoId) : null;
