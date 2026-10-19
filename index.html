@@ -1143,17 +1143,19 @@
           <div class="form-group" style="margin-bottom:2px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
               <label style="font-size:11px; color:var(--text-muted); margin-bottom:0;">
-                Name ID Kịch Bản (<code style="color:var(--accent-gold); font-size:11px;">/cmh-namid</code> SSOT):
+                Name ID Kịch Bản (<code style="color:var(--accent-gold); font-size:11px;">/cmh-namid</code> SSOT V3.0):
               </label>
-              <span id="nidRuleBadge" style="font-size:10.5px; color:var(--accent-gold); font-family:monospace; cursor:pointer;" onclick="openNidGeneratorModal()" data-tooltip="Xem bảng bóc tách 8 quy tắc cấu thành Name ID chuẩn">[⚡ Bóc Tách N.ID]</span>
+              <span id="nidRuleBadge" style="font-size:10.5px; color:var(--accent-gold); font-family:monospace; cursor:pointer;" onclick="openNidGeneratorModal()" data-tooltip="Xem bảng bóc tách 10 quy tắc cấu thành Name ID V3.0 (Loại hàng, Mua+Tặng, Tuyến xe, Điểm hồ sơ)">[⚡ Bóc Tách N.ID]</span>
             </div>
             <div style="display:flex; gap:4px; align-items:center;">
-              <input type="text" id="scenarioName" name="scenarioName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control font-bold" value="" oninput="onScenarioNameInput()" style="flex:1; font-size:12.5px; height:28px; font-family:monospace; background:var(--bg-card); color:var(--accent-gold); letter-spacing:0.3px;" placeholder="⚡ Hãy chọn thông số bên dưới, rồi bấm [⚡ Sinh N.ID]...">
-              <button type="button" id="btnGenerateNid" class="btn btn-sm" onclick="generateAndApplyNameId()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.4);" data-tooltip="⚡ Quét toàn bộ thông số trên buồng lái & tự động sinh Name ID chuẩn /cmh-namid (100% thuật toán cứng, không dùng AI)">[⚡ Sinh N.ID]</button>
+              <input type="text" id="scenarioName" name="scenarioName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" class="form-control font-bold" value="" oninput="onScenarioNameInput()" style="flex:1; font-size:12px; height:28px; font-family:monospace; background:var(--bg-card); color:var(--accent-gold); letter-spacing:0.2px;" placeholder="⚡ Hãy chọn thông số bên dưới, rồi bấm [⚡ Sinh N.ID]...">
+              <button type="button" id="btnGenerateNid" class="btn btn-sm" onclick="generateAndApplyNameId()" style="background:var(--accent-gold); color:#000; font-weight:bold; font-size:11px; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.4);" data-tooltip="⚡ Quét toàn bộ thông số (Loại hàng, SL Mua+KM, Phương tiện, Tuyến vận tải, Điểm hồ sơ, Nhà xe) & sinh Name ID chuẩn V3.0">[⚡ Sinh N.ID]</button>
               <button type="button" id="btnSaveScenario" class="btn btn-sm" onclick="saveCurrentScenario()" style="background:var(--accent-blue); color:#fff; font-size:11px; font-weight:bold; padding:2px 10px; height:28px; white-space:nowrap; border:none; border-radius:2px; cursor:pointer;" data-tooltip="Xác nhận & Lưu toàn bộ tham số vào Set kịch bản này">[💾 Lưu Set]</button>
             </div>
+            <!-- KHUNG BÓC TÁCH TRỰC QUAN THỜI GIAN THỰC (CHỐNG TRÀN CHỮ TRÊN ĐIỆN THOẠI & HIỂN THỊ ĐỦ TUYẾN XE + ĐIỂM HỒ SƠ + MUA/TẶNG) -->
+            <div id="nidLiveBreakdownPills" style="margin-top:4px; padding:4px 6px; background:rgba(0,0,0,0.18); border:1px dashed var(--border-subtle); border-radius:3px; font-size:10px; line-height:1.4;"></div>
             <div id="nidHelperText" style="font-size:10.5px; color:var(--text-dim); margin-top:4px;">
-              💡 Quy trình chuẩn: <b>(1)</b> Chọn các biến số bên dưới ➔ <b>(2)</b> Bấm <b>[⚡ Sinh N.ID]</b> để xuất hiện tên ➔ <b>(3)</b> Bấm <b>[💾 Lưu Set]</b>.
+              💡 Tự động kết hợp: <b>Incoterms</b> + <b>Tuyến vận tải</b> + <b>Điểm hồ sơ</b> + <b>Loại xe</b> + <b>Mã SP (Mua+🎁KM)</b> + <b>Nhà xe</b>.
             </div>
           </div>
         </div>
@@ -1492,7 +1494,7 @@
 
           <div class="form-group" style="margin-bottom:8px;">
             <label style="font-size:11px; margin-bottom:2px;">Điều kiện Incoterms 2020:</label>
-            <select id="incotermsSelect" class="form-control" onchange="recalculate()" style="font-size:11.5px; height:28px;">
+            <select id="incotermsSelect" class="form-control" onchange="onIncotermsChange()" style="font-size:11.5px; height:28px;">
               <option value="FCA_LB">FCA Lao Bao (Việt Nam)</option>
               <option value="CPT_SVN" selected>CPT Savannakhet (Lào)</option>
               <option value="CPT_MKD">CPT Mukdahan (Thái Lan)</option>
@@ -4691,13 +4693,22 @@
       }
       renderMixedCargoTable();
 
-      // 2c. Ma trận 2 Tuyến Độc Lập
-      if (document.getElementById('transportRouteSelect') && scn.transportRoute) {
-        document.getElementById('transportRouteSelect').value = scn.transportRoute;
+      // 2c. Ma trận 2 Tuyến Độc Lập (Đồng bộ thông minh theo Incoterms nếu kịch bản gốc chưa lưu riêng)
+      const inferredTransRoute = scn.transportRoute || (
+        scn.terms === 'FCA_LB' ? 'ROUTE_LAO_BAO' :
+        (scn.terms === 'CPT_MKD' || scn.terms === 'DAP_MKD') ? 'ROUTE_MUKDAHAN' :
+        'ROUTE_SAVANNAKHET'
+      );
+      const inferredDossierRoute = scn.dossierRoute || (
+        scn.terms === 'FCA_LB' ? 'DOSSIER_LAO_BAO_HANDOVER' :
+        'DOSSIER_FULL_SAVANNAKHET'
+      );
+      if (document.getElementById('transportRouteSelect')) {
+        document.getElementById('transportRouteSelect').value = inferredTransRoute;
       }
-      if (document.getElementById('dossierRouteSelect') && scn.dossierRoute) {
-        document.getElementById('dossierRouteSelect').value = scn.dossierRoute;
-        onDossierRouteChange();
+      if (document.getElementById('dossierRouteSelect')) {
+        document.getElementById('dossierRouteSelect').value = inferredDossierRoute;
+        onDossierRouteChange(true);
       }
 
       // 3. Hải quan & Chi phí
@@ -4859,7 +4870,7 @@
     }
 
     function generateAndApplyNameId() {
-      // 1. Quét biến số trên buồng lái & chạy thuật toán /cmh-namid
+      // 1. Quét biến số trên buồng lái & chạy thuật toán /cmh-namid V3.0
       const res = computeSsotNameId();
 
       // 2. Điền tên mới vào ô
@@ -4877,18 +4888,24 @@
         }, 800);
       }
 
+      if (typeof renderLiveNidBreakdownPills === 'function') {
+        renderLiveNidBreakdownPills(res);
+      }
+      const dossierCodeEl = document.getElementById('liveDossierCode');
+      if (dossierCodeEl) dossierCodeEl.innerText = res.id;
+
       // 3. Cập nhật badge
       const badge = document.getElementById('currentScenarioBadge');
       if (badge) {
-        badge.innerHTML = `<span style="color:var(--accent-gold); font-size:10px; font-weight:bold; background:rgba(234, 179, 8, 0.15); padding:2px 6px; border-radius:3px; border:1px solid rgba(234, 179, 8, 0.3);">[⚡ ĐÃ SINH N.ID - CHƯA LƯU]</span>`;
+        badge.innerHTML = `<span style="color:var(--accent-gold); font-size:10px; font-weight:bold; background:rgba(234, 179, 8, 0.15); padding:2px 6px; border-radius:3px; border:1px solid rgba(234, 179, 8, 0.3);">[⚡ ĐÃ SINH N.ID V3.0 - CHƯA LƯU]</span>`;
       }
 
       const helper = document.getElementById('nidHelperText');
       if (helper) {
-        helper.innerHTML = `✅ Đã sinh: <b style="color:var(--accent-gold); font-family:monospace;">${res.id}</b>. Nhấn <b>[💾 Lưu Set]</b> để ghi vào danh sách Presets!`;
+        helper.innerHTML = `✅ Đã sinh: <b style="color:var(--accent-gold); font-family:monospace; word-break:break-all;">${res.id}</b>. Nhấn <b>[💾 Lưu Set]</b> để ghi vào danh sách Presets!`;
       }
 
-      showToastNotification(`★ ĐÃ SINH TÊN KỊCH BẢN CHUẨN: ${res.id}! Hãy nhấn [💾 Lưu Set] để hoàn tất.`);
+      showToastNotification(`★ ĐÃ SINH TÊN KỊCH BẢN CHUẨN V3.0: ${res.id}! Hãy nhấn [💾 Lưu Set] để hoàn tất.`);
     }
 
     function saveCurrentScenario() {
@@ -5722,28 +5739,44 @@
     // KHỐI MA TRẬN 2 TUYẾN ĐỘC LẬP: TUYẾN VẬN TẢI THỰC TẾ & TUYẾN HỒ SƠ HẢI QUAN
     // =========================================================================
 
+    function onIncotermsChange() {
+      const incoSel = document.getElementById('incotermsSelect');
+      if (!incoSel) return;
+      const termsVal = incoSel.value;
+      const transSel = document.getElementById('transportRouteSelect');
+      const dosSel = document.getElementById('dossierRouteSelect');
+
+      if (termsVal === 'FCA_LB') {
+        if (transSel) transSel.value = 'ROUTE_LAO_BAO';
+        if (dosSel) dosSel.value = 'DOSSIER_LAO_BAO_HANDOVER';
+      } else if (termsVal === 'CPT_MKD' || termsVal === 'DAP_MKD') {
+        if (transSel) transSel.value = 'ROUTE_MUKDAHAN';
+        if (dosSel) dosSel.value = 'DOSSIER_FULL_SAVANNAKHET';
+      } else {
+        // CPT_SVN
+        if (transSel && (transSel.value === 'ROUTE_LAO_BAO' || transSel.value === 'ROUTE_MUKDAHAN')) {
+          transSel.value = 'ROUTE_SAVANNAKHET';
+        }
+        if (dosSel) dosSel.value = 'DOSSIER_FULL_SAVANNAKHET';
+      }
+      onDossierRouteChange(true);
+      recalculate();
+      showToastNotification(`🌐 Đã đồng bộ Incoterms [${termsVal}] → Tuyến xe & Điểm hồ sơ tương ứng!`);
+    }
+
     function onTransportRouteChange() {
       const transSel = document.getElementById('transportRouteSelect');
       if (!transSel) return;
       const routeVal = transSel.value;
-
-      // Cập nhật gợi ý Incoterms nếu người dùng chưa can thiệp
-      const incoSel = document.getElementById('incotermsSelect');
-      if (incoSel) {
-        if (routeVal === 'ROUTE_LAO_BAO') {
-          incoSel.value = 'FCA_LB';
-        } else if (routeVal === 'ROUTE_MUKDAHAN') {
-          incoSel.value = 'CPT_MKD';
-        } else {
-          incoSel.value = 'CPT_SVN';
-        }
-        if (typeof onIncotermsChange === 'function') onIncotermsChange();
+      const chkLolo = document.getElementById('chkLoloFee');
+      if (chkLolo) {
+        chkLolo.checked = (routeVal === 'ROUTE_SAVANNAKHET_DRY_PORT');
       }
       recalculate();
       showToastNotification(`🛣️ Đã chuyển Tuyến Vận Tải: ${transSel.options[transSel.selectedIndex].text}`);
     }
 
-    function onDossierRouteChange() {
+    function onDossierRouteChange(silent) {
       const dosSel = document.getElementById('dossierRouteSelect');
       if (!dosSel) return;
       const dosVal = dosSel.value;
@@ -5760,8 +5793,10 @@
         if (chkLao) chkLao.checked = true;
         if (noteEl) noteEl.innerHTML = `Cấp 3: Trọn gói Thông quan VN (5.5M) + Tờ khai Quá cảnh Lào D8/T1 (16.000 THB ~ 11.68M)`;
       }
-      recalculate();
-      showToastNotification(`📑 Đã áp dụng Tuyến Hồ Sơ: ${dosSel.options[dosSel.selectedIndex].text}`);
+      if (!silent) {
+        recalculate();
+        showToastNotification(`📑 Đã áp dụng Điểm Hồ Sơ: ${dosSel.options[dosSel.selectedIndex].text}`);
+      }
     }
 
     // =========================================================================
@@ -7763,18 +7798,18 @@
           lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th · ${pVatText}`;
         }
 
-        // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải)
+        // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải Thực Tế)
         const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
         let unitFreight = carrier.howoRate || 22000000;
         if (vehicle === 'HOWO_156') {
           unitFreight = carrier.howoRate || 22000000;
         } else {
-          // CONT_40HC hoặc CONT_45HC
-          if (transRoute === 'ROUTE_LAO_BAO' || terms === 'FCA_LB') {
+          // CONT_40HC hoặc CONT_45HC — Tính theo đúng Tuyến Vận Tải Thực Tế (transRoute)
+          if (transRoute === 'ROUTE_LAO_BAO') {
             unitFreight = carrier.contLbRate !== undefined ? carrier.contLbRate : (carrier.howoRate || 22000000);
           } else if (transRoute === 'ROUTE_SAVANNAKHET_DRY_PORT') {
             unitFreight = (carrier.contSvnRate || 35000000) + 2000000; // Cước 35M + LOLO hạ bãi 2M = 37M
-          } else if (transRoute === 'ROUTE_MUKDAHAN' || terms === 'CPT_MKD' || terms === 'DAP_MKD') {
+          } else if (transRoute === 'ROUTE_MUKDAHAN') {
             unitFreight = carrier.contMkdRate !== undefined ? carrier.contMkdRate : ((carrier.contSvnRate || 35000000) + 3000000);
           } else {
             // ROUTE_SAVANNAKHET (35.000.000 đ)
@@ -7799,7 +7834,7 @@
         demurrageNote = `${dDom} ngày nội địa (${(rDom/1e6).toFixed(1)}tr) + ${dBorder} ngày CK (${(rBorder/1e6).toFixed(1)}tr) [x${tripCount} xe]`;
       } else {
         const dCont = parseInt(document.getElementById('demurrageDays') ? document.getElementById('demurrageDays').value : 0) || 0;
-        if (terms === 'FCA_LB') {
+        if (transRoute === 'ROUTE_LAO_BAO' || terms === 'FCA_LB') {
           const rContBorder = carrier.demContBorder !== undefined ? carrier.demContBorder : 2500000;
           defaultDemurrage = (dCont * rContBorder) * tripCount;
           demurrageNote = `${dCont} ngày lưu xe đầu kéo cont tại CK Lao Bảo (${(rContBorder/1e6).toFixed(1)}tr/ngày) [x${tripCount} cont]`;
@@ -7811,10 +7846,10 @@
       }
       const demurrageFee = isDemurrageActive ? (partnersMaster.baselineOverrides['demurrage'] !== undefined ? partnersMaster.baselineOverrides['demurrage'] : defaultDemurrage) : 0;
 
-      // Cập nhật nhãn lưu ca & ghi chú đại lý theo Incoterms
+      // Cập nhật nhãn lưu ca & ghi chú đại lý theo Incoterms / Tuyến vận tải
       const lblDem = document.getElementById('lblDemurrageCont');
       if (lblDem) {
-        if (terms === 'FCA_LB') {
+        if (transRoute === 'ROUTE_LAO_BAO' || terms === 'FCA_LB') {
           const rBorder = carrier.demContBorder !== undefined ? carrier.demContBorder : 2500000;
           lblDem.innerHTML = `Lưu cont Cửa khẩu Lao Bảo (${(rBorder/1e6).toFixed(1)}tr/cont/ngày):`;
         } else {
@@ -7855,7 +7890,7 @@
             : (agentLao.laoTransit || 11680000);
         }
       }
-      const isDossierExemptTransit = (dossierRoute === 'DOSSIER_LAO_BAO_ONLY' || dossierRoute === 'DOSSIER_LAO_BAO_HANDOVER' || terms === 'FCA_LB');
+      const isDossierExemptTransit = (dossierRoute === 'DOSSIER_LAO_BAO_ONLY' || dossierRoute === 'DOSSIER_LAO_BAO_HANDOVER');
       if (!isLaoNone && !isDossierExemptTransit && isLaoTransitActive) {
         defaultLaoTransit = perTripD8 * tripCount;
       } else {
@@ -7866,7 +7901,7 @@
       const lblAgentLao = document.getElementById('lblAgentLao');
       if (lblAgentLao) {
         if (isDossierExemptTransit) {
-          lblAgentLao.innerHTML = '4. Quá cảnh Lào D8/T1 <small style="color:var(--text-dim);">[Miễn trừ FCA/Lao Bảo - Không phát sinh]</small>:';
+          lblAgentLao.innerHTML = '4. Quá cảnh Lào D8/T1 <small style="color:var(--text-dim);">[Miễn trừ theo Điểm Hồ Sơ Cấp 1/2 - Không phát sinh]</small>:';
         } else {
           const thbRateStr = (agentLao && agentLao.transitThb && agentLao.transitThb > 0)
             ? ` <span style="color:var(--accent-gold); font-size:11px;">(${agentLao.transitThb.toLocaleString('vi-VN')} THB ~ ${(perTripD8/1e6).toFixed(2)}M/cont)</span>`
@@ -8010,12 +8045,15 @@
         if (kpiTotalExtra) kpiTotalExtra.innerText = 'Lãi thực + Hoàn thuế 1331';
       }
 
-      // Cập nhật các trường Thông tin đơn hàng & Kế hoạch trực tiếp (Live Executive Sheet) với Mã Ký Tự Sản Phẩm (/cmh-namid V2.0)
+      // Cập nhật các trường Thông tin đơn hàng & Kế hoạch trực tiếp (Live Executive Sheet) với Mã Ký Tự Sản Phẩm, Tuyến Xe & Điểm Hồ Sơ (/cmh-namid V3.0)
       const liveNidObj = computeSsotNameId();
       const curScnId = liveNidObj ? liveNidObj.id : (document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : 'SCN-DEFAULT');
       const scnNameEl = document.getElementById('scenarioName');
       if (scnNameEl && document.activeElement !== scnNameEl) {
         scnNameEl.value = curScnId;
+      }
+      if (typeof renderLiveNidBreakdownPills === 'function') {
+        renderLiveNidBreakdownPills(liveNidObj);
       }
       const dossierCodeEl = document.getElementById('liveDossierCode');
       if (dossierCodeEl) dossierCodeEl.innerText = curScnId;
@@ -8023,14 +8061,21 @@
       const dossierTimeEl = document.getElementById('liveDossierTime');
       if (dossierTimeEl) dossierTimeEl.innerText = new Date().toLocaleString('vi-VN');
 
-      // Đồng bộ ô tìm kiếm / hiển thị kịch bản ở Header để phản ánh đúng sản phẩm / ghép cont
+      // Đồng bộ ô tìm kiếm / hiển thị kịch bản ở Header để phản ánh đúng sản phẩm / ghép cont / tuyến đường
       const scnSearchInput = document.getElementById('scenarioSearchInput');
       const currentScnBadge = document.getElementById('currentScenarioBadge');
       if (scnSearchInput && document.activeElement !== scnSearchInput) {
         const loadedScn = scenariosMaster.find(s => s.id === activeScenarioId);
-        const isBaselineUntouched = (activeScenarioId === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && packingMode !== 'MIXED' && supId === 'SUP_THIEN_LONG' && qty === 1300);
+        const isBaselineUntouched = (
+          activeScenarioId === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' &&
+          packingMode !== 'MIXED' &&
+          supId === 'SUP_THIEN_LONG' &&
+          qty === 1300 &&
+          transRoute === 'ROUTE_LAO_BAO' &&
+          dossierRoute === 'DOSSIER_LAO_BAO_HANDOVER'
+        );
         if (isBaselineUntouched) {
-          scnSearchInput.value = `⭐ [${activeScenarioId}] ${loadedScn ? (loadedScn.name || activeScenarioId) : activeScenarioId}`;
+          scnSearchInput.value = `⭐ [${curScnId}] ${loadedScn ? (loadedScn.name || curScnId) : curScnId}`;
           if (currentScnBadge) currentScnBadge.innerHTML = `<span style="color:var(--accent-gold); font-size:10px; font-weight:bold; background:rgba(234, 179, 8, 0.15); padding:2px 6px; border-radius:3px; border:1px solid rgba(234, 179, 8, 0.3);">[⭐ MẶC ĐỊNH #269901]</span>`;
         } else if (packingMode === 'MIXED') {
           scnSearchInput.value = `📦 [${curScnId}] ${liveNidObj.name}`;
@@ -8062,7 +8107,11 @@
       }
 
       const liveTermsEl = document.getElementById('liveInfoTerms');
-      if (liveTermsEl) liveTermsEl.innerText = `Incoterms 2020 ${terms.replace('_',' ')}`;
+      if (liveTermsEl && liveNidObj && liveNidObj.breakdown) {
+        liveTermsEl.innerText = `Incoterms 2020 ${liveNidObj.breakdown.termsLabel} | 🛣️ Tuyến xe: ${liveNidObj.breakdown.routeLabel} | 📑 Hồ sơ: ${liveNidObj.breakdown.dossierLabel}`;
+      } else if (liveTermsEl) {
+        liveTermsEl.innerText = `Incoterms 2020 ${terms.replace('_',' ')}`;
+      }
 
       const liveVolEl = document.getElementById('liveInfoVolume');
       if (liveVolEl) {
@@ -9062,11 +9111,11 @@
     }
 
     // ==========================================
-    // THUẬT TOÁN ĐỊNH DANH SSOT NAME ID V2.0 (/cmh-namid STANDARD - CÓ MÃ KÝ TỰ CHỮ CÁI SẢN PHẨM)
+    // THUẬT TOÁN ĐỊNH DANH SSOT NAME ID V3.0 (/cmh-namid STANDARD - TÍCH HỢP TUYẾN VẬN TẢI + ĐIỂM HỒ SƠ + LOẠI HÀNG & MUA/TẶNG KM)
     // 100% THUẬT TOÁN QUY TẮC CỨNG - HỖ TRỢ CẢ ĐƠN 1 SP (SINGLE) VÀ GHÉP CONT ĐA SP (MIXED)
     // ==========================================
     function computeSsotNameId(overrideOrderRef) {
-      // 1. Incoterms & Destination
+      // 1. Incoterms 2020 (Hợp đồng thương mại)
       const termsVal = document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'FCA_LB';
       let termsCode = 'FCA_LB';
       let termsLabel = 'FCA Lao Bảo';
@@ -9087,7 +9136,46 @@
         termsLabel = termsCode;
       }
 
-      // 2. Vehicle
+      // 2. Tuyến Vận Tải Thực Tế (#transportRouteSelect)
+      const transRouteVal = document.getElementById('transportRouteSelect')
+        ? document.getElementById('transportRouteSelect').value
+        : (termsVal === 'FCA_LB' ? 'ROUTE_LAO_BAO' : ((termsVal === 'CPT_MKD' || termsVal === 'DAP_MKD') ? 'ROUTE_MUKDAHAN' : 'ROUTE_SAVANNAKHET'));
+      let routeCode = 'RT_SVN';
+      let routeLabel = 'Savannakhet (Chạy thẳng 35M)';
+      if (transRouteVal === 'ROUTE_LAO_BAO') {
+        routeCode = 'RT_LB';
+        routeLabel = 'Cửa khẩu Lao Bảo (22M)';
+      } else if (transRouteVal === 'ROUTE_SAVANNAKHET_DRY_PORT') {
+        routeCode = 'RT_SVNP';
+        routeLabel = 'Savannakhet Dry Port (Hạ bãi 37M)';
+      } else if (transRouteVal === 'ROUTE_MUKDAHAN') {
+        routeCode = 'RT_MKD';
+        routeLabel = 'Mukdahan Thái Lan (38M)';
+      } else {
+        routeCode = 'RT_SVN';
+        routeLabel = 'Savannakhet (Chạy thẳng 35M)';
+      }
+
+      // 3. Điểm Kết Thúc Hồ Sơ Hải Quan & Pháp Lý (#dossierRouteSelect)
+      const dossierRouteVal = document.getElementById('dossierRouteSelect')
+        ? document.getElementById('dossierRouteSelect').value
+        : (termsVal === 'FCA_LB' ? 'DOSSIER_LAO_BAO_HANDOVER' : 'DOSSIER_FULL_SAVANNAKHET');
+      let dossierCode = 'HS3_D8';
+      let dossierLabel = 'Cấp 3: Full HQ VN + Quá cảnh D8 Lào';
+      if (dossierRouteVal === 'DOSSIER_LAO_BAO_ONLY') {
+        dossierCode = 'HS1_LB';
+        dossierLabel = 'Cấp 1: Chỉ HQ VN (Miễn D8 Lào)';
+      } else if (dossierRouteVal === 'DOSSIER_LAO_BAO_HANDOVER') {
+        dossierCode = 'HS2_LB';
+        dossierLabel = 'Cấp 2: HQ VN & Giao tại Lao Bảo';
+      } else {
+        dossierCode = 'HS3_D8';
+        dossierLabel = 'Cấp 3: Full HQ VN + Quá cảnh D8 Lào';
+      }
+
+      const routeDossierTag = `${routeCode}_${dossierCode}`;
+
+      // 4. Phương tiện vận tải & Số chuyến
       const vehVal = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_40HC';
       let vehCode = 'CONT40';
       let vehLabel = 'Cont 40HC';
@@ -9102,10 +9190,10 @@
         vehLabel = 'Cont 45HC';
       }
 
-      // 3. Trip Count, Product SKU Code(s) & Box Quantity (/cmh-namid V2.0)
       const trips = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
       const vehTag = trips > 1 ? `${trips}${vehCode}` : vehCode;
 
+      // 5. Loại Hàng Hóa & Số Lượng (Tách rõ Thùng Đặt Mua + 🎁 Thùng Tặng KM = Tổng Xếp Xe)
       const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
       const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
       const singleSkuCode = getSupplierSkuCode(sup);
@@ -9113,16 +9201,22 @@
       let paidQ = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
       let bonusQ = currentSingleBonusQty || 0;
       let qty = paidQ + bonusQ;
-      let qtyTag = `${singleSkuCode}_${qty}T`;
-      let prodName = sup ? `[${singleSkuCode}] ${sup.product}` : `[${singleSkuCode}] Sản phẩm đơn`;
+      let qtyTag = bonusQ > 0
+        ? `${singleSkuCode}_${paidQ}M${bonusQ}K_${qty}T`
+        : `${singleSkuCode}_${qty}T`;
+      let prodName = sup
+        ? (bonusQ > 0 ? `[${singleSkuCode}] ${sup.product} (Mua ${paidQ.toLocaleString('vi-VN')} + 🎁KM ${bonusQ.toLocaleString('vi-VN')} = ${qty.toLocaleString('vi-VN')} th)` : `[${singleSkuCode}] ${sup.product} (${qty.toLocaleString('vi-VN')} th)`)
+        : `[${singleSkuCode}] Sản phẩm đơn`;
       let labelSkuSummary = bonusQ > 0
-        ? `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} th (${paidQ}+🎁${bonusQ})`
+        ? `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} th (${paidQ} mua + 🎁${bonusQ} tặng)`
         : `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} thùng`;
 
       if (packingMode === 'MIXED' && partnersMaster && partnersMaster.suppliers) {
         const mixTokens = [];
         const mixLabels = [];
         let mixTotal = 0;
+        let mixPaidTotal = 0;
+        let mixBonusTotal = 0;
         const activeIds = (activeMixedSupplierIds && Array.isArray(activeMixedSupplierIds))
           ? activeMixedSupplierIds
           : partnersMaster.suppliers.map(s => s.id);
@@ -9134,16 +9228,21 @@
           const totItemQ = q + bq;
           if (totItemQ > 0) {
             const c = getSupplierSkuCode(s);
-            mixTokens.push(`${c}${totItemQ}`);
-            mixLabels.push(bq > 0 ? `${c}(${q}+🎁${bq})` : `${c}(${q})`);
+            // Nếu có hàng tặng KM (bq > 0), ghi rõ: MDC800K64 (Mua 800 + KM 64 = 864); nếu bq == 0 ghi VXN250
+            mixTokens.push(bq > 0 ? `${c}${q}K${bq}` : `${c}${q}`);
+            mixLabels.push(bq > 0 ? `${c}(${q}+🎁${bq}=${totItemQ})` : `${c}(${q})`);
             mixTotal += totItemQ;
+            mixPaidTotal += q;
+            mixBonusTotal += bq;
           }
         });
         qty = mixTotal;
+        paidQ = mixPaidTotal;
+        bonusQ = mixBonusTotal;
         if (mixTokens.length > 0) {
           qtyTag = `MIX_${mixTokens.join('_')}-${mixTotal}T`;
-          prodName = `Ghép Cont (${mixTokens.length} SP): ${mixLabels.join(' + ')}`;
-          labelSkuSummary = `Ghép ${mixLabels.join('+')} = ${mixTotal.toLocaleString('vi-VN')} thùng`;
+          prodName = `Ghép Cont (${mixTokens.length} SP): ${mixLabels.join(' + ')} [Mua ${mixPaidTotal} + 🎁KM ${mixBonusTotal} = ${mixTotal} th]`;
+          labelSkuSummary = `Ghép ${mixLabels.join(' + ')} = ${mixTotal.toLocaleString('vi-VN')} th`;
         } else {
           qtyTag = `MIX_0T`;
           prodName = `Ghép Cont (0 thùng)`;
@@ -9151,7 +9250,7 @@
         }
       }
 
-      // 4. Carrier Code
+      // 6. Đơn vị vận tải (Carrier Code)
       const carId = document.getElementById('carrierSelect') ? document.getElementById('carrierSelect').value : '';
       const carrier = (partnersMaster && partnersMaster.carriers) ? (partnersMaster.carriers.find(c => c.id === carId) || partnersMaster.carriers[0]) : null;
       let carCode = 'VT';
@@ -9168,7 +9267,7 @@
         }
       }
 
-      // 6. Buyer / Customer Tag & 7. Order Reference Seed (/cmh-namid Standard)
+      // 7. Đối tác khách ngoại & 8. Mã Gốc Đơn Hàng 6 số (/cmh-namid Standard)
       const currentName = (document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : '') || '';
       
       let buyerTag = 'DIX';
@@ -9180,21 +9279,20 @@
       else if (/\bLAO\b/i.test(currentName) && !/-LAO$/i.test(currentName)) buyerTag = 'LAO';
       else if (/THAI/i.test(currentName)) buyerTag = 'THAI';
 
-      // Trích xuất mã gốc đơn hàng 6 số YYMMNN (Root Order Seed)
       let orderRef = overrideOrderRef;
       if (!orderRef) {
         const orderRefMatch = currentName.match(/\b(\d{6})\b/);
         orderRef = orderRefMatch ? orderRefMatch[1] : '269901';
       }
 
-      // 8. Operational Modifiers (Optional)
+      // 9. Hậu tố nghiệp vụ phát sinh (Operational Modifiers)
       let modifierCode = '';
       let modifierDesc = 'Tiêu chuẩn (Clean Flow)';
       const demDays = parseInt(document.getElementById('demurrageDays') ? document.getElementById('demurrageDays').value : 0) || 0;
       const demHowoDom = parseInt(document.getElementById('demHowoDomesticDays') ? document.getElementById('demHowoDomesticDays').value : 0) || 0;
       const demHowoBorder = parseInt(document.getElementById('demHowoBorderDays') ? document.getElementById('demHowoBorderDays').value : 0) || 0;
       const isInsp = document.getElementById('chkBinhAnInspection') ? document.getElementById('chkBinhAnInspection').checked : false;
-      const isBaTransit = document.getElementById('chkBinhAnTransit') ? document.getElementById('chkBinhAnTransit').checked : false;
+      const promoMode = document.getElementById('promoRevenueModeSelect') ? document.getElementById('promoRevenueModeSelect').value : 'SELL_ALL';
 
       let modArr = [];
       if (demDays > 0 || demHowoDom > 0 || demHowoBorder > 1) {
@@ -9203,8 +9301,8 @@
       if (isInsp) {
         modArr.push('INSP');
       }
-      if (isBaTransit || (termsVal && (termsVal.includes('SVN') || termsVal.includes('MKD')))) {
-        if (!modArr.includes('LAO')) modArr.push('LAO');
+      if (bonusQ > 0 && promoMode === 'FOC_PASS') {
+        modArr.push('FOC');
       }
 
       if (modArr.length > 0) {
@@ -9212,12 +9310,13 @@
         modifierDesc = `Phát sinh: ${modArr.join(' + ')}`;
       }
 
-      // Assembling Machine SSOT ID (/cmh-namid V2.0 Standard)
-      const generatedId = `SCN-${termsCode}-${vehTag}-${qtyTag}-${carCode}-${buyerTag}-${orderRef}${modifierCode}`;
+      // Assembling Machine SSOT ID (/cmh-namid V3.0 Standard)
+      // Format: SCN-<INCOTERMS>-<TUYEN_XE>_<DIEM_HO_SO>-<PHUONG_TIEN>-<HANG_HOA_MUA_KM>-<NHA_XE>-<KHACH>-<MA_DON><HAU_TO>
+      const generatedId = `SCN-${termsCode}-${routeDossierTag}-${vehTag}-${qtyTag}-${carCode}-${buyerTag}-${orderRef}${modifierCode}`;
 
       // Assembling Human-Readable Label
       const tripsStr = trips > 1 ? ` (${trips} xe/cont)` : '';
-      const generatedLabel = `${termsLabel} · ${vehLabel}${tripsStr} [${labelSkuSummary}] - ${carLabel} | ${buyerTag} #${orderRef}`;
+      const generatedLabel = `${termsLabel} [${routeLabel} · ${dossierLabel}] · ${vehLabel}${tripsStr} [${labelSkuSummary}] - ${carLabel} | ${buyerTag} #${orderRef}`;
 
       return {
         id: generatedId,
@@ -9225,8 +9324,11 @@
         breakdown: {
           prefix: 'SCN',
           termsCode, termsLabel,
-          vehCode: vehTag, vehLabel,
-          qtyTag, qty, prodName,
+          routeCode, routeLabel,
+          dossierCode, dossierLabel,
+          routeDossierTag,
+          vehCode: vehTag, vehLabel, trips,
+          qtyTag, qty, paidQ, bonusQ, prodName, labelSkuSummary,
           carCode, carLabel,
           buyerTag,
           orderRef,
@@ -9234,6 +9336,40 @@
           modifierDesc
         }
       };
+    }
+
+    function copyFullNidToClipboard(nidStr) {
+      const textToCopy = nidStr || (document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : '');
+      if (!textToCopy) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showToastNotification(`📋 Đã sao chép trọn vẹn Name ID: ${textToCopy}`);
+        }).catch(() => {});
+      }
+    }
+
+    function renderLiveNidBreakdownPills(nidObj) {
+      const box = document.getElementById('nidLiveBreakdownPills');
+      if (!box) return;
+      const res = nidObj || computeSsotNameId();
+      if (!res || !res.breakdown) return;
+      const b = res.breakdown;
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:4px; padding-bottom:3px; border-bottom:1px dotted rgba(255,255,255,0.12);">
+          <div style="font-family:var(--font-mono, monospace); font-size:10.5px; color:var(--accent-gold); font-weight:bold; word-break:break-all; flex:1;" title="Chuỗi Name ID đầy đủ (Không bị che khuất trên màn hình hẹp)">
+            🔗 ${res.id}
+          </div>
+          <button type="button" onclick="copyFullNidToClipboard('${res.id.replace(/'/g, "\\'")}')" style="font-size:9.5px; padding:1px 6px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-strong); border-radius:2px; cursor:pointer; white-space:nowrap;" title="Sao chép toàn bộ chuỗi Name ID">[📋 Copy]</button>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:4px; align-items:center;">
+          <span style="padding:1px 5px; border-radius:2px; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.35); color:var(--alert-success-text); font-weight:bold;" title="Điều kiện Incoterms 2020">🌐 ${b.termsCode}: ${b.termsLabel}</span>
+          <span style="padding:1px 5px; border-radius:2px; background:rgba(59,130,246,0.14); border:1px solid rgba(59,130,246,0.35); color:#38bdf8; font-weight:bold;" title="Tuyến vận tải thực tế">🛣️ ${b.routeCode}: ${b.routeLabel}</span>
+          <span style="padding:1px 5px; border-radius:2px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-weight:bold;" title="Điểm kết thúc hồ sơ hải quan & pháp lý">📑 ${b.dossierCode}: ${b.dossierLabel}</span>
+          <span style="padding:1px 5px; border-radius:2px; background:rgba(234,179,8,0.14); border:1px solid rgba(234,179,8,0.35); color:var(--accent-gold); font-weight:bold;" title="Phương tiện & số chuyến">🚛 ${b.vehCode}: ${b.vehLabel}</span>
+          <span style="padding:1px 5px; border-radius:2px; background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:var(--text-main); font-weight:bold;" title="Loại hàng & Số lượng (Đặt mua + Tặng KM = Tổng xếp xe)">📦 ${b.labelSkuSummary}</span>
+          <span style="padding:1px 5px; border-radius:2px; background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.35); color:var(--alert-warning-text);" title="Nhà xe vận tải · Đối tác · Mã đơn gốc">🏢 ${b.carCode} (${b.carLabel}) · ${b.buyerTag} #${b.orderRef}</span>
+        </div>
+      `;
     }
 
     function openNidGeneratorModal() {
@@ -9258,41 +9394,55 @@
           </tr>
           <tr>
             <td class="text-center font-bold">2</td>
-            <td class="font-bold">Incoterms & Điểm giao</td>
+            <td class="font-bold">Điều kiện Incoterms</td>
             <td><code style="color:var(--alert-success-text); font-weight:bold; font-size:12.5px;">${b.termsCode}</code></td>
             <td><b>${b.termsLabel}</b></td>
             <td style="font-size:11px; color:var(--text-dim);">Incoterms 2020 (ICC)</td>
           </tr>
           <tr>
             <td class="text-center font-bold">3</td>
-            <td class="font-bold">Phương tiện vận tải</td>
-            <td><code style="color:var(--accent-blue); font-weight:bold; font-size:12.5px;">${b.vehCode}</code></td>
-            <td><b>${b.vehLabel}</b></td>
-            <td style="font-size:11px; color:var(--text-dim);">Quy cách xếp dỡ & tải trọng</td>
+            <td class="font-bold">Tuyến vận tải thực tế</td>
+            <td><code style="color:#38bdf8; font-weight:bold; font-size:12.5px;">${b.routeCode}</code></td>
+            <td><b>${b.routeLabel}</b></td>
+            <td style="font-size:11px; color:var(--text-dim);">Đích giao hàng vật lý của xe/cont</td>
           </tr>
           <tr>
             <td class="text-center font-bold">4</td>
-            <td class="font-bold">Quy mô xuất khẩu</td>
-            <td><code style="color:var(--text-main); font-weight:bold; font-size:12.5px;">${b.qtyTag}</code></td>
-            <td><b>${b.qty.toLocaleString('vi-VN')} thùng</b> (${b.prodName})</td>
-            <td style="font-size:11px; color:var(--text-dim);">BOM định mức xuất khẩu</td>
+            <td class="font-bold">Điểm kết thúc hồ sơ</td>
+            <td><code style="color:#c084fc; font-weight:bold; font-size:12.5px;">${b.dossierCode}</code></td>
+            <td><b>${b.dossierLabel}</b></td>
+            <td style="font-size:11px; color:var(--text-dim);">Phạm vi tờ khai HQ VN & Quá cảnh D8</td>
           </tr>
           <tr>
             <td class="text-center font-bold">5</td>
+            <td class="font-bold">Phương tiện vận tải</td>
+            <td><code style="color:var(--accent-blue); font-weight:bold; font-size:12.5px;">${b.vehCode}</code></td>
+            <td><b>${b.vehLabel} (${b.trips} chuyến)</b></td>
+            <td style="font-size:11px; color:var(--text-dim);">Quy cách xếp dỡ & tải trọng</td>
+          </tr>
+          <tr>
+            <td class="text-center font-bold">6</td>
+            <td class="font-bold">Loại hàng & SL (Mua+KM)</td>
+            <td><code style="color:var(--text-main); font-weight:bold; font-size:12px;">${b.qtyTag}</code></td>
+            <td><b>${b.prodName}</b></td>
+            <td style="font-size:11px; color:var(--text-dim);">Tách rõ Thùng Mua + 🎁 Thùng Tặng KM</td>
+          </tr>
+          <tr>
+            <td class="text-center font-bold">7</td>
             <td class="font-bold">Đơn vị vận tải</td>
             <td><code style="color:var(--alert-warning-text); font-weight:bold; font-size:12.5px;">${b.carCode}</code></td>
             <td><b>${b.carLabel}</b></td>
             <td style="font-size:11px; color:var(--text-dim);">Nhà xe ghép nối Area 1</td>
           </tr>
           <tr>
-            <td class="text-center font-bold">6</td>
+            <td class="text-center font-bold">8</td>
             <td class="font-bold">Đối tác khách ngoại</td>
             <td><code style="color:#c084fc; font-weight:bold; font-size:12.5px;">${b.buyerTag}</code></td>
             <td><b>Khách hàng mục tiêu</b></td>
             <td style="font-size:11px; color:var(--text-dim);">Hồ sơ DNA Đối tác (/cmh-namid)</td>
           </tr>
           <tr style="background:rgba(234, 179, 8, 0.06);">
-            <td class="text-center font-bold" style="color:var(--accent-gold);">7</td>
+            <td class="text-center font-bold" style="color:var(--accent-gold);">9</td>
             <td class="font-bold" style="color:var(--accent-gold);">Mã Gốc Đơn Hàng (Seed)</td>
             <td>
               <input type="text" id="nidInputOrderRef" class="form-control font-bold" value="${b.orderRef}" maxlength="6" style="width:90px; color:var(--accent-gold); font-size:13px; background:#000; text-align:center; padding:2px 4px; border:1px solid var(--accent-gold);" oninput="onNidOrderRefChange()" title="Nhập mã 6 số của đơn hàng (VD: 269901, 269902)">
@@ -9301,11 +9451,11 @@
             <td style="font-size:11px; color:var(--accent-gold);">Niên độ tài chính 6 số YYMMNN (Gõ để đổi mã)</td>
           </tr>
           <tr>
-            <td class="text-center font-bold">8</td>
+            <td class="text-center font-bold">10</td>
             <td class="font-bold">Hậu tố nghiệp vụ</td>
             <td><code style="color:var(--text-muted); font-size:12.5px;">${b.modifierCode ? '-' + b.modifierCode : 'NONE'}</code></td>
             <td>${b.modifierDesc}</td>
-            <td style="font-size:11px; color:var(--text-dim);">Tùy biến lưu xe & kiểm hóa bãi</td>
+            <td style="font-size:11px; color:var(--text-dim);">Lưu xe, kiểm hóa bãi, hoặc FOC</td>
           </tr>
         `;
       }
