@@ -1217,14 +1217,62 @@
               <span id="lblSingleSkuDims">DxRxC: 585x270x497 mm (0.0785 m³)</span>
               <span id="lblSingleSkuWeight" style="color:var(--accent-gold); font-weight:bold;">GW: 6.6 kg/th</span>
             </div>
+
+            <!-- KHU VỰC QUẢN TRỊ & SỬA ĐỔI SỐ LƯỢNG HÀNG TẶNG / KHUYẾN MÃI NHÀ MÁY (SINGLE SKU PROMO CONTROL) -->
+            <div id="singlePromoBox" style="margin-top:6px; padding:6px 8px; background:rgba(16, 185, 129, 0.06); border:1px solid rgba(16, 185, 129, 0.35); border-radius:3px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; margin-bottom:5px;">
+                <span style="font-size:10.5px; font-weight:bold; color:var(--alert-success-text); display:inline-flex; align-items:center; gap:4px;">
+                  <span>🎁 CHẾ ĐỘ HÀNG TẶNG / KM NHÀ MÁY:</span>
+                  <span id="badgeSinglePromoPolicy" style="font-size:9.5px; background:rgba(234,179,8,0.18); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); padding:0px 5px; border-radius:2px;">Mua 100 tặng 8</span>
+                </span>
+                <select id="promoRevenueModeSelect" onchange="onPromoRevenueModeChange(this.value)" style="font-size:9.5px; height:20px; padding:0 4px; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-main); border-radius:2px; font-weight:bold; cursor:pointer;" title="Chọn cách hạch toán doanh thu xuất khẩu đối với số lượng thùng được nhà máy tặng">
+                  <option value="SELL_ALL" selected>💵 Bán thu USD cả hàng tặng (Tối ưu lãi)</option>
+                  <option value="FOC_PASS">🎁 Tặng FOC cho khách (Chỉ tính cước/CBM)</option>
+                </select>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1.15fr 1fr auto; gap:5px; align-items:end;">
+                <!-- Cột 1: Sửa định mức Mua X tặng Y -->
+                <div>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block; margin-bottom:2px;">Định mức KM (Sửa tự do):</label>
+                  <div style="display:flex; align-items:center; gap:3px; font-size:10px;">
+                    <span>Mua</span>
+                    <input type="number" id="singlePromoBuyBase" class="form-control text-center font-bold" value="100" min="1" step="10" oninput="onSinglePromoRuleChange()" style="width:48px; height:23px; font-size:11px; padding:1px 3px;">
+                    <span>tặng</span>
+                    <input type="number" id="singlePromoFreeRate" class="form-control text-center font-bold" value="0" min="0" step="1" oninput="onSinglePromoRuleChange()" style="width:42px; height:23px; font-size:11px; padding:1px 3px; color:var(--accent-gold); border-color:var(--accent-gold);">
+                  </div>
+                </div>
+
+                <!-- Cột 2: Sửa trực tiếp tổng số thùng được tặng của lô hàng -->
+                <div>
+                  <label style="font-size:9.5px; color:var(--alert-success-text); font-weight:bold; display:block; margin-bottom:2px;">Số thùng tặng (Sửa tay):</label>
+                  <div style="display:flex; align-items:center; gap:3px;">
+                    <input type="number" id="singleBonusQty" class="form-control text-center font-bold" value="0" min="0" step="1" oninput="onSingleBonusQtyInput(this.value)" onchange="onSingleBonusQtyInput(this.value)" style="height:23px; font-size:12px; padding:1px 4px; color:var(--alert-success-text); border:1.5px solid var(--alert-success-text); background:var(--bg-card);" title="Nhập hoặc sửa trực tiếp số lượng thùng được nhà máy tặng thêm cho đơn hàng này (Giá mua = 0đ)">
+                    <span style="font-size:10px; color:var(--text-muted); white-space:nowrap;">th</span>
+                  </div>
+                </div>
+
+                <!-- Cột 3: Nút thao tác nhanh Theo ĐM & Cân Khít Xe -->
+                <div style="display:flex; gap:3px;">
+                  <button type="button" class="btn btn-sm" onclick="syncSingleBonusToFormula()" style="height:23px; padding:0 6px; font-size:9.5px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-strong); white-space:nowrap;" data-tooltip="Tính lại số thùng tặng tự động theo đúng định mức Mua X Tặng Y">[⚡ Theo ĐM]</button>
+                  <button type="button" class="btn btn-sm" onclick="autoBalanceSingleBuyAndBonusToVehicle()" style="height:23px; padding:0 6px; font-size:9.5px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; white-space:nowrap;" data-tooltip="Tự động chia lại (Thùng Đặt Mua + Thùng Tặng KM) để tổng số thùng xếp vừa khít 100% sức chứa xe/cont đang chọn">[📐 Cân Khít Xe]</button>
+                </div>
+              </div>
+
+              <div id="singlePromoSummaryLine" style="margin-top:5px; padding-top:4px; border-top:1px dashed rgba(16, 185, 129, 0.3); font-size:10px; color:var(--text-main); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                <span>Đặt mua: <b id="lblPromoPaidQty">1,300</b> th + 🎁 Tặng: <b id="lblPromoBonusQty" style="color:var(--alert-success-text);">0</b> th = Xếp xe: <b id="lblPromoTotalShipped" style="color:var(--accent-gold);">1,300</b> th</span>
+                <span id="lblPromoEffectiveCost" style="font-family:var(--font-mono, monospace); font-size:9.5px; color:var(--alert-success-text); font-weight:bold;">Giá vốn BQ: 337,000 đ/th</span>
+              </div>
+            </div>
           </div>
 
           <!-- 1B. BẢNG GHÉP CONT ĐA SẢN PHẨM & ĐỊNH GIÁ RIÊNG TỪNG SP (MIXED CARGO & MULTI-PRICE TABLE) -->
           <div id="panelMixedSku" style="display:none; margin-bottom:8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:3px; padding:6px 6px;">
             <div style="font-size:11px; font-weight:bold; color:var(--text-main); margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-              <span>📦 Bảng Hàng Ghép & Giá Bán Riêng Từng SP:</span>
-              <div style="display:flex; gap:5px; align-items:center;">
+              <span>📦 Bảng Hàng Ghép · Hàng Tặng (KM) & Giá Bán Riêng:</span>
+              <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;">
                 <button type="button" class="btn btn-sm" onclick="toggleQuickAddSkuForm()" style="font-size:10px; padding:1px 6px; background:rgba(16,185,129,0.12); color:var(--alert-success-text); border:1px solid rgba(16,185,129,0.35); font-weight:bold;" title="Tạo nhanh 1 sản phẩm mới ngay trong phiên mô phỏng">[+ SP Mới]</button>
+                <button type="button" class="btn btn-sm" onclick="recalcAllMixedBonusByFormula()" style="font-size:10px; padding:1px 6px; background:rgba(234,179,8,0.15); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); font-weight:bold;" title="Tính lại toàn bộ cột Thùng Tặng (KM) theo đúng định mức khuyến mãi của từng sản phẩm">[🎁 Tính KM Tự Động]</button>
                 <button type="button" class="btn btn-sm" onclick="restoreDefaultMixedCargo()" style="font-size:10px; padding:1px 6px; background:var(--bg-cockpit-panel); color:var(--accent-blue); border:1px solid var(--border-subtle);" title="Khôi phục đủ 5 sản phẩm chuẩn SSOT">[↺ Khôi Phục 5 SP]</button>
                 <button type="button" class="btn btn-sm" onclick="resetMixedCargo()" style="font-size:10px; padding:1px 6px; background:var(--bg-cockpit-panel); color:var(--text-dim); border:1px solid var(--border-subtle);" title="Đưa số thùng về 0">[0 Thùng]</button>
               </div>
@@ -1253,10 +1301,10 @@
             <!-- FORM TẠO NHANH SẢN PHẨM MỚI TRONG PHIÊN MÔ PHỎNG (QUICK-ADD SKU INLINE) -->
             <div id="quickAddSkuBox" style="display:none; background:var(--bg-cockpit-panel); border:1px dashed var(--accent-gold); border-radius:3px; padding:6px; margin-bottom:6px; font-size:10.5px;">
               <div style="font-weight:bold; color:var(--accent-gold); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-                <span>✨ THÊM NHANH SẢN PHẨM MỚI VÀO BỘ DỮ LIỆU & PHIÊN GHÉP CONT:</span>
+                <span>★ THÊM NHANH SẢN PHẨM MỚI VÀO BỘ DỮ LIỆU & PHIÊN GHÉP CONT:</span>
                 <a href="javascript:void(0)" onclick="toggleQuickAddSkuForm()" style="color:var(--text-muted); text-decoration:none;">[Đóng ✕]</a>
               </div>
-              <div style="display:grid; grid-template-columns: 1.6fr 0.7fr 1fr 0.8fr; gap:4px; margin-bottom:4px;">
+              <div style="display:grid; grid-template-columns: 1.5fr 0.65fr 0.95fr 0.75fr 0.75fr; gap:4px; margin-bottom:4px;">
                 <div>
                   <label style="font-size:9.5px; color:var(--text-muted); display:block;">Tên sản phẩm *</label>
                   <input type="text" id="qaSkuName" class="form-control" placeholder="VD: Bánh Gạo Cay" style="font-size:10.5px; padding:2px 4px; height:22px;" oninput="autoFillQuickAddSkuCode()">
@@ -1266,12 +1314,16 @@
                   <input type="text" id="qaSkuCode" class="form-control font-bold" placeholder="VD: BGC" maxlength="5" style="font-size:10.5px; padding:2px 4px; height:22px; text-transform:uppercase; color:var(--accent-gold);">
                 </div>
                 <div>
-                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Giá gốc (đ/th)</label>
-                  <input type="number" id="qaSkuCostVnd" class="form-control" value="337000" step="1000" style="font-size:10.5px; padding:2px 4px; height:22px;">
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Giá chưa VAT (đ)</label>
+                  <input type="number" id="qaSkuCostVnd" class="form-control" value="333333" step="1000" style="font-size:10.5px; padding:2px 4px; height:22px;">
                 </div>
                 <div>
                   <label style="font-size:9.5px; color:var(--text-muted); display:block;">Giá bán ($/th)</label>
                   <input type="number" id="qaSkuQuoteUsd" class="form-control font-bold" value="15.80" step="0.1" style="font-size:10.5px; padding:2px 4px; height:22px; color:var(--alert-success-text);">
+                </div>
+                <div>
+                  <label style="font-size:9.5px; color:var(--alert-success-text); display:block;">KM Mua 100 tặng</label>
+                  <input type="number" id="qaSkuPromoFree" class="form-control font-bold" value="0" min="0" step="1" style="font-size:10.5px; padding:2px 4px; height:22px; color:var(--alert-success-text);">
                 </div>
               </div>
               <div style="display:grid; grid-template-columns: 1fr 0.8fr 0.8fr 0.8fr auto; gap:4px; align-items:end;">
@@ -1280,7 +1332,7 @@
                   <input type="text" id="qaSkuSupplier" class="form-control" value="Lợi Đạt (LỢI ĐẠT FOOD)" style="font-size:10.5px; padding:2px 4px; height:22px;">
                 </div>
                 <div>
-                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Số thùng ghép</label>
+                  <label style="font-size:9.5px; color:var(--text-muted); display:block;">Số thùng đặt mua</label>
                   <input type="number" id="qaSkuInitQty" class="form-control font-bold" value="200" step="10" style="font-size:10.5px; padding:2px 4px; height:22px;">
                 </div>
                 <div>
@@ -1295,14 +1347,15 @@
               </div>
             </div>
 
-            <div style="max-height:285px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:2px;">
+            <div style="max-height:310px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:2px;">
               <table style="width:100%; border-collapse:collapse; font-size:10.5px; text-align:left;">
                 <thead>
                   <tr style="background:var(--bg-cockpit-panel); border-bottom:1px solid var(--border-subtle); color:var(--text-muted);">
-                    <th style="padding:4px 4px;">Sản phẩm · Mã SKU · Giá gốc</th>
-                    <th style="padding:4px 2px; width:62px; text-align:center;">Số Thùng</th>
-                    <th style="padding:4px 2px; width:66px; text-align:center; color:var(--accent-gold);">Giá Bán ($)</th>
-                    <th style="padding:4px 4px; text-align:right;">Thành Tiền & Quy mô</th>
+                    <th style="padding:4px 4px;">Sản phẩm · Mã SKU · Giá & KM</th>
+                    <th style="padding:4px 2px; width:56px; text-align:center;" title="Số lượng thùng đặt mua tính tiền">Thùng Mua</th>
+                    <th style="padding:4px 2px; width:58px; text-align:center; color:var(--alert-success-text);" title="Số lượng thùng được tặng khuyến mãi (Sửa trực tiếp khi biến động)">🎁 Tặng</th>
+                    <th style="padding:4px 2px; width:60px; text-align:center; color:var(--accent-gold);">Giá Bán ($)</th>
+                    <th style="padding:4px 4px; text-align:right;">Thành Tiền & Xếp Xe</th>
                   </tr>
                 </thead>
                 <tbody id="mixedCargoTableBody">
@@ -1328,8 +1381,9 @@
         <!-- KHỐI 2: PHƯƠNG TIỆN VẬN TẢI, SỐ LƯỢNG & SỨC CHỨA THỰC TẾ -->
         <!-- ========================================================================= -->
         <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
-          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
-            🚛 2. PHƯƠNG TIỆN VẬN TẢI & SỨC CHỨA:
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span>🚛 2. PHƯƠNG TIỆN VẬN TẢI & SỨC CHỨA:</span>
+            <span id="badgeBoxShippedTotal" style="font-size:10px; color:var(--alert-success-text); font-family:var(--font-mono, monospace);">Xếp xe: 1,300 th</span>
           </div>
 
           <div class="form-row" style="margin-bottom:6px;">
@@ -1349,8 +1403,8 @@
               </div>
             </div>
             <div class="form-group" style="flex:1;">
-              <label style="font-size:11px; margin-bottom:2px;">Tổng số thùng:</label>
-              <input type="number" id="boxQty" class="form-control font-bold" value="1300" oninput="recalculate()" onchange="recalculate()" style="font-size:13px; height:28px; color:var(--accent-gold); text-align:center;">
+              <label id="lblBoxQtyInput" style="font-size:11px; margin-bottom:2px;" title="Số lượng thùng đặt mua tính tiền (Chưa cộng số thùng tặng khuyến mãi)">Thùng đặt mua:</label>
+              <input type="number" id="boxQty" class="form-control font-bold" value="1300" oninput="onSingleBoxQtyInput(this.value)" onchange="onSingleBoxQtyInput(this.value)" style="font-size:13px; height:28px; color:var(--accent-gold); text-align:center;">
             </div>
           </div>
 
@@ -1889,7 +1943,8 @@
         <div id="supplierInfoBox" style="padding:8px 10px; background:var(--bg-cockpit-panel); border-radius:3px; font-size:11px; color:var(--text-muted); border:1px solid var(--border-subtle);">
           <div><b>Sản phẩm:</b> <span id="infoProdName">[QGG] Snack Quẩy Giòn Giòn</span> <span id="infoProdHs">(HS: 1905.90.80)</span></div>
           <div><b>Nhà cung cấp:</b> <span id="infoSupplierName">Thiên Long Phú Thọ</span> <span id="infoSupplierTax">(MST: 5400512548)</span></div>
-          <div><b>Đơn giá mua:</b> <span id="infoBuyPrice"><b style="color:var(--alert-success-text);">364,999.64đ</b> (gốc đã VAT) · Chưa VAT: <b>337,962.63đ</b></span> | VAT: <span id="infoVatRate">8</span>%</div>
+          <div><b>Đơn giá mua:</b> <span id="infoBuyPrice"><b style="color:var(--alert-success-text);">359,999.64đ</b> (gốc đã VAT) · Chưa VAT: <b>333,333.00đ</b></span> | VAT: <span id="infoVatRate">8</span>%</div>
+          <div style="margin-top:2px;"><b>Chế độ hàng tặng (KM):</b> <span id="infoPromoPolicy" style="color:var(--accent-gold); font-weight:bold;">Mua 100 thùng tặng 8 thùng</span></div>
         </div>
 
       </div>
@@ -2168,8 +2223,9 @@
                   <th>Mã số thuế</th>
                   <th>Tên sản phẩm</th>
                   <th class="text-center" style="width:75px;">Mã SP (SKU)</th>
-                  <th class="text-right" style="color:var(--alert-success-text);">Đơn Giá (đã VAT) ★ Báo Giá Gốc</th>
+                  <th class="text-right" style="color:var(--alert-success-text);">Đơn Giá Mới (đã VAT 8%) ★</th>
                   <th class="text-right">Giá mua chưa VAT (8%)</th>
+                  <th class="text-center" style="color:var(--alert-success-text); min-width:135px;">🎁 Chế Độ Hàng Tặng (KM)</th>
                   <th class="text-right" style="color:var(--accent-gold);">Giá bán chuẩn (USD/thùng)</th>
                   <th class="text-center">Thuế VAT (%)</th>
                   <th class="text-center">Kích thước & Trọng lượng</th>
@@ -3003,6 +3059,9 @@
           product: "Snack Quẩy Giòn Giòn", 
           priceIncVat: 363960.00,
           pricePreVat: 337000.00, 
+          promoBuyBase: 100,
+          promoFreeRate: 0,
+          promoNote: "Không áp KM mặc định (Có thể nhập tay)",
           quoteUsd: 15.80, 
           vatRate: 0.08, 
           spec: "22g x 300 cốc/thùng", 
@@ -3019,8 +3078,11 @@
           taxId: "[CHỜ XÁC NHẬN]", 
           product: "Snack Lợi Đạt Mỳ dẻo cay", 
           packagingLabel: "Snack Lợi Đạt Mỳ dẻo cay (LỢI ĐẠT FOOD)",
-          priceIncVat: 364999.64, 
-          pricePreVat: 337962.63, 
+          priceIncVat: 359999.64, 
+          pricePreVat: 333333.00, 
+          promoBuyBase: 100,
+          promoFreeRate: 8,
+          promoNote: "Mua 100 thùng km 8 thùng",
           quoteUsd: 15.80, 
           vatRate: 0.08, 
           spec: "300PCS/thùng", 
@@ -3037,8 +3099,11 @@
           taxId: "[CHỜ XÁC NHẬN]", 
           product: "Snack Lợi Đạt Mỳ Cây Thơm Ngon", 
           packagingLabel: "Snack Lợi Đạt Mỳ Cây Thơm Ngon (LỢI ĐẠT FOOD)",
-          priceIncVat: 624999.92, 
-          pricePreVat: 578703.63, 
+          priceIncVat: 619999.92, 
+          pricePreVat: 574074.00, 
+          promoBuyBase: 100,
+          promoFreeRate: 3,
+          promoNote: "Mua 100 thùng km 3 thùng",
           quoteUsd: 26.50, 
           vatRate: 0.08, 
           spec: "500PCS/thùng", 
@@ -3055,8 +3120,11 @@
           taxId: "[CHỜ XÁC NHẬN]", 
           product: "Snack Lợi Đạt Vị Xiên Nướng", 
           packagingLabel: "Snack Lợi Đạt Vị Xiên Nướng (LỢI ĐẠT FOOD)",
-          priceIncVat: 364999.64, 
-          pricePreVat: 337962.63, 
+          priceIncVat: 359999.64, 
+          pricePreVat: 333333.00, 
+          promoBuyBase: 100,
+          promoFreeRate: 0,
+          promoNote: "Chưa áp KM cố định (Tùy chỉnh theo lô)",
           quoteUsd: 15.80, 
           vatRate: 0.08, 
           spec: "300PCS/thùng", 
@@ -3073,8 +3141,11 @@
           taxId: "[CHỜ XÁC NHẬN]", 
           product: "Snack Lợi Đạt Mỳ Tôm Hùm", 
           packagingLabel: "Snack Lợi Đạt Mỳ Tôm Hùm (LỢI ĐẠT FOOD)",
-          priceIncVat: 364999.64, 
-          pricePreVat: 337962.63, 
+          priceIncVat: 359999.64, 
+          pricePreVat: 333333.00, 
+          promoBuyBase: 100,
+          promoFreeRate: 2,
+          promoNote: "Mua 100 thùng km 2 thùng",
           quoteUsd: 15.80, 
           vatRate: 0.08, 
           spec: "300PCS/thùng", 
@@ -3353,58 +3424,83 @@
       return Math.round(n).toLocaleString('vi-VN') + ' đ';
     }
 
+    // Helper khóa cứng ADN báo giá mới Lợi Đạt (359,999.64đ / 333,333.00đ và 619,999.92đ / 574,074.00đ) và định mức KM khi nạp từ Storage hoặc Cloud
+    function enforceLatestLoiDatPricingOnSuppliers(suppliersList, isLegacyMigration = false) {
+      if (!Array.isArray(suppliersList)) return suppliersList;
+      DEFAULT_PARTNERS_MASTER.suppliers.forEach(defSup => {
+        const existing = suppliersList.find(s => s.id === defSup.id);
+        if (!existing) {
+          suppliersList.push(JSON.parse(JSON.stringify(defSup)));
+        } else {
+          // Tự động nâng cấp giá cũ (364,999.64 / 337,962.63 hoặc 624,999.92 / 578,703.63) lên bảng báo giá mới Lợi Đạt
+          const isOldLoiDatPrice = (
+            Math.abs((existing.priceIncVat || 0) - 364999.64) < 1 ||
+            Math.abs((existing.pricePreVat || 0) - 337962.63) < 1 ||
+            Math.abs((existing.priceIncVat || 0) - 624999.92) < 1 ||
+            Math.abs((existing.pricePreVat || 0) - 578703.63) < 1
+          );
+          Object.assign(existing, {
+            name: defSup.name,
+            taxId: defSup.taxId,
+            product: defSup.product,
+            packagingLabel: defSup.packagingLabel,
+            skuCode: defSup.skuCode,
+            priceIncVat: (isLegacyMigration || isOldLoiDatPrice || !existing.priceIncVat) ? defSup.priceIncVat : existing.priceIncVat,
+            pricePreVat: (isLegacyMigration || isOldLoiDatPrice || !existing.pricePreVat) ? defSup.pricePreVat : existing.pricePreVat,
+            vatRate: defSup.vatRate,
+            spec: defSup.spec,
+            unit: defSup.unit,
+            weightLabel: defSup.weightLabel,
+            grossWeight: defSup.grossWeight,
+            netWeight: defSup.netWeight,
+            dimL: defSup.dimL,
+            dimW: defSup.dimW,
+            dimH: defSup.dimH,
+            cbm: defSup.cbm,
+            dims: defSup.dims,
+            cont45Qty: defSup.cont45Qty,
+            cont40Qty: defSup.cont40Qty,
+            howoQty: defSup.howoQty
+          });
+          if (existing.promoBuyBase === undefined || existing.promoBuyBase <= 0 || isLegacyMigration) {
+            existing.promoBuyBase = defSup.promoBuyBase || 100;
+          }
+          if (existing.promoFreeRate === undefined || isLegacyMigration || isOldLoiDatPrice) {
+            existing.promoFreeRate = defSup.promoFreeRate || 0;
+          }
+          if (!existing.promoNote && defSup.promoNote) {
+            existing.promoNote = defSup.promoNote;
+          }
+          if (existing.quoteUsd === undefined) {
+            existing.quoteUsd = defSup.quoteUsd;
+          }
+        }
+      });
+      suppliersList.forEach(s => {
+        if (s.product && s.product.includes('Sanck')) {
+          s.product = s.product.replace(/Sanck/g, 'Snack');
+        }
+        if (s.id === 'SUP_THIEN_LONG' || s.skuCode === 'QGG') {
+          s.product = 'Snack Quẩy Giòn Giòn';
+        }
+        if (s.promoBuyBase === undefined || s.promoBuyBase <= 0) s.promoBuyBase = 100;
+        if (s.promoFreeRate === undefined || s.promoFreeRate < 0) s.promoFreeRate = 0;
+      });
+      return suppliersList;
+    }
+
     // Load from LocalStorage with smart migration for granular fee keys and exact unrounded Product DNA
     function loadPartnersFromStorage() {
       try {
-        const stored = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_3') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_2') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const v54 = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_4');
+        const isLegacy = !v54;
+        const stored = v54 || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_3') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_2') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
             // Giữ các sản phẩm chuẩn SSOT và các sản phẩm mới do người dùng chủ động tạo (isCustom hoặc SUP_NEW_ / SUP_CUSTOM_)
             parsed.suppliers = parsed.suppliers.filter(s => DEFAULT_PARTNERS_MASTER.suppliers.some(def => def.id === s.id) || s.isCustom || String(s.id).startsWith('SUP_NEW_') || String(s.id).startsWith('SUP_CUSTOM_'));
-            DEFAULT_PARTNERS_MASTER.suppliers.forEach(defSup => {
-              const existing = parsed.suppliers.find(s => s.id === defSup.id);
-              if (!existing) {
-                parsed.suppliers.push(JSON.parse(JSON.stringify(defSup)));
-              } else {
-                // Khóa cứng ADN sản phẩm SSOT theo ảnh báo giá gốc (Cấm làm tròn, cấm dữ liệu ảo)
-                Object.assign(existing, {
-                  name: defSup.name,
-                  taxId: defSup.taxId,
-                  product: defSup.product,
-                  packagingLabel: defSup.packagingLabel,
-                  skuCode: defSup.skuCode,
-                  priceIncVat: defSup.priceIncVat,
-                  pricePreVat: defSup.pricePreVat,
-                  vatRate: defSup.vatRate,
-                  spec: defSup.spec,
-                  unit: defSup.unit,
-                  weightLabel: defSup.weightLabel,
-                  grossWeight: defSup.grossWeight,
-                  netWeight: defSup.netWeight,
-                  dimL: defSup.dimL,
-                  dimW: defSup.dimW,
-                  dimH: defSup.dimH,
-                  cbm: defSup.cbm,
-                  dims: defSup.dims,
-                  cont45Qty: defSup.cont45Qty,
-                  cont40Qty: defSup.cont40Qty,
-                  howoQty: defSup.howoQty
-                });
-                if (existing.quoteUsd === undefined) {
-                  existing.quoteUsd = defSup.quoteUsd;
-                }
-              }
-            });
-            // Tự động rà soát và triệt tiêu dứt điểm lỗi gõ nhầm Sanck -> Snack cho mọi SKU
-            parsed.suppliers.forEach(s => {
-              if (s.product && s.product.includes('Sanck')) {
-                s.product = s.product.replace(/Sanck/g, 'Snack');
-              }
-              if (s.id === 'SUP_THIEN_LONG' || s.skuCode === 'QGG') {
-                s.product = 'Snack Quẩy Giòn Giòn';
-              }
-            });
+            enforceLatestLoiDatPricingOnSuppliers(parsed.suppliers, isLegacy);
           }
           if (parsed.agents && Array.isArray(parsed.agents)) {
             parsed.agents = parsed.agents.map(a => {
@@ -3443,6 +3539,9 @@
             });
           }
           partnersMaster = Object.assign(partnersMaster, parsed);
+          if (isLegacy) {
+            savePartnersToStorage();
+          }
         }
       } catch (e) {
         console.warn('LocalStorage not available');
@@ -3451,7 +3550,7 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_3', JSON.stringify(partnersMaster));
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_4', JSON.stringify(partnersMaster));
       } catch (e) {}
     }
 
@@ -3498,7 +3597,7 @@
           }
           // Cập nhật lại danh sách đối tác đã bảo vệ từ Cloud
           if (data.state && Array.isArray(data.state.suppliers) && data.state.suppliers.length > 0) {
-            partnersMaster.suppliers = data.state.suppliers;
+            partnersMaster.suppliers = enforceLatestLoiDatPricingOnSuppliers(data.state.suppliers, false);
             savePartnersToStorage();
             renderArea2Dropdowns();
           }
@@ -3532,7 +3631,7 @@
           let hasChanges = false;
 
           if (Array.isArray(s.suppliers) && s.suppliers.length > 0) {
-            partnersMaster.suppliers = s.suppliers;
+            partnersMaster.suppliers = enforceLatestLoiDatPricingOnSuppliers(s.suppliers, false);
             hasChanges = true;
           }
           if (Array.isArray(s.carriers) && s.carriers.length > 0) {
@@ -3868,6 +3967,9 @@
     let isDraftMode = false;
     let currentUnforeseenExpenses = [];
     let packingMode = 'SINGLE'; // 'SINGLE' hoặc 'MIXED'
+    let promoRevenueMode = 'SELL_ALL'; // 'SELL_ALL' (Bán thu USD cả hàng tặng) hoặc 'FOC_PASS' (Tặng FOC cho khách $0)
+    let singleBonusManualOverride = false;
+    let currentSingleBonusQty = 0;
     let currentMixedCargo = {
       SUP_THIEN_LONG: 400,
       SUP_LOI_DAT_MY_DEO_CAY: 800,
@@ -3875,6 +3977,14 @@
       SUP_LOI_DAT_XIEN_NUONG: 300,
       SUP_LOI_DAT_MY_TOM_HUM: 200
     };
+    let currentMixedBonus = {
+      SUP_THIEN_LONG: 0,
+      SUP_LOI_DAT_MY_DEO_CAY: 64,
+      SUP_LOI_DAT_MY_CAY: 6,
+      SUP_LOI_DAT_XIEN_NUONG: 0,
+      SUP_LOI_DAT_MY_TOM_HUM: 4
+    };
+    let currentMixedBonusManual = {};
     let currentMixedPrices = {
       SUP_THIEN_LONG: 15.80,
       SUP_LOI_DAT_MY_DEO_CAY: 15.80,
@@ -4507,7 +4617,12 @@
         chkWeighbridge: document.getElementById('chkWeighbridge') ? document.getElementById('chkWeighbridge').checked : false,
         chkPhyto: document.getElementById('chkPhyto') ? document.getElementById('chkPhyto').checked : false,
         packingMode: packingMode || 'SINGLE',
+        promoRevenueMode: promoRevenueMode || 'SELL_ALL',
+        singleBonusQty: currentSingleBonusQty || 0,
+        singleBonusManualOverride: !!singleBonusManualOverride,
         mixedCargo: JSON.parse(JSON.stringify(currentMixedCargo || {})),
+        mixedBonus: JSON.parse(JSON.stringify(currentMixedBonus || {})),
+        mixedBonusManual: JSON.parse(JSON.stringify(currentMixedBonusManual || {})),
         mixedPrices: JSON.parse(JSON.stringify(currentMixedPrices || {})),
         activeMixedSupplierIds: JSON.parse(JSON.stringify(activeMixedSupplierIds || [])),
         transportRoute: document.getElementById('transportRouteSelect') ? document.getElementById('transportRouteSelect').value : 'ROUTE_SAVANNAKHET',
@@ -4545,9 +4660,21 @@
       if (document.getElementById('quotePrice') && scn.quotePrice !== undefined) document.getElementById('quotePrice').value = scn.quotePrice;
       if (document.getElementById('fxRate') && scn.fxRate !== undefined) document.getElementById('fxRate').value = scn.fxRate;
 
-      // 2b. Packing Mode & Ghép Cont
+      // 2b. Packing Mode, Hàng Tặng (KM) & Ghép Cont
+      promoRevenueMode = scn.promoRevenueMode || 'SELL_ALL';
+      const promoModeSel = document.getElementById('promoRevenueModeSelect');
+      if (promoModeSel) promoModeSel.value = promoRevenueMode;
+
       if (scn.mixedCargo) {
         currentMixedCargo = JSON.parse(JSON.stringify(scn.mixedCargo));
+      }
+      if (scn.mixedBonus) {
+        currentMixedBonus = Object.assign({}, currentMixedBonus, scn.mixedBonus);
+      }
+      if (scn.mixedBonusManual) {
+        currentMixedBonusManual = JSON.parse(JSON.stringify(scn.mixedBonusManual));
+      } else {
+        currentMixedBonusManual = {};
       }
       if (scn.mixedPrices) {
         currentMixedPrices = Object.assign({}, currentMixedPrices, scn.mixedPrices);
@@ -4615,6 +4742,21 @@
       // Giữ đúng số thùng và đơn giá của kịch bản (nếu có khác chuẩn)
       if (document.getElementById('boxQty') && scn.boxQty !== undefined) {
         document.getElementById('boxQty').value = scn.boxQty;
+      }
+      if (scn.singleBonusManualOverride && scn.singleBonusQty !== undefined) {
+        singleBonusManualOverride = true;
+        currentSingleBonusQty = parseInt(scn.singleBonusQty) || 0;
+        const bInp = document.getElementById('singleBonusQty');
+        if (bInp) bInp.value = currentSingleBonusQty;
+      } else {
+        singleBonusManualOverride = false;
+        const supObj = (partnersMaster && partnersMaster.suppliers)
+          ? (partnersMaster.suppliers.find(s => s.id === (scn.supplierId || 'SUP_THIEN_LONG')) || partnersMaster.suppliers[0])
+          : null;
+        const paidQ = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : (scn.boxQty || 1300)) || 0;
+        currentSingleBonusQty = calcDefaultBonusQty(paidQ, supObj);
+        const bInp = document.getElementById('singleBonusQty');
+        if (bInp) bInp.value = currentSingleBonusQty;
       }
       if (document.getElementById('quotePrice') && scn.quotePrice !== undefined) {
         document.getElementById('quotePrice').value = scn.quotePrice;
@@ -4746,7 +4888,7 @@
         helper.innerHTML = `✅ Đã sinh: <b style="color:var(--accent-gold); font-family:monospace;">${res.id}</b>. Nhấn <b>[💾 Lưu Set]</b> để ghi vào danh sách Presets!`;
       }
 
-      showToastNotification(`✨ ĐÃ SINH TÊN KỊCH BẢN CHUẨN: ${res.id}! Hãy nhấn [💾 Lưu Set] để hoàn tất.`);
+      showToastNotification(`★ ĐÃ SINH TÊN KỊCH BẢN CHUẨN: ${res.id}! Hãy nhấn [💾 Lưu Set] để hoàn tất.`);
     }
 
     function saveCurrentScenario() {
@@ -4871,8 +5013,193 @@
     }
 
     // =========================================================================
-    // KHỐI QUẢN TRỊ GHÉP CONT ĐA SẢN PHẨM & TÍNH TOÁN DUAL CAPACITY HORIZON
+    // KHỐI QUẢN TRỊ HÀNG TẶNG / KHUYẾN MÃI NHÀ MÁY & GHÉP CONT ĐA SẢN PHẨM
     // =========================================================================
+
+    function calcDefaultBonusQty(paidQty, sup) {
+      const q = Math.max(0, parseInt(paidQty) || 0);
+      if (!sup || q <= 0) return 0;
+      const buyBase = Math.max(1, parseInt(sup.promoBuyBase) || 100);
+      const freeRate = Math.max(0, parseFloat(sup.promoFreeRate) || 0);
+      if (freeRate <= 0) return 0;
+      return Math.round(Math.floor(q / buyBase) * freeRate);
+    }
+
+    function getPromoPolicyText(sup) {
+      if (!sup) return 'Không áp dụng KM';
+      const buyBase = Math.max(1, parseInt(sup.promoBuyBase) || 100);
+      const freeRate = Math.max(0, parseFloat(sup.promoFreeRate) || 0);
+      if (freeRate > 0) {
+        return `Mua ${buyBase} thùng KM ${freeRate} thùng`;
+      }
+      return `Mua ${buyBase} tặng 0 (Sửa tự do khi phát sinh)`;
+    }
+
+    function onPromoRevenueModeChange(val) {
+      promoRevenueMode = (val === 'FOC_PASS') ? 'FOC_PASS' : 'SELL_ALL';
+      const sel = document.getElementById('promoRevenueModeSelect');
+      if (sel && sel.value !== promoRevenueMode) sel.value = promoRevenueMode;
+      renderMixedCargoTable();
+      recalculate();
+      if (promoRevenueMode === 'SELL_ALL') {
+        showToastNotification("💵 Chế độ Hàng Tặng: Gộp bán thu USD (Tối ưu biên lợi nhuận & hạ giá vốn bình quân/thùng)!");
+      } else {
+        showToastNotification("🎁 Chế độ Hàng Tặng: Tặng FOC cho đối tác ($0 USD — Chỉ tính doanh thu trên số thùng đặt mua)!");
+      }
+    }
+
+    function onSingleBoxQtyInput(val) {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+        _currentDossierMode = 'LIVE_SCENARIO';
+      }
+      const paidQty = Math.max(0, parseInt(val) || 0);
+      if (!singleBonusManualOverride && packingMode !== 'MIXED') {
+        const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+        const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+        currentSingleBonusQty = calcDefaultBonusQty(paidQty, sup);
+        const bonusInp = document.getElementById('singleBonusQty');
+        if (bonusInp && document.activeElement !== bonusInp) {
+          bonusInp.value = currentSingleBonusQty;
+        }
+      }
+      recalculate();
+    }
+
+    function onSinglePromoRuleChange() {
+      const baseInp = document.getElementById('singlePromoBuyBase');
+      const freeInp = document.getElementById('singlePromoFreeRate');
+      const buyBase = Math.max(1, parseInt(baseInp ? baseInp.value : 100) || 100);
+      const freeRate = Math.max(0, parseFloat(freeInp ? freeInp.value : 0) || 0);
+
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+      if (sup) {
+        sup.promoBuyBase = buyBase;
+        sup.promoFreeRate = freeRate;
+        sup.promoNote = freeRate > 0 ? `Mua ${buyBase} thùng km ${freeRate} thùng` : 'Chưa áp dụng KM';
+        savePartnersToStorage();
+      }
+
+      singleBonusManualOverride = false;
+      const boxEl = document.getElementById('boxQty');
+      const paidQty = boxEl ? (parseInt(boxEl.value) || 0) : 0;
+      currentSingleBonusQty = calcDefaultBonusQty(paidQty, sup);
+      const bonusInp = document.getElementById('singleBonusQty');
+      if (bonusInp) bonusInp.value = currentSingleBonusQty;
+
+      // Đồng bộ cả bảng Mixed Cargo nếu mặt hàng này chưa bị khóa sửa tay trong Mixed
+      if (sup && !currentMixedBonusManual[sup.id]) {
+        currentMixedBonus[sup.id] = calcDefaultBonusQty(currentMixedCargo[sup.id] || 0, sup);
+      }
+
+      recalculate();
+    }
+
+    function onSingleBonusQtyInput(val) {
+      const b = Math.max(0, parseInt(val) || 0);
+      currentSingleBonusQty = b;
+      singleBonusManualOverride = true;
+      recalculate();
+    }
+
+    function syncSingleBonusToFormula() {
+      singleBonusManualOverride = false;
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+      const boxEl = document.getElementById('boxQty');
+      const paidQty = boxEl ? (parseInt(boxEl.value) || 0) : 0;
+      currentSingleBonusQty = calcDefaultBonusQty(paidQty, sup);
+      const bonusInp = document.getElementById('singleBonusQty');
+      if (bonusInp) bonusInp.value = currentSingleBonusQty;
+      recalculate();
+      const buyBase = sup ? (sup.promoBuyBase || 100) : 100;
+      const freeRate = sup ? (sup.promoFreeRate || 0) : 0;
+      showToastNotification(`⚡ Đã tính lại hàng tặng theo định mức (Mua ${buyBase} tặng ${freeRate}): Đặt mua ${paidQty.toLocaleString('vi-VN')} th ➔ Tặng +${currentSingleBonusQty.toLocaleString('vi-VN')} th!`);
+    }
+
+    function autoBalanceSingleBuyAndBonusToVehicle() {
+      const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
+      const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+      if (!sup) return;
+
+      const v = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
+      const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
+      let baseCap = 1000;
+      if (v === 'HOWO_156') baseCap = sup.howoQty || 1300;
+      else if (v === 'CONT_40HC') baseCap = sup.cont40Qty || 800;
+      else if (v === 'CONT_45HC') baseCap = sup.cont45Qty || 1000;
+
+      const maxTotalBoxes = baseCap * tripCount;
+      const buyBase = Math.max(1, parseInt(sup.promoBuyBase) || 100);
+      const freeRate = Math.max(0, parseFloat(sup.promoFreeRate) || 0);
+
+      let newPaidQty = maxTotalBoxes;
+      let newBonusQty = 0;
+
+      if (freeRate > 0) {
+        // Chia tỷ lệ chuẩn sao cho (Thùng Mua + Thùng Tặng) = Sức chứa tối đa của xe
+        newPaidQty = Math.floor(maxTotalBoxes / (1 + (freeRate / buyBase)));
+        newBonusQty = maxTotalBoxes - newPaidQty;
+        singleBonusManualOverride = true;
+      } else {
+        singleBonusManualOverride = false;
+      }
+
+      const boxEl = document.getElementById('boxQty');
+      if (boxEl) boxEl.value = newPaidQty;
+      currentSingleBonusQty = newBonusQty;
+      const bonusInp = document.getElementById('singleBonusQty');
+      if (bonusInp) bonusInp.value = newBonusQty;
+
+      recalculate();
+      const lotPaid = freeRate > 0 ? (Math.floor(maxTotalBoxes / (buyBase + freeRate)) * buyBase) : maxTotalBoxes;
+      const lotBonus = freeRate > 0 ? (Math.floor(maxTotalBoxes / (buyBase + freeRate)) * freeRate) : 0;
+      showToastNotification(`📐 Đã cân khít 100% xe (${maxTotalBoxes.toLocaleString('vi-VN')} th): Mua ${newPaidQty.toLocaleString('vi-VN')} th + 🎁 Tặng ${newBonusQty.toLocaleString('vi-VN')} th (Theo lô chẵn ${buyBase}: ${lotPaid}+${lotBonus}=${lotPaid + lotBonus} th)!`);
+    }
+
+    function onMixedBonusChange(supId, val) {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+        _currentDossierMode = 'LIVE_SCENARIO';
+      }
+      const b = Math.max(0, parseInt(val) || 0);
+      currentMixedBonus[supId] = b;
+      currentMixedBonusManual[supId] = true;
+
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      const q = currentMixedCargo[supId] || 0;
+      const totalBoxes = q + b;
+      const billableBoxes = (promoRevenueMode === 'FOC_PASS') ? q : totalBoxes;
+      const unitPrice = (currentMixedPrices && currentMixedPrices[supId] !== undefined) ? currentMixedPrices[supId] : (sup ? (sup.quoteUsd || 15.80) : 15.80);
+
+      if (sup) {
+        const cbmEl = document.getElementById(`mixedCbm_${supId}`);
+        const gwEl = document.getElementById(`mixedGw_${supId}`);
+        const revEl = document.getElementById(`mixedRev_${supId}`);
+        const shipEl = document.getElementById(`mixedShip_${supId}`);
+        if (cbmEl) cbmEl.innerText = (totalBoxes * (sup.cbm || 0)).toFixed(2);
+        if (gwEl) gwEl.innerText = (totalBoxes * (sup.grossWeight || 7.8) / 1000).toFixed(2);
+        if (revEl) revEl.innerText = '$' + (billableBoxes * unitPrice).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        if (shipEl) shipEl.innerText = `Xếp: ${totalBoxes.toLocaleString('vi-VN')}th`;
+      }
+      recalculate();
+    }
+
+    function recalcAllMixedBonusByFormula() {
+      if (!partnersMaster || !partnersMaster.suppliers) return;
+      currentMixedBonusManual = {};
+      let totalBonus = 0;
+      partnersMaster.suppliers.forEach(s => {
+        const paidQ = currentMixedCargo[s.id] || 0;
+        const b = calcDefaultBonusQty(paidQ, s);
+        currentMixedBonus[s.id] = b;
+        if (activeMixedSupplierIds && activeMixedSupplierIds.includes(s.id)) {
+          totalBonus += b;
+        }
+      });
+      renderMixedCargoTable();
+      recalculate();
+      showToastNotification(`🎁 Đã tính lại tự động cột Hàng Tặng (KM) cho toàn bộ sản phẩm ghép cont (Tổng tặng: +${totalBonus.toLocaleString('vi-VN')} thùng)!`);
+    }
 
     function setPackingMode(mode) {
       packingMode = mode || 'SINGLE';
@@ -4949,23 +5276,33 @@
           return;
         }
         const qty = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+        if (currentMixedBonus[s.id] === undefined) {
+          currentMixedBonus[s.id] = calcDefaultBonusQty(qty, s);
+        }
+        const bonusQty = currentMixedBonus[s.id] || 0;
+        const totalRowBoxes = qty + bonusQty;
+        const billableBoxes = (promoRevenueMode === 'FOC_PASS') ? qty : totalRowBoxes;
+
         const unitQuoteUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined)
           ? currentMixedPrices[s.id]
           : (s.quoteUsd !== undefined ? s.quoteUsd : 15.80);
         currentMixedPrices[s.id] = unitQuoteUsd;
 
-        const cbm = (qty * (s.cbm || 0)).toFixed(2);
-        const gw = (qty * (s.grossWeight || 7.8) / 1000).toFixed(2);
-        const lineRevUsd = (qty * unitQuoteUsd);
+        const cbm = (totalRowBoxes * (s.cbm || 0)).toFixed(2);
+        const gw = (totalRowBoxes * (s.grossWeight || 7.8) / 1000).toFixed(2);
+        const lineRevUsd = (billableBoxes * unitQuoteUsd);
         const shortName = getProductShortName(s);
         const skuCode = getSupplierSkuCode(s);
         const costUsd = ((s.pricePreVat || 0) / fx).toFixed(2);
         const dimStr = s.dims || (s.dimL && s.dimW && s.dimH ? `${s.dimL}x${s.dimW}x${s.dimH} mm` : 'Đang cập nhật');
         const cbmPerBoxStr = Number(s.cbm || 0).toFixed(4);
         const gwPerBoxStr = Number(s.grossWeight || 7.8).toFixed(2);
+        const promoTag = (s.promoFreeRate && s.promoFreeRate > 0)
+          ? `<span style="display:inline-block; background:rgba(16,185,129,0.14); color:var(--alert-success-text); border:1px solid rgba(16,185,129,0.35); border-radius:2px; padding:0 3px; font-size:8.5px; margin-left:3px;" title="Chế độ khuyến mãi nhà máy: Mua ${s.promoBuyBase || 100} thùng tặng ${s.promoFreeRate} thùng">🎁 KM ${s.promoBuyBase || 100}+${s.promoFreeRate}</span>`
+          : '';
 
         html += `
-          <tr style="border-bottom:1px solid var(--border-subtle); background:${qty > 0 ? 'transparent' : 'rgba(0,0,0,0.015)'};">
+          <tr style="border-bottom:1px solid var(--border-subtle); background:${totalRowBoxes > 0 ? 'transparent' : 'rgba(0,0,0,0.015)'};">
             <td style="padding:4px 4px;">
               <div style="display:flex; align-items:flex-start; gap:4px;">
                 <button type="button" onclick="removeSkuFromMixedSession('${s.id}')" 
@@ -4973,7 +5310,7 @@
                         title="Gỡ sản phẩm [${skuCode}] ${shortName} khỏi phiên ghép cont này">×</button>
                 <div style="overflow:hidden; width:100%;">
                   <div style="font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${s.product} (${s.name})">
-                    <span style="display:inline-block; background:rgba(234,179,8,0.16); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); border-radius:2px; padding:0 3px; font-size:9px; font-family:monospace; margin-right:3px;">${skuCode}</span>${shortName}
+                    <span style="display:inline-block; background:rgba(234,179,8,0.16); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); border-radius:2px; padding:0 3px; font-size:9px; font-family:monospace; margin-right:3px;">${skuCode}</span>${shortName}${promoTag}
                   </div>
                   <!-- Dòng kích thước thùng & trọng lượng phục vụ căn thể tích / tải trọng tối ưu chi phí -->
                   <div style="font-size:9px; font-family:var(--font-mono, monospace); margin-top:2px; line-height:1.3; background:rgba(2,132,199,0.06); border:1px solid rgba(2,132,199,0.22); border-radius:2px; padding:1px 4px; display:inline-block;" title="Kích thước thùng carton DxRxC (mm) · Thể tích m³/thùng · Trọng lượng cả bì GW kg/thùng">
@@ -4990,18 +5327,25 @@
             <td style="padding:3px 2px; text-align:center;">
               <input type="number" class="mixed-cargo-inp" value="${qty}" min="0" step="10" 
                      oninput="onMixedQtyChange('${s.id}', this.value)" 
-                     style="width:58px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-main); border-radius:2px;"
-                     title="Số lượng thùng ${shortName}">
+                     style="width:54px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-main); border-radius:2px;"
+                     title="Số lượng thùng đặt mua ${shortName}">
+            </td>
+            <td style="padding:3px 2px; text-align:center;">
+              <input type="number" id="mixedBonusInp_${s.id}" class="mixed-bonus-inp" value="${bonusQty}" min="0" step="1" 
+                     oninput="onMixedBonusChange('${s.id}', this.value)" 
+                     style="width:50px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--alert-success-text); background:rgba(16,185,129,0.06); color:var(--alert-success-text); border-radius:2px;"
+                     title="Số lượng thùng được tặng khuyến mãi cho ${shortName} (Định mức: Mua ${s.promoBuyBase || 100} tặng ${s.promoFreeRate || 0} — Sửa tay tự do khi biến động)">
             </td>
             <td style="padding:3px 2px; text-align:center;">
               <input type="number" class="mixed-price-inp" value="${Number(unitQuoteUsd).toFixed(2)}" min="0" step="0.1" 
                      oninput="onMixedPriceChange('${s.id}', this.value)" 
-                     style="width:62px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--accent-gold); background:var(--bg-card); color:var(--alert-success-text); border-radius:2px;"
+                     style="width:58px; height:22px; font-size:11px; font-weight:bold; text-align:center; border:1px solid var(--accent-gold); background:var(--bg-card); color:var(--alert-success-text); border-radius:2px;"
                      title="Đơn giá chào bán USD/thùng riêng cho ${shortName} (Giá gốc: $${costUsd})">
             </td>
             <td style="padding:3px 4px; text-align:right; font-family:var(--font-mono, monospace); font-size:9.5px;">
               <div style="font-weight:bold; color:var(--text-main); font-size:10.5px;" id="mixedRev_${s.id}">$${lineRevUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-              <div style="color:var(--text-muted); font-size:9px;">
+              <div style="color:var(--accent-gold); font-size:8.5px; font-weight:bold;" id="mixedShip_${s.id}">Xếp: ${totalRowBoxes.toLocaleString('vi-VN')}th</div>
+              <div style="color:var(--text-muted); font-size:8.5px;">
                 <span id="mixedCbm_${s.id}">${cbm}</span>m³ · <span id="mixedGw_${s.id}" style="font-weight:bold;">${gw}</span>T
               </div>
             </td>
@@ -5010,7 +5354,7 @@
       });
 
       if (!html) {
-        html = `<tr><td colspan="4" style="padding:10px; text-align:center; color:var(--text-dim); font-style:italic;">Chưa có sản phẩm nào trong cont. Hãy chọn thêm ở thanh bên dưới hoặc bấm [↺ Khôi Phục 5 SP].</td></tr>`;
+        html = `<tr><td colspan="5" style="padding:10px; text-align:center; color:var(--text-dim); font-style:italic;">Chưa có sản phẩm nào trong cont. Hãy chọn thêm ở thanh bên dưới hoặc bấm [↺ Khôi Phục 5 SP].</td></tr>`;
       }
       tbody.innerHTML = html;
 
@@ -5038,7 +5382,8 @@
             const dText = rs.dims || (rs.dimL && rs.dimW && rs.dimH ? `${rs.dimL}x${rs.dimW}x${rs.dimH} mm` : '');
             const cbmText = Number(rs.cbm || 0).toFixed(4) + ' m³';
             const gwText = (rs.grossWeight || 7.8) + ' kg';
-            return `<option value="${rs.id}">[${code}] ${sName} (${dText} · ${cbmText} · ${gwText} | Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
+            const kmText = (rs.promoFreeRate && rs.promoFreeRate > 0) ? ` · KM ${rs.promoBuyBase || 100}+${rs.promoFreeRate}` : '';
+            return `<option value="${rs.id}">[${code}] ${sName} (${dText} · ${cbmText} · ${gwText}${kmText} | Bán: $${(currentMixedPrices[rs.id] || rs.quoteUsd || 15.80).toFixed(2)})</option>`;
           }).join('');
         } else {
           restoreBar.style.display = 'none';
@@ -5054,14 +5399,26 @@
       currentMixedCargo[supId] = q;
 
       const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      if (sup && !currentMixedBonusManual[supId]) {
+        currentMixedBonus[supId] = calcDefaultBonusQty(q, sup);
+        const bonusInp = document.getElementById(`mixedBonusInp_${supId}`);
+        if (bonusInp && document.activeElement !== bonusInp) {
+          bonusInp.value = currentMixedBonus[supId];
+        }
+      }
+      const bonusQty = currentMixedBonus[supId] || 0;
+      const totalBoxes = q + bonusQty;
+      const billableBoxes = (promoRevenueMode === 'FOC_PASS') ? q : totalBoxes;
       const unitPrice = (currentMixedPrices && currentMixedPrices[supId] !== undefined) ? currentMixedPrices[supId] : (sup ? (sup.quoteUsd || 15.80) : 15.80);
       if (sup) {
         const cbmEl = document.getElementById(`mixedCbm_${supId}`);
         const gwEl = document.getElementById(`mixedGw_${supId}`);
         const revEl = document.getElementById(`mixedRev_${supId}`);
-        if (cbmEl) cbmEl.innerText = (q * (sup.cbm || 0)).toFixed(2);
-        if (gwEl) gwEl.innerText = (q * (sup.grossWeight || 7.8) / 1000).toFixed(2);
-        if (revEl) revEl.innerText = '$' + (q * unitPrice).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        const shipEl = document.getElementById(`mixedShip_${supId}`);
+        if (cbmEl) cbmEl.innerText = (totalBoxes * (sup.cbm || 0)).toFixed(2);
+        if (gwEl) gwEl.innerText = (totalBoxes * (sup.grossWeight || 7.8) / 1000).toFixed(2);
+        if (revEl) revEl.innerText = '$' + (billableBoxes * unitPrice).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        if (shipEl) shipEl.innerText = `Xếp: ${totalBoxes.toLocaleString('vi-VN')}th`;
       }
       recalculate();
     }
@@ -5077,9 +5434,11 @@
         sup.quoteUsd = p;
       }
       const q = currentMixedCargo[supId] || 0;
+      const bonusQty = currentMixedBonus[supId] || 0;
+      const billableBoxes = (promoRevenueMode === 'FOC_PASS') ? q : (q + bonusQty);
       const revEl = document.getElementById(`mixedRev_${supId}`);
       if (revEl) {
-        revEl.innerText = '$' + (q * p).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        revEl.innerText = '$' + (billableBoxes * p).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
       }
       recalculate();
     }
@@ -5090,6 +5449,8 @@
       }
       activeMixedSupplierIds = activeMixedSupplierIds.filter(id => id !== supId);
       currentMixedCargo[supId] = 0;
+      currentMixedBonus[supId] = 0;
+      delete currentMixedBonusManual[supId];
       const sup = partnersMaster.suppliers.find(s => s.id === supId);
       const code = getSupplierSkuCode(sup);
       const name = sup ? getProductShortName(sup) : supId;
@@ -5105,20 +5466,23 @@
       if (!activeMixedSupplierIds.includes(supId)) {
         activeMixedSupplierIds.push(supId);
       }
+      const sup = partnersMaster.suppliers.find(s => s.id === supId);
       if (!currentMixedCargo[supId] || currentMixedCargo[supId] <= 0) {
         currentMixedCargo[supId] = 200; // Mặc định nạp 200 thùng để dễ thao tác
       }
-      const sup = partnersMaster.suppliers.find(s => s.id === supId);
+      currentMixedBonus[supId] = calcDefaultBonusQty(currentMixedCargo[supId], sup);
+      delete currentMixedBonusManual[supId];
       const code = getSupplierSkuCode(sup);
       const name = sup ? getProductShortName(sup) : supId;
       renderMixedCargoTable();
       recalculate();
-      showToastNotification(`➕ Đã đưa [${code}] ${name} (+${currentMixedCargo[supId]} thùng) vào phiên ghép cont!`);
+      showToastNotification(`➕ Đã đưa [${code}] ${name} (Mua ${currentMixedCargo[supId]} + 🎁 Tặng ${currentMixedBonus[supId]} thùng) vào phiên ghép cont!`);
     }
 
     function restoreDefaultMixedCargo() {
       if (!partnersMaster || !partnersMaster.suppliers) return;
       activeMixedSupplierIds = partnersMaster.suppliers.map(s => s.id);
+      currentMixedBonusManual = {};
       const defMap = {
         SUP_THIEN_LONG: 400,
         SUP_LOI_DAT_MY_DEO_CAY: 800,
@@ -5128,23 +5492,26 @@
       };
       partnersMaster.suppliers.forEach(s => {
         currentMixedCargo[s.id] = defMap[s.id] !== undefined ? defMap[s.id] : 200;
+        currentMixedBonus[s.id] = calcDefaultBonusQty(currentMixedCargo[s.id], s);
         if (currentMixedPrices[s.id] === undefined) {
           currentMixedPrices[s.id] = s.quoteUsd || 15.80;
         }
       });
       renderMixedCargoTable();
       recalculate();
-      showToastNotification("↺ Đã khôi phục đầy đủ danh sách sản phẩm ghép cont chuẩn SSOT!");
+      showToastNotification("↺ Đã khôi phục đầy đủ danh sách sản phẩm ghép cont & chế độ KM chuẩn SSOT!");
     }
 
     function resetMixedCargo() {
       if (!partnersMaster || !partnersMaster.suppliers) return;
+      currentMixedBonusManual = {};
       partnersMaster.suppliers.forEach(s => {
         currentMixedCargo[s.id] = 0;
+        currentMixedBonus[s.id] = 0;
       });
       renderMixedCargoTable();
       recalculate();
-      showToastNotification("↺ Đã đưa số lượng thùng hàng ghép về 0!");
+      showToastNotification("↺ Đã đưa số lượng thùng mua & thùng tặng hàng ghép về 0!");
     }
 
     function applyProposedMarginPrices(marginRate) {
@@ -5164,8 +5531,8 @@
         const fx = (d.fxRate && d.fxRate > 0) ? d.fxRate : 25790;
 
         d.mixedSkuItems.forEach(item => {
-          const cogsItemVnd = item.pricePreVat || 0;
-          const totalCostItemVnd = cogsItemVnd + logPerBoxVnd;
+          const effCogsItemVnd = item.effectiveCogsPerBoxVnd !== undefined ? item.effectiveCogsPerBoxVnd : (item.pricePreVat || 0);
+          const totalCostItemVnd = effCogsItemVnd + logPerBoxVnd;
           const proposedP = +((totalCostItemVnd / (1 - m)) / fx).toFixed(2);
           currentMixedPrices[item.id] = proposedP;
           const sup = partnersMaster.suppliers.find(s => s.id === item.id);
@@ -5174,10 +5541,11 @@
 
         renderMixedCargoTable();
         recalculate();
-        showToastNotification(`✨ Đã áp dụng bộ giá đề xuất cho ${d.mixedSkuItems.length} sản phẩm (Biên mục tiêu ${(m * 100).toFixed(0)}%)!`);
+        showToastNotification(`★ Đã áp dụng bộ giá đề xuất cho ${d.mixedSkuItems.length} sản phẩm (Biên mục tiêu ${(m * 100).toFixed(0)}%)!`);
       } else {
+        const billableQ = (d.billableQty && d.billableQty > 0) ? d.billableQty : (d.qty || 1);
         const reqRevVnd = d.totalCostVnd / (1 - m);
-        const reqPriceUsd = +((reqRevVnd / (d.qty || 1)) / (d.fxRate || 25790)).toFixed(2);
+        const reqPriceUsd = +((reqRevVnd / billableQ) / (d.fxRate || 25790)).toFixed(2);
         applyProposedSinglePrice(reqPriceUsd, m);
       }
     }
@@ -5190,7 +5558,7 @@
         qEl.value = p.toFixed(2);
         recalculate();
         const mText = (marginRate !== undefined) ? ` (Biên mục tiêu ${(marginRate * 100).toFixed(0)}%)` : '';
-        showToastNotification(`✨ Đã áp dụng đơn giá chào bán $${p.toFixed(2)} USD/thùng${mText}!`);
+        showToastNotification(`★ Đã áp dụng đơn giá chào bán $${p.toFixed(2)} USD/thùng${mText}!`);
       }
     }
 
@@ -5223,6 +5591,7 @@
       const codeEl = document.getElementById('qaSkuCode');
       const costEl = document.getElementById('qaSkuCostVnd');
       const quoteEl = document.getElementById('qaSkuQuoteUsd');
+      const promoFreeEl = document.getElementById('qaSkuPromoFree');
       const supEl = document.getElementById('qaSkuSupplier');
       const qtyEl = document.getElementById('qaSkuInitQty');
       const cbmEl = document.getElementById('qaSkuCbm');
@@ -5235,8 +5604,10 @@
         return;
       }
       const skuCode = (codeEl && codeEl.value.trim()) ? codeEl.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : getSupplierSkuCode({ product: prodName });
-      const pricePreVat = Math.max(0, parseFloat(costEl ? costEl.value : 337000) || 337000);
+      const pricePreVat = Math.max(0, parseFloat(costEl ? costEl.value : 333333) || 333333);
+      const priceIncVat = Math.round(pricePreVat * 1.08 * 100) / 100;
       const quoteUsd = Math.max(0, parseFloat(quoteEl ? quoteEl.value : 15.80) || 15.80);
+      const promoFreeRate = Math.max(0, parseFloat(promoFreeEl ? promoFreeEl.value : 0) || 0);
       const supName = (supEl && supEl.value.trim()) ? supEl.value.trim() : 'Nhà Cung Cấp Mới';
       const initQty = Math.max(0, parseInt(qtyEl ? qtyEl.value : 200) || 200);
       const cbm = Math.max(0.001, parseFloat(cbmEl ? cbmEl.value : 0.072) || 0.072);
@@ -5255,9 +5626,13 @@
         name: supName,
         taxId: "[MÔ PHỎNG]",
         product: prodName.startsWith('Snack') ? prodName : `Snack ${prodName}`,
+        priceIncVat: priceIncVat,
         pricePreVat: pricePreVat,
         quoteUsd: quoteUsd,
         vatRate: 0.08,
+        promoBuyBase: 100,
+        promoFreeRate: promoFreeRate,
+        promoNote: promoFreeRate > 0 ? `Mua 100 thùng km ${promoFreeRate} thùng` : 'Chưa áp dụng KM',
         spec: `Quy cách chuẩn (~${gw}kg)`,
         dimL: 500, dimW: 400, dimH: 360,
         cbm: cbm,
@@ -5269,6 +5644,7 @@
 
       partnersMaster.suppliers.push(newSup);
       currentMixedCargo[newId] = initQty;
+      currentMixedBonus[newId] = calcDefaultBonusQty(initQty, newSup);
       currentMixedPrices[newId] = quoteUsd;
       if (!activeMixedSupplierIds.includes(newId)) {
         activeMixedSupplierIds.push(newId);
@@ -5284,7 +5660,7 @@
       const box = document.getElementById('quickAddSkuBox');
       if (box) box.style.display = 'none';
 
-      showToastNotification(`✨ Đã tạo & thêm sản phẩm [${skuCode}] ${newSup.product} (${initQty} thùng · Giá bán $${quoteUsd.toFixed(2)}) vào phiên mô phỏng!`);
+      showToastNotification(`★ Đã tạo & thêm sản phẩm [${skuCode}] ${newSup.product} (Mua ${initQty} + 🎁 Tặng ${currentMixedBonus[newId]} th · Giá bán $${quoteUsd.toFixed(2)}) vào phiên mô phỏng!`);
     }
 
     function applyRecommendFill(supId, addQty) {
@@ -5297,7 +5673,15 @@
       if (packingMode === 'SINGLE') {
         if (supId === curSingleSupId) {
           const boxEl = document.getElementById('boxQty');
-          if (boxEl) boxEl.value = (parseInt(boxEl.value) || 0) + addQty;
+          if (boxEl) {
+            const newPaid = (parseInt(boxEl.value) || 0) + addQty;
+            boxEl.value = newPaid;
+            if (!singleBonusManualOverride) {
+              currentSingleBonusQty = calcDefaultBonusQty(newPaid, sup);
+              const bonusInp = document.getElementById('singleBonusQty');
+              if (bonusInp) bonusInp.value = currentSingleBonusQty;
+            }
+          }
           recalculate();
           showToastNotification(`💡 Đã nhồi thêm +${addQty} thùng [${skuCode}] ${name} vào xe!`);
           return;
@@ -5306,9 +5690,16 @@
           const curSingleQty = boxEl ? (parseInt(boxEl.value) || 0) : 0;
           activeMixedSupplierIds = [curSingleSupId, supId];
           partnersMaster.suppliers.forEach(s => {
-            if (s.id === curSingleSupId) currentMixedCargo[s.id] = curSingleQty;
-            else if (s.id === supId) currentMixedCargo[s.id] = addQty;
-            else currentMixedCargo[s.id] = 0;
+            if (s.id === curSingleSupId) {
+              currentMixedCargo[s.id] = curSingleQty;
+              currentMixedBonus[s.id] = currentSingleBonusQty || calcDefaultBonusQty(curSingleQty, s);
+            } else if (s.id === supId) {
+              currentMixedCargo[s.id] = addQty;
+              currentMixedBonus[s.id] = calcDefaultBonusQty(addQty, s);
+            } else {
+              currentMixedCargo[s.id] = 0;
+              currentMixedBonus[s.id] = 0;
+            }
           });
           setPackingMode('MIXED');
           showToastNotification(`💡 Đã chuyển sang Ghép Cont và nhồi thêm +${addQty} thùng [${skuCode}] ${name}!`);
@@ -5319,6 +5710,9 @@
         activeMixedSupplierIds.push(supId);
       }
       currentMixedCargo[supId] = (currentMixedCargo[supId] || 0) + addQty;
+      if (!currentMixedBonusManual[supId]) {
+        currentMixedBonus[supId] = calcDefaultBonusQty(currentMixedCargo[supId], sup);
+      }
       renderMixedCargoTable();
       recalculate();
       showToastNotification(`💡 Đã nhồi thêm +${addQty} thùng [${skuCode}] ${name} vào xe!`);
@@ -5735,10 +6129,11 @@
         const sku = getSupplierSkuCode(s);
         const qUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd || 15.80);
         const c45Text = s.cont45Qty ? ` | Cont45: ${s.cont45Qty.toLocaleString('vi-VN')} th` : '';
+        const kmText = (s.promoFreeRate && s.promoFreeRate > 0) ? ` | 🎁 KM ${s.promoBuyBase || 100}+${s.promoFreeRate}` : '';
         const priceInfo = s.priceIncVat
           ? `Đã VAT: ${formatExactProductPriceVnd(s.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(s.pricePreVat)}đ)`
           : `Gốc: ${formatExactProductPriceVnd(s.pricePreVat)}đ`;
-        opt.innerText = `[${sku}] ${s.product} — ${priceInfo} | Bán: $${Number(qUsd).toFixed(2)}${c45Text}`;
+        opt.innerText = `[${sku}] ${s.product} — ${priceInfo}${kmText} | Bán: $${Number(qUsd).toFixed(2)}${c45Text}`;
         supSelect.appendChild(opt);
       });
       if (curSup && [...supSelect.options].some(o => o.value === curSup)) {
@@ -5893,6 +6288,23 @@
       document.getElementById('printCommodity').innerText = `[${skuCode}] ${sup.product}`;
       document.getElementById('printItemTitle').innerText = `[${skuCode}] ${sup.product}`;
 
+      // Đồng bộ thông số Chế độ Hàng Tặng (KM) của sản phẩm đang chọn lên khung #singlePromoBox
+      const promoBaseInp = document.getElementById('singlePromoBuyBase');
+      const promoFreeInp = document.getElementById('singlePromoFreeRate');
+      const badgePromoPol = document.getElementById('badgeSinglePromoPolicy');
+      const infoPromoPol = document.getElementById('infoPromoPolicy');
+      const buyBaseVal = sup.promoBuyBase || 100;
+      const freeRateVal = sup.promoFreeRate !== undefined ? sup.promoFreeRate : 0;
+
+      if (promoBaseInp) promoBaseInp.value = buyBaseVal;
+      if (promoFreeInp) promoFreeInp.value = freeRateVal;
+      if (badgePromoPol) {
+        badgePromoPol.innerText = freeRateVal > 0 ? `Mua ${buyBaseVal} tặng ${freeRateVal}` : `Mua ${buyBaseVal} tặng 0 (Tùy chỉnh)`;
+      }
+      if (infoPromoPol) {
+        infoPromoPol.innerText = getPromoPolicyText(sup);
+      }
+
       // Tự động nạp Giá chào bán USD riêng của sản phẩm khi người dùng chuyển đổi sản phẩm trên buồng lái
       if (!keepCurrentQuote && packingMode === 'SINGLE') {
         const prodQuote = (currentMixedPrices && currentMixedPrices[sup.id] !== undefined)
@@ -5907,7 +6319,7 @@
       // Cập nhật nhãn sức chứa các loại xe theo sản phẩm đang chọn
       updateVehicleSelectLabels(sup);
 
-      // Tự động cập nhật số lượng thùng xuất khẩu theo sản phẩm và loại xe đang chọn (chỉ khi ở chế độ Single)
+      // Tự động cập nhật số lượng thùng xuất khẩu và số thùng tặng theo sản phẩm và loại xe đang chọn (chỉ khi ở chế độ Single)
       if (packingMode !== 'MIXED') {
         const v = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
         const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
@@ -5919,6 +6331,15 @@
         const boxInput = document.getElementById('boxQty');
         if (boxInput) {
           boxInput.value = baseCap * tripCount;
+        }
+        if (!keepCurrentQuote) {
+          singleBonusManualOverride = false;
+        }
+        if (!singleBonusManualOverride) {
+          const paidQ = boxInput ? (parseInt(boxInput.value) || 0) : (baseCap * tripCount);
+          currentSingleBonusQty = calcDefaultBonusQty(paidQ, sup);
+          const bonusInp = document.getElementById('singleBonusQty');
+          if (bonusInp) bonusInp.value = currentSingleBonusQty;
         }
       }
 
@@ -6050,6 +6471,8 @@
       partnersMaster.suppliers.forEach((s, idx) => {
         const sku = getSupplierSkuCode(s);
         const qUsd = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd !== undefined ? s.quoteUsd : 15.80);
+        const promoBase = s.promoBuyBase || 100;
+        const promoFree = s.promoFreeRate !== undefined ? s.promoFreeRate : 0;
         supBody.innerHTML += `
           <tr id="sup_row_${idx}">
             <td><input type="text" class="form-control inp-sup-name" style="font-size:12px; padding:3px 6px;" value="${s.name}"></td>
@@ -6058,6 +6481,14 @@
             <td class="text-center"><input type="text" class="form-control text-center font-bold inp-sup-sku" maxlength="6" style="font-size:12px; padding:3px 4px; width:65px; text-transform:uppercase; color:var(--accent-gold); margin:0 auto;" value="${sku}"></td>
             <td><input type="number" step="0.01" class="form-control text-right font-bold inp-sup-price-vat" oninput="onSupVatPriceInput(${idx})" style="font-size:12px; padding:3px 6px; color:var(--alert-success-text);" value="${s.priceIncVat !== undefined ? s.priceIncVat : ''}"></td>
             <td><input type="number" step="0.01" class="form-control text-right inp-sup-price" oninput="onSupPreVatPriceInput(${idx})" style="font-size:12px; padding:3px 6px;" value="${s.pricePreVat}"></td>
+            <td class="text-center" style="padding:3px 4px;">
+              <div style="display:flex; align-items:center; justify-content:center; gap:3px; font-size:11px;">
+                <span style="color:var(--text-muted);">Mua</span>
+                <input type="number" class="form-control text-center font-bold inp-sup-promo-base" min="1" step="10" style="width:52px; font-size:11.5px; padding:2px 3px;" value="${promoBase}" title="Số thùng mua định mức (VD: 100 thùng)">
+                <span style="color:var(--alert-success-text); font-weight:bold;">+</span>
+                <input type="number" class="form-control text-center font-bold inp-sup-promo-free" min="0" step="1" style="width:45px; font-size:11.5px; padding:2px 3px; color:var(--alert-success-text); border-color:var(--alert-success-text);" value="${promoFree}" title="Số thùng được tặng khuyến mãi (VD: 8, 3, 2, 0)">
+              </div>
+            </td>
             <td><input type="number" class="form-control text-right font-bold inp-sup-quote" step="0.1" style="font-size:12px; padding:3px 6px; color:var(--alert-success-text);" value="${Number(qUsd).toFixed(2)}"></td>
             <td class="text-center"><input type="number" class="form-control text-center inp-sup-vat" oninput="onSupVatRateChange(${idx})" style="font-size:12px; padding:3px 6px; width:55px; display:inline-block;" value="${(s.vatRate*100).toFixed(0)}">%</td>
             <td class="text-center" style="font-size:11px; padding:3px 6px;">
@@ -6168,19 +6599,29 @@
         } else if (pricePreVat && priceIncVat === undefined) {
           priceIncVat = Math.round(pricePreVat * (1 + vatRate) * 100) / 100;
         }
+        const promoBaseInp = row.querySelector('.inp-sup-promo-base');
+        const promoFreeInp = row.querySelector('.inp-sup-promo-free');
+        const promoBuyBase = Math.max(1, parseInt(promoBaseInp ? promoBaseInp.value : 100) || 100);
+        const promoFreeRate = Math.max(0, parseFloat(promoFreeInp ? promoFreeInp.value : 0) || 0);
+        const promoNote = promoFreeRate > 0 ? `Mua ${promoBuyBase} thùng km ${promoFreeRate} thùng` : 'Chưa áp dụng KM';
+
         const quoteInp = row.querySelector('.inp-sup-quote');
         const quoteUsd = quoteInp ? (parseFloat(quoteInp.value) || 15.80) : (partnersMaster.suppliers[idx].quoteUsd || 15.80);
 
         partnersMaster.suppliers[idx] = Object.assign(partnersMaster.suppliers[idx], {
-          name, taxId, product, skuCode, priceIncVat, pricePreVat, quoteUsd, vatRate
+          name, taxId, product, skuCode, priceIncVat, pricePreVat, promoBuyBase, promoFreeRate, promoNote, quoteUsd, vatRate
         });
-        currentMixedPrices[partnersMaster.suppliers[idx].id] = quoteUsd;
+        const supId = partnersMaster.suppliers[idx].id;
+        currentMixedPrices[supId] = quoteUsd;
+        if (!currentMixedBonusManual[supId]) {
+          currentMixedBonus[supId] = calcDefaultBonusQty(currentMixedCargo[supId] || 0, partnersMaster.suppliers[idx]);
+        }
 
         savePartnersToStorage();
         renderArea2Dropdowns();
         renderMixedCargoTable();
         const curSupId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
-        if (packingMode === 'SINGLE' && curSupId === partnersMaster.suppliers[idx].id) {
+        if (packingMode === 'SINGLE' && curSupId === supId) {
           const qEl = document.getElementById('quotePrice');
           if (qEl) qEl.value = Number(quoteUsd).toFixed(2);
         }
@@ -6189,7 +6630,8 @@
 
         highlightRowSuccess(row);
         const vatDisp = priceIncVat ? `Đã VAT: ${formatExactProductPriceVnd(priceIncVat)}đ | ` : '';
-        showToastNotification(`✅ Đã lưu & đồng bộ sản phẩm [${skuCode}] ${product}: ${vatDisp}Chưa VAT: ${formatExactProductPriceVnd(pricePreVat)}đ | Giá bán $${quoteUsd.toFixed(2)}!`);
+        const kmDisp = promoFreeRate > 0 ? ` | KM: Mua ${promoBuyBase}+${promoFreeRate}` : '';
+        showToastNotification(`✅ Đã lưu & đồng bộ sản phẩm [${skuCode}] ${product}: ${vatDisp}Chưa VAT: ${formatExactProductPriceVnd(pricePreVat)}đ${kmDisp} | Giá bán $${quoteUsd.toFixed(2)}!`);
       }, "Lưu và cập nhật biểu phí Nhà cung cấp");
     }
 
@@ -6284,8 +6726,11 @@
         name: "Nhà Cung Cấp Mới",
         taxId: "0100000000",
         product: "Snack Sản Phẩm Mới",
-        priceIncVat: 363960.00,
-        pricePreVat: 337000.00,
+        priceIncVat: 359999.64,
+        pricePreVat: 333333.00,
+        promoBuyBase: 100,
+        promoFreeRate: 0,
+        promoNote: "Chưa áp dụng KM",
         quoteUsd: 15.80,
         vatRate: 0.08,
         spec: "Quy cách chuẩn (~8.0kg)",
@@ -6298,6 +6743,7 @@
         howoQty: 1300
       });
       currentMixedCargo[newId] = 0;
+      currentMixedBonus[newId] = 0;
       currentMixedPrices[newId] = 15.80;
       if (Array.isArray(activeMixedSupplierIds) && !activeMixedSupplierIds.includes(newId)) {
         activeMixedSupplierIds.push(newId);
@@ -6314,6 +6760,8 @@
       partnersMaster.suppliers.splice(idx, 1);
       if (removed && removed.id) {
         delete currentMixedCargo[removed.id];
+        delete currentMixedBonus[removed.id];
+        delete currentMixedBonusManual[removed.id];
         delete currentMixedPrices[removed.id];
         if (Array.isArray(activeMixedSupplierIds)) {
           activeMixedSupplierIds = activeMixedSupplierIds.filter(id => id !== removed.id);
@@ -6408,6 +6856,14 @@
               s.pricePreVat = parseFloat(pricePreInp.value) || 0;
             } else if (s.priceIncVat !== undefined) {
               s.pricePreVat = Math.round((s.priceIncVat / (1 + s.vatRate)) * 100) / 100;
+            }
+            const promoBaseInp = row.querySelector('.inp-sup-promo-base');
+            const promoFreeInp = row.querySelector('.inp-sup-promo-free');
+            s.promoBuyBase = Math.max(1, parseInt(promoBaseInp ? promoBaseInp.value : 100) || 100);
+            s.promoFreeRate = Math.max(0, parseFloat(promoFreeInp ? promoFreeInp.value : 0) || 0);
+            s.promoNote = s.promoFreeRate > 0 ? `Mua ${s.promoBuyBase} thùng km ${s.promoFreeRate} thùng` : 'Chưa áp dụng KM';
+            if (!currentMixedBonusManual[s.id]) {
+              currentMixedBonus[s.id] = calcDefaultBonusQty(currentMixedCargo[s.id] || 0, s);
             }
             const quoteInp = row.querySelector('.inp-sup-quote');
             if (quoteInp) {
@@ -6975,7 +7431,13 @@
         if (demHowoGroup) demHowoGroup.style.display = 'none';
       }
       if (packingMode !== 'MIXED') {
-        boxInput.value = baseCap * tripCount;
+        const newPaidQty = baseCap * tripCount;
+        boxInput.value = newPaidQty;
+        if (!singleBonusManualOverride) {
+          currentSingleBonusQty = calcDefaultBonusQty(newPaidQty, curSup);
+          const bonusEl = document.getElementById('singleBonusQty');
+          if (bonusEl) bonusEl.value = currentSingleBonusQty;
+        }
       }
 
       const baTrucks = document.getElementById('binhAnTransitTrucks');
@@ -6996,7 +7458,13 @@
 
       const tripCount = parseInt(document.getElementById('tripCount').value) || 1;
       if (packingMode !== 'MIXED') {
-        document.getElementById('boxQty').value = baseCap * tripCount;
+        const newPaidQty = baseCap * tripCount;
+        document.getElementById('boxQty').value = newPaidQty;
+        if (!singleBonusManualOverride) {
+          currentSingleBonusQty = calcDefaultBonusQty(newPaidQty, curSup);
+          const bonusEl = document.getElementById('singleBonusQty');
+          if (bonusEl) bonusEl.value = currentSingleBonusQty;
+        }
       }
 
       const baTrucks = document.getElementById('binhAnTransitTrucks');
@@ -7047,7 +7515,7 @@
       return 0.0785;
     }
 
-    // MAIN RECALCULATION ENGINE (TÍNH TOÁN LÃI SAU THUẾ TNDN 20% VÀ ĐA NHIỆM ĐẠI LÝ)
+    // MAIN RECALCULATION ENGINE (TÍNH TOÁN LÃI SAU THUẾ TNDN 20% VÀ ĐA NHIỆM ĐẠI LÝ + HÀNG TẶNG KHUYẾN MÃI)
     let _isRecalculating = false;
     function recalculate() {
       if (_isRecalculating) return;
@@ -7099,8 +7567,11 @@
         const transRoute = transRouteEl ? transRouteEl.value : 'ROUTE_SAVANNAKHET';
         const dossierRoute = dossierRouteEl ? dossierRouteEl.value : 'DOSSIER_FULL_SAVANNAKHET';
 
-        // 1. TÍNH TOÁN THEO HÌNH THỨC ĐÓNG HÀNG (SINGLE VS MIXED CARGO) & GIÁ BÁN RIÊNG TỪNG SẢN PHẨM
-        let totalMixedQty = 0;
+        // 1. TÍNH TOÁN THEO HÌNH THỨC ĐÓNG HÀNG (SINGLE VS MIXED CARGO), HÀNG TẶNG KM & GIÁ BÁN RIÊNG TỪNG SẢN PHẨM
+        let totalMixedPaidQty = 0;
+        let totalMixedBonusQty = 0;
+        let totalMixedQty = 0; // Tổng thực xếp lên xe (Paid + Bonus)
+        let totalMixedBillableQty = 0; // Tổng thùng tính doanh thu bán cho khách
         let totalMixedCbm = 0;
         let totalMixedGw = 0; // kg
         let totalMixedNw = 0; // kg
@@ -7117,28 +7588,47 @@
           sortedSuppliers.forEach(s => {
             if (!activeMixedSupplierIds.includes(s.id)) return;
             const q = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
+            let bonusQ = 0;
+            if (currentMixedBonusManual && currentMixedBonusManual[s.id]) {
+              bonusQ = Math.max(0, parseInt(currentMixedBonus[s.id]) || 0);
+            } else if (currentMixedBonus && currentMixedBonus[s.id] !== undefined) {
+              bonusQ = Math.max(0, parseInt(currentMixedBonus[s.id]) || 0);
+            } else {
+              bonusQ = calcDefaultBonusQty(q, s);
+              currentMixedBonus[s.id] = bonusQ;
+            }
+            const totalRowBoxes = q + bonusQ;
+            const billableRowBoxes = (promoRevenueMode === 'FOC_PASS') ? q : totalRowBoxes;
             const unitP = (currentMixedPrices && currentMixedPrices[s.id] !== undefined) ? currentMixedPrices[s.id] : (s.quoteUsd || 15.80);
             const itCbm = getProductCbm(s);
             const itGw = getProductGrossWeight(s);
             const itNw = getProductNetWeight(s);
-            totalMixedQty += q;
-            totalMixedCbm += q * itCbm;
-            totalMixedGw += q * itGw;
-            totalMixedNw += q * itNw;
+            totalMixedPaidQty += q;
+            totalMixedBonusQty += bonusQ;
+            totalMixedQty += totalRowBoxes;
+            totalMixedBillableQty += billableRowBoxes;
+            totalMixedCbm += totalRowBoxes * itCbm;
+            totalMixedGw += totalRowBoxes * itGw;
+            totalMixedNw += totalRowBoxes * itNw;
             mixedCogs += q * (s.pricePreVat || 0);
             mixedVat += q * (s.pricePreVat || 0) * (s.vatRate || 0.08);
-            mixedRevenueUsd += q * unitP;
-            if (q > 0) {
+            mixedRevenueUsd += billableRowBoxes * unitP;
+            if (totalRowBoxes > 0) {
               const skuCode = getSupplierSkuCode(s);
+              const effectiveCogsPerBoxVnd = totalRowBoxes > 0 ? ((q * (s.pricePreVat || 0)) / totalRowBoxes) : (s.pricePreVat || 0);
               mixedSkuItems.push({
                 id: s.id,
                 skuCode,
                 product: s.product,
                 shortName: getProductShortName(s),
-                qty: q,
+                paidQty: q,
+                bonusQty: bonusQ,
+                qty: totalRowBoxes,
+                billableQty: billableRowBoxes,
                 unitP,
                 pricePreVat: s.pricePreVat || 0,
-                revUsd: q * unitP,
+                effectiveCogsPerBoxVnd,
+                revUsd: billableRowBoxes * unitP,
                 cogsVnd: q * (s.pricePreVat || 0),
                 dims: s.dims || (s.dimL && s.dimW && s.dimH ? `${s.dimL}x${s.dimW}x${s.dimH} mm` : '585x270x497 mm'),
                 cbm: itCbm,
@@ -7148,7 +7638,9 @@
                 hsCode: s.hsCode || '1905.90.80',
                 supplierName: s.name || '',
                 taxId: s.taxId || '',
-                vatRate: (s.vatRate !== undefined) ? s.vatRate : 0.08
+                vatRate: (s.vatRate !== undefined) ? s.vatRate : 0.08,
+                promoBuyBase: Number(s.promoBuyBase) > 0 ? Number(s.promoBuyBase) : 100,
+                promoFreeRate: Number(s.promoFreeRate) >= 0 ? Number(s.promoFreeRate) : 0
               });
             }
           });
@@ -7157,40 +7649,107 @@
         // Cập nhật thanh tổng hợp trong bảng Ghép Cont
         const lblMixSum = document.getElementById('lblMixedTotalSummary');
         if (lblMixSum) {
-          lblMixSum.innerText = `${totalMixedQty.toLocaleString('vi-VN')} thùng · ${totalMixedCbm.toFixed(1)} m³ · ${(totalMixedGw / 1000).toFixed(2)} T`;
+          if (totalMixedBonusQty > 0) {
+            lblMixSum.innerText = `Mua ${totalMixedPaidQty.toLocaleString('vi-VN')} + 🎁${totalMixedBonusQty.toLocaleString('vi-VN')} = ${totalMixedQty.toLocaleString('vi-VN')} th · ${totalMixedCbm.toFixed(1)} m³ · ${(totalMixedGw / 1000).toFixed(2)} T`;
+          } else {
+            lblMixSum.innerText = `${totalMixedQty.toLocaleString('vi-VN')} thùng · ${totalMixedCbm.toFixed(1)} m³ · ${(totalMixedGw / 1000).toFixed(2)} T`;
+          }
         }
         const lblMixRev = document.getElementById('lblMixedRevSummary');
         if (lblMixRev) {
           lblMixRev.innerText = `G.Vốn: ${(mixedCogs / 1e6).toFixed(1)}M | DT: $${mixedRevenueUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
         }
 
-        let qty = 1300;
+        let paidQty = 1300;
+        let bonusQty = 0;
+        let qty = 1300; // Tổng thùng thực xếp lên xe (Paid + Bonus)
+        let billableQty = 1300; // Số thùng tính tiền bán cho khách ngoại
         let defaultCogs = 0;
         let vatRefund = 0;
         let totalCbm = 0;
         let totalGw = 0; // Tấn
 
         if (packingMode === 'MIXED') {
+          paidQty = totalMixedPaidQty;
+          bonusQty = totalMixedBonusQty;
           qty = totalMixedQty;
-          if (boxQtyEl) boxQtyEl.value = totalMixedQty;
+          billableQty = totalMixedBillableQty > 0 ? totalMixedBillableQty : totalMixedQty;
+          if (boxQtyEl) boxQtyEl.value = totalMixedPaidQty;
           defaultCogs = mixedCogs;
           vatRefund = mixedVat;
           totalCbm = totalMixedCbm;
           totalGw = totalMixedGw / 1000;
-          const weightedQuotePrice = totalMixedQty > 0 ? (mixedRevenueUsd / totalMixedQty) : quotePrice;
+          const weightedQuotePrice = billableQty > 0 ? (mixedRevenueUsd / billableQty) : quotePrice;
           quotePrice = weightedQuotePrice;
           if (quotePriceEl && document.activeElement !== quotePriceEl) {
             quotePriceEl.value = weightedQuotePrice.toFixed(2);
           }
         } else {
-          qty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
-          defaultCogs = qty * (supplier.pricePreVat || 0);
+          paidQty = boxQtyEl ? (parseInt(boxQtyEl.value) || 0) : 1300;
+          if (!singleBonusManualOverride) {
+            currentSingleBonusQty = calcDefaultBonusQty(paidQty, supplier);
+            const bonusEl = document.getElementById('singleBonusQty');
+            if (bonusEl && document.activeElement !== bonusEl) {
+              bonusEl.value = currentSingleBonusQty;
+            }
+          } else {
+            const bonusEl = document.getElementById('singleBonusQty');
+            if (bonusEl) {
+              currentSingleBonusQty = Math.max(0, parseInt(bonusEl.value) || 0);
+            }
+          }
+          bonusQty = currentSingleBonusQty || 0;
+          qty = paidQty + bonusQty;
+          billableQty = (promoRevenueMode === 'FOC_PASS') ? paidQty : qty;
+          defaultCogs = paidQty * (supplier.pricePreVat || 0);
           vatRefund = defaultCogs * (supplier.vatRate || 0.08);
           totalCbm = qty * getProductCbm(supplier);
           totalGw = (qty * getProductGrossWeight(supplier)) / 1000;
+
+          // Đồng bộ định mức Mua X Tặng Y trên hộp #singlePromoBox nếu người dùng chưa đang gõ
+          const buyBaseEl = document.getElementById('singlePromoBuyBase');
+          const freeRateEl = document.getElementById('singlePromoFreeRate');
+          if (buyBaseEl && document.activeElement !== buyBaseEl) {
+            buyBaseEl.value = Number(supplier.promoBuyBase) > 0 ? Number(supplier.promoBuyBase) : 100;
+          }
+          if (freeRateEl && document.activeElement !== freeRateEl) {
+            freeRateEl.value = Number(supplier.promoFreeRate) >= 0 ? Number(supplier.promoFreeRate) : 0;
+          }
         }
 
         const cogsPreVat = partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : defaultCogs;
+
+        // Cập nhật dòng tóm tắt Khuyến Mãi Đơn Lẻ (#singlePromoSummaryLine) & Badge tổng thùng xếp xe (#badgeBoxShippedTotal)
+        const lblPaidEl = document.getElementById('lblPromoPaidQty');
+        const lblBonusEl = document.getElementById('lblPromoBonusQty');
+        const lblTotalShippedEl = document.getElementById('lblPromoTotalShipped');
+        const lblEffCostEl = document.getElementById('lblPromoEffectiveCost');
+        if (lblPaidEl) lblPaidEl.innerText = paidQty.toLocaleString('vi-VN');
+        if (lblBonusEl) lblBonusEl.innerText = `+${bonusQty.toLocaleString('vi-VN')}`;
+        if (lblTotalShippedEl) lblTotalShippedEl.innerText = `${qty.toLocaleString('vi-VN')} thùng`;
+        if (lblEffCostEl) {
+          const effPreVat = qty > 0 ? (cogsPreVat / qty) : (supplier.pricePreVat || 0);
+          const effIncVat = effPreVat * (1 + (supplier.vatRate || 0.08));
+          if (bonusQty > 0) {
+            const savedPerBox = (supplier.pricePreVat || 0) - effPreVat;
+            lblEffCostEl.innerHTML = `<span style="color:var(--alert-success-text);">⚡ Giá vốn BQ thực tế sau KM: <b>${formatExactProductPriceVnd(effPreVat)}đ/th</b> (chưa VAT) · <b>${formatExactProductPriceVnd(effIncVat)}đ/th</b> (đã VAT) — Giảm <b>-${formatVnd(savedPerBox)}/th</b> nhờ ${bonusQty} th tặng!</span>`;
+          } else {
+            lblEffCostEl.innerHTML = `<span style="color:var(--text-muted);">Chưa áp dụng hàng tặng (Giá vốn giữ nguyên: <b>${formatExactProductPriceVnd(supplier.pricePreVat || 0)}đ/th</b> chưa VAT)</span>`;
+          }
+        }
+
+        const badgeShipped = document.getElementById('badgeBoxShippedTotal');
+        if (badgeShipped) {
+          if (bonusQty > 0) {
+            badgeShipped.innerText = `Xếp xe: ${qty.toLocaleString('vi-VN')} th (${paidQty.toLocaleString('vi-VN')} + 🎁${bonusQty.toLocaleString('vi-VN')})`;
+            badgeShipped.style.background = 'rgba(16, 185, 129, 0.15)';
+            badgeShipped.style.color = 'var(--alert-success-text)';
+          } else {
+            badgeShipped.innerText = `Xếp xe: ${qty.toLocaleString('vi-VN')} th`;
+            badgeShipped.style.background = 'rgba(2, 132, 199, 0.12)';
+            badgeShipped.style.color = '#0284c7';
+          }
+        }
 
         // Cập nhật thông số kích thước và trọng lượng Single SKU
         const singleSkuCode = getSupplierSkuCode(supplier);
@@ -7391,14 +7950,14 @@
       const costPerBoxVnd = qty > 0 ? (totalDirectLogistics / qty) : 0;
       const costPerBoxUsd = costPerBoxVnd / fxRate;
 
-      // 9b. TỔNG COST GỐC BAN ĐẦU TRÊN 1 THÙNG (COGS + LOGISTICS)
+      // 9b. TỔNG COST GỐC BAN ĐẦU TRÊN 1 THÙNG THỰC XUẤT (COGS SAU KM + LOGISTICS)
       const cogsPerBoxVnd = qty > 0 ? (cogsPreVat / qty) : 0;
       const cogsPerBoxUsd = cogsPerBoxVnd / fxRate;
       const totalBaseCostPerBoxVnd = qty > 0 ? (totalCostVnd / qty) : 0;
       const totalBaseCostPerBoxUsd = totalBaseCostPerBoxVnd / fxRate;
 
-      // 10. REVENUE & P&L VỚI THUẾ THU NHẬP DOANH NGHIỆP 20% (CIT) - ĐA BIẾN GIÁ THEO TỪNG SẢN PHẨM
-      const revenueUsd = (packingMode === 'MIXED') ? mixedRevenueUsd : (qty * quotePrice);
+      // 10. REVENUE & P&L VỚI THUẾ THU NHẬP DOANH NGHIỆP 20% (CIT) - ĐA BIẾN GIÁ & HỖ TRỢ 2 CHẾ ĐỘ HÀNG TẶNG
+      const revenueUsd = (packingMode === 'MIXED') ? mixedRevenueUsd : (billableQty * quotePrice);
       const revenueVnd = revenueUsd * fxRate;
 
       // Lợi nhuận dòng tiền trước thuế (EBT - Tiền tươi trước thuế)
@@ -7485,7 +8044,7 @@
       const liveProdEl = document.getElementById('liveInfoProd');
       if (liveProdEl) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
-          liveProdEl.innerText = `Ghép Cont (${mixedSkuItems.length} mã): ` + mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.qty}th)`).join(' + ');
+          liveProdEl.innerText = `Ghép Cont (${mixedSkuItems.length} mã): ` + mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName} (${it.bonusQty > 0 ? it.paidQty + '+🎁' + it.bonusQty : it.qty}th)`).join(' + ');
         } else {
           liveProdEl.innerText = `[${singleSkuCode}] ${supplier.product}`;
         }
@@ -7506,7 +8065,13 @@
       if (liveTermsEl) liveTermsEl.innerText = `Incoterms 2020 ${terms.replace('_',' ')}`;
 
       const liveVolEl = document.getElementById('liveInfoVolume');
-      if (liveVolEl) liveVolEl.innerText = `${tripCount} ${tripCountUnit} (${qty.toLocaleString('vi-VN')} thùng / boxes)`;
+      if (liveVolEl) {
+        if (bonusQty > 0) {
+          liveVolEl.innerText = `${tripCount} ${tripCountUnit} — Tổng xuất: ${qty.toLocaleString('vi-VN')} thùng (Đặt mua: ${paidQty.toLocaleString('vi-VN')} + 🎁 Tặng KM: ${bonusQty.toLocaleString('vi-VN')})`;
+        } else {
+          liveVolEl.innerText = `${tripCount} ${tripCountUnit} (${qty.toLocaleString('vi-VN')} thùng / boxes)`;
+        }
+      }
 
       const liveSupEl = document.getElementById('liveInfoSupplier');
       if (liveSupEl) {
@@ -7530,12 +8095,13 @@
       const liveBuyEl = document.getElementById('liveInfoBuyPrice');
       if (liveBuyEl) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
-          liveBuyEl.innerText = `BQ: ${formatVnd(cogsPerBoxVnd)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(', ') + `)`;
+          liveBuyEl.innerText = `BQ sau KM: ${formatVnd(cogsPerBoxVnd)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k${it.bonusQty > 0 ? ' [+' + it.bonusQty + '🎁]' : ''}`).join(', ') + `)`;
         } else {
           const buyStr = supplier.priceIncVat
-            ? `${formatExactProductPriceVnd(supplier.priceIncVat)}đ (gốc đã VAT) · ${formatExactProductPriceVnd(supplier.pricePreVat)}đ (chưa VAT)`
+            ? `${formatExactProductPriceVnd(supplier.priceIncVat)}đ (đã VAT) · ${formatExactProductPriceVnd(supplier.pricePreVat)}đ (chưa VAT)`
             : `${formatExactProductPriceVnd(supplier.pricePreVat)}đ/thùng`;
-          liveBuyEl.innerText = `${buyStr} [${singleSkuCode}]`;
+          const promoStr = bonusQty > 0 ? ` → BQ sau KM (${bonusQty} th tặng): ${formatExactProductPriceVnd(cogsPerBoxVnd)}đ/th` : '';
+          liveBuyEl.innerText = `${buyStr}${promoStr} [${singleSkuCode}]`;
         }
       }
 
@@ -7547,10 +8113,11 @@
 
       const liveQuoteEl = document.getElementById('liveInfoQuotePrice');
       if (liveQuoteEl) {
+        const revModeNote = (bonusQty > 0) ? (promoRevenueMode === 'FOC_PASS' ? ' [Chuyển tặng FOC cho khách]' : ' [Bán thu tiền cả thùng tặng]') : '';
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
-          liveQuoteEl.innerText = `BQ: $${quotePrice.toFixed(2)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(', ') + `)`;
+          liveQuoteEl.innerText = `BQ: $${quotePrice.toFixed(2)}/th (` + mixedSkuItems.map(it => `${it.skuCode}:$${it.unitP.toFixed(2)}`).join(', ') + `)${revModeNote}`;
         } else {
-          liveQuoteEl.innerText = `$${quotePrice.toFixed(2)} USD/thùng [${singleSkuCode}]`;
+          liveQuoteEl.innerText = `$${quotePrice.toFixed(2)} USD/thùng [${singleSkuCode}]${revModeNote}`;
         }
       }
 
@@ -7561,6 +8128,7 @@
       const infoSupTaxEl = document.getElementById('infoSupplierTax');
       const infoBuyEl = document.getElementById('infoBuyPrice');
       const infoVatEl = document.getElementById('infoVatRate');
+      const infoPromoEl = document.getElementById('infoPromoPolicy');
       if (infoProdEl && infoSupEl && infoBuyEl && infoVatEl) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
           infoProdEl.innerText = `Ghép Cont (${mixedSkuItems.length} mã: ${mixedSkuItems.map(it => `[${it.skuCode}] ${it.shortName}`).join(' + ')})`;
@@ -7571,8 +8139,13 @@
           }))].join(', ');
           infoSupEl.innerText = `Đa Nhà Cung Cấp (${supSummary})`;
           if (infoSupTaxEl) infoSupTaxEl.innerText = `([ĐA MST])`;
-          infoBuyEl.innerHTML = `BQ: <b>${formatVnd(cogsPerBoxVnd)}/th</b> (chưa VAT) · Đã VAT: <b>${formatVnd(cogsPerBoxVnd * 1.08)}/th</b>`;
+          infoBuyEl.innerHTML = `BQ sau KM: <b>${formatVnd(cogsPerBoxVnd)}/th</b> (chưa VAT) · Đã VAT: <b>${formatVnd(cogsPerBoxVnd * 1.08)}/th</b>`;
           infoVatEl.innerText = '8';
+          if (infoPromoEl) {
+            infoPromoEl.innerText = totalMixedBonusQty > 0
+              ? `Tổng tặng: +${totalMixedBonusQty} thùng KM (${mixedSkuItems.filter(x => x.bonusQty > 0).map(x => `${x.skuCode}:+${x.bonusQty}`).join(', ')})`
+              : 'Không phát sinh thùng tặng';
+          }
         } else {
           infoProdEl.innerText = `[${singleSkuCode}] ${supplier.product}`;
           if (infoProdHsEl) infoProdHsEl.innerText = `(HS: ${supplier.hsCode || '1905.90.80'})`;
@@ -7584,6 +8157,10 @@
             infoBuyEl.innerText = `${formatExactProductPriceVnd(supplier.pricePreVat)}đ`;
           }
           infoVatEl.innerText = (supplier.vatRate * 100).toFixed(0);
+          if (infoPromoEl) {
+            const baseText = getPromoPolicyText(supplier);
+            infoPromoEl.innerText = bonusQty > 0 ? `${baseText} → Đang nhận: +${bonusQty} thùng tặng (BQ vốn: ${formatVnd(cogsPerBoxVnd)}/th)` : baseText;
+          }
         }
       }
 
@@ -7599,9 +8176,10 @@
       }
       if (lblTab03Desc) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
-          lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> Đa Nhà cung cấp (${mixedSkuItems.map(it => it.skuCode).join(', ')}). Giá vốn bình quân: <b>${formatVnd(cogsPerBoxVnd)} đ/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.`;
+          lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> Đa Nhà cung cấp (${mixedSkuItems.map(it => it.skuCode).join(', ')}). Giá vốn bình quân sau KM: <b>${formatVnd(cogsPerBoxVnd)} đ/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.`;
         } else {
-          lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> ${supplier.name} (MST: ${supplier.taxId}). Giá vốn: <b>${formatExactProductPriceVnd(supplier.pricePreVat)}/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.`;
+          const kmNote = bonusQty > 0 ? ` (Mua ${paidQty} + Tặng ${bonusQty} th → Giá vốn BQ: <b>${formatVnd(cogsPerBoxVnd)}/thùng</b>)` : '';
+          lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> ${supplier.name} (MST: ${supplier.taxId}). Giá mua gốc: <b>${formatExactProductPriceVnd(supplier.pricePreVat)}đ/thùng</b>${kmNote}, cam kết bảo lãnh hoàn thuế 0%.`;
         }
       }
 
@@ -7691,7 +8269,9 @@
       if (totalBaseVndEl) totalBaseVndEl.innerText = `${formatVnd(totalBaseCostPerBoxVnd)}/thùng`;
 
       const totalBaseSubEl = document.getElementById('kpiTotalBaseCostSub');
-      if (totalBaseSubEl) totalBaseSubEl.innerText = `(Giá vốn + Log / COGS + Log)`;
+      if (totalBaseSubEl) {
+        totalBaseSubEl.innerText = bonusQty > 0 ? `(Đã giảm nhờ +${bonusQty} thùng KM)` : `(Giá vốn + Log / COGS + Log)`;
+      }
 
       // Cập nhật Module 2: ĐƠN GIÁ CHÀO BÁN XUẤT KHẨU
       const qUsdEl = document.getElementById('kpiQuotePriceUsd');
@@ -7740,10 +8320,6 @@
       // =========================================================================
       // CẬP NHẬT THƯỚC ĐO NHỊP ĐIỆU KÉP (DUAL CAPACITY HORIZON) & GỢI Ý NHỒI THÊM
       // =========================================================================
-      // vMax = THỂ TÍCH DANH NGHĨA XẾP ĐƯỢC THỰC TẾ (/cmh-cargo-calc), không phải thể tích lòng xe:
-      //   Cont45 = 2,300 th MDC thực địa × 0.0278964 m³ ≈ 64.2 · Cont40 = 1,962 × 0.0278964 ≈ 54.8 (→ 54.9 để MCT 514 th không báo tràn do làm tròn)
-      //   HOWO 15.6m = 2,795 × 0.0278964 ≈ 78.1 (cận dưới lưới 3D, lọt lòng cam kết 15.50×2.45×2.85 m)
-      // wMax HOWO = 33.05 T theo đăng kiểm sơ mi rơ moóc 74R-009.89 (hồ sơ pháp lý phương tiện Vĩnh Thành).
       let vMax = 64.2; // Cont 45ft HC
       let wMax = 26.0;
       if (vehicle === 'CONT_40HC') {
@@ -7784,9 +8360,12 @@
           warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⛔ VƯỢT TẢI TRỌNG CHO PHÉP:</span> Hàng vượt <b>+${overTons} tấn</b> so với tải trọng ${wMax}T của phương tiện! Nguy cơ bị xử phạt và buộc hạ tải theo quy định tải trọng hiện hành (TT 12/2025/TT-BXD).`;
         } else if (totalCbm > vMax) {
           const overCbm = (totalCbm - vMax).toFixed(1);
-          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XẾP THỰC TẾ:</span> Hàng vượt <b>+${overCbm} m³</b> so với ${vMax} m³ xếp được thực tế (đã trừ phình thùng, khe hở, khoảng thao tác)!`;
+          const suggestBalanceBtn = (packingMode !== 'MIXED' && bonusQty > 0)
+            ? ` <button type="button" class="btn btn-sm" onclick="autoBalanceSingleBuyAndBonusToVehicle()" style="padding:1px 6px; font-size:9.5px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:3px; cursor:pointer; margin-left:4px;">📐 Bấm Cân Khít Xe Tự Động</button>`
+            : '';
+          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XẾP THỰC TẾ:</span> Tổng ${qty.toLocaleString('vi-VN')} thùng (${paidQty} mua + ${bonusQty} tặng) vượt <b>+${overCbm} m³</b> so với ${vMax} m³ xếp được thực tế!${suggestBalanceBtn}`;
         } else if (totalCbm >= vMax * 0.95 && totalGw <= wMax) {
-          warnEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">✅ ĐÃ TỐI ƯU CÔNG SUẤT XE:</span> Lấp đầy ${Math.round((totalCbm / vMax) * 100)}% thể tích xếp thực tế, tải trọng ${totalGw.toFixed(2)} tấn trong giới hạn ${wMax}T.`;
+          warnEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">✅ ĐÃ TỐI ƯU CÔNG SUẤT XE:</span> Lấp đầy ${Math.round((totalCbm / vMax) * 100)}% thể tích xếp thực tế (${qty.toLocaleString('vi-VN')} thùng), tải trọng ${totalGw.toFixed(2)} tấn trong giới hạn ${wMax}T.`;
         } else {
           const remCbm = (vMax - totalCbm).toFixed(1);
           const remTons = (wMax - totalGw).toFixed(2);
@@ -7848,12 +8427,14 @@
         ? `Đa NCC (${mixedSkuItems.map(it => it.skuCode).join(', ')})`
         : supplier.name;
       const cogsRowNote = (packingMode === 'MIXED' && mixedSkuItems.length > 0)
-        ? mixedSkuItems.map(it => `${it.skuCode}: ${it.qty}th×${(it.pricePreVat/1000).toFixed(0)}k`).join(' + ')
-        : `Đơn giá: ${formatVnd(supplier.pricePreVat)}/th × ${qty.toLocaleString('vi-VN')} th (VAT ${(supplier.vatRate*100).toFixed(0)}%)`;
+        ? mixedSkuItems.map(it => `${it.skuCode}: ${it.paidQty}th×${(it.pricePreVat/1000).toFixed(0)}k${it.bonusQty > 0 ? ' (+🎁' + it.bonusQty + 'th KM)' : ''}`).join(' + ')
+        : (bonusQty > 0
+            ? `Đặt mua: ${paidQty.toLocaleString('vi-VN')} th × ${formatExactProductPriceVnd(supplier.pricePreVat)}đ + 🎁 Tặng ${bonusQty.toLocaleString('vi-VN')} th (0đ) → BQ thực xuất (${qty.toLocaleString('vi-VN')} th): ${formatVnd(cogsPerBoxVnd)}/th`
+            : `Đơn giá: ${formatExactProductPriceVnd(supplier.pricePreVat)}đ/th × ${paidQty.toLocaleString('vi-VN')} th (VAT ${(supplier.vatRate*100).toFixed(0)}%)`);
 
       const costRows = [
         { key: "cogs", name: cogsRowName, nameEn: "Factory Purchase Cost (Excl. VAT)", provider: cogsRowProvider, providerEn: "Factory Supplier", amount: cogsPreVat, note: cogsRowNote, noteEn: "Commercial Invoice (Acc. 632)" },
-        { key: "vat", name: "Thuế GTGT đầu vào hoàn lại (Tạm tính)", nameEn: "Refundable Input VAT (Estimated)", provider: "Nhà nước hoàn", providerEn: "State Budget Refund", amount: vatRefund, note: `Quỹ hoàn thuế TK 1331 (${(supplier.vatRate*100).toFixed(0)}%)`, noteEn: "Input VAT Refund Fund (Acc. 1331)" }
+        { key: "vat", name: "Thuế GTGT đầu vào hoàn lại (Tạm tính)", nameEn: "Refundable Input VAT (Estimated)", provider: "Nhà nước hoàn", providerEn: "State Budget Refund", amount: vatRefund, note: `Quỹ hoàn thuế TK 1331 (${(supplier.vatRate*100).toFixed(0)}% trên ${paidQty.toLocaleString('vi-VN')} th mua)`, noteEn: "Input VAT Refund Fund (Acc. 1331)" }
       ];
 
       // Khoản 3: Cước vận tải
@@ -8025,7 +8606,7 @@
         </td>
         <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; color:#000; font-size:13px;">${formatVnd(revenueVnd)}</td>
         <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px;">$${revenueUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-        <td style="border:1px solid #000; padding:4px 6px; font-size:10px; color:#059669;">Doanh thu ngoại tệ xuất khẩu (Thuế suất GTGT 0%)</td>
+        <td style="border:1px solid #000; padding:4px 6px; font-size:10px; color:#059669;">Doanh thu ngoại tệ (${billableQty.toLocaleString('vi-VN')} thùng tính tiền · Thuế suất GTGT 0%)</td>
       </tr>`;
 
       // Lợi nhuận dòng tiền trước thuế (EBT)
@@ -8121,10 +8702,11 @@
       ];
 
       let pricingHtml = '';
+      const effectivePricingDivisor = billableQty > 0 ? billableQty : (qty > 0 ? qty : 1);
       targetMargins.forEach(m => {
         const reqRevVnd = totalCostVnd / (1 - m.margin);
-        const reqPriceUsd = (reqRevVnd / qty) / fxRate;
-        const totalRevUsd = reqPriceUsd * qty;
+        const reqPriceUsd = (reqRevVnd / effectivePricingDivisor) / fxRate;
+        const totalRevUsd = reqPriceUsd * effectivePricingDivisor;
         const cashProfitRow = reqRevVnd - totalCostVnd;
         const citTaxRow = cashProfitRow > 0 ? (cashProfitRow * 0.20) : 0;
         const netProfitRow = cashProfitRow > 0 ? (cashProfitRow - citTaxRow) : cashProfitRow;
@@ -8138,7 +8720,8 @@
           let skuRowsHtml = '';
 
           mixedSkuItems.forEach(item => {
-            const itemCostVnd = (item.pricePreVat || 0) + logPerBoxVnd;
+            const itemCogsPerBox = item.effectiveCogsPerBoxVnd !== undefined ? item.effectiveCogsPerBoxVnd : (item.pricePreVat || 0);
+            const itemCostVnd = itemCogsPerBox + logPerBoxVnd;
             const itemReqPriceUsd = ((itemCostVnd / (1 - m.margin)) / fxRate);
             skuRowsHtml += `
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; font-family:var(--font-mono, monospace); line-height:1.45; border-bottom:1px dashed #e2e8f0; padding:1.5px 0;">
@@ -8207,7 +8790,8 @@
       // Lưu trạng thái tính toán để kết xuất ảnh chụp Canvas HD 2X Retina
       window._currentCalcData = {
         supplier, carrier, activeAgentVn, agentVnName, agentLao, agentYard,
-        terms, vehicle, qty, tripCount, tripCountUnit,
+        terms, vehicle, paidQty, bonusQty, qty, billableQty, promoRevenueMode,
+        tripCount, tripCountUnit,
         packingMode, mixedSkuItems, singleSkuCode, liveScnId: curScnId,
         totalCbm, totalGw: (totalGw * 1000), totalNw: (packingMode === 'MIXED' ? totalMixedNw : (qty * getProductNetWeight(supplier))),
         demurrageDays, wireCount, depositPercent: depositPercentVal, depositRate,
@@ -8253,6 +8837,8 @@
       if (!d) return;
 
       const q = d.qty || 1;
+      const paidQ = d.paidQty !== undefined ? d.paidQty : q;
+      const bonusQ = d.bonusQty || 0;
       const fx = d.fxRate || 25790;
       const totalCost = d.totalCostVnd || 0;
       const totalBasePerBox = totalCost / q;
@@ -8264,7 +8850,11 @@
       const elVnd = document.getElementById('sheetTotalBaseVnd');
       if (elVnd) elVnd.innerText = `${formatVnd(totalBasePerBox)}/thùng`;
       const elSub = document.getElementById('sheetTotalBaseSub');
-      if (elSub) elSub.innerText = `COGS: ${formatVnd(d.cogsPerBoxVnd)} + Log: ${formatVnd(d.costPerBoxVnd)}`;
+      if (elSub) {
+        elSub.innerText = bonusQ > 0
+          ? `COGS sau KM (+${bonusQ}🎁): ${formatVnd(d.cogsPerBoxVnd)} + Log: ${formatVnd(d.costPerBoxVnd)}`
+          : `COGS: ${formatVnd(d.cogsPerBoxVnd)} + Log: ${formatVnd(d.costPerBoxVnd)}`;
+      }
 
       const quoteUsd = d.quotePrice || 0;
       const quoteVnd = quoteUsd * fx;
@@ -8302,10 +8892,12 @@
         ? `Đa Nhà Cung Cấp (${d.mixedSkuItems.map(it => it.shortName).join(', ')})`
         : `${d.supplier.name} (MST: ${d.supplier.taxId})`;
       const cogsNote = isMixSheet
-        ? `Giá vốn BQ: ${formatVnd(d.cogsPerBoxVnd)}/th · Chi tiết: ` + d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k`).join(' | ')
-        : (d.supplier.priceIncVat
-            ? `Báo giá gốc đã VAT: ${formatExactProductPriceVnd(d.supplier.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ)`
-            : `Đơn giá mua gốc từ Nhà máy: ${formatExactProductPriceVnd(d.supplier.pricePreVat)} đ/thùng`);
+        ? `Giá vốn BQ sau KM: ${formatVnd(d.cogsPerBoxVnd)}/th · Chi tiết: ` + d.mixedSkuItems.map(it => `${it.skuCode}:${(it.pricePreVat/1000).toFixed(0)}k${it.bonusQty > 0 ? '(+' + it.bonusQty + '🎁)' : ''}`).join(' | ')
+        : (bonusQ > 0
+            ? `Mua ${paidQ.toLocaleString('vi-VN')} th × ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ + 🎁 Tặng ${bonusQ.toLocaleString('vi-VN')} th (0đ) → Giá vốn BQ thực tế: ${formatExactProductPriceVnd(d.cogsPerBoxVnd)}đ/th`
+            : (d.supplier.priceIncVat
+                ? `Báo giá gốc đã VAT: ${formatExactProductPriceVnd(d.supplier.priceIncVat)}đ (Chưa VAT: ${formatExactProductPriceVnd(d.supplier.pricePreVat)}đ)`
+                : `Đơn giá mua gốc từ Nhà máy: ${formatExactProductPriceVnd(d.supplier.pricePreVat)} đ/thùng`));
 
       let rows = [
         {
@@ -8458,7 +9050,8 @@
 
       const noteEl = document.getElementById('boxCostSheetFooterNote');
       if (noteEl) {
-        noteEl.innerHTML = `💡 Kịch bản: <b>${d.terms}</b> | Phương tiện: <b>${d.tripCount} ${d.tripCountUnit}</b> | Tổng xuất: <b>${q.toLocaleString('vi-VN')} thùng</b> | Tỷ giá: <b>${fx.toLocaleString('vi-VN')} đ/USD</b>`;
+        const bonusStr = bonusQ > 0 ? ` (${paidQ.toLocaleString('vi-VN')} mua + 🎁 ${bonusQ.toLocaleString('vi-VN')} tặng)` : '';
+        noteEl.innerHTML = `💡 Kịch bản: <b>${d.terms}</b> | Phương tiện: <b>${d.tripCount} ${d.tripCountUnit}</b> | Tổng xuất: <b>${q.toLocaleString('vi-VN')} thùng${bonusStr}</b> | Tỷ giá: <b>${fx.toLocaleString('vi-VN')} đ/USD</b>`;
       }
 
       document.getElementById('boxCostSheetModalBackdrop').style.display = 'flex';
@@ -8517,10 +9110,14 @@
       const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
       const singleSkuCode = getSupplierSkuCode(sup);
 
-      let qty = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
+      let paidQ = parseInt(document.getElementById('boxQty') ? document.getElementById('boxQty').value : 800) || 800;
+      let bonusQ = currentSingleBonusQty || 0;
+      let qty = paidQ + bonusQ;
       let qtyTag = `${singleSkuCode}_${qty}T`;
       let prodName = sup ? `[${singleSkuCode}] ${sup.product}` : `[${singleSkuCode}] Sản phẩm đơn`;
-      let labelSkuSummary = `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} thùng`;
+      let labelSkuSummary = bonusQ > 0
+        ? `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} th (${paidQ}+🎁${bonusQ})`
+        : `${singleSkuCode}: ${qty.toLocaleString('vi-VN')} thùng`;
 
       if (packingMode === 'MIXED' && partnersMaster && partnersMaster.suppliers) {
         const mixTokens = [];
@@ -8533,11 +9130,13 @@
         sortedSuppliers.forEach(s => {
           if (!activeIds.includes(s.id)) return;
           const q = currentMixedCargo[s.id] !== undefined ? currentMixedCargo[s.id] : 0;
-          if (q > 0) {
+          const bq = (currentMixedBonus && currentMixedBonus[s.id] !== undefined) ? (parseInt(currentMixedBonus[s.id]) || 0) : calcDefaultBonusQty(q, s);
+          const totItemQ = q + bq;
+          if (totItemQ > 0) {
             const c = getSupplierSkuCode(s);
-            mixTokens.push(`${c}${q}`);
-            mixLabels.push(`${c}(${q})`);
-            mixTotal += q;
+            mixTokens.push(`${c}${totItemQ}`);
+            mixLabels.push(bq > 0 ? `${c}(${q}+🎁${bq})` : `${c}(${q})`);
+            mixTotal += totItemQ;
           }
         });
         qty = mixTotal;
