@@ -1405,7 +1405,10 @@
               </div>
             </div>
             <div class="form-group" style="flex:1;">
-              <label id="lblBoxQtyInput" style="font-size:11px; margin-bottom:2px;" title="Số lượng thùng đặt mua tính tiền (Chưa cộng số thùng tặng khuyến mãi)">Thùng đặt mua:</label>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                <label id="lblBoxQtyInput" style="font-size:11px; margin-bottom:0;" title="Số lượng thùng đặt mua tính tiền (Chưa cộng số thùng tặng khuyến mãi)">Thùng đặt mua:</label>
+                <button type="button" onclick="autoBalanceSingleBuyAndBonusToVehicle()" style="background:rgba(234,179,8,0.15); color:var(--accent-gold); border:1px solid rgba(234,179,8,0.4); border-radius:2px; font-size:9.5px; font-weight:bold; padding:0px 4px; cursor:pointer; line-height:1.3;" title="Bấm để tự động đặt số thùng vừa khít 100% thể tích thực tế của xe đang chọn">[📐 Khít xe]</button>
+              </div>
               <input type="number" id="boxQty" class="form-control font-bold" value="817" oninput="onSingleBoxQtyInput(this.value)" onchange="onSingleBoxQtyInput(this.value)" style="font-size:13px; height:28px; color:var(--accent-gold); text-align:center;">
             </div>
           </div>
@@ -3002,7 +3005,7 @@
       </tr>
       <tr>
         <td><b>Delivery Terms:</b> <span id="printTerms">CPT Savannakhet Dry Port, Laos (Incoterms 2020)</span></td>
-        <td><b>Payment:</b> T/T (30% deposit, 70% before delivery)</td>
+        <td><b>Payment:</b> <span id="printPayment">T/T (30% deposit, 70% before delivery)</span></td>
       </tr>
     </table>
 
@@ -3021,10 +3024,10 @@
         <tr>
           <td class="text-center">1</td>
           <td><b id="printItemTitle">Crispy Stick Snack (Snack Quẩy Giòn Giòn)</b><br><small>Specification: 22g/cup, 300 cups/ctn. Volume: 0.0785 CBM/ctn</small></td>
-          <td class="text-center" id="printQty">800</td>
+          <td class="text-center font-bold" id="printQty">1.000</td>
           <td class="text-center">Cartons</td>
-          <td class="text-right font-bold" id="printUnitPrice">$17.50</td>
-          <td class="text-right font-bold" id="printTotalAmount">$14,000.00</td>
+          <td class="text-right font-bold" id="printUnitPrice">$16.00</td>
+          <td class="text-right font-bold" id="printTotalAmount">$16,000.00</td>
         </tr>
       </tbody>
     </table>
@@ -5239,7 +5242,11 @@
       recalculate();
       const lotPaid = freeRate > 0 ? (Math.floor(maxTotalBoxes / (buyBase + freeRate)) * buyBase) : maxTotalBoxes;
       const lotBonus = freeRate > 0 ? (Math.floor(maxTotalBoxes / (buyBase + freeRate)) * freeRate) : 0;
-      showToastNotification(`📐 Đã cân khít 100% xe (${maxTotalBoxes.toLocaleString('vi-VN')} th): Mua ${newPaidQty.toLocaleString('vi-VN')} th + 🎁 Tặng ${newBonusQty.toLocaleString('vi-VN')} th (Theo lô chẵn ${buyBase}: ${lotPaid}+${lotBonus}=${lotPaid + lotBonus} th)!`);
+      if (freeRate > 0 && newBonusQty > 0) {
+        showToastNotification(`📐 Đã cân khít 100% xe (${maxTotalBoxes.toLocaleString('vi-VN')} th): Mua ${newPaidQty.toLocaleString('vi-VN')} th + 🎁 Tặng ${newBonusQty.toLocaleString('vi-VN')} th (Theo lô chẵn ${buyBase}: ${lotPaid}+${lotBonus}=${lotPaid + lotBonus} th)!`);
+      } else {
+        showToastNotification(`📐 Đã đồng bộ số thùng vừa khít 100% thể tích thực tế của xe: ${maxTotalBoxes.toLocaleString('vi-VN')} thùng!`);
+      }
     }
 
     function onMixedBonusChange(supId, val) {
@@ -8317,7 +8324,71 @@
         `;
       }
 
-      // ĐỒNG BỘ CÁC THẺ BÁO GIÁ IN ẤN
+      // ĐỒNG BỘ CÁC THẺ BÁO GIÁ IN ẤN & COMMERCIAL QUOTATION (LIVE 100% THEO SỐ THÙNG & ĐƠN GIÁ ĐANG NHẬP)
+      const printRefEl = document.getElementById('printRef');
+      const printDateEl = document.getElementById('printDate');
+      const printTermsEl = document.getElementById('printTerms');
+      const printPaymentEl = document.getElementById('printPayment');
+      const printTbodyEl = document.getElementById('printQuotationTbody');
+      if (printRefEl) {
+        printRefEl.innerText = `Ref: ${curScnId}`;
+      }
+      if (printDateEl) {
+        const nowD = new Date();
+        printDateEl.innerText = `${String(nowD.getDate()).padStart(2,'0')}/${String(nowD.getMonth()+1).padStart(2,'0')}/${nowD.getFullYear()}`;
+      }
+      if (printTermsEl && termsEl && termsEl.options && termsEl.selectedIndex >= 0) {
+        printTermsEl.innerText = `${termsEl.options[termsEl.selectedIndex].text} (Incoterms 2020)`;
+      }
+      if (printPaymentEl) {
+        printPaymentEl.innerText = (wireCount === 1)
+          ? `T/T 100% Full Payment prior to dispatch`
+          : `T/T (${depositPercentVal}% deposit, ${100 - depositPercentVal}% before delivery)`;
+      }
+      if (printTbodyEl) {
+        if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
+          let qHtml = '';
+          mixedSkuItems.forEach((it, idx) => {
+            const lineBillable = it.billableQty !== undefined ? it.billableQty : it.qty;
+            const lineTotal = lineBillable * it.unitP;
+            const bonusNote = it.bonusQty > 0 ? ` <small>(Mua ${it.paidQty} + 🎁${it.bonusQty})</small>` : '';
+            qHtml += `
+              <tr>
+                <td class="text-center">${idx + 1}</td>
+                <td><b>[${it.skuCode}] ${it.product}</b><br><small>Spec: ${it.spec || 'Standard'} · Dims: ${it.dims || 'Standard'} · CBM: ${Number(it.cbm || 0).toFixed(4)} m³/ctn</small></td>
+                <td class="text-center font-bold">${lineBillable.toLocaleString('vi-VN')}${bonusNote}</td>
+                <td class="text-center">Cartons</td>
+                <td class="text-right font-bold">$${it.unitP.toFixed(2)}</td>
+                <td class="text-right font-bold">$${lineTotal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+              </tr>
+            `;
+          });
+          qHtml += `
+            <tr style="background:#f8fafc; font-weight:bold;">
+              <td colspan="2" class="text-right">TOTAL SUMMARY:</td>
+              <td class="text-center font-bold" id="printQty">${billableQty.toLocaleString('vi-VN')}</td>
+              <td class="text-center">Cartons</td>
+              <td class="text-right font-bold" id="printUnitPrice">$${quotePrice.toFixed(2)} (BQ)</td>
+              <td class="text-right font-bold" id="printTotalAmount" style="font-size:13px; color:var(--alert-success-text);">$${revenueUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+            </tr>
+          `;
+          printTbodyEl.innerHTML = qHtml;
+        } else {
+          const bonusSub = bonusQty > 0
+            ? `<br><small style="color:var(--alert-success-text);">(Đặt mua: ${paidQty.toLocaleString('vi-VN')} th + 🎁 Tặng KM: ${bonusQty.toLocaleString('vi-VN')} th ➔ Tổng xếp xe: ${qty.toLocaleString('vi-VN')} th)</small>`
+            : '';
+          printTbodyEl.innerHTML = `
+            <tr>
+              <td class="text-center">1</td>
+              <td><b id="printItemTitle">[${singleSkuCode}] ${supplier.product}</b><br><small>Specification: ${supplier.spec || '22g/cup x 300 cups/ctn'}. Dims: ${supplier.dims || '585x270x497 mm'}. Volume: ${getProductCbm(supplier)} CBM/ctn</small>${bonusSub}</td>
+              <td class="text-center font-bold" id="printQty">${billableQty.toLocaleString('vi-VN')}</td>
+              <td class="text-center">Cartons</td>
+              <td class="text-right font-bold" id="printUnitPrice">$${quotePrice.toFixed(2)}</td>
+              <td class="text-right font-bold" id="printTotalAmount">$${revenueUsd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+            </tr>
+          `;
+        }
+      }
       const printCommEl = document.getElementById('printCommodity');
       const printHsEl = document.getElementById('printHsCode');
       const printPackEl = document.getElementById('printPacking');
@@ -8477,16 +8548,21 @@
           warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⛔ VƯỢT TẢI TRỌNG CHO PHÉP:</span> Hàng vượt <b>+${overTons} tấn</b> so với tải trọng ${wMax}T của phương tiện! Nguy cơ bị xử phạt và buộc hạ tải theo quy định tải trọng hiện hành (TT 12/2025/TT-BXD).`;
         } else if (totalCbm > vMax) {
           const overCbm = (totalCbm - vMax).toFixed(1);
-          const suggestBalanceBtn = (packingMode !== 'MIXED' && bonusQty > 0)
-            ? ` <button type="button" class="btn btn-sm" onclick="autoBalanceSingleBuyAndBonusToVehicle()" style="padding:1px 6px; font-size:9.5px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:3px; cursor:pointer; margin-left:4px;">📐 Bấm Cân Khít Xe Tự Động</button>`
+          const singleMaxFitBoxes = (vehicle === 'HOWO_156' ? (supplier.howoQty || 1300) : (vehicle === 'CONT_40HC' ? (supplier.cont40Qty || 800) : (supplier.cont45Qty || 817))) * tripCount;
+          const suggestBalanceBtn = (packingMode !== 'MIXED')
+            ? ` <button type="button" class="btn btn-sm" onclick="autoBalanceSingleBuyAndBonusToVehicle()" style="padding:1px 6px; font-size:9.5px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:3px; cursor:pointer; margin-left:4px;">📐 Cân Khít Theo Thể Tích Xe (${singleMaxFitBoxes.toLocaleString('vi-VN')} thùng)</button>`
             : '';
-          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XẾP THỰC TẾ:</span> Tổng ${qty.toLocaleString('vi-VN')} thùng (${paidQty} mua + ${bonusQty} tặng) vượt <b>+${overCbm} m³</b> so với ${vMax} m³ xếp được thực tế!${suggestBalanceBtn}`;
+          warnEl.innerHTML = `<span style="color:var(--alert-critical-text); font-weight:bold;">⚠️ TRÀN THỂ TÍCH XẾP THỰC TẾ:</span> Tổng ${qty.toLocaleString('vi-VN')} thùng (${paidQty} mua + ${bonusQty} tặng) vượt <b>+${overCbm} m³</b> so với ${vMax} m³ xếp được thực tế — <i>Mọi bảng tính vẫn đang đồng bộ theo đúng ${qty.toLocaleString('vi-VN')} thùng bạn nhập!</i>${suggestBalanceBtn}`;
         } else if (totalCbm >= vMax * 0.95 && totalGw <= wMax) {
           warnEl.innerHTML = `<span style="color:var(--alert-success-text); font-weight:bold;">✅ ĐÃ TỐI ƯU CÔNG SUẤT XE:</span> Lấp đầy ${Math.round((totalCbm / vMax) * 100)}% thể tích xếp thực tế (${qty.toLocaleString('vi-VN')} thùng), tải trọng ${totalGw.toFixed(2)} tấn trong giới hạn ${wMax}T.`;
         } else {
           const remCbm = (vMax - totalCbm).toFixed(1);
           const remTons = (wMax - totalGw).toFixed(2);
-          warnEl.innerHTML = `Còn dư <b>${remCbm} m³</b> thể tích và <b>${remTons} tấn</b> tải trọng. Có thể nhồi thêm sản phẩm!`;
+          const singleMaxFitBoxes = (vehicle === 'HOWO_156' ? (supplier.howoQty || 1300) : (vehicle === 'CONT_40HC' ? (supplier.cont40Qty || 800) : (supplier.cont45Qty || 817))) * tripCount;
+          const fillBtn = (packingMode !== 'MIXED' && qty !== singleMaxFitBoxes)
+            ? ` <button type="button" class="btn btn-sm" onclick="autoBalanceSingleBuyAndBonusToVehicle()" style="padding:1px 6px; font-size:9.5px; background:var(--bg-cockpit-panel); color:var(--accent-gold); font-weight:bold; border:1px solid var(--accent-gold); border-radius:3px; cursor:pointer; margin-left:4px;">📐 Đặt Đầy Thể Tích Xe (${singleMaxFitBoxes.toLocaleString('vi-VN')} thùng)</button>`
+            : '';
+          warnEl.innerHTML = `Còn dư <b>${remCbm} m³</b> thể tích và <b>${remTons} tấn</b> tải trọng. Có thể nhồi thêm sản phẩm!${fillBtn}`;
         }
       }
 
