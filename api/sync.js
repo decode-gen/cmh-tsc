@@ -503,11 +503,22 @@ export default async function handler(req, res) {
     const normalizedCarriers = normalizeCarriersServer(mergedCarriers);
     const normalizedAgents = normalizeAgentsServer(mergedAgents);
 
+    // 5. Hợp nhất Sổ cái Đơn hàng đã chốt (Locked Orders Ledger) - CẤM XÓA
+    const existingLockedOrders = Array.isArray(existing.lockedOrders) ? existing.lockedOrders : [];
+    const incomingLockedOrders = Array.isArray(incoming.lockedOrders) ? incoming.lockedOrders : [];
+    const mergedLockedOrders = [...incomingLockedOrders];
+    existingLockedOrders.forEach(oldOrd => {
+      if (!mergedLockedOrders.some(o => o.contractNo === oldOrd.contractNo)) {
+        mergedLockedOrders.push(oldOrd);
+      }
+    });
+
     const finalState = {
       suppliers: mergedSuppliers,
       carriers: normalizedCarriers,
       agents: normalizedAgents,
       scenarios: mergedScenarios,
+      lockedOrders: mergedLockedOrders,
       activeScenarioId: resolvedActiveScnId,
       updatedAt: new Date().toISOString(),
       updatedBy: 'GSS Director (Solo-Operator)'
