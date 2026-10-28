@@ -916,6 +916,25 @@
       height: 22px;
       box-sizing: border-box;
     }
+    .fee-override-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 9.5px;
+      font-weight: bold;
+      padding: 0px 4px;
+      margin-left: 4px;
+      border-radius: 2px;
+      background: var(--alert-warning-bg);
+      color: var(--alert-warning-text);
+      border: 1px solid var(--alert-warning-border);
+      cursor: pointer;
+      vertical-align: middle;
+      user-select: none;
+    }
+    .fee-override-chip:hover {
+      opacity: 0.85;
+    }
     /* --- PACKING MODE & DUAL CAPACITY HORIZON & SCENARIO MASTER --- */
     .btn-mode {
       background: var(--bg-cockpit-panel);
@@ -1453,17 +1472,35 @@
             💵 3. TỶ GIÁ NGOẠI TỆ & ĐIỀU KHOẢN THANH TOÁN:
           </div>
 
-          <!-- REAL-TIME MB BANK FX ROW (ICON ONLY CHUẨN /cmh-ui) -->
-          <div class="form-group" style="margin-bottom:8px;">
-            <label style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:2px;">
-              <span>Tỷ giá USD/VND (Thực nhận bán ngoại tệ MB Bank):</span>
-              <button type="button" class="btn-icon-3d" onclick="fetchMbBankRate()" data-tooltip="Cập nhật tỷ giá trực tuyến (Trừ âm 250đ USD & đồng bộ Baht Thái)" style="width:26px; height:22px; font-size:11px;">
+          <!-- REAL-TIME DUAL FX ROW: USD/VND + THB/VND (QUÁ CẢNH LÀO CHUẨN /cmh-ui) -->
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:3px;">
+              <span style="font-weight:bold;">Tỷ giá Ngoại tệ Thời gian thực (USD & THB Baht Thái):</span>
+              <button type="button" class="btn-icon-3d" id="btnRefreshFxRates" onclick="fetchMbBankRate()" data-tooltip="Cập nhật tỷ giá trực tuyến theo ngày (USD trừ âm 250đ & đồng bộ Baht Thái tự động nhảy phí Quá cảnh Lào D8)" style="width:26px; height:22px; font-size:11px;">
                 <span>[⚡]</span>
               </button>
-            </label>
-            <input type="number" id="fxRate" class="form-control" value="25797.45" step="0.01" oninput="recalculate()" onchange="recalculate()" style="font-size:12px; height:28px;">
-            <div id="fxStatusBadge" style="font-size:10.5px; color:var(--alert-success-text); margin-top:2px;">
-              <span class="status-dot dot-green"></span>MB Bank Thực Nhận: 25.797,45 đ · THB: 730 đ (Bấm [⚡] để lấy giá ngày)
+            </div>
+            <div style="display:grid; grid-template-columns: 1.25fr 1fr; gap:6px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label style="font-size:10px; margin-bottom:1px; color:var(--text-muted);" title="Tỷ giá bán USD cho MB Bank (Đã trừ buffer rủi ro 250đ)">1. USD/VND (MB Bank):</label>
+                <div style="position:relative;">
+                  <input type="number" id="fxRate" class="form-control font-bold" value="25797.45" step="0.01" oninput="recalculate()" onchange="recalculate()" style="font-size:12px; height:28px; padding-right:20px;">
+                  <span style="position:absolute; right:6px; top:5px; font-size:10px; color:var(--text-dim); pointer-events:none;">đ</span>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label style="display:flex; justify-content:space-between; align-items:center; font-size:10px; margin-bottom:1px; color:var(--text-muted);" title="Tỷ giá Baht Thái dùng tính phí Quá cảnh Lào D8 (16.000 THB/cont)">
+                  <span>2. THB/VND (Baht):</span>
+                  <span id="badgeLiveThbSync" style="font-size:9px; color:var(--accent-gold); font-weight:bold;">16k THB</span>
+                </label>
+                <div style="position:relative;">
+                  <input type="number" id="fxThbRate" class="form-control font-bold" value="730" step="1" oninput="onFxThbRateManualInput(this.value)" onchange="onFxThbRateManualInput(this.value)" style="font-size:12px; height:28px; padding-right:20px; color:var(--accent-gold);">
+                  <span style="position:absolute; right:6px; top:5px; font-size:10px; color:var(--text-dim); pointer-events:none;">đ</span>
+                </div>
+              </div>
+            </div>
+            <div id="fxStatusBadge" style="font-size:10px; color:var(--alert-success-text); margin-top:3px; line-height:1.3;">
+              <span class="status-dot dot-green"></span>MB Bank: 25.797,45 đ · THB: 730 đ ➔ Quá cảnh Lào D8: 11.680.000 đ/cont (Bấm [⚡] để lấy giá ngày)
             </div>
           </div>
 
@@ -1539,14 +1576,15 @@
         <!-- KHỐI 5: ĐỐI TÁC DỊCH VỤ & CƯỚC VẬN CHUYỂN CỐ ĐỊNH -->
         <!-- ========================================================================= -->
         <div style="background:var(--bg-cockpit-panel); padding:8px 10px; border-radius:3px; border:1px solid var(--border-subtle); margin-bottom:10px;">
-          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px;">
-            🤝 5. ĐỐI TÁC DỊCH VỤ & CƯỚC VẬN CHUYỂN:
+          <div style="font-size:11.5px; font-weight:bold; color:var(--text-main); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span>🤝 5. ĐỐI TÁC DỊCH VỤ & CƯỚC VẬN CHUYỂN:</span>
+            <button type="button" id="btnResetFeeOverrides" onclick="resetCustomFeeOverrides()" style="background:var(--bg-card); color:var(--text-muted); border:1px solid var(--border-subtle); border-radius:2px; font-size:9.5px; font-weight:bold; padding:1px 6px; cursor:pointer;" data-tooltip="Khôi phục toàn bộ khoản phí 3~14 về công thức tự động theo Tuyến & Đối tác SSOT">[↺ Phí gốc SSOT]</button>
           </div>
 
           <!-- CHỌN ĐƠN VỊ VẬN TẢI -->
           <div class="form-group" style="margin-bottom:6px;">
             <label style="font-size:11px; margin-bottom:2px;">Đơn vị Vận tải (Nhà xe / Container):</label>
-            <select id="carrierSelect" class="form-control" onchange="recalculate()" style="font-size:11.5px; height:28px;">
+            <select id="carrierSelect" class="form-control" onchange="onCarrierChange()" style="font-size:11.5px; height:28px;">
               <!-- Dynamically populated from partnersMaster -->
             </select>
           </div>
@@ -1554,7 +1592,7 @@
             <div class="fee-item-left">
               <label class="checkbox-item" style="margin-bottom:0; font-size:11px; flex:1; cursor:pointer;">
                 <input type="checkbox" id="chkFreightBase" onchange="recalculate()" checked>
-                <span id="lblFreightBase">Khoản 3: Cước vận tải xe/cont: <b id="lblFreightVal">22.000.000 đ</b></span>
+                <span id="lblFreightBase">Khoản 3: Cước vận tải xe/cont: <b id="lblFreightVal">35.000.000 đ</b><span id="lblFreightRouteNote" style="font-size:10px; color:var(--text-dim); margin-left:4px;"></span></span>
               </label>
             </div>
             <div class="fee-item-right">
@@ -1575,7 +1613,7 @@
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label id="lblAgentLao" style="font-size:11px; margin-bottom:2px;">Quá cảnh Lào D8/T1:</label>
-              <select id="agentLaoSelect" class="form-control" onchange="recalculate()" style="font-size:11px; height:28px;">
+              <select id="agentLaoSelect" class="form-control" onchange="onAgentLaoChange()" style="font-size:11px; height:28px;">
                 <!-- Dynamically populated -->
               </select>
             </div>
@@ -1584,7 +1622,7 @@
           <!-- CHỌN ĐẠI LÝ BẾN BÃI & LOLO -->
           <div class="form-group" style="margin-bottom:0;">
             <label style="font-size:11px; margin-bottom:2px;">Bến bãi & Nâng hạ cont (LOLO):</label>
-            <select id="agentYardSelect" class="form-control" onchange="recalculate()" style="font-size:11.5px; height:28px;">
+            <select id="agentYardSelect" class="form-control" onchange="onAgentYardChange()" style="font-size:11.5px; height:28px;">
               <!-- Dynamically populated -->
             </select>
           </div>
@@ -1599,26 +1637,26 @@
           </div>
 
           <!-- TIỀN LƯU XE / LƯU CONT -->
-          <div class="form-group" id="demurrageContGroup" style="display:none; margin-bottom:6px;">
+          <div class="form-group" id="demurrageContGroup" style="display:block; margin-bottom:6px;">
             <label id="lblDemurrageCont" style="font-size:11px; margin-bottom:2px;">Lưu cont Lào (vượt 48h free-time · 3tr/cont/ngày):</label>
-            <input type="number" id="demurrageDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()" style="font-size:11.5px; height:26px;">
+            <input type="number" id="demurrageDays" class="form-control" value="0" min="0" max="10" oninput="onDemurrageDaysInput()" onchange="onDemurrageDaysInput()" style="font-size:11.5px; height:26px;">
           </div>
 
-          <div class="form-row" id="demurrageHowoGroup" style="display:flex; margin-bottom:6px;">
+          <div class="form-row" id="demurrageHowoGroup" style="display:none; margin-bottom:6px;">
             <div class="form-group" style="margin-bottom:0;">
               <label style="font-size:10.5px; margin-bottom:2px;">Lưu xe nội địa (Phú Thọ/dọc đường · 2tr/xe/ngày):</label>
-              <input type="number" id="demHowoDomesticDays" class="form-control" value="0" min="0" max="10" oninput="recalculate()" onchange="recalculate()" style="font-size:11.5px; height:26px;">
+              <input type="number" id="demHowoDomesticDays" class="form-control" value="0" min="0" max="10" oninput="onDemurrageDaysInput()" onchange="onDemurrageDaysInput()" style="font-size:11.5px; height:26px;">
             </div>
             <div class="form-group" style="margin-bottom:0;">
               <label style="font-size:10.5px; margin-bottom:2px;">Lưu xe Cửa khẩu Lao Bảo (32BBG02 · 2.5tr/xe/ngày):</label>
-              <input type="number" id="demHowoBorderDays" class="form-control" value="1" min="0" max="10" oninput="recalculate()" onchange="recalculate()" style="font-size:11.5px; height:26px;">
+              <input type="number" id="demHowoBorderDays" class="form-control" value="0" min="0" max="10" oninput="onDemurrageDaysInput()" onchange="onDemurrageDaysInput()" style="font-size:11.5px; height:26px;">
             </div>
           </div>
           <div class="fee-item-row" id="row_demurrage" style="margin-top:2px; margin-bottom:8px; padding:3px 6px; background:rgba(0,0,0,0.02); border-radius:3px; border:1px dashed var(--border-subtle);">
             <div class="fee-item-left">
               <label class="checkbox-item" style="margin-bottom:0; font-size:11px; flex:1; cursor:pointer;">
                 <input type="checkbox" id="chkDemurrage" onchange="recalculate()" checked>
-                <span id="lblDemurrageFee">Khoản 4: Tiền lưu xe / lưu ca: <b id="lblDemurrageVal">2.500.000 đ</b></span>
+                <span id="lblDemurrageFee">Khoản 4: Tiền lưu xe / lưu ca: <b id="lblDemurrageVal">0 đ</b></span>
               </label>
             </div>
             <div class="fee-item-right">
@@ -1765,7 +1803,7 @@
               <div class="fee-item-left">
                 <label class="checkbox-item" style="margin-bottom:0; flex:1; cursor:pointer;">
                   <input type="checkbox" id="chkLaoTransit" onchange="recalculate()" checked>
-                  <span id="lblLaoTransit">Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b id="val_laoTransit" class="fee-val-text">12.240.000 đ</b></span>
+                  <span id="lblLaoTransit">Thủ tục Quá cảnh Lào & Kẹp chì (D8/T1): <b id="val_laoTransit" class="fee-val-text">11.680.000 đ</b></span>
                 </label>
               </div>
               <div class="fee-item-right">
@@ -3494,57 +3532,109 @@
       return suppliersList;
     }
 
-    // Load from LocalStorage with smart migration for granular fee keys and exact unrounded Product DNA
+    function normalizeAgentsList(rawAgents) {
+      const list = Array.isArray(rawAgents) ? rawAgents.filter(Boolean).map(a => {
+        const def = DEFAULT_PARTNERS_MASTER.agents.find(d => d.id === a.id);
+        if (def) {
+          const merged = Object.assign({}, def, a);
+          if (merged.transitThb === undefined) merged.transitThb = def.transitThb;
+          if (merged.fxThbRate === undefined || Number(merged.fxThbRate) <= 0) merged.fxThbRate = def.fxThbRate;
+          if (!merged.laoTransitD8 && def.laoTransitD8) merged.laoTransitD8 = def.laoTransitD8;
+          if (merged.lolo === undefined || Number(merged.lolo) < 0) merged.lolo = def.lolo;
+          if (merged.customsFee === undefined) merged.customsFee = def.customsFee;
+          if (merged.coFee === undefined) merged.coFee = def.coFee;
+          if (merged.borderGuard === undefined) merged.borderGuard = def.borderGuard;
+          if (merged.laoTransitFee === undefined) merged.laoTransitFee = def.laoTransitFee;
+          if (merged.inspectionFee === undefined) merged.inspectionFee = def.inspectionFee;
+          if (merged.inspectionOtFee === undefined) merged.inspectionOtFee = def.inspectionOtFee;
+          if (merged.coExpressFee === undefined) merged.coExpressFee = def.coExpressFee;
+          if (merged.id === 'AGT_NGAN_HUNG' && (!merged.transitThb || merged.laoTransitD8 < 10000000)) {
+            merged.transitThb = 16000;
+            merged.fxThbRate = 730;
+            merged.laoTransitD8 = 11680000;
+            merged.laoTransit = 11680000;
+          }
+          return merged;
+        }
+        return a;
+      }) : [];
+      DEFAULT_PARTNERS_MASTER.agents.forEach(defA => {
+        if (!list.some(x => x && x.id === defA.id)) {
+          list.push(JSON.parse(JSON.stringify(defA)));
+        }
+      });
+      return list;
+    }
+
+    function normalizeCarriersList(rawCarriers) {
+      const list = Array.isArray(rawCarriers) ? rawCarriers.filter(Boolean).map(c => {
+        const def = DEFAULT_PARTNERS_MASTER.carriers.find(d => d.id === c.id);
+        if (def) {
+          const merged = Object.assign({}, def, c);
+          if (!merged.howoRate || Number(merged.howoRate) <= 0) merged.howoRate = def.howoRate;
+          if (merged.contLbRate === undefined || Number(merged.contLbRate) <= 0) merged.contLbRate = def.contLbRate;
+          if (!merged.contSvnRate || Number(merged.contSvnRate) <= 0) merged.contSvnRate = def.contSvnRate;
+          if (merged.contMkdRate === undefined || Number(merged.contMkdRate) <= 0) merged.contMkdRate = def.contMkdRate;
+          if (merged.demHowoDomestic === undefined) merged.demHowoDomestic = def.demHowoDomestic;
+          if (merged.demHowoBorder === undefined) merged.demHowoBorder = def.demHowoBorder;
+          if (merged.demContBorder === undefined) merged.demContBorder = def.demContBorder;
+          if (merged.demCont === undefined) merged.demCont = def.demCont;
+          if (merged.carrierVatRate === undefined) merged.carrierVatRate = def.carrierVatRate;
+          return merged;
+        }
+        return c;
+      }) : [];
+      DEFAULT_PARTNERS_MASTER.carriers.forEach(defC => {
+        if (!list.some(x => x && x.id === defC.id)) {
+          list.push(JSON.parse(JSON.stringify(defC)));
+        }
+      });
+      return list;
+    }
+
+    function sanitizeScenarioOverridesObject(scn) {
+      if (!scn || !scn.baselineOverrides || typeof scn.baselineOverrides !== 'object') return;
+      const ov = scn.baselineOverrides;
+      const effRoute = scn.transportRoute || (scn.terms === 'FCA_LB' ? 'ROUTE_LAO_BAO' : ((scn.terms === 'CPT_MKD' || scn.terms === 'DAP_MKD') ? 'ROUTE_MUKDAHAN' : 'ROUTE_SAVANNAKHET'));
+      // Gỡ bẫy giá cước 22.000.000 đ bị dính nhầm do lỗi cũ của updateBinhAnLeftPanelLabels trên các tuyến Savannakhet / Mukdahan
+      if (effRoute !== 'ROUTE_LAO_BAO' && Number(ov.freight) === 22000000) {
+        delete ov.freight;
+      }
+      // Gỡ bẫy tiền lưu xe 2.500.000 đ bị dính nhầm khi số ngày lưu bằng 0
+      const dCont = Number(scn.demurrageDays || 0);
+      const dDom = Number(scn.demHowoDomesticDays || 0);
+      const dBor = Number(scn.demHowoBorderDays || 0);
+      if (dCont === 0 && dDom === 0 && dBor === 0 && Number(ov.demurrage) === 2500000) {
+        delete ov.demurrage;
+      }
+      // Gỡ bẫy phí quá cảnh Lào cũ 12.240.000 đ bị dính nhầm
+      if (Number(ov.laoTransit) === 12240000) {
+        delete ov.laoTransit;
+      }
+    }
+
+    // Load from LocalStorage with smart migration V5.5 for clean route-aware fee defaults and Product DNA
     function loadPartnersFromStorage() {
       try {
+        const v55 = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_5');
         const v54 = localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_4');
-        const isLegacy = !v54;
-        const stored = v54 || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_3') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_2') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
+        const isPreV55 = !v55;
+        const isLegacy = !v55 && !v54;
+        const stored = v55 || v54 || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_3') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_2') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_1') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V5_0') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_9') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_8') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_7') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_6') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_5') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_4') || localStorage.getItem('CMH_TSC_PARTNERS_MASTER_V4_3');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.suppliers && Array.isArray(parsed.suppliers)) {
-            // Giữ các sản phẩm chuẩn SSOT và các sản phẩm mới do người dùng chủ động tạo (isCustom hoặc SUP_NEW_ / SUP_CUSTOM_)
             parsed.suppliers = parsed.suppliers.filter(s => DEFAULT_PARTNERS_MASTER.suppliers.some(def => def.id === s.id) || s.isCustom || String(s.id).startsWith('SUP_NEW_') || String(s.id).startsWith('SUP_CUSTOM_'));
             enforceLatestLoiDatPricingOnSuppliers(parsed.suppliers, isLegacy);
           }
-          if (parsed.agents && Array.isArray(parsed.agents)) {
-            parsed.agents = parsed.agents.map(a => {
-              const def = DEFAULT_PARTNERS_MASTER.agents.find(d => d.id === a.id);
-              if (def) {
-                const merged = Object.assign({}, def, a);
-                if (merged.transitThb === undefined) merged.transitThb = def.transitThb;
-                if (merged.fxThbRate === undefined) merged.fxThbRate = def.fxThbRate;
-                if (!merged.laoTransitD8 && def.laoTransitD8) merged.laoTransitD8 = def.laoTransitD8;
-                if (!merged.lolo && def.lolo) merged.lolo = def.lolo;
-                if (!merged.customsFee && def.customsFee) merged.customsFee = def.customsFee;
-                // Auto-upgrade Ngân Hùng to 16,000 THB (11.68M VND) if holding old 4.3M value
-                if (merged.id === 'AGT_NGAN_HUNG' && (!merged.transitThb || merged.laoTransitD8 < 10000000)) {
-                  merged.transitThb = 16000;
-                  merged.fxThbRate = 730;
-                  merged.laoTransitD8 = 11680000;
-                  merged.laoTransit = 11680000;
-                }
-                return merged;
-              }
-              return a;
-            });
-          }
-          if (parsed.carriers && Array.isArray(parsed.carriers)) {
-            parsed.carriers = parsed.carriers.map(c => {
-              const def = DEFAULT_PARTNERS_MASTER.carriers.find(d => d.id === c.id);
-              if (def) {
-                const merged = Object.assign({}, def, c);
-                if (merged.contLbRate === undefined) merged.contLbRate = def.contLbRate;
-                if (merged.contMkdRate === undefined) merged.contMkdRate = def.contMkdRate;
-                if (merged.demContBorder === undefined) merged.demContBorder = def.demContBorder;
-                if (merged.carrierVatRate === undefined) merged.carrierVatRate = def.carrierVatRate;
-                return merged;
-              }
-              return c;
-            });
+          parsed.agents = normalizeAgentsList(parsed.agents);
+          parsed.carriers = normalizeCarriersList(parsed.carriers);
+          // Khi nâng cấp từ bản trước V5.5 lên V5.5, dọn sạch các baselineOverrides bị nhiễm cứng 22M / 2.5M / 12.24M ngoài ý muốn
+          if (isPreV55) {
+            parsed.baselineOverrides = {};
           }
           partnersMaster = Object.assign(partnersMaster, parsed);
-          if (isLegacy) {
+          if (isPreV55) {
             savePartnersToStorage();
           }
         }
@@ -3555,7 +3645,9 @@
 
     function savePartnersToStorage() {
       try {
-        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_4', JSON.stringify(partnersMaster));
+        const json = JSON.stringify(partnersMaster);
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_5', json);
+        localStorage.setItem('CMH_TSC_PARTNERS_MASTER_V5_4', json);
       } catch (e) {}
     }
 
@@ -3640,11 +3732,11 @@
             hasChanges = true;
           }
           if (Array.isArray(s.carriers) && s.carriers.length > 0) {
-            partnersMaster.carriers = s.carriers;
+            partnersMaster.carriers = normalizeCarriersList(s.carriers);
             hasChanges = true;
           }
           if (Array.isArray(s.agents) && s.agents.length > 0) {
-            partnersMaster.agents = s.agents;
+            partnersMaster.agents = normalizeAgentsList(s.agents);
             hasChanges = true;
           }
           if (Array.isArray(s.scenarios) && s.scenarios.length > 0) {
@@ -3652,7 +3744,7 @@
             if (typeof saveScenariosToStorage === 'function') saveScenariosToStorage();
             hasChanges = true;
           }
-          if (s.activeScenarioId && typeof activeScenarioId !== 'undefined') {
+          if (s.activeScenarioId && typeof activeScenarioId !== 'undefined' && !_userDirtiedSession) {
             if (s.activeScenarioId === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901') {
               const defScn = scenariosMaster.find(sc => sc.isDefault) || scenariosMaster[0];
               activeScenarioId = defScn ? defScn.id : 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
@@ -3666,8 +3758,13 @@
             renderArea2Dropdowns();
             if (typeof renderScenarioDropdown === 'function') renderScenarioDropdown();
             const targetScn = scenariosMaster.find(sc => sc.id === activeScenarioId) || scenariosMaster.find(sc => sc.isDefault) || scenariosMaster[0];
-            if (targetScn && typeof applyScenario === 'function' && !isDraftMode) {
-              applyScenario(targetScn);
+            if (targetScn && typeof applyScenario === 'function' && !isDraftMode && !_userDirtiedSession) {
+              _isApplyingCloudState = true;
+              try {
+                applyScenario(targetScn);
+              } finally {
+                _isApplyingCloudState = false;
+              }
             } else {
               recalculate();
             }
@@ -3793,6 +3890,8 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "CPT_SVN",
+        transportRoute: "ROUTE_LAO_BAO",
+        dossierRoute: "DOSSIER_FULL_SAVANNAKHET",
         vehicle: "HOWO_156",
         tripCount: 1,
         boxQty: 1300,
@@ -3828,6 +3927,8 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "CPT_SVN",
+        transportRoute: "ROUTE_SAVANNAKHET",
+        dossierRoute: "DOSSIER_FULL_SAVANNAKHET",
         vehicle: "CONT_40HC",
         tripCount: 1,
         boxQty: 800,
@@ -3863,6 +3964,8 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "CPT_MKD",
+        transportRoute: "ROUTE_MUKDAHAN",
+        dossierRoute: "DOSSIER_FULL_SAVANNAKHET",
         vehicle: "CONT_45HC",
         tripCount: 1,
         boxQty: 1000,
@@ -3898,6 +4001,8 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "FCA_LB",
+        transportRoute: "ROUTE_LAO_BAO",
+        dossierRoute: "DOSSIER_LAO_BAO_HANDOVER",
         vehicle: "CONT_40HC",
         tripCount: 1,
         boxQty: 800,
@@ -3934,6 +4039,8 @@
         agentLaoId: "AGT_NGAN_HUNG",
         agentYardId: "AGT_ANH_TAN",
         terms: "FCA_LB",
+        transportRoute: "ROUTE_LAO_BAO",
+        dossierRoute: "DOSSIER_LAO_BAO_HANDOVER",
         vehicle: "HOWO_156",
         tripCount: 1,
         boxQty: 1900,
@@ -3985,6 +4092,9 @@
     let scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
     let activeScenarioId = "SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO";
     let isDraftMode = false;
+    let _userDirtiedSession = false;
+    let _isBootstrappingApp = true;
+    let _isApplyingCloudState = false;
     let currentUnforeseenExpenses = [];
     let packingMode = 'SINGLE'; // 'SINGLE' hoặc 'MIXED'
     let promoRevenueMode = 'SELL_ALL'; // 'SELL_ALL' (Bán thu USD cả hàng tặng) hoặc 'FOC_PASS' (Tặng FOC cho khách $0)
@@ -4209,20 +4319,31 @@
 
       const cogsPreVat = isMixed ? (d.cogsPreVat || 0) : (partnersMaster.baselineOverrides['cogs'] !== undefined ? partnersMaster.baselineOverrides['cogs'] : (qty * (supplier.pricePreVat || 337000)));
       
-      const vatRefund = isMixed ? (d.vatRefund || 0) : ((qty === 1300 && supId === 'SUP_THIEN_LONG' && derivedOrderId === '269901')
+      const vatRefund = ((qty === 1300 && supId === 'SUP_THIEN_LONG' && derivedOrderId === '269901' && !isMixed))
         ? 37237630
-        : Math.round(cogsPreVat * (supplier.vatRate || 0.08) + (22000000 * 0.08) + (5364000 * 0.08)));
+        : (d.vatRefund !== undefined ? d.vatRefund : Math.round(cogsPreVat * (supplier.vatRate || 0.08) + ((d.freightBase || 0) * 0.08) + (5364000 * 0.08)));
 
-      const revUsd = d.revUsd !== undefined ? d.revUsd : (
+      const revUsd = d.revenueUsd !== undefined ? d.revenueUsd : (
         (qty === 1300 && Math.abs(quotePrice - 15.80) < 0.01 && derivedOrderId === '269901') 
           ? 20540 
           : Number((qty * quotePrice).toFixed(2))
       );
-      const revVnd = d.revVnd !== undefined ? d.revVnd : Math.round(revUsd * fxRate);
+      const revVnd = d.revenueVnd !== undefined ? d.revenueVnd : Math.round(revUsd * fxRate);
 
       const totalUnforeseen = currentUnforeseenExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
       const totalUnforeseenVat = currentUnforeseenExpenses.filter(e => e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
       const totalUnforeseenNonVat = currentUnforeseenExpenses.filter(e => !e.hasInvoice).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+
+      const isHistorical269901 = (isCompleted && derivedOrderId === '269901' && !isMixed && qty === 1300);
+      const liveCostTransport = isHistorical269901
+        ? 22000000
+        : Math.round((d.freightBase || 0) + (d.demurrageFee || 0) + (d.loloFee || 0));
+      const liveCostCustoms = isHistorical269901
+        ? 8200000
+        : Math.round((d.customsFee || 0) + (d.coFee || 0) + (d.borderGuardFee || 0) + (d.transitLaoFee || 0) + (d.inspFee || 0) + (d.inspOtFee || 0) + (d.coExpressFee || 0) + (d.laoTransit || 0) + (d.yardFee || 0));
+      const liveCostFees = isHistorical269901
+        ? 270000
+        : Math.round((d.bankFee || 0) + (d.insuranceFee || 0) + (d.dunnageFee || 0) + (d.crossDockFee || 0) + (d.weighFee || 0) + (d.phytoFee || 0));
 
       const liveNid = computeSsotNameId();
       const payload = {
@@ -4239,9 +4360,9 @@
         exchangeRate: fxRate,
         revenueVnd: revVnd,
         costFactory: cogsPreVat,
-        costTransport: 22000000,
-        costCustoms: 8200000,
-        costFees: 270000,
+        costTransport: liveCostTransport,
+        costCustoms: liveCostCustoms,
+        costFees: liveCostFees,
         costBorderExtra: totalUnforeseen,
         vatRefund: vatRefund,
         packingMode: isMixed ? 'MIXED' : 'SINGLE',
@@ -4320,6 +4441,7 @@
         if (s && s.id === oldDefId) {
           s.isCompletedOrder = true;
         }
+        sanitizeScenarioOverridesObject(s);
       });
 
       // Chuyển cờ Mặc định (isDefault) từ kịch bản FCA_LB/HOWO cũ sang Cont 45ft HC · CPT Savannakhet
@@ -4347,7 +4469,7 @@
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V2');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V3');
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
-        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V6') || localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V5');
+        const stored = localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V7') || localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V6') || localStorage.getItem('CMH_TSC_SCENARIOS_MASTER_V5');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
@@ -4373,6 +4495,7 @@
     function saveScenariosToStorage() {
       try {
         const payload = JSON.stringify(scenariosMaster);
+        localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V7', payload);
         localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V6', payload);
         localStorage.setItem('CMH_TSC_SCENARIOS_MASTER_V5', payload);
         localStorage.removeItem('CMH_TSC_SCENARIOS_MASTER_V4');
@@ -4714,6 +4837,9 @@
       }
       if (document.getElementById('quotePrice') && scn.quotePrice !== undefined) document.getElementById('quotePrice').value = scn.quotePrice;
       if (document.getElementById('fxRate') && scn.fxRate !== undefined) document.getElementById('fxRate').value = scn.fxRate;
+      const agtLaoObj = (partnersMaster && partnersMaster.agents) ? (partnersMaster.agents.find(a => a.id === (scn.agentLao || 'AGT_NGAN_HUNG')) || partnersMaster.agents[1]) : null;
+      const thbRateVal = (scn.fxThbRate !== undefined) ? scn.fxThbRate : (agtLaoObj ? (agtLaoObj.fxThbRate || 730) : 730);
+      if (document.getElementById('fxThbRate')) document.getElementById('fxThbRate').value = thbRateVal;
 
       // 2b. Packing Mode, Hàng Tặng (KM) & Ghép Cont
       promoRevenueMode = scn.promoRevenueMode || 'SELL_ALL';
@@ -4785,7 +4911,8 @@
       if (document.getElementById('chkWeighbridge') && scn.chkWeighbridge !== undefined) document.getElementById('chkWeighbridge').checked = scn.chkWeighbridge;
       if (document.getElementById('chkPhyto') && scn.chkPhyto !== undefined) document.getElementById('chkPhyto').checked = scn.chkPhyto;
 
-      // 4. Overrides
+      // 4. Overrides (Tự động khử các override rác bị nhiễm từ lỗi cũ trước khi áp dụng)
+      sanitizeScenarioOverridesObject(scn);
       partnersMaster.baselineOverrides = scn.baselineOverrides ? JSON.parse(JSON.stringify(scn.baselineOverrides)) : {};
 
       // 4b. Khối chi phí phát sinh thực tế động
@@ -4798,10 +4925,9 @@
         lockAllUnlockedFeeItems(false);
       }
 
-      // 5. Cập nhật UI & tính toán
-      updateBinhAnLeftPanelLabels();
+      // 5. Cập nhật UI & tính toán (preserveOverrides = true để giữ các override hợp lệ đã lưu trong kịch bản)
       onSupplierChange(true);
-      onVehicleChange();
+      onVehicleChange(true);
       
       // Giữ đúng số thùng và đơn giá của kịch bản (nếu có khác chuẩn)
       if (document.getElementById('boxQty') && scn.boxQty !== undefined) {
@@ -4893,6 +5019,7 @@
     function startNewScenarioDraft() {
       isDraftMode = true;
       activeScenarioId = 'DRAFT_NEW';
+      if (partnersMaster) partnersMaster.baselineOverrides = {};
 
       // Tự động đặt cấu trúc mặc định khi tạo kịch bản mới: Xe Cont 45ft HC & Giao hàng tại Savannakhet
       if (document.getElementById('vehicleSelect')) {
@@ -5140,6 +5267,7 @@
       if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
+      clearOverrideKeys(['cogs']);
       const paidQty = Math.max(0, parseInt(val) || 0);
       if (!singleBonusManualOverride && packingMode !== 'MIXED') {
         const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
@@ -5814,12 +5942,30 @@
     // KHỐI MA TRẬN 2 TUYẾN ĐỘC LẬP: TUYẾN VẬN TẢI THỰC TẾ & TUYẾN HỒ SƠ HẢI QUAN
     // =========================================================================
 
+    function clearOverrideKeys(keys) {
+      if (!_isBootstrappingApp && !_isApplyingCloudState) {
+        _userDirtiedSession = true;
+      }
+      if (!partnersMaster || !partnersMaster.baselineOverrides) return false;
+      let removed = false;
+      keys.forEach(k => {
+        if (partnersMaster.baselineOverrides[k] !== undefined) {
+          delete partnersMaster.baselineOverrides[k];
+          removed = true;
+        }
+      });
+      if (removed) savePartnersToStorage();
+      return removed;
+    }
+
     function onIncotermsChange() {
       const incoSel = document.getElementById('incotermsSelect');
       if (!incoSel) return;
       const termsVal = incoSel.value;
       const transSel = document.getElementById('transportRouteSelect');
       const dosSel = document.getElementById('dossierRouteSelect');
+
+      clearOverrideKeys(['freight', 'lolo', 'laoTransit', 'demurrage']);
 
       if (termsVal === 'FCA_LB') {
         if (transSel) transSel.value = 'ROUTE_LAO_BAO';
@@ -5834,6 +5980,10 @@
         }
         if (dosSel) dosSel.value = 'DOSSIER_FULL_SAVANNAKHET';
       }
+      const chkLolo = document.getElementById('chkLoloFee');
+      if (chkLolo && transSel) {
+        chkLolo.checked = (transSel.value === 'ROUTE_SAVANNAKHET_DRY_PORT');
+      }
       onDossierRouteChange(true);
       recalculate();
       showToastNotification(`🌐 Đã đồng bộ Incoterms [${termsVal}] → Tuyến xe & Điểm hồ sơ tương ứng!`);
@@ -5843,12 +5993,29 @@
       const transSel = document.getElementById('transportRouteSelect');
       if (!transSel) return;
       const routeVal = transSel.value;
+      clearOverrideKeys(['freight', 'lolo']);
+
+      const vehSel = document.getElementById('vehicleSelect');
+      let autoSwitchedCont = false;
+      if (routeVal === 'ROUTE_SAVANNAKHET_DRY_PORT' && vehSel && vehSel.value === 'HOWO_156') {
+        vehSel.value = 'CONT_45HC';
+        autoSwitchedCont = true;
+      }
+
       const chkLolo = document.getElementById('chkLoloFee');
       if (chkLolo) {
         chkLolo.checked = (routeVal === 'ROUTE_SAVANNAKHET_DRY_PORT');
       }
+
+      if (autoSwitchedCont) {
+        onVehicleChange();
+        showToastNotification('🚛 Tuyến Hạ bãi Cont Savannakhet yêu cầu vỏ Container → Đã tự động chuyển sang Cont 45ft HC (Cước 35M + LOLO 2M = 37M)!');
+        return;
+      }
+
       recalculate();
-      showToastNotification(`🛣️ Đã chuyển Tuyến Vận Tải: ${transSel.options[transSel.selectedIndex].text}`);
+      const routeText = (transSel.options && transSel.selectedIndex >= 0) ? transSel.options[transSel.selectedIndex].text : routeVal;
+      showToastNotification(`🛣️ Đã chuyển Tuyến Vận Tải: ${routeText}`);
     }
 
     function onDossierRouteChange(silent) {
@@ -5857,6 +6024,10 @@
       const dosVal = dosSel.value;
       const noteEl = document.getElementById('dossierRouteNote');
       const chkLao = document.getElementById('chkLaoTransit');
+
+      if (!silent) {
+        clearOverrideKeys(['laoTransit']);
+      }
 
       if (dosVal === 'DOSSIER_LAO_BAO_ONLY') {
         if (chkLao) chkLao.checked = false;
@@ -5870,8 +6041,59 @@
       }
       if (!silent) {
         recalculate();
-        showToastNotification(`📑 Đã áp dụng Điểm Hồ Sơ: ${dosSel.options[dosSel.selectedIndex].text}`);
+        const dosText = (dosSel.options && dosSel.selectedIndex >= 0) ? dosSel.options[dosSel.selectedIndex].text : dosVal;
+        showToastNotification(`📑 Đã áp dụng Điểm Hồ Sơ: ${dosText}`);
       }
+    }
+
+    function onCarrierChange() {
+      clearOverrideKeys(['freight', 'demurrage']);
+      recalculate();
+    }
+
+    function onAgentLaoChange() {
+      clearOverrideKeys(['laoTransit']);
+      const agtLaoSel = document.getElementById('agentLaoSelect');
+      const agtLaoId = agtLaoSel ? agtLaoSel.value : 'AGT_NGAN_HUNG';
+      const agtObj = partnersMaster && partnersMaster.agents ? partnersMaster.agents.find(a => a.id === agtLaoId) : null;
+      if (agtObj && agtObj.fxThbRate && document.getElementById('fxThbRate')) {
+        document.getElementById('fxThbRate').value = agtObj.fxThbRate;
+      }
+      recalculate();
+    }
+
+    function onFxThbRateManualInput(val) {
+      const num = parseFloat(val);
+      if (!num || num <= 0) return;
+      clearOverrideKeys(['laoTransit']);
+      const fxThbInp = document.getElementById('fxThbRate');
+      if (fxThbInp && fxThbInp.value !== String(num)) fxThbInp.value = num;
+      if (partnersMaster && Array.isArray(partnersMaster.agents)) {
+        partnersMaster.agents.forEach(a => {
+          a.fxThbRate = num;
+          if (a.transitThb && a.transitThb > 0) {
+            a.laoTransitD8 = Math.round(a.transitThb * num);
+            a.laoTransit = a.laoTransitD8;
+          }
+        });
+        savePartnersToStorage();
+      }
+      recalculate();
+      const badge = document.getElementById('fxStatusBadge');
+      if (badge) {
+        const estD8 = Math.round(16000 * num);
+        badge.innerHTML = `<span class="status-dot dot-green"></span>Tỷ giá tùy chỉnh: THB <b>${num} đ</b> ➔ Quá cảnh Lào D8: <b>${formatVnd(estD8)}/cont</b>`;
+      }
+    }
+
+    function onAgentYardChange() {
+      clearOverrideKeys(['lolo']);
+      recalculate();
+    }
+
+    function onDemurrageDaysInput() {
+      clearOverrideKeys(['demurrage']);
+      recalculate();
     }
 
     // =========================================================================
@@ -6094,135 +6316,237 @@
     }
 
     // Dynamic Label & Input Sync for Fees 3 ~ 14
-    function updateBinhAnLeftPanelLabels() {
-      if (!partnersMaster) return;
+    function computeStandardFeeDefaults() {
+      if (!partnersMaster) return null;
       if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
       const overrides = partnersMaster.baselineOverrides;
 
-      const agtVnId = document.getElementById('agentVnSelect') ? document.getElementById('agentVnSelect').value : 'AGT_BINH_AN';
-      const isNone = (agtVnId === 'NONE');
-      const selectedAgent = partnersMaster.agents ? (partnersMaster.agents.find(a => a.id === agtVnId) || partnersMaster.agents[0]) : null;
-
-      const titleEl = document.getElementById('lblAgentVnTitle');
-      if (titleEl) {
-        if (isNone) {
-          titleEl.innerText = `📑 ĐẠI LÝ HẢI QUAN & C/O: IN-HOUSE GSS TỰ MỞ TỜ KHAI (0 đ)`;
-        } else if (selectedAgent) {
-          titleEl.innerText = `📑 ĐẠI LÝ HẢI QUAN & C/O: ${selectedAgent.name.toUpperCase()} (HĐ 269901)`;
-        }
-      }
-
-      // 1. Nhóm 1: Tiêu chuẩn cố định (Khoản 6, 7, 8)
-      const cFee = overrides['baCustoms'] !== undefined ? overrides['baCustoms'] : (isNone ? 0 : ((selectedAgent && selectedAgent.customsFee !== undefined) ? selectedAgent.customsFee : 3000000));
-      const coFee = overrides['baCO'] !== undefined ? overrides['baCO'] : (isNone ? 0 : ((selectedAgent && selectedAgent.coFee !== undefined) ? selectedAgent.coFee : 1000000));
-      const bgFee = overrides['baBorder'] !== undefined ? overrides['baBorder'] : (isNone ? 0 : ((selectedAgent && selectedAgent.borderGuard !== undefined) ? selectedAgent.borderGuard : 1500000));
-
-      const valCustoms = document.getElementById('val_baCustoms');
-      if (valCustoms) valCustoms.innerText = `${cFee.toLocaleString('vi-VN')} đ`;
-      const valCO = document.getElementById('val_baCO');
-      if (valCO) valCO.innerText = `${coFee.toLocaleString('vi-VN')} đ`;
-      const valBorder = document.getElementById('val_baBorder');
-      if (valBorder) valBorder.innerText = `${bgFee.toLocaleString('vi-VN')} đ`;
-
-      // 2. Nhóm 2: Phát sinh tùy biến (Khoản 9, 10, 11, 12)
-      const agtShortName = isNone ? "GSS" : ((selectedAgent && selectedAgent.name) ? selectedAgent.name.split(' ')[0] : "Đại lý");
-      const trFee = overrides['baTransitUnit'] !== undefined ? overrides['baTransitUnit'] : (isNone ? 0 : ((selectedAgent && selectedAgent.laoTransitFee !== undefined) ? selectedAgent.laoTransitFee : 2000000));
-      const inspFee = overrides['baInsp'] !== undefined ? overrides['baInsp'] : (isNone ? 0 : ((selectedAgent && selectedAgent.inspectionFee !== undefined) ? selectedAgent.inspectionFee : 1000000));
-      const inspOtFee = overrides['baInspOt'] !== undefined ? overrides['baInspOt'] : (isNone ? 0 : ((selectedAgent && selectedAgent.inspectionOtFee !== undefined) ? selectedAgent.inspectionOtFee : 2000000));
-      const coExpFee = overrides['baCoExpress'] !== undefined ? overrides['baCoExpress'] : (isNone ? 0 : ((selectedAgent && selectedAgent.coExpressFee !== undefined) ? selectedAgent.coExpressFee : 2000000));
-
-      const lblTransit = document.getElementById('lblBinhAnTransit');
-      if (lblTransit) lblTransit.innerHTML = `Thủ tục transit xe Lào (${agtShortName}): <b id="val_baTransit" class="fee-val-text">${trFee.toLocaleString('vi-VN')} đ/xe</b>`;
-      const valInsp = document.getElementById('val_baInsp');
-      if (valInsp) valInsp.innerText = `${inspFee.toLocaleString('vi-VN')} đ`;
-      const valInspOt = document.getElementById('val_baInspOt');
-      if (valInspOt) valInspOt.innerText = `${inspOtFee.toLocaleString('vi-VN')} đ`;
-      const valCoExp = document.getElementById('val_baCoExpress');
-      if (valCoExp) valCoExp.innerText = `${coExpFee.toLocaleString('vi-VN')} đ`;
-
-      // 3. Nhóm 3: Quá cảnh Lào, bến bãi & nâng hạ (Khoản 13, 14, 5)
       const tripCount = parseInt(document.getElementById('tripCount') ? document.getElementById('tripCount').value : 1) || 1;
       const vehicle = document.getElementById('vehicleSelect') ? document.getElementById('vehicleSelect').value : 'CONT_45HC';
       const terms = document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'CPT_SVN';
+      const transRoute = document.getElementById('transportRouteSelect') ? document.getElementById('transportRouteSelect').value : 'ROUTE_SAVANNAKHET';
+      const dossierRoute = document.getElementById('dossierRouteSelect') ? document.getElementById('dossierRouteSelect').value : 'DOSSIER_FULL_SAVANNAKHET';
+
+      const carrierId = document.getElementById('carrierSelect') ? document.getElementById('carrierSelect').value : 'CARRIER_VINH_THANH';
+      const carrier = (partnersMaster.carriers && partnersMaster.carriers.length > 0)
+        ? (partnersMaster.carriers.find(c => c.id === carrierId) || partnersMaster.carriers[0])
+        : { howoRate: 22000000, contLbRate: 22000000, contSvnRate: 35000000, contMkdRate: 38000000, demHowoDomestic: 2000000, demHowoBorder: 2500000, demContBorder: 2500000, demCont: 3000000 };
+
+      const agtVnId = document.getElementById('agentVnSelect') ? document.getElementById('agentVnSelect').value : 'AGT_BINH_AN';
+      const isVnNone = (agtVnId === 'NONE');
+      const selectedAgentVn = (partnersMaster.agents && partnersMaster.agents.length > 0)
+        ? (partnersMaster.agents.find(a => a.id === agtVnId) || partnersMaster.agents[0])
+        : null;
 
       const agtLaoId = document.getElementById('agentLaoSelect') ? document.getElementById('agentLaoSelect').value : 'AGT_NGAN_HUNG';
+      const isLaoNone = (agtLaoId === 'NONE');
       const selectedAgentLao = partnersMaster.agents ? partnersMaster.agents.find(a => a.id === agtLaoId) : null;
-      let defLao = 0;
-      if (agtLaoId !== 'NONE' && terms !== 'FCA_LB') {
-        let perTrip = (selectedAgentLao && selectedAgentLao.laoTransitD8) ? selectedAgentLao.laoTransitD8 : 12240000;
-        defLao = perTrip * tripCount;
+
+      const agtYardId = document.getElementById('agentYardSelect') ? document.getElementById('agentYardSelect').value : 'AGT_ANH_TAN';
+      const isYardNone = (agtYardId === 'NONE');
+      const selectedAgentYard = partnersMaster.agents ? partnersMaster.agents.find(a => a.id === agtYardId) : null;
+
+      // 1. Cước vận tải theo đúng Ma Trận Tuyến Vận Tải Thực Tế (transRoute) — SSOT duy nhất
+      let unitFreight = carrier.contSvnRate || 35000000;
+      if (transRoute === 'ROUTE_LAO_BAO') {
+        unitFreight = (vehicle === 'HOWO_156')
+          ? (carrier.howoRate || 22000000)
+          : (carrier.contLbRate !== undefined ? carrier.contLbRate : (carrier.howoRate || 22000000));
+      } else if (transRoute === 'ROUTE_SAVANNAKHET_DRY_PORT') {
+        // Cước xe đến Savannakhet 35M; phí LOLO 2M đã tách độc lập tại Khoản 5 (chkLoloFee) để không bao giờ cộng trùng 2 lần!
+        unitFreight = carrier.contSvnRate || 35000000;
+      } else if (transRoute === 'ROUTE_MUKDAHAN') {
+        unitFreight = carrier.contMkdRate !== undefined ? carrier.contMkdRate : ((carrier.contSvnRate || 35000000) + 3000000);
+      } else {
+        unitFreight = carrier.contSvnRate || 35000000;
       }
-      const laoTransitVal = overrides['laoTransit'] !== undefined ? overrides['laoTransit'] : defLao;
-      const valLao = document.getElementById('val_laoTransit');
-      if (valLao) valLao.innerText = `${laoTransitVal.toLocaleString('vi-VN')} đ`;
+      const defFreightWhenActive = unitFreight * tripCount;
 
-      const defYard = 1500000 * tripCount;
-      const yardVal = overrides['yard'] !== undefined ? overrides['yard'] : defYard;
-      const valYard = document.getElementById('val_yard');
-      if (valYard) valYard.innerText = `${yardVal.toLocaleString('vi-VN')} đ`;
-
-      let defLolo = (vehicle !== 'HOWO_156') ? (2000000 * tripCount) : 0;
-      const loloVal = overrides['lolo'] !== undefined ? overrides['lolo'] : defLolo;
-      const valLolo = document.getElementById('val_lolo');
-      if (valLolo) valLolo.innerText = `${loloVal.toLocaleString('vi-VN')} đ`;
-
-      // 4. Khoản 3 (Cước vận tải) & Khoản 4 (Tiền lưu xe)
-      const carrierId = document.getElementById('carrierSelect') ? document.getElementById('carrierSelect').value : 'CAR_VINH_THANH';
-      const selectedCarrier = partnersMaster.carriers ? (partnersMaster.carriers.find(c => c.id === carrierId) || partnersMaster.carriers[0]) : null;
-      let defFr = (selectedCarrier ? (selectedCarrier.howoRate || 22000000) : 22000000) * tripCount;
-      const frVal = overrides['freight'] !== undefined ? overrides['freight'] : defFr;
-      const lblFr = document.getElementById('lblFreightVal');
-      if (lblFr) lblFr.innerText = `${frVal.toLocaleString('vi-VN')} đ`;
-
-      const defDem = 2500000 * tripCount;
-      const demVal = overrides['demurrage'] !== undefined ? overrides['demurrage'] : defDem;
-      const lblDem = document.getElementById('lblDemurrageVal');
-      if (lblDem) lblDem.innerText = `${demVal.toLocaleString('vi-VN')} đ`;
-
-      // 5. Dự phòng hiện trường & Contingency (Khoản dunnage, crossDock, weighbridge, phyto)
-      const dunVal = overrides['dunnage'] !== undefined ? overrides['dunnage'] : (800000 * tripCount);
-      const valDun = document.getElementById('val_dunnage');
-      if (valDun) valDun.innerText = `${dunVal.toLocaleString('vi-VN')} đ`;
-
-      const cdVal = overrides['crossDock'] !== undefined ? overrides['crossDock'] : (2000000 * tripCount);
-      const valCd = document.getElementById('val_crossDock');
-      if (valCd) valCd.innerText = `${cdVal.toLocaleString('vi-VN')} đ`;
-
-      const wbVal = overrides['weighbridge'] !== undefined ? overrides['weighbridge'] : (200000 * tripCount);
-      const valWb = document.getElementById('val_weighbridge');
-      if (valWb) valWb.innerText = `${wbVal.toLocaleString('vi-VN')} đ`;
-
-      const phytoVal = overrides['phyto'] !== undefined ? overrides['phyto'] : 1500000;
-      const valPhyto = document.getElementById('val_phyto');
-      if (valPhyto) valPhyto.innerText = `${phytoVal.toLocaleString('vi-VN')} đ`;
-
-      // Đồng bộ giá trị vào các ô input khi không đang gõ trực tiếp
-      const syncInput = (id, val) => {
-        const inp = document.getElementById(id);
-        if (inp && (document.activeElement !== inp || inp.value === '')) {
-          inp.value = val;
+      // 2. Tiền lưu xe / lưu cont (Khoản 4)
+      let defDemurrageWhenActive = 0;
+      let demurrageNote = '';
+      if (vehicle === 'HOWO_156') {
+        const dDom = parseInt(document.getElementById('demHowoDomesticDays') ? document.getElementById('demHowoDomesticDays').value : 0) || 0;
+        const dBorder = parseInt(document.getElementById('demHowoBorderDays') ? document.getElementById('demHowoBorderDays').value : 0) || 0;
+        const rDom = carrier.demHowoDomestic !== undefined ? carrier.demHowoDomestic : 2000000;
+        const rBorder = carrier.demHowoBorder !== undefined ? carrier.demHowoBorder : 2500000;
+        defDemurrageWhenActive = ((dDom * rDom) + (dBorder * rBorder)) * tripCount;
+        demurrageNote = `${dDom} ngày nội địa (${(rDom/1e6).toFixed(1)}tr) + ${dBorder} ngày CK (${(rBorder/1e6).toFixed(1)}tr) [x${tripCount} xe]`;
+      } else {
+        const dCont = parseInt(document.getElementById('demurrageDays') ? document.getElementById('demurrageDays').value : 0) || 0;
+        if (transRoute === 'ROUTE_LAO_BAO' || terms === 'FCA_LB') {
+          const rContBorder = carrier.demContBorder !== undefined ? carrier.demContBorder : 2500000;
+          defDemurrageWhenActive = (dCont * rContBorder) * tripCount;
+          demurrageNote = `${dCont} ngày lưu xe đầu kéo cont tại CK Lao Bảo (${(rContBorder/1e6).toFixed(1)}tr/ngày) [x${tripCount} cont]`;
+        } else {
+          const rCont = carrier.demCont !== undefined ? carrier.demCont : 3000000;
+          defDemurrageWhenActive = (dCont * rCont) * tripCount;
+          demurrageNote = `${dCont} ngày lưu cont Lào vượt 48h (${(rCont/1e6).toFixed(1)}tr/ngày) [x${tripCount} cont]`;
         }
+      }
+
+      // 3. Đại lý Hải quan VN & C/O (Khoản 6..12)
+      const baTransitTrucks = parseInt(document.getElementById('binhAnTransitTrucks') ? document.getElementById('binhAnTransitTrucks').value : tripCount) || tripCount;
+      const defBaCustoms = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.customsFee !== undefined) ? selectedAgentVn.customsFee : 3000000);
+      const defBaCO = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.coFee !== undefined) ? selectedAgentVn.coFee : 1000000);
+      const defBaBorder = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.borderGuard !== undefined) ? selectedAgentVn.borderGuard : 1500000);
+      const defBaTransitUnit = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.laoTransitFee !== undefined) ? selectedAgentVn.laoTransitFee : 2000000);
+      const defBaTransitTotal = defBaTransitUnit * baTransitTrucks;
+      const defBaInsp = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.inspectionFee !== undefined) ? selectedAgentVn.inspectionFee : 1000000);
+      const defBaInspOt = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.inspectionOtFee !== undefined) ? selectedAgentVn.inspectionOtFee : 2000000);
+      const defBaCoExpress = isVnNone ? 0 : ((selectedAgentVn && selectedAgentVn.coExpressFee !== undefined) ? selectedAgentVn.coExpressFee : 2000000);
+
+      // 4. Quá cảnh Lào D8/T1 (Khoản 13)
+      let transitThbPerCont = 0;
+      let fxThb = (document.getElementById('fxThbRate') && parseFloat(document.getElementById('fxThbRate').value) > 0)
+        ? parseFloat(document.getElementById('fxThbRate').value)
+        : (selectedAgentLao ? (selectedAgentLao.fxThbRate || 730) : 730);
+      let perTripD8 = 0;
+      if (selectedAgentLao) {
+        transitThbPerCont = selectedAgentLao.transitThb !== undefined ? selectedAgentLao.transitThb : (selectedAgentLao.id === 'AGT_NGAN_HUNG' ? 16000 : 0);
+        if (transitThbPerCont > 0) {
+          perTripD8 = Math.round(transitThbPerCont * fxThb);
+        } else {
+          perTripD8 = (selectedAgentLao.laoTransitD8 !== undefined && selectedAgentLao.laoTransitD8 > 0)
+            ? selectedAgentLao.laoTransitD8
+            : (selectedAgentLao.laoTransit || 11680000);
+        }
+      }
+      const isDossierExemptTransit = (dossierRoute === 'DOSSIER_LAO_BAO_ONLY' || dossierRoute === 'DOSSIER_LAO_BAO_HANDOVER');
+      const defLaoTransitWhenActive = (!isLaoNone && !isDossierExemptTransit) ? (perTripD8 * tripCount) : 0;
+
+      // 5. Bến bãi & LOLO (Khoản 14, Khoản 5) + Dự phòng hiện trường
+      const defYardWhenActive = 1500000 * tripCount;
+      const defLoloUnit = (!isYardNone) ? ((selectedAgentYard && selectedAgentYard.lolo !== undefined) ? selectedAgentYard.lolo : 2000000) : 0;
+      const defLoloWhenActive = defLoloUnit * tripCount;
+      const defDunnage = 800000 * tripCount;
+      const defCrossDock = 2000000 * tripCount;
+      const defWeighbridge = 200000 * tripCount;
+      const defPhyto = 1500000;
+
+      return {
+        overrides,
+        tripCount, vehicle, terms, transRoute, dossierRoute,
+        carrier, selectedAgentVn, selectedAgentLao, selectedAgentYard,
+        isVnNone, isLaoNone, isYardNone, isDossierExemptTransit,
+        baTransitTrucks, transitThbPerCont, fxThb, perTripD8,
+        unitFreight,
+        defaultsByKey: {
+          freight: defFreightWhenActive,
+          demurrage: defDemurrageWhenActive,
+          baCustoms: defBaCustoms,
+          baCO: defBaCO,
+          baBorder: defBaBorder,
+          baTransitUnit: defBaTransitUnit,
+          baTransit: defBaTransitTotal,
+          baInsp: defBaInsp,
+          baInspOt: defBaInspOt,
+          baCoExpress: defBaCoExpress,
+          laoTransit: defLaoTransitWhenActive,
+          yard: defYardWhenActive,
+          lolo: defLoloWhenActive,
+          dunnage: defDunnage,
+          crossDock: defCrossDock,
+          weighbridge: defWeighbridge,
+          phyto: defPhyto
+        },
+        demurrageNote
       };
-      syncInput('inpFee_baCustoms', cFee);
-      syncInput('inpFee_baCO', coFee);
-      syncInput('inpFee_baBorder', bgFee);
-      syncInput('inpFee_baTransit', trFee);
-      syncInput('inpFee_baInsp', inspFee);
-      syncInput('inpFee_baInspOt', inspOtFee);
-      syncInput('inpFee_baCoExpress', coExpFee);
-      syncInput('inpFee_laoTransit', laoTransitVal);
-      syncInput('inpFee_yard', yardVal);
-      syncInput('inpFee_lolo', loloVal);
-      syncInput('inpFee_freight', frVal);
-      syncInput('inpFee_demurrage', demVal);
-      syncInput('inpFee_dunnage', dunVal);
-      syncInput('inpFee_crossDock', cdVal);
-      syncInput('inpFee_weighbridge', wbVal);
-      syncInput('inpFee_phyto', phytoVal);
+    }
+
+    function syncLeftPanelFeeLabelsAndInputs(std) {
+      const ctx = std || computeStandardFeeDefaults();
+      if (!ctx) return;
+      const { overrides, defaultsByKey, isVnNone, selectedAgentVn, transRoute, tripCount } = ctx;
+
+      const titleEl = document.getElementById('lblAgentVnTitle');
+      if (titleEl) {
+        if (isVnNone) {
+          titleEl.innerText = `📑 ĐẠI LÝ HẢI QUAN & C/O: IN-HOUSE GSS TỰ MỞ TỜ KHAI (0 đ)`;
+        } else if (selectedAgentVn) {
+          titleEl.innerText = `📑 ĐẠI LÝ HẢI QUAN & C/O: ${selectedAgentVn.name.toUpperCase()} (HĐ 269901)`;
+        }
+      }
+
+      const agtShortName = isVnNone ? "GSS" : ((selectedAgentVn && selectedAgentVn.name) ? selectedAgentVn.name.split(' ')[0] : "Đại lý");
+      const lblTransit = document.getElementById('lblBinhAnTransit');
+      const effBaTransitUnit = overrides['baTransitUnit'] !== undefined ? overrides['baTransitUnit'] : defaultsByKey.baTransitUnit;
+      if (lblTransit) {
+        lblTransit.innerHTML = `Thủ tục transit xe Lào (${agtShortName}): <b id="val_baTransit" class="fee-val-text">${Math.round(effBaTransitUnit).toLocaleString('vi-VN')} đ/xe</b>`;
+      }
+
+      const isFreightChecked = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
+      const isDemurrageChecked = document.getElementById('chkDemurrage') ? document.getElementById('chkDemurrage').checked : true;
+      const isLaoChecked = document.getElementById('chkLaoTransit') ? document.getElementById('chkLaoTransit').checked : true;
+      const isLoloChecked = document.getElementById('chkLoloFee') ? document.getElementById('chkLoloFee').checked : false;
+
+      const resolveDisplayVal = (cfgKey, overrideKey) => {
+        const baseVal = overrides[overrideKey] !== undefined ? overrides[overrideKey] : (defaultsByKey[overrideKey] || 0);
+        if (cfgKey === 'freight') return isFreightChecked ? baseVal : 0;
+        if (cfgKey === 'demurrage') return isDemurrageChecked ? baseVal : 0;
+        if (cfgKey === 'laoTransit') return isLaoChecked ? baseVal : 0;
+        if (cfgKey === 'lolo') return isLoloChecked ? baseVal : 0;
+        return baseVal;
+      };
+
+      Object.keys(FEE_CONFIG).forEach(key => {
+        const cfg = FEE_CONFIG[key];
+        const dispVal = resolveDisplayVal(key, cfg.overrideKey);
+        const valEl = document.getElementById(cfg.valId);
+        if (valEl) {
+          valEl.innerText = cfg.format(dispVal);
+
+          // Hiển thị chip [📌 Ghi đè · ↺] nếu khoản phí đang bị khóa giá sửa tay
+          const chipId = `chipOverride_${key}`;
+          let chipEl = document.getElementById(chipId);
+          const isOverridden = (overrides[cfg.overrideKey] !== undefined);
+          if (isOverridden) {
+            if (!chipEl) {
+              chipEl = document.createElement('span');
+              chipEl.id = chipId;
+              chipEl.className = 'fee-override-chip';
+              chipEl.title = 'Đang áp dụng số tiền ghi đè tay · Bấm để khôi phục tính tự động theo Tuyến/SSOT';
+              chipEl.innerText = '📌 Ghi đè · ↺';
+              chipEl.onclick = function(ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                clearSingleFeeOverride(key);
+              };
+              valEl.insertAdjacentElement('afterend', chipEl);
+            }
+          } else if (chipEl) {
+            chipEl.remove();
+          }
+        }
+
+        // Đồng bộ ô input ẩn chỉ khi ô đó KHÔNG đang mở khóa sửa tay
+        const inp = document.getElementById(cfg.inputId);
+        if (inp && !unlockedFeeItems.has(key) && document.activeElement !== inp) {
+          const inputSyncVal = overrides[cfg.overrideKey] !== undefined ? overrides[cfg.overrideKey] : (defaultsByKey[cfg.overrideKey] || 0);
+          inp.value = Math.round(inputSyncVal);
+          inp.dataset.dirty = '0';
+        }
+      });
+
+      // Ghi chú rõ ràng cho tuyến Savannakhet Dry Port (Cước 35M + LOLO 2M ở Khoản 5 = 37M)
+      const routeNoteEl = document.getElementById('lblFreightRouteNote');
+      if (routeNoteEl) {
+        if (transRoute === 'ROUTE_SAVANNAKHET_DRY_PORT' && isLoloChecked && overrides['freight'] === undefined) {
+          const loloDisp = overrides['lolo'] !== undefined ? overrides['lolo'] : defaultsByKey.lolo;
+          const combined = (isFreightChecked ? defaultsByKey.freight : 0) + loloDisp;
+          routeNoteEl.innerText = `(+ LOLO Khoản 5: ${Math.round(loloDisp).toLocaleString('vi-VN')} đ ➔ Gộp: ${Math.round(combined).toLocaleString('vi-VN')} đ)`;
+        } else {
+          routeNoteEl.innerText = '';
+        }
+      }
+    }
+
+    function updateBinhAnLeftPanelLabels() {
+      syncLeftPanelFeeLabelsAndInputs();
     }
 
     function onAgentVnChange() {
-      updateBinhAnLeftPanelLabels();
+      clearOverrideKeys(['baCustoms', 'baCO', 'baBorder', 'baTransit', 'baTransitUnit', 'baInsp', 'baInspOt', 'baCoExpress']);
       recalculate();
     }
 
@@ -6373,8 +6697,13 @@
       if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
-      const supId = document.getElementById('supplierSelect').value;
-      const sup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+      if (!keepCurrentQuote) {
+        clearOverrideKeys(['cogs']);
+      }
+      const supSelectEl = document.getElementById('supplierSelect');
+      const supId = supSelectEl ? supSelectEl.value : '';
+      const sup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+      if (!sup) return;
       const skuCode = getSupplierSkuCode(sup);
       
       const prodNameEl = document.getElementById('infoProdName');
@@ -6393,10 +6722,14 @@
           buyPriceEl.innerText = `${formatExactProductPriceVnd(sup.pricePreVat)}đ`;
         }
       }
-      document.getElementById('infoVatRate').innerText = (sup.vatRate * 100).toFixed(0);
-      document.getElementById('kpiVatRateSub').innerText = `${(sup.vatRate * 100).toFixed(0)}% Tiền mua hàng Nhà máy`;
-      document.getElementById('printCommodity').innerText = `[${skuCode}] ${sup.product}`;
-      document.getElementById('printItemTitle').innerText = `[${skuCode}] ${sup.product}`;
+      const infoVatEl = document.getElementById('infoVatRate');
+      if (infoVatEl) infoVatEl.innerText = ((sup.vatRate || 0.08) * 100).toFixed(0);
+      const kpiVatSubEl = document.getElementById('kpiVatRateSub');
+      if (kpiVatSubEl) kpiVatSubEl.innerText = `${((sup.vatRate || 0.08) * 100).toFixed(0)}% Tiền mua hàng Nhà máy`;
+      const printCommEl = document.getElementById('printCommodity');
+      if (printCommEl) printCommEl.innerText = `[${skuCode}] ${sup.product}`;
+      const printTitleEl = document.getElementById('printItemTitle');
+      if (printTitleEl) printTitleEl.innerText = `[${skuCode}] ${sup.product}`;
 
       // Đồng bộ thông số Chế độ Hàng Tặng (KM) của sản phẩm đang chọn lên khung #singlePromoBox
       const promoBaseInp = document.getElementById('singlePromoBuyBase');
@@ -7161,6 +7494,48 @@
       }
     }
 
+    function applyValidatedInlineFeeOverride(key, inp) {
+      const cfg = FEE_CONFIG[key];
+      if (!cfg || !inp) return;
+      // Chỉ ghi nhận override nếu người dùng thực sự đã gõ/chỉnh sửa trong phiên mở khóa (dirty === '1')
+      if (inp.dataset.dirty !== '1') return;
+
+      if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
+      const rawStr = String(inp.value || '').trim();
+      if (rawStr === '') {
+        delete partnersMaster.baselineOverrides[cfg.overrideKey];
+        inp.dataset.dirty = '0';
+        return;
+      }
+
+      const num = parseFloat(rawStr);
+      if (!isNaN(num) && num >= 0) {
+        const std = computeStandardFeeDefaults();
+        const defVal = (std && std.defaultsByKey && std.defaultsByKey[cfg.overrideKey] !== undefined)
+          ? std.defaultsByKey[cfg.overrideKey]
+          : null;
+        if (defVal !== null && Math.round(num) === Math.round(defVal)) {
+          delete partnersMaster.baselineOverrides[cfg.overrideKey];
+        } else {
+          partnersMaster.baselineOverrides[cfg.overrideKey] = num;
+        }
+      }
+      inp.dataset.dirty = '0';
+    }
+
+    function clearSingleFeeOverride(key) {
+      const cfg = FEE_CONFIG[key];
+      if (!cfg) return;
+      if (partnersMaster && partnersMaster.baselineOverrides) {
+        delete partnersMaster.baselineOverrides[cfg.overrideKey];
+      }
+      const inp = document.getElementById(cfg.inputId);
+      if (inp) inp.dataset.dirty = '0';
+      savePartnersToStorage();
+      recalculate();
+      showToastNotification(`↺ Đã khôi phục khoản phí [${key}] về công thức tự động theo Tuyến & Đối tác SSOT!`);
+    }
+
     function unlockSingleFeeItem(key) {
       const cfg = FEE_CONFIG[key];
       if (!cfg) return;
@@ -7171,6 +7546,7 @@
       const btn = document.getElementById(cfg.btnId);
 
       if (inp) {
+        inp.dataset.dirty = '0';
         inp.style.display = 'inline-block';
         inp.focus();
         inp.select();
@@ -7181,20 +7557,14 @@
       }
 
       startOrExtendFeeAutoLockTimer();
-      showToastNotification(`🔓 Đã mở khóa sửa [${key}] · Tự động khóa sau ${feeAutoLockSecondsRemaining}s nếu không thao tác!`);
+      showToastNotification(`🔓 Đã mở khóa sửa [${key}] · Xóa trắng ô để về tự động · Tự khóa sau ${feeAutoLockSecondsRemaining}s!`);
     }
 
     function lockSingleFeeItem(key) {
       const cfg = FEE_CONFIG[key];
       if (cfg) {
         const inp = document.getElementById(cfg.inputId);
-        if (inp && inp.value !== '') {
-          const num = parseFloat(inp.value);
-          if (!isNaN(num) && num >= 0) {
-            if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
-            partnersMaster.baselineOverrides[cfg.overrideKey] = num;
-          }
-        }
+        applyValidatedInlineFeeOverride(key, inp);
         if (inp) inp.style.display = 'none';
 
         const btn = document.getElementById(cfg.btnId);
@@ -7221,13 +7591,7 @@
         const cfg = FEE_CONFIG[key];
         if (cfg) {
           const inp = document.getElementById(cfg.inputId);
-          if (inp && inp.value !== '') {
-            const num = parseFloat(inp.value);
-            if (!isNaN(num) && num >= 0) {
-              if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
-              partnersMaster.baselineOverrides[cfg.overrideKey] = num;
-            }
-          }
+          applyValidatedInlineFeeOverride(key, inp);
           if (inp) inp.style.display = 'none';
 
           const btn = document.getElementById(cfg.btnId);
@@ -7302,14 +7666,25 @@
 
       const cfg = FEE_CONFIG[key];
       if (cfg) {
-        const num = parseFloat(val);
-        if (!isNaN(num) && num >= 0) {
-          if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
-          partnersMaster.baselineOverrides[cfg.overrideKey] = num;
+        const inp = document.getElementById(cfg.inputId);
+        if (inp) inp.dataset.dirty = '1';
+        if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
 
-          const valEl = document.getElementById(cfg.valId);
-          if (valEl) {
-            valEl.innerText = cfg.format(num);
+        const rawStr = String(val || '').trim();
+        if (rawStr === '') {
+          delete partnersMaster.baselineOverrides[cfg.overrideKey];
+        } else {
+          const num = parseFloat(rawStr);
+          if (!isNaN(num) && num >= 0) {
+            const std = computeStandardFeeDefaults();
+            const defVal = (std && std.defaultsByKey && std.defaultsByKey[cfg.overrideKey] !== undefined)
+              ? std.defaultsByKey[cfg.overrideKey]
+              : null;
+            if (defVal !== null && Math.round(num) === Math.round(defVal)) {
+              delete partnersMaster.baselineOverrides[cfg.overrideKey];
+            } else {
+              partnersMaster.baselineOverrides[cfg.overrideKey] = num;
+            }
           }
         }
       }
@@ -7324,19 +7699,17 @@
 
     function resetCustomFeeOverrides() {
       if (partnersMaster && partnersMaster.baselineOverrides) {
-        const keys = [
-          'freight', 'demurrage', 'lolo',
-          'baCustoms', 'baCO', 'baBorder', 'baTransit', 'baTransitUnit',
-          'baInsp', 'baInspOt', 'baCoExpress', 'laoTransit', 'yard',
-          'dunnage', 'crossDock', 'weighbridge', 'phyto'
-        ];
-        keys.forEach(k => delete partnersMaster.baselineOverrides[k]);
+        partnersMaster.baselineOverrides = {};
       }
+      unlockedFeeItems.forEach(key => {
+        const cfg = FEE_CONFIG[key];
+        const inp = cfg ? document.getElementById(cfg.inputId) : null;
+        if (inp) inp.dataset.dirty = '0';
+      });
       lockAllUnlockedFeeItems(false);
       savePartnersToStorage();
-      updateBinhAnLeftPanelLabels();
       recalculate();
-      showToastNotification("🔄 Đã khôi phục toàn bộ chi phí 3~14 về thiết lập gốc SSOT!");
+      showToastNotification("🔄 Đã khôi phục toàn bộ chi phí về công thức tự động theo Tuyến & Đối tác SSOT!");
     }
 
     function handleEditBaselineClick() {
@@ -7361,33 +7734,48 @@
 
     function enableBaselineEditMode() {
       isBaselineEditMode = true;
-      document.getElementById('btnEditBaselineCost').style.display = 'none';
-      document.getElementById('baselineEditControls').style.display = 'flex';
+      const btn = document.getElementById('btnEditBaselineCost');
+      const ctrls = document.getElementById('baselineEditControls');
+      if (btn) btn.style.display = 'none';
+      if (ctrls) ctrls.style.display = 'flex';
       recalculate();
     }
 
     function cancelBaselineEdit() {
       isBaselineEditMode = false;
-      document.getElementById('btnEditBaselineCost').style.display = 'inline-flex';
-      document.getElementById('baselineEditControls').style.display = 'none';
+      const btn = document.getElementById('btnEditBaselineCost');
+      const ctrls = document.getElementById('baselineEditControls');
+      if (btn) btn.style.display = 'inline-flex';
+      if (ctrls) ctrls.style.display = 'none';
       recalculate();
     }
 
     function saveBaselineCostValues() {
       requestPinVerification(() => {
-        // Collect input values from edit rows
+        if (!partnersMaster.baselineOverrides) partnersMaster.baselineOverrides = {};
         document.querySelectorAll('.edit-cost-input').forEach(inp => {
           const key = inp.getAttribute('data-cost-key');
-          const val = parseFloat(inp.value) || 0;
-          partnersMaster.baselineOverrides[key] = val;
+          if (!key || key === 'vat' || key === 'insurance' || key.startsWith('unforeseen_')) return;
+          const initialVal = parseFloat(inp.getAttribute('data-initial-val'));
+          const rawStr = String(inp.value || '').trim();
+          if (rawStr === '') {
+            delete partnersMaster.baselineOverrides[key];
+            return;
+          }
+          const val = parseFloat(rawStr);
+          if (!isNaN(val) && val >= 0 && (isNaN(initialVal) || Math.round(val) !== Math.round(initialVal))) {
+            partnersMaster.baselineOverrides[key] = val;
+          }
         });
 
         savePartnersToStorage();
         isBaselineEditMode = false;
-        document.getElementById('btnEditBaselineCost').style.display = 'inline-flex';
-        document.getElementById('baselineEditControls').style.display = 'none';
+        const btn = document.getElementById('btnEditBaselineCost');
+        const ctrls = document.getElementById('baselineEditControls');
+        if (btn) btn.style.display = 'inline-flex';
+        if (ctrls) ctrls.style.display = 'none';
         recalculate();
-        alert("✅ Đã lưu giá trị sửa đổi thành Giá Trị Chi Phí Gốc thành công và đồng bộ vào hệ thống!");
+        showToastNotification("✅ Đã lưu các dòng chi phí sửa đổi (giữ nguyên tính động cho các dòng không sửa)!");
       }, "Lưu giá trị chi phí gốc mới");
     }
 
@@ -7395,7 +7783,7 @@
     async function fetchMbBankRate() {
       const badge = document.getElementById('fxStatusBadge');
       if (badge) {
-        badge.innerHTML = `<span class="status-dot dot-yellow"></span>Đang kết nối cổng tỷ giá thời gian thực...`;
+        badge.innerHTML = `<span class="status-dot dot-yellow"></span>Đang kết nối cổng tỷ giá thời gian thực (USD & Baht Thái)...<span class="loading-spinner"></span>`;
         badge.style.color = 'var(--accent-gold)';
       }
 
@@ -7404,45 +7792,55 @@
       try {
         let rawUsdVnd = null;
         let rawUsdThb = null;
+        let safeUsdVnd = null;
+        let safeThbVnd = null;
 
-
-        // Thử nguồn 0: Vercel Serverless Rate Proxy (/api/rates) có Edge Cache
+        // Thử nguồn 1: /api/rates (Edge Proxy máy chủ, tối ưu tốc độ & không vướng CORS)
         try {
-          const resProxy = await fetch('/api/rates');
-          if (resProxy.ok) {
-            const proxyData = await resProxy.json();
-            if (proxyData && proxyData.success && proxyData.rates) {
-              rawUsdVnd = proxyData.rates.rawUsdVnd;
-              rawUsdThb = proxyData.rates.rawUsdThb || 33.59;
+          const resEdge = await fetch('/api/rates');
+          if (resEdge.ok) {
+            const dataEdge = await resEdge.json();
+            if (dataEdge && dataEdge.success) {
+              const r = dataEdge.rates || dataEdge;
+              rawUsdVnd = r.rawUsdVnd || 25790;
+              rawUsdThb = r.rawUsdThb || 34.5;
+              safeUsdVnd = r.safeUsdVnd || Math.round(rawUsdVnd - USD_BUFFER);
+              safeThbVnd = r.safeThbVnd || (r.fxThbVnd ? Math.round(r.fxThbVnd) : Math.round(safeUsdVnd / rawUsdThb));
             }
           }
-        } catch (eProxy) {
-          // Bỏ qua nếu chạy local không có web server
+        } catch (e0) {
+          console.warn("Cổng 0 (/api/rates) chưa sẵn sàng hoặc môi trường file://, chuyển sang cổng trực tuyến:", e0);
         }
 
-        // Thử nguồn 1: Open Exchange Rates API (open.er-api.com) - Miễn phí, CORS mở 100%
-        try {
-          const res = await fetch('https://open.er-api.com/v6/latest/USD');
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.rates && data.rates.VND) {
-              rawUsdVnd = data.rates.VND;
-              rawUsdThb = data.rates.THB || 33.59;
+        // Thử nguồn 2: Open Exchange Rates API (open.er-api.com) - Miễn phí, CORS mở 100%
+        if (!safeUsdVnd || !safeThbVnd) {
+          try {
+            const res = await fetch('https://open.er-api.com/v6/latest/USD');
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.rates && data.rates.VND) {
+                rawUsdVnd = data.rates.VND;
+                rawUsdThb = data.rates.THB || 34.5;
+                safeUsdVnd = Math.round(rawUsdVnd - USD_BUFFER);
+                safeThbVnd = Math.round(safeUsdVnd / rawUsdThb);
+              }
             }
+          } catch (e1) {
+            console.warn("Cổng 1 (open.er-api) lỗi, chuyển sang cổng dự phòng CDN:", e1);
           }
-        } catch (e1) {
-          console.warn("Cổng 1 (open.er-api) lỗi, chuyển sang cổng dự phòng CDN:", e1);
         }
 
-        // Thử nguồn 2 dự phòng: fawazahmed0 currency API qua jsdelivr CDN
-        if (!rawUsdVnd) {
+        // Thử nguồn 3 dự phòng: fawazahmed0 currency API qua jsdelivr CDN
+        if (!safeUsdVnd || !safeThbVnd) {
           try {
             const resFb = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
             if (resFb.ok) {
               const fbData = await resFb.json();
               if (fbData && fbData.usd && fbData.usd.vnd) {
                 rawUsdVnd = fbData.usd.vnd;
-                rawUsdThb = fbData.usd.thb || 33.59;
+                rawUsdThb = fbData.usd.thb || 34.5;
+                safeUsdVnd = Math.round(rawUsdVnd - USD_BUFFER);
+                safeThbVnd = Math.round(safeUsdVnd / rawUsdThb);
               }
             }
           } catch (e2) {
@@ -7450,33 +7848,32 @@
           }
         }
 
-        if (!rawUsdVnd) {
+        if (!safeUsdVnd || !safeThbVnd) {
           throw new Error("Không thể kết nối cổng tỷ giá trực tuyến. Vui lòng kiểm tra kết nối mạng!");
         }
 
-        const rawThbVnd = rawUsdVnd / rawUsdThb;
+        // 1. Tự động giải phóng override cũ của Quá cảnh Lào để ăn theo tỷ giá Baht mới
+        clearOverrideKeys(['laoTransit']);
 
-        // 1. Áp dụng quy tắc chiết khấu: Trừ âm 250 VND so với giá gốc USD
-        const safeUsdVnd = Math.round(rawUsdVnd - USD_BUFFER);
-
-        // 2. Đồng bộ tỷ giá Baht Thái (THB) theo tỷ giá USD an toàn
-        const safeThbVnd = Math.round(safeUsdVnd / rawUsdThb);
-
-        // 3. Cập nhật input tỷ giá USD trên giao diện buồng lái
+        // 2. Cập nhật cả 2 input tỷ giá USD và THB trên giao diện buồng lái
         const fxInp = document.getElementById('fxRate');
         if (fxInp) fxInp.value = safeUsdVnd;
+        const fxThbInp = document.getElementById('fxThbRate');
+        if (fxThbInp) fxThbInp.value = safeThbVnd;
 
-        // 4. Đồng bộ tỷ giá Baht Thái vào cấu hình đối tác (Đại lý Ngân Hùng & các đại lý có cước THB)
-        partnersMaster.agents.forEach(a => {
-          a.fxThbRate = safeThbVnd;
-          if (a.transitThb && a.transitThb > 0) {
-            a.laoTransitD8 = Math.round(a.transitThb * safeThbVnd);
-            a.laoTransit = a.laoTransitD8;
-          }
-        });
-        savePartnersToStorage();
+        // 3. Đồng bộ tỷ giá Baht Thái vào cấu hình đối tác (Đại lý Ngân Hùng & các đại lý có cước THB)
+        if (partnersMaster && Array.isArray(partnersMaster.agents)) {
+          partnersMaster.agents.forEach(a => {
+            a.fxThbRate = safeThbVnd;
+            if (a.transitThb && a.transitThb > 0) {
+              a.laoTransitD8 = Math.round(a.transitThb * safeThbVnd);
+              a.laoTransit = a.laoTransitD8;
+            }
+          });
+          savePartnersToStorage();
+        }
 
-        // 5. Nếu bảng quản trị đối tác đang mở thì re-render an toàn
+        // 4. Nếu bảng quản trị đối tác đang mở thì re-render an toàn
         const agtTable = document.getElementById('agentsTableBody');
         if (agtTable && agtTable.innerHTML.trim() !== '') {
           if (typeof renderPartnerModalTables === 'function') {
@@ -7484,19 +7881,20 @@
           }
         }
 
-        // 6. Tính toán lại toàn bộ dữ liệu dự toán
+        // 5. Tính toán lại toàn bộ dữ liệu dự toán (Quá cảnh Lào D8 sẽ tự động nhảy theo tỷ giá THB mới)
         recalculate();
 
-        // 7. Hiển thị Badge trạng thái trực quan minh bạch
+        // 6. Hiển thị Badge trạng thái trực quan minh bạch
         const now = new Date();
         const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+        const estD8 = Math.round(16000 * safeThbVnd);
         if (badge) {
-          badge.innerHTML = `<span class="status-dot dot-green"></span>Thị trường: <b>${Math.round(rawUsdVnd).toLocaleString('vi-VN')} đ</b> (-${USD_BUFFER}đ ➔ <b>${safeUsdVnd.toLocaleString('vi-VN')} đ</b>) | THB: <b>${safeThbVnd} đ</b> (Gốc: ${Math.round(rawThbVnd)} đ) · <i>${timeStr}</i>`;
+          badge.innerHTML = `<span class="status-dot dot-green"></span>USD: <b>${safeUsdVnd.toLocaleString('vi-VN')} đ</b> (-${USD_BUFFER}đ) · THB: <b>${safeThbVnd} đ</b> ➔ Quá cảnh Lào: <b>${formatVnd(estD8)}</b> · <i>${timeStr}</i>`;
           badge.style.color = 'var(--alert-success-text)';
         }
 
         if (typeof showToastNotification === 'function') {
-          showToastNotification(`⚡ Đã cập nhật tỷ giá: USD ${safeUsdVnd.toLocaleString('vi-VN')} đ (-${USD_BUFFER}đ) | THB ${safeThbVnd} đ`);
+          showToastNotification(`⚡ Đã cập nhật tỷ giá ngày: USD ${safeUsdVnd.toLocaleString('vi-VN')} đ (-250đ) · THB ${safeThbVnd} đ ➔ D8 Lào: ${formatVnd(estD8)}`);
         }
       } catch (err) {
         console.error("Lỗi cập nhật tỷ giá:", err);
@@ -7508,39 +7906,53 @@
       }
     }
 
-    function onVehicleChange() {
-      const v = document.getElementById('vehicleSelect').value;
+    function onVehicleChange(preserveOverrides) {
+      const vehEl = document.getElementById('vehicleSelect');
+      const v = vehEl ? vehEl.value : 'CONT_45HC';
       const boxInput = document.getElementById('boxQty');
-      const tripCount = parseInt(document.getElementById('tripCount').value) || 1;
+      const tripEl = document.getElementById('tripCount');
+      const tripCount = parseInt(tripEl ? tripEl.value : 1) || 1;
       const volumeAlert = document.getElementById('volumeAlert');
       const demContGroup = document.getElementById('demurrageContGroup');
       const demHowoGroup = document.getElementById('demurrageHowoGroup');
       const unitBadge = document.getElementById('tripCountUnit');
 
+      if (!preserveOverrides && !_isBootstrappingApp) {
+        clearOverrideKeys(['freight', 'demurrage', 'lolo', 'cogs']);
+      }
+
+      // Nếu chuyển sang xe thùng bạt HOWO_156 khi đang ở tuyến Hạ bãi Cont Dry Port, chuyển về tuyến Savannakhet chạy thẳng và tắt LOLO
+      const transSel = document.getElementById('transportRouteSelect');
+      const chkLolo = document.getElementById('chkLoloFee');
+      if (v === 'HOWO_156' && transSel && transSel.value === 'ROUTE_SAVANNAKHET_DRY_PORT') {
+        transSel.value = 'ROUTE_SAVANNAKHET';
+        if (chkLolo) chkLolo.checked = false;
+      }
+
       const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
-      const curSup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+      const curSup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
 
       let baseCap = 1000;
       if (v === 'HOWO_156') {
         baseCap = (curSup && curSup.howoQty) ? curSup.howoQty : 1300;
         if (unitBadge) unitBadge.innerText = 'xe HOWO 15.6m';
-        volumeAlert.style.display = 'none';
+        if (volumeAlert) volumeAlert.style.display = 'none';
         if (demContGroup) demContGroup.style.display = 'none';
         if (demHowoGroup) demHowoGroup.style.display = 'flex';
       } else if (v === 'CONT_40HC') {
         baseCap = (curSup && curSup.cont40Qty) ? curSup.cont40Qty : 800;
         if (unitBadge) unitBadge.innerText = 'cont 40ft HC';
-        volumeAlert.style.display = 'flex';
+        if (volumeAlert) volumeAlert.style.display = 'flex';
         if (demContGroup) demContGroup.style.display = 'block';
         if (demHowoGroup) demHowoGroup.style.display = 'none';
       } else if (v === 'CONT_45HC') {
         baseCap = (curSup && curSup.cont45Qty) ? curSup.cont45Qty : 1000;
         if (unitBadge) unitBadge.innerText = 'cont 45ft HC';
-        volumeAlert.style.display = 'flex';
+        if (volumeAlert) volumeAlert.style.display = 'flex';
         if (demContGroup) demContGroup.style.display = 'block';
         if (demHowoGroup) demHowoGroup.style.display = 'none';
       }
-      if (packingMode !== 'MIXED') {
+      if (packingMode !== 'MIXED' && boxInput) {
         const newPaidQty = baseCap * tripCount;
         boxInput.value = newPaidQty;
         if (!singleBonusManualOverride) {
@@ -7557,19 +7969,24 @@
     }
 
     function onTripCountChange() {
-      const v = document.getElementById('vehicleSelect').value;
+      const vehEl = document.getElementById('vehicleSelect');
+      const v = vehEl ? vehEl.value : 'CONT_45HC';
       const supId = document.getElementById('supplierSelect') ? document.getElementById('supplierSelect').value : '';
-      const curSup = partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0];
+      const curSup = (partnersMaster && partnersMaster.suppliers) ? (partnersMaster.suppliers.find(s => s.id === supId) || partnersMaster.suppliers[0]) : null;
+
+      clearOverrideKeys(['freight', 'demurrage', 'lolo', 'laoTransit', 'yard', 'dunnage', 'crossDock', 'weighbridge', 'baTransit', 'cogs']);
 
       let baseCap = 1000;
       if (v === 'HOWO_156') baseCap = (curSup && curSup.howoQty) ? curSup.howoQty : 1300;
       else if (v === 'CONT_40HC') baseCap = (curSup && curSup.cont40Qty) ? curSup.cont40Qty : 800;
       else if (v === 'CONT_45HC') baseCap = (curSup && curSup.cont45Qty) ? curSup.cont45Qty : 1000;
 
-      const tripCount = parseInt(document.getElementById('tripCount').value) || 1;
-      if (packingMode !== 'MIXED') {
+      const tripEl = document.getElementById('tripCount');
+      const tripCount = parseInt(tripEl ? tripEl.value : 1) || 1;
+      const boxInput = document.getElementById('boxQty');
+      if (packingMode !== 'MIXED' && boxInput) {
         const newPaidQty = baseCap * tripCount;
-        document.getElementById('boxQty').value = newPaidQty;
+        boxInput.value = newPaidQty;
         if (!singleBonusManualOverride) {
           currentSingleBonusQty = calcDefaultBonusQty(newPaidQty, curSup);
           const bonusEl = document.getElementById('singleBonusQty');
@@ -7873,23 +8290,37 @@
           lblSingleWeight.innerText = `GW: ${supplier.grossWeight || 7.8} kg/th · ${pVatText}`;
         }
 
-        // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải Thực Tế)
-        const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
-        let unitFreight = carrier.howoRate || 22000000;
+        // Tự chữa lành (Self-Healing) hiển thị khung lưu xe/cont & đơn vị phương tiện theo đúng vehicle đang chọn
+        const demContGrpEl = document.getElementById('demurrageContGroup');
+        const demHowoGrpEl = document.getElementById('demurrageHowoGroup');
+        const volAlertBannerEl = document.getElementById('volumeAlert');
         if (vehicle === 'HOWO_156') {
-          unitFreight = carrier.howoRate || 22000000;
+          if (demContGrpEl) demContGrpEl.style.display = 'none';
+          if (demHowoGrpEl) demHowoGrpEl.style.display = 'flex';
+          if (volAlertBannerEl) volAlertBannerEl.style.display = 'none';
+          if (tripCountUnitEl) tripCountUnitEl.innerText = 'xe HOWO 15.6m';
         } else {
-          // CONT_40HC hoặc CONT_45HC — Tính theo đúng Tuyến Vận Tải Thực Tế (transRoute)
-          if (transRoute === 'ROUTE_LAO_BAO') {
-            unitFreight = carrier.contLbRate !== undefined ? carrier.contLbRate : (carrier.howoRate || 22000000);
-          } else if (transRoute === 'ROUTE_SAVANNAKHET_DRY_PORT') {
-            unitFreight = (carrier.contSvnRate || 35000000) + 2000000; // Cước 35M + LOLO hạ bãi 2M = 37M
-          } else if (transRoute === 'ROUTE_MUKDAHAN') {
-            unitFreight = carrier.contMkdRate !== undefined ? carrier.contMkdRate : ((carrier.contSvnRate || 35000000) + 3000000);
-          } else {
-            // ROUTE_SAVANNAKHET (35.000.000 đ)
-            unitFreight = carrier.contSvnRate || 35000000;
-          }
+          if (demContGrpEl) demContGrpEl.style.display = 'block';
+          if (demHowoGrpEl) demHowoGrpEl.style.display = 'none';
+          if (volAlertBannerEl) volAlertBannerEl.style.display = 'flex';
+          if (tripCountUnitEl) tripCountUnitEl.innerText = (vehicle === 'CONT_40HC') ? 'cont 40ft HC' : 'cont 45ft HC';
+        }
+
+        // 2. Freight (Khoản 3: Cước vận tải xe / cont theo Ma Trận Tuyến Vận Tải Thực Tế — SSOT thống nhất)
+        const isFreightActive = document.getElementById('chkFreightBase') ? document.getElementById('chkFreightBase').checked : true;
+        let unitFreight = carrier.contSvnRate || 35000000;
+        if (transRoute === 'ROUTE_LAO_BAO') {
+          unitFreight = (vehicle === 'HOWO_156')
+            ? (carrier.howoRate || 22000000)
+            : (carrier.contLbRate !== undefined ? carrier.contLbRate : (carrier.howoRate || 22000000));
+        } else if (transRoute === 'ROUTE_SAVANNAKHET_DRY_PORT') {
+          // Cước vận tải đến Savannakhet là 35M; phí hạ bãi LOLO 2M đã tách độc lập tại Khoản 5 (chkLoloFee) để chống cộng trùng!
+          unitFreight = carrier.contSvnRate || 35000000;
+        } else if (transRoute === 'ROUTE_MUKDAHAN') {
+          unitFreight = carrier.contMkdRate !== undefined ? carrier.contMkdRate : ((carrier.contSvnRate || 35000000) + 3000000);
+        } else {
+          // ROUTE_SAVANNAKHET (35.000.000 đ)
+          unitFreight = carrier.contSvnRate || 35000000;
         }
         let defaultFreight = isFreightActive ? (unitFreight * tripCount) : 0;
         const freightBase = isFreightActive ? (partnersMaster.baselineOverrides['freight'] !== undefined ? partnersMaster.baselineOverrides['freight'] : defaultFreight) : 0;
@@ -7952,11 +8383,12 @@
       const isLaoNone = (agtLaoId === 'NONE');
       let defaultLaoTransit = 0;
       let transitThbPerCont = 0;
-      let fxThb = 730;
+      let fxThb = (document.getElementById('fxThbRate') && parseFloat(document.getElementById('fxThbRate').value) > 0)
+        ? parseFloat(document.getElementById('fxThbRate').value)
+        : (agentLao ? (agentLao.fxThbRate || 730) : 730);
       let perTripD8 = 11680000;
       if (agentLao) {
         transitThbPerCont = agentLao.transitThb !== undefined ? agentLao.transitThb : (agentLao.id === 'AGT_NGAN_HUNG' ? 16000 : 0);
-        fxThb = agentLao.fxThbRate || 730;
         if (transitThbPerCont > 0) {
           perTripD8 = Math.round(transitThbPerCont * fxThb);
         } else {
@@ -8029,10 +8461,10 @@
       const defaultBankFee = wireCount * 47 * fxRate;
       const bankFee = partnersMaster.baselineOverrides['bankFee'] !== undefined ? partnersMaster.baselineOverrides['bankFee'] : defaultBankFee;
 
-      // 9. Contingencies (Quy mô nhân theo số lượng xe/cont)
-      const isIns = document.getElementById('chkInsurance').checked;
-      const isDunnage = document.getElementById('chkDunnage').checked;
-      const isCrossDock = document.getElementById('chkCrossDock').checked;
+      // 9. Contingencies (Quy mô nhân theo số lượng xe/cont — Bọc null-guard an toàn 100%)
+      const isIns = document.getElementById('chkInsurance') ? document.getElementById('chkInsurance').checked : true;
+      const isDunnage = document.getElementById('chkDunnage') ? document.getElementById('chkDunnage').checked : false;
+      const isCrossDock = document.getElementById('chkCrossDock') ? document.getElementById('chkCrossDock').checked : false;
       const isWeigh = document.getElementById('chkWeighbridge') ? document.getElementById('chkWeighbridge').checked : false;
       const isPhyto = document.getElementById('chkPhyto') ? document.getElementById('chkPhyto').checked : false;
 
@@ -8043,7 +8475,10 @@
       const phytoFee = isPhyto ? (partnersMaster.baselineOverrides['phyto'] !== undefined ? partnersMaster.baselineOverrides['phyto'] : 1500000) : 0;
 
       const valIns = document.getElementById('val_insurance');
-      if (valIns) valIns.innerText = `${Math.round(insuranceFee).toLocaleString('vi-VN')} đ`;
+      if (valIns) valIns.innerText = `${Math.round(cogsPreVat * 0.002).toLocaleString('vi-VN')} đ`;
+
+      // Đồng bộ toàn diện 17 nhãn phí, chip [📌 Ghi đè · ↺] và ô input ẩn bên Cột Trái ngay trong recalculate()
+      syncLeftPanelFeeLabelsAndInputs();
 
       // 9c. Chi phí phát sinh thực tế động hậu kiểm
       const unforeseenTotal = (currentUnforeseenExpenses && currentUnforeseenExpenses.length > 0)
@@ -8747,8 +9182,8 @@
         }
 
         let amountDisplay = formatVnd(r.amount);
-        if (isBaselineEditMode && r.key !== 'vat') {
-          amountDisplay = `<input type="number" class="form-control text-right edit-cost-input" data-cost-key="${r.key}" value="${r.amount}" style="font-size:12px; padding:2px 6px;">`;
+        if (isBaselineEditMode && r.key !== 'vat' && r.key !== 'insurance' && !String(r.key).startsWith('unforeseen_')) {
+          amountDisplay = `<input type="number" class="form-control text-right edit-cost-input" data-cost-key="${r.key}" data-initial-val="${Math.round(r.amount)}" value="${Math.round(r.amount)}" style="font-size:12px; padding:2px 6px;">`;
         }
 
         tableHtml += `<tr>
@@ -8883,7 +9318,8 @@
         </tr>`;
       }
 
-      document.getElementById('costTableBody').innerHTML = tableHtml;
+      const costTbodyEl = document.getElementById('costTableBody');
+      if (costTbodyEl) costTbodyEl.innerHTML = tableHtml;
 
       // Populate Dynamic Pricing Table (BILINGUAL)
       const targetMargins = [
@@ -8978,7 +9414,8 @@
           </td>
         </tr>`;
       });
-      document.getElementById('pricingTableBody').innerHTML = pricingHtml;
+      const pricingTbodyEl = document.getElementById('pricingTableBody');
+      if (pricingTbodyEl) pricingTbodyEl.innerHTML = pricingHtml;
 
       // Lưu trạng thái tính toán để kết xuất ảnh chụp Canvas HD 2X Retina
       window._currentCalcData = {
@@ -9659,59 +10096,8 @@
     }
 
     function exportQuotationPDF() {
+      // recalculate() đã đồng bộ live 100% bảng #printQuotationTbody (hỗ trợ cả SINGLE, MIXED, hàng tặng FOC_PASS/SELL_ALL và giữ nguyên #printItemTitle)
       recalculate();
-      const d = window._currentCalcData || {};
-      const tbody = document.getElementById('printQuotationTbody');
-      const isMixed = (d.packingMode === 'MIXED' && d.mixedSkuItems && d.mixedSkuItems.length > 0);
-      const p = parseFloat(document.getElementById('quotePrice').value) || 0;
-      const q = parseInt(document.getElementById('boxQty').value) || 0;
-
-      if (tbody) {
-        if (isMixed) {
-          let tHtml = '';
-          d.mixedSkuItems.forEach((it, idx) => {
-            const lineTotal = (it.qty * it.unitP);
-            tHtml += `
-              <tr>
-                <td class="text-center">${idx + 1}</td>
-                <td><b>[${it.skuCode}] ${it.product}</b><br><small>Spec: ${it.dims || 'Standard'}. CBM: ${Number(it.cbm || 0).toFixed(4)} m³/ctn</small></td>
-                <td class="text-center font-bold">${it.qty.toLocaleString('vi-VN')}</td>
-                <td class="text-center">Cartons</td>
-                <td class="text-right font-bold">$${it.unitP.toFixed(2)}</td>
-                <td class="text-right font-bold">$${lineTotal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-              </tr>
-            `;
-          });
-          tHtml += `
-            <tr style="background:#f8fafc; font-weight:bold;">
-              <td colspan="2" class="text-right">TOTAL SUMMARY:</td>
-              <td class="text-center font-bold">${d.qty.toLocaleString('vi-VN')}</td>
-              <td class="text-center">Cartons</td>
-              <td class="text-right font-bold">$${d.quotePrice.toFixed(2)} (BQ)</td>
-              <td class="text-right font-bold" style="font-size:13px; color:var(--alert-success-text);">$${(d.revenueUsd || (p * q)).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-            </tr>
-          `;
-          tbody.innerHTML = tHtml;
-        } else {
-          const sup = d.supplier || partnersMaster.suppliers[0];
-          const sku = d.singleSkuCode || getSupplierSkuCode(sup);
-          tbody.innerHTML = `
-            <tr>
-              <td class="text-center">1</td>
-              <td><b>[${sku}] ${sup.product}</b><br><small>Specification: ${sup.spec || '22g/cup x 300 cups/ctn'}. Volume: ${sup.cbm || 0.0785} CBM/ctn</small></td>
-              <td class="text-center font-bold" id="printQty">${q.toLocaleString('vi-VN')}</td>
-              <td class="text-center">Cartons</td>
-              <td class="text-right font-bold" id="printUnitPrice">$${p.toFixed(2)}</td>
-              <td class="text-right font-bold" id="printTotalAmount">$${(p * q).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-            </tr>
-          `;
-        }
-      }
-
-      const termsSelect = document.getElementById('incotermsSelect');
-      if (termsSelect && document.getElementById('printTerms')) {
-        document.getElementById('printTerms').innerText = termsSelect.options[termsSelect.selectedIndex].text;
-      }
       window.print();
     }
 
@@ -12648,7 +13034,7 @@ ${amountSection}
         <!DOCTYPE html>
         <html>
         <head>
-          <title>${document.getElementById('previewDocTitle').innerText}</title>
+          <title>${document.getElementById('previewDocTitle') ? document.getElementById('previewDocTitle').innerText : 'CMH-TSC Document'}</title>
           <style>
             @page { size: A4 portrait; margin: 12mm 15mm; }
             body { font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.45; color: #000000; background: #ffffff; margin: 0; padding: 0; }
@@ -14080,9 +14466,20 @@ ${amountSection}
     if (initScn) {
       applyScenario(initScn);
     } else {
-      onVehicleChange();
+      onVehicleChange(true);
     }
     renderMixedCargoTable();
+    _isBootstrappingApp = false;
+
+    const markSessionDirtiedByUser = (ev) => {
+      if (_isBootstrappingApp) return;
+      const t = ev && ev.target;
+      if (!t || !t.id) return;
+      if (t.id === 'loginUsername' || t.id === 'loginPassword' || t.id === 'loginRememberMe' || t.id === 'inputSecurityPin') return;
+      _userDirtiedSession = true;
+    };
+    document.addEventListener('change', markSessionDirtiedByUser, { passive: true });
+    document.addEventListener('input', markSessionDirtiedByUser, { passive: true });
 
     try {
       renderDossierPillarsTables();

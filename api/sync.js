@@ -224,11 +224,86 @@ export default async function handler(req, res) {
     }
   }
 
+    function normalizeCarriersServer(carriersList) {
+      const src = Array.isArray(carriersList) && carriersList.length > 0 ? carriersList : BASELINE_CARRIERS;
+      const list = src.filter(Boolean).map(c => {
+        const base = BASELINE_CARRIERS.find(b => b.id === c.id) || BASELINE_CARRIERS[0];
+        const merged = Object.assign({}, base, c);
+        merged.howoRate = Number(merged.howoRate) > 0 ? Number(merged.howoRate) : base.howoRate;
+        merged.demHowoDomestic = Number.isFinite(Number(merged.demHowoDomestic)) ? Number(merged.demHowoDomestic) : base.demHowoDomestic;
+        merged.demHowoBorder = Number.isFinite(Number(merged.demHowoBorder)) ? Number(merged.demHowoBorder) : base.demHowoBorder;
+        merged.contLbRate = Number(merged.contLbRate) > 0 ? Number(merged.contLbRate) : merged.howoRate;
+        merged.contSvnRate = Number(merged.contSvnRate) > 0 ? Number(merged.contSvnRate) : base.contSvnRate;
+        merged.contMkdRate = Number(merged.contMkdRate) > 0 ? Number(merged.contMkdRate) : base.contMkdRate;
+        merged.demContBorder = Number.isFinite(Number(merged.demContBorder)) ? Number(merged.demContBorder) : base.demContBorder;
+        merged.demCont = Number.isFinite(Number(merged.demCont)) ? Number(merged.demCont) : base.demCont;
+        merged.freeTimeCont = Number.isFinite(Number(merged.freeTimeCont)) ? Number(merged.freeTimeCont) : 48;
+        merged.carrierVatRate = Number.isFinite(Number(merged.carrierVatRate)) ? Number(merged.carrierVatRate) : 0.08;
+        return merged;
+      });
+      BASELINE_CARRIERS.forEach(baseCar => {
+        if (!list.some(c => c.id === baseCar.id)) list.push(Object.assign({}, baseCar));
+      });
+      return list;
+    }
+
+    function normalizeAgentsServer(agentsList) {
+      const src = Array.isArray(agentsList) && agentsList.length > 0 ? agentsList : BASELINE_AGENTS;
+      const list = src.filter(Boolean).map(a => {
+        const base = BASELINE_AGENTS.find(b => b.id === a.id) || BASELINE_AGENTS[0];
+        const merged = Object.assign({}, base, a);
+        merged.transitThb = Number.isFinite(Number(merged.transitThb)) ? Number(merged.transitThb) : base.transitThb;
+        merged.fxThbRate = Number(merged.fxThbRate) > 0 ? Number(merged.fxThbRate) : 730;
+        if (Number(merged.laoTransitD8) === 12240000 && merged.transitThb === 16000) {
+          merged.laoTransitD8 = 11680000;
+          merged.laoTransit = 11680000;
+        }
+        merged.laoTransitD8 = Number(merged.laoTransitD8) > 0 ? Number(merged.laoTransitD8) : base.laoTransitD8;
+        merged.lolo = Number(merged.lolo) > 0 ? Number(merged.lolo) : base.lolo;
+        return merged;
+      });
+      BASELINE_AGENTS.forEach(baseAgt => {
+        if (!list.some(a => a.id === baseAgt.id)) list.push(Object.assign({}, baseAgt));
+      });
+      return list;
+    }
+
+    function sanitizeScenarioServer(scn) {
+      if (!scn || typeof scn !== 'object') return scn;
+      const s = Object.assign({}, scn);
+      const terms = s.terms || 'CPT_SVN';
+      if (!s.transportRoute) {
+        if (terms === 'FCA_LB' || terms === 'DAP_LB') s.transportRoute = 'ROUTE_LAO_BAO';
+        else if (terms === 'DAP_MKD' || terms === 'CIP_MKD') s.transportRoute = 'ROUTE_MUKDAHAN';
+        else s.transportRoute = 'ROUTE_SAVANNAKHET';
+      }
+      if (!s.dossierRoute) {
+        s.dossierRoute = (s.transportRoute === 'ROUTE_LAO_BAO')
+          ? 'DOSSIER_VN_LAO_BAO'
+          : (s.transportRoute === 'ROUTE_MUKDAHAN' ? 'DOSSIER_FULL_MUKDAHAN' : 'DOSSIER_FULL_SAVANNAKHET');
+      }
+      if (s.baselineOverrides && typeof s.baselineOverrides === 'object') {
+        const ov = Object.assign({}, s.baselineOverrides);
+        if (Number(ov.freight) === 22000000 && s.transportRoute !== 'ROUTE_LAO_BAO') {
+          delete ov.freight;
+        }
+        const totalDemDays = (Number(s.demDomesticDays) || 0) + (Number(s.demBorderDays) || 0) + (Number(s.demContBorderDays) || 0) + (Number(s.demContDays) || 0);
+        if (Number(ov.demurrage) === 2500000 && totalDemDays === 0) {
+          delete ov.demurrage;
+        }
+        if (Number(ov.laoTransit) === 12240000) {
+          delete ov.laoTransit;
+        }
+        s.baselineOverrides = ov;
+      }
+      return s;
+    }
+
     function upgradeDefaultScenarioToCont45Svn(scenariosList) {
       if (!Array.isArray(scenariosList) || scenariosList.length === 0) return scenariosList || [];
       const targetDefId = 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
       const oldDefId = 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901';
-      const list = scenariosList.filter(Boolean).map(s => Object.assign({}, s));
+      const list = scenariosList.filter(Boolean).map(s => sanitizeScenarioServer(s));
       const curDef = list.find(s => s.isDefault);
       if (!curDef || curDef.id === oldDefId) {
         list.forEach(s => {
@@ -278,6 +353,8 @@ export default async function handler(req, res) {
       await writeKvState(cloudState);
     } else {
       cloudState.suppliers = upgradeLoiDatSuppliers(cloudState.suppliers);
+      cloudState.carriers = normalizeCarriersServer(cloudState.carriers);
+      cloudState.agents = normalizeAgentsServer(cloudState.agents);
       if (Array.isArray(cloudState.scenarios)) {
         cloudState.scenarios = upgradeDefaultScenarioToCont45Svn(cloudState.scenarios);
       }
@@ -423,10 +500,13 @@ export default async function handler(req, res) {
     mergedScenarios = upgradeDefaultScenarioToCont45Svn(mergedScenarios);
     let resolvedActiveScnId = incoming.activeScenarioId || existing.activeScenarioId || 'SCN-CPT_SVN-CONT45-1000T-VT-DIX-260905-LAO';
 
+    const normalizedCarriers = normalizeCarriersServer(mergedCarriers);
+    const normalizedAgents = normalizeAgentsServer(mergedAgents);
+
     const finalState = {
       suppliers: mergedSuppliers,
-      carriers: mergedCarriers,
-      agents: mergedAgents,
+      carriers: normalizedCarriers,
+      agents: normalizedAgents,
       scenarios: mergedScenarios,
       activeScenarioId: resolvedActiveScnId,
       updatedAt: new Date().toISOString(),

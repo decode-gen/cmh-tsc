@@ -22,6 +22,11 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
       success: true,
+      safeUsdVnd: safeVnd,
+      safeThbVnd: safeThbVnd,
+      fxBuyTransfer: rawVnd,
+      fxSafeCustom: safeVnd,
+      fxThbVnd: safeThbVnd,
       rates: {
         rawUsdVnd: rawVnd,
         safeUsdVnd: safeVnd,
