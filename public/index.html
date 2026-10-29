@@ -11870,8 +11870,13 @@
       }
 
       const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
+
+      // Nhận diện Incoterms & Khách hàng động từ Buồng Lái SSOT
+      const curTermsVal = (window._currentCalcData && window._currentCalcData.terms) || (document.getElementById('incotermsSelect') ? document.getElementById('incotermsSelect').value : 'FCA_LB');
+      const termsPrefix = curTermsVal.split('_')[0] || 'FCA';
+      let buyerTag = 'DIX';
+
       let orderRef = executionDateCompact.slice(2, 6) + '01';
-      let contractCode = 'GSSDIX_FCA_' + orderRef;
       try {
         const ssot = computeSsotNameId();
         if (ssot && ssot.breakdown && ssot.breakdown.orderRef) {
@@ -11880,11 +11885,26 @@
           const m = ssot.id.match(/\b(26\d{4})\b/);
           if (m) orderRef = m[1];
         }
-        contractCode = (ssot && ssot.id) ? ssot.id : ('GSSDIX_FCA_' + orderRef);
+        if (ssot && ssot.breakdown && ssot.breakdown.buyerTag) {
+          buyerTag = ssot.breakdown.buyerTag;
+        }
       } catch (err) {
         const scnMatch = scn && (scn.id + ' ' + (scn.nameId || '')).match(/\b(26\d{4})\b/);
         orderRef = scnMatch ? scnMatch[1] : (executionDateCompact.slice(2, 6) + '01');
-        contractCode = (scn && scn.nameId) ? scn.nameId : (scn ? scn.id : ('GSSDIX_FCA_' + orderRef));
+      }
+
+      // ĐỒNG BỘ MÃ HỢP ĐỒNG SSOT (/cmh-namid Tầng 2)
+      // Ưu tiên 1: Lấy đúng mã hợp đồng đã khóa an toàn (PIN 2505) do Giám đốc chốt
+      let contractCode = `GSS${buyerTag}_${termsPrefix}_${orderRef}`;
+      if (scn && scn.isLockedOrder && scn.lockedContractNo) {
+        contractCode = scn.lockedContractNo;
+        const matchLockedRef = contractCode.match(/\b(26\d{4})\b/) || contractCode.match(/-(\d{2,6})$/);
+        if (matchLockedRef) orderRef = matchLockedRef[1];
+        if (scn.lockedDate) {
+          executionDate = scn.lockedDate;
+          const dp = scn.lockedDate.split('/');
+          if (dp.length === 3) executionDateCompact = `${dp[2]}${dp[1]}${dp[0]}`;
+        }
       }
       const poNo = 'PO' + orderRef;
       const invoiceNo = 'GSS-INV-' + orderRef;
