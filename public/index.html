@@ -2814,18 +2814,25 @@
                 🔒 <b>Quy tắc Bất Khả Xâm Phạm:</b> 100% kế thừa phôi chứng từ đã xây dựng, tuyệt đối cấm sáng tạo form mới, bảo toàn căn cứ thuế GTGT 0% TT 219 và bảo mật giá vốn đối với lái xe.
               </div>
             </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-              <button type="button" class="btn btn-sm" onclick="downloadAllIndividualFilesSequentially()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tự động tải lần lượt từng file rời (25 tài liệu) về thư mục Downloads mà không cần giải nén ZIP">
-                <span>[📥 Tải Lần Lượt Từng File Rời (25 File)]</span>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+              <!-- CƠ CHẾ GHÉP PDF ĐA TÀI LIỆU THÀNH 1 TỆP DUY NHẤT -->
+              <button type="button" class="btn btn-sm" onclick="mergeAndPrintSelectedDossierDocs()" style="background:#ea580c; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 4px rgba(234,88,12,0.4); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Ghép tất cả các chứng từ đã tích chọn thành 1 FILE PDF DUY NHẤT để in hoặc lưu máy (Save as PDF)">
+                <span>[📑 Ghép & In 1 File PDF Đã Chọn <span class="btn-download-selected-count"></span>]</span>
               </button>
-              <button type="button" class="btn btn-sm" onclick="downloadSelectedDossierFiles()" style="background:#d97706; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(217,119,6,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải lần lượt các tài liệu đã tích chọn trong danh sách">
-                <span>[☑ Tải Các File Đã Chọn <span class="btn-download-selected-count"></span>]</span>
+              <button type="button" class="btn btn-sm" onclick="mergeAndPrintBuyDocs()" style="background:#1d4ed8; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(29,78,216,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Ghép trọn bộ 5 chứng từ gửi Khách Ngoại (HĐ Khung + PO + Invoice + Packing List + TT) thành 1 FILE PDF">
+                <span>[📑 Ghép Bộ 01_BUY (5 File → 1 PDF)]</span>
               </button>
-              <button type="button" class="btn btn-sm" onclick="downloadAllDossierZip('269901')" style="background:#059669; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(5,150,105,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Tải về tệp nén ZIP chứa toàn bộ 214 file hồ sơ đơn hàng theo chuẩn 6 nhánh thư mục">
-                <span>[📦 Tải Trọn Bộ ZIP Đơn 269901]</span>
+              <button type="button" class="btn btn-sm" onclick="mergeAndPrintCustomsLogisticsDocs()" style="background:#0f766e; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(15,118,110,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Ghép trọn bộ hồ sơ Hải quan và Vận tải (Tờ khai B11 + Vận đơn Waybill + Lệnh điều xe PL01 + C/O Form D) thành 1 FILE PDF">
+                <span>[📑 Ghép Hải Quan & Vận Tải (4 File → 1 PDF)]</span>
               </button>
-              <button type="button" class="btn btn-sm" onclick="compileCurrentScenarioDossier()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; display:inline-flex; align-items:center; gap:5px;" data-tooltip="Biên dịch bộ chứng từ theo thông số số lượng & đơn giá đang chọn trên Buồng Lái">
-                <span>[⚡ Nạp Kịch Bản Live]</span>
+              <button type="button" class="btn btn-sm" onclick="mergeAndPrintAllCoreDocs()" style="background:#059669; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(5,150,105,0.3); display:inline-flex; align-items:center; gap:5px;" data-tooltip="Ghép toàn bộ 10 chứng từ xuất khẩu ngoại thương cốt lõi thành 1 FILE PDF DUY NHẤT">
+                <span>[📑 Ghép Trọn Bộ 10 File (1 PDF)]</span>
+              </button>
+              <button type="button" class="btn btn-sm" onclick="downloadAllIndividualFilesSequentially()" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); font-weight:bold; display:inline-flex; align-items:center; gap:4px;" data-tooltip="Tự động tải lần lượt từng file rời về thư mục Downloads">
+                <span>[📥 Tải Lần Lượt Từng File Rời]</span>
+              </button>
+              <button type="button" class="btn btn-sm" onclick="downloadAllDossierZip('269901')" style="background:#475569; color:#fff; font-weight:bold; border:none; display:inline-flex; align-items:center; gap:4px;" data-tooltip="Tải về tệp nén ZIP hồ sơ gốc 269901">
+                <span>[📦 ZIP 269901]</span>
               </button>
             </div>
           </div>
@@ -2883,6 +2890,9 @@
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('01_BUY')" style="background:#1e3a8a; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 01_BUY]</span>
             </button>
+            <button type="button" class="btn btn-sm" onclick="mergeAndPrintCurrentTabDocs(\'01_BUY\')" style="background:#d97706; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 9px; margin-left:6px;" data-tooltip="Ghép tất cả tài liệu trong họ 01_BUY thành 1 file PDF duy nhất">
+              <span>[📑 Ghép 1 File PDF Họ 01_BUY]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
@@ -2913,6 +2923,9 @@
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('02_CUS')" style="background:#065f46; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 02_CUS]</span>
             </button>
+            <button type="button" class="btn btn-sm" onclick="mergeAndPrintCurrentTabDocs(\'02_CUS\')" style="background:#d97706; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 9px; margin-left:6px;" data-tooltip="Ghép tất cả tài liệu trong họ 02_CUS thành 1 file PDF duy nhất">
+              <span>[📑 Ghép 1 File PDF Họ 02_CUS]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
@@ -2940,6 +2953,9 @@
             </div>
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('03_SUP')" style="background:#b45309; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 03_SUP]</span>
+            </button>
+            <button type="button" class="btn btn-sm" onclick="mergeAndPrintCurrentTabDocs(\'03_SUP\')" style="background:#d97706; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 9px; margin-left:6px;" data-tooltip="Ghép tất cả tài liệu trong họ 03_SUP thành 1 file PDF duy nhất">
+              <span>[📑 Ghép 1 File PDF Họ 03_SUP]</span>
             </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
@@ -2969,6 +2985,9 @@
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('04_LOG')" style="background:#7e22ce; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 04_LOG]</span>
             </button>
+            <button type="button" class="btn btn-sm" onclick="mergeAndPrintCurrentTabDocs(\'04_LOG\')" style="background:#d97706; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 9px; margin-left:6px;" data-tooltip="Ghép tất cả tài liệu trong họ 04_LOG thành 1 file PDF duy nhất">
+              <span>[📑 Ghép 1 File PDF Họ 04_LOG]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
@@ -2997,6 +3016,9 @@
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('05_COD')" style="background:#0369a1; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 05_COD]</span>
             </button>
+            <button type="button" class="btn btn-sm" onclick="mergeAndPrintCurrentTabDocs(\'05_COD\')" style="background:#d97706; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 9px; margin-left:6px;" data-tooltip="Ghép tất cả tài liệu trong họ 05_COD thành 1 file PDF duy nhất">
+              <span>[📑 Ghép 1 File PDF Họ 05_COD]</span>
+            </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
             <table class="data-table" style="margin-top:0;">
@@ -3024,6 +3046,9 @@
             </div>
             <button type="button" class="btn btn-sm" onclick="downloadCurrentTabSequentially('06_FIN')" style="background:#be123c; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 8px;">
               <span>[📥 Tải Lần Lượt Các File Trong Họ 06_FIN]</span>
+            </button>
+            <button type="button" class="btn btn-sm" onclick="mergeAndPrintCurrentTabDocs(\'06_FIN\')" style="background:#d97706; color:#fff; font-weight:bold; border:none; font-size:11px; padding:5px 9px; margin-left:6px;" data-tooltip="Ghép tất cả tài liệu trong họ 06_FIN thành 1 file PDF duy nhất">
+              <span>[📑 Ghép 1 File PDF Họ 06_FIN]</span>
             </button>
           </div>
           <div style="border:1px solid var(--border-strong); border-radius:4px; overflow:hidden;">
@@ -11474,7 +11499,7 @@
           status: 'ĐÃ NỘP HẢI QUAN',
           fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/02_PHIEU_BO_SUNG_THONG_TIN_DN_XNK_HAI_QUAN_GSS',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-CUS-03',
@@ -11485,7 +11510,7 @@
           status: 'SẴN SÀNG TẢI',
           fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/03_BANG_DINH_MUC_TIEU_HAO_BOM_1300_THUNG',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-CUS-04',
@@ -11496,7 +11521,7 @@
           status: 'SẴN SÀNG TẢI',
           fileBase: '02_GUI_HAI_QUAN_THONG_QUAN/04_GIAY_GIOI_THIEU_HAI_QUAN_CUA_KHAU_GSS_269901',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-BRO-01',
@@ -11507,7 +11532,7 @@
           status: 'ĐÃ KÝ KẾT',
           fileBase: '06_GUI_DON_VI_DICH_VU_BINH_AN/05_HOP_DONG_NGUYEN_TAC_DICH_VU_HAI_QUAN_LOGISTICS_BINH_AN_GSS_2026',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-BRO-02',
@@ -11518,7 +11543,7 @@
           status: 'ĐÃ KÝ ĐÓNG DẤU',
           fileBase: '06_GUI_DON_VI_DICH_VU_BINH_AN/07_GIAY_UY_QUYEN_LAM_THU_TUC_HAI_QUAN_BINH_AN_269901',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         }
       ],
       '03_SUP': [
@@ -11531,7 +11556,7 @@
           status: 'ĐÃ KÝ SCAN DẤU ĐỎ',
           fileBase: '03_HO_SO_NCC_THIEN_LONG/01_HOP_DONG_MUA_HANG_THIEN_LONG_269901_TL_GSS_SCAN_DAU_DO',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-PRO-02',
@@ -11553,7 +11578,7 @@
           status: 'ĐÃ BÀN GIAO ĐỦ',
           fileBase: '03_HO_SO_NCC_THIEN_LONG/03_BIEN_BAN_BAN_GIAO_VA_NGHIEM_THU_XUONG_THIEN_LONG',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-PRO-04',
@@ -11564,7 +11589,7 @@
           status: 'HỢP QUY ATTP',
           fileBase: '03_HO_SO_NCC_THIEN_LONG/12_BAN_TU_CONG_BO_VA_PHIEU_KIEM_NGHIEM_ATTP_AVATEK_DND',
           formats: ['DOCX'],
-          canPreview: false
+          canPreview: true
         }
       ],
       '04_LOG': [
@@ -11577,7 +11602,7 @@
           status: 'ĐÃ KÝ KẾT',
           fileBase: '04_VAN_TAI_KHO_BAI_VINH_THANH/01_HDNT_VAN_TAI_GSS_VINH_THANH',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-LOG-01',
@@ -11610,7 +11635,7 @@
           status: 'ĐÃ DUYỆT THỦ TỤC',
           fileBase: '04_VAN_TAI_KHO_BAI_VINH_THANH/15_CONG_VAN_XIN_HUY_XUAT_CANH_XE_VA_XIN_SANG_HANG_LAO_BAO',
           formats: ['DOCX', 'MD'],
-          canPreview: false
+          canPreview: true
         }
       ],
       '05_COD': [
@@ -11623,7 +11648,7 @@
           status: 'ĐÃ CẤP ĐIỆN TỬ VCCI',
           fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/01_CO_FORM_D_ATIGA_ECOSYS_XUAT_KHAU_THAI_LAN',
           formats: ['PDF', 'DOCX'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-COD-02',
@@ -11634,7 +11659,7 @@
           status: 'ĐÃ KÝ ĐÓNG DẤU',
           fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/02_BAN_CAM_KET_XUAT_XU_CONG_TY_SAN_XUAT_THIEN_LONG',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-COD-03',
@@ -11645,7 +11670,7 @@
           status: 'SẴN SÀNG TẢI',
           fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/03_QUY_TRINH_CONG_NGHE_SAN_XUAT_THIEN_LONG',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-COD-04',
@@ -11656,7 +11681,7 @@
           status: 'ĐỐI SOÁT HỢP LỆ',
           fileBase: '05_HO_SO_KHAI_CO_FORM_D_ECOSYS/04_BANG_KE_16_HOA_DON_NGUYEN_LIEU_DAU_VAO_CO_FORM_D',
           formats: ['DOCX', 'PDF'],
-          canPreview: false
+          canPreview: true
         }
       ],
       '06_FIN': [
@@ -11680,7 +11705,7 @@
           status: 'ĐÃ PHÁT HÀNH CQT',
           fileBase: '07_BO_HO_SO_KE_TOAN_THUE_DON_269901/KT-RA-01_HOA_DON_GTGT_XUAT_KHAU_0PCT_MISA_269901',
           formats: ['DOCX', 'MD'],
-          canPreview: false
+          canPreview: true
         },
         {
           id: 'FRM-FIN-03',
@@ -12170,22 +12195,24 @@
           }
         }
 
+        // TÁC NGHIỆP: TẢI ĐƠN LẺ ĐỒNG BỘ 100% HOẶC XUẤT BẢN
         let buttons = '';
-        if (formats.includes('DOCX')) {
-          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.code}.docx')" style="padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .DOCX]</button>`;
-        }
-        if (formats.includes('PDF')) {
-          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullPdf}', '${d.code}.pdf')" style="background:#059669; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .PDF]</button>`;
-        }
-        if (formats.includes('XLS')) {
-          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.code}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;">[⬇ .XLS]</button>`;
-        }
-        if (d.id === 'FRM-TRD-05') {
-          buttons += `<button class="btn btn-sm" onclick="copyPaymentInstructionText()" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" data-tooltip="Copy nội dung điện chuyển tiền USD MB Bank">[📋 Copy TT]</button>`;
-          buttons += `<button class="btn btn-sm" onclick="generatePaymentInstructionCardImage()" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" data-tooltip="Tạo ảnh thẻ thanh toán MB Bank gửi Zalo/WhatsApp">[🖼 Tạo Ảnh]</button>`;
+        if (d.canPreview || formats.includes('PDF')) {
+          buttons += `<button class="btn btn-sm" onclick="printSingleDossierDoc('${d.id}')" style="background:#16a34a; color:#fff; font-weight:bold; border:none; padding:2px 8px; font-size:11px; margin-right:4px;" title="Mở bản in hoặc lưu thành file PDF chuẩn A4 cho tài liệu này (Đã đồng bộ thông tin hàng hóa 100%)">[🖨 In/Lưu PDF]</button>`;
         }
         if (d.canPreview) {
-          buttons += `<button class="btn btn-sm" onclick="previewDossierDoc('${d.id}')" style="background:#2563eb; color:#fff; border:none; padding:2px 6px; font-size:11px;">[👁 In/Xem]</button>`;
+          buttons += `<button class="btn btn-sm" onclick="downloadSingleDocWord('${d.id}', '${d.nameVi}')" style="background:#2563eb; color:#fff; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" title="Tải bản Word .DOC đã đồng bộ theo dữ liệu hiện tại">[📄 Word]</button>`;
+          buttons += `<button class="btn btn-sm" onclick="previewDossierDoc('${d.id}')" style="background:var(--bg-cockpit-panel); color:var(--text-main); border:1px solid var(--border-subtle); padding:2px 6px; font-size:11px; margin-right:4px;" title="Xem trước tài liệu trên buồng lái">[👁 Xem]</button>`;
+        }
+        if (d.id === 'FRM-TRD-05') {
+          buttons += `<button class="btn btn-sm" onclick="copyPaymentInstructionText()" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" title="Copy nội dung điện chuyển tiền USD MB Bank">[📋 Copy TT]</button>`;
+          buttons += `<button class="btn btn-sm" onclick="generatePaymentInstructionCardImage()" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:2px 6px; font-size:11px; margin-right:4px;" title="Tạo ảnh thẻ thanh toán MB Bank gửi Zalo/WhatsApp">[🖼 Tạo Ảnh]</button>`;
+        }
+        if (formats.includes('DOCX')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullDocx}', '${d.code}.docx')" style="padding:2px 5px; font-size:10.5px; opacity:0.75; margin-right:2px;" title="Tải file .DOCX lưu trữ gốc">[⬇ Phôi .DOCX]</button>`;
+        }
+        if (formats.includes('XLS')) {
+          buttons += `<button class="btn btn-sm" onclick="downloadDossierDoc('${fullXls}', '${d.code}.xls')" style="background:#15803d; color:#fff; border:none; padding:2px 5px; font-size:10.5px; margin-right:2px;" title="Tải file bảng tính .XLS gốc">[⬇ .XLS]</button>`;
         }
 
         let displayNameVi = d.nameVi;
@@ -12221,6 +12248,9 @@
               displayNameVi = `Lệnh Điều Xe Container PL01 (${supLoc} - Lao Bảo)`;
             }
             displayNameEn = `Transport Dispatch Order PL01 (${(curCalc.qty || 1000).toLocaleString('vi-VN')} Cartons)`;
+          } else if (d.id === 'FRM-COD-01') {
+            displayNameVi = `Giấy Chứng Nhận Xuất Xứ C/O Mẫu D (13 Box ATIGA eCoSys)`;
+            displayNameEn = `Certificate of Origin Form D (ATIGA Electronic eCoSys)`;
           } else if (d.id === 'FRM-COD-02') {
             if (curCalc.packingMode === 'MIXED') {
               displayNameVi = `Bản Cam Kết Xuất Xứ Hàng Hóa (Đa Nhà Sản Xuất)`;
@@ -12244,7 +12274,7 @@
         html += `
           <tr>
             <td class="text-center">
-              <input type="checkbox" class="chk-dossier-doc" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${displayNameVi}" onchange="updateSelectedCountBadge()">
+              <input type="checkbox" class="chk-dossier-doc" value="${d.id}" data-id="${d.id}" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${displayNameVi}" onchange="updateSelectedCountBadge()">
             </td>
             <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
             <td><code style="font-size:11.5px; color:var(--text-main); font-weight:bold;">${d.code}</code></td>
@@ -13190,8 +13220,7 @@ ${amountSection}
       printWindow.document.close();
     }
 
-    function previewDossierDoc(docId) {
-      _currentPreviewDocId = docId;
+        function getDossierDocHtmlData(docId) {
       recalculate();
       const d = window._currentCalcData || {};
       const dateInfo = getDossierExecutionDateInfo();
@@ -13272,7 +13301,6 @@ ${amountSection}
       const agentVnName = agentVnObj.name ? (agentVnObj.name.includes('CÔNG TY') ? agentVnObj.name : `CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI ${agentVnObj.name.replace(/\s*\(.*?\)\s*/g, '').toUpperCase()}`) : 'CÔNG TY CỔ PHẦN GIAO NHẬN VẬN TẢI BÌNH AN';
       const agentVnTax = agentVnObj.taxId || '3200727091';
 
-      // Tính chính xác trọng lượng NW, GW, CBM cho Single hoặc Mixed
       let netWeightNum, grossWeightNum, totalCbmNum;
       if (isOriginal) {
         netWeightNum = qty * 6.6;
@@ -13291,8 +13319,23 @@ ${amountSection}
       const grossWeight = Math.round(grossWeightNum).toLocaleString('vi-VN');
       const totalCbm = totalCbmNum.toFixed(2);
 
+      const logOrigin = isOriginal
+        ? 'Kho Nhà máy Thien Long, Phú Thọ, Việt Nam'
+        : (isMixed 
+            ? `Các điểm bốc hàng theo danh mục hàng ghép cont (${d.mixedSkuItems.map(it => it.skuCode).join(', ')})`
+            : `Kho Nhà máy ${supName}, Việt Nam`);
+
+      const supHeaderName = isMixed 
+        ? `Đa Nhà Cung Cấp Hàng Ghép Cont (${[...new Set(d.mixedSkuItems.map(it => it.shortName))].join(', ')})`
+        : `${supName} — MST: ${supTaxId}`;
+      const supHeaderAddress = isMixed 
+        ? `Hệ thống kho xưởng các nhà sản xuất tại Việt Nam`
+        : `Kho Xưởng Nhà Máy ${supName}, Việt Nam`;
+
+      // =========================================================================
+      // 1. BUYER PURCHASE ORDER (ADDENDUM 01 PO)
+      // =========================================================================
       if (docId === 'FRM-TRD-02') {
-        // Buyer Purchase Order (Addendum 01 PO)
         let poTableRows = '';
         if (isMixed) {
           d.mixedSkuItems.forEach((it, idx) => {
@@ -13367,7 +13410,9 @@ ${amountSection}
             <tbody>
               ${poTableRows}
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL ORDER AMOUNT (${curTerms}):</td>
+                <td colspan="3" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL QUANTITY & ORDER AMOUNT (${curTerms}):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:center; font-size:12px;">${qty.toLocaleString('vi-VN')} Ctns</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right;"></td>
                 <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
               </tr>
             </tbody>
@@ -13406,10 +13451,13 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`BUYER PURCHASE ORDER (ADDENDUM 01 ${poNo})`, html);
+        return { id: docId, title: `BUYER PURCHASE ORDER (ADDENDUM 01 ${poNo})`, html, isLandscape: false, filename: `01_BUY_PO_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-TRD-03') {
-        // Commercial Invoice
+      // =========================================================================
+      // 2. COMMERCIAL INVOICE
+      // =========================================================================
+      if (docId === 'FRM-TRD-03') {
         let invTableRows = '';
         if (isMixed) {
           d.mixedSkuItems.forEach((it, idx) => {
@@ -13484,7 +13532,9 @@ ${amountSection}
             <tbody>
               ${invTableRows}
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL INVOICE AMOUNT (${curTerms}):</td>
+                <td colspan="3" style="border:1px solid #000; padding:6px; text-align:right;">TOTAL QUANTITY & INVOICE AMOUNT (${curTerms}):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:center; font-size:12px;">${qty.toLocaleString('vi-VN')} Ctns</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right;"></td>
                 <td style="border:1px solid #000; padding:6px; text-align:right; font-size:12.5px;">$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</td>
               </tr>
             </tbody>
@@ -13512,10 +13562,13 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`COMMERCIAL INVOICE (${invoiceNo})`, html);
+        return { id: docId, title: `COMMERCIAL INVOICE (${invoiceNo})`, html, isLandscape: false, filename: `01_BUY_INV_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-TRD-04') {
-        // Packing List
+      // =========================================================================
+      // 3. PACKING LIST
+      // =========================================================================
+      if (docId === 'FRM-TRD-04') {
         let pklTableRows = '';
         if (isMixed) {
           let pkgCounter = 0;
@@ -13624,10 +13677,13 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`PACKING LIST (${pklNo})`, html);
+        return { id: docId, title: `PACKING LIST (${pklNo})`, html, isLandscape: true, filename: `01_BUY_PKL_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-PRO-02') {
-        // Supplier PO (Nhà cung cấp được chọn trên Buồng Lái hoặc Đa NCC ghép cont)
+      // =========================================================================
+      // 4. SUPPLIER PURCHASE ORDER
+      // =========================================================================
+      if (docId === 'FRM-PRO-02') {
         let proTableRows = '';
         if (isMixed) {
           d.mixedSkuItems.forEach((it, idx) => {
@@ -13660,14 +13716,6 @@ ${amountSection}
             </tr>
           `;
         }
-
-        const supHeaderName = isMixed 
-          ? `Đa Nhà Cung Cấp Hàng Ghép Cont (${[...new Set(d.mixedSkuItems.map(it => it.shortName))].join(', ')})`
-          : `${supName} — MST: ${supTaxId}`;
-        const supHeaderAddress = isMixed 
-          ? `Hệ thống kho xưởng các nhà sản xuất tại Việt Nam`
-          : `Kho Xưởng Nhà Máy ${supName}, Việt Nam`;
-        const supRepSign = isMixed ? 'ĐẠI DIỆN CÁC NHÀ MÁY CUNG ỨNG' : `ĐẠI DIỆN BÊN BÁN (NHÀ MÁY)<br>${supName}`;
 
         const msaCode = isOriginal 
           ? 'GSS-TL-MSA-2026' 
@@ -13704,43 +13752,59 @@ ${amountSection}
             <tbody>
               ${proTableRows}
               <tr>
-                <td colspan="5" style="border:1px solid #000; padding:4px; text-align:right;">Thuế GTGT đầu vào (${(vatRate * 100).toFixed(0)}%):</td>
-                <td style="border:1px solid #000; padding:4px; text-align:right; font-weight:bold;">${formatVnd(vatTotal)}</td>
+                <td colspan="3" style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">TỔNG SỐ LƯỢNG & CỘNG TIỀN HÀNG (CHƯA VAT):</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;"></td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${formatVnd(cogsTotal)}</td>
+              </tr>
+              <tr>
+                <td colspan="5" style="border:1px solid #000; padding:5px; text-align:right;">THUẾ GTGT ĐẦU VÀO (${(vatRate * 100).toFixed(0)}%):</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold; color:#15803d;">+${formatVnd(vatTotal)}</td>
               </tr>
               <tr style="font-weight:bold; background:#f8fafc;">
-                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TỔNG GIÁ TRỊ THANH TOÁN (ĐÃ GỒM VAT):</td>
-                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px;">${formatVnd(grandTotalSup)}</td>
+                <td colspan="5" style="border:1px solid #000; padding:6px; text-align:right;">TỔNG GIÁ TRỊ THANH TOÁN (ĐÃ VAT):</td>
+                <td style="border:1px solid #000; padding:6px; text-align:right; font-size:13px; color:#1e3a8a;">${formatVnd(grandTotalSup)}</td>
               </tr>
             </tbody>
           </table>
 
           <div style="font-size:12px; line-height:1.55; border:1px solid #000; padding:10px; margin-bottom:16px;">
-            <b>ĐIỀU KHOẢN VẬN HÀNH & BẢO ĐẢM HOÀN THUẾ:</b>
+            <b>TIẾN ĐỘ GIAO HÀNG & PHƯƠNG THỨC THANH TOÁN:</b>
             <ol style="margin:4px 0 0 0; padding-left:18px;">
-              <li><b>Đã bao gồm bốc xếp:</b> Đơn giá mua hàng đã bao gồm toàn bộ công bốc xếp nguyên vẹn lên xe container tại xưởng sản xuất.</li>
-              <li><b>Tiến độ thanh toán:</b> Chuyển khoản MB Bank VND <b>2991116668888</b>. Đợt 1 (Cọc ${depPercentVal}%): ${formatVnd(depositVnd)}. Đợt 2 (${100 - depPercentVal}%): ${formatVnd(balanceVnd)} khi xuất hóa đơn GTGT.</li>
-              <li><b>Cam kết hồ sơ thuế:</b> Bên Bán cam kết cung cấp đầy đủ bảng kê hóa đơn nguyên liệu đầu vào và chịu trách nhiệm bảo lãnh hoàn thuế GTGT 0% cho Bên Mua.</li>
+              <li><b>Thời gian giao hàng:</b> Ngày ${executionDate} tại cửa kho xưởng Bên Bán. Bên Bán chịu trách nhiệm bốc xếp an toàn lên xe của GSS.</li>
+              <li><b>Tiến độ thanh toán:</b> Chuyển khoản từ tài khoản MB Bank VND của GSS (2991116668888).
+                ${wireCount === 1 ? `
+                Thanh toán 100% (${formatVnd(grandTotalSup)}) trước khi phương tiện vận tải rời khỏi kho xưởng.
+                ` : `
+                Đợt 1 đặt cọc ${depPercentVal}% (${formatVnd(depositVnd)}) khi ký PO, Đợt 2 thanh toán ${100 - depPercentVal}% (${formatVnd(balanceVnd)}) trước khi xe xuất phát ra cửa khẩu.
+                `}
+              </li>
+              <li><b>Hóa đơn & Chứng từ:</b> Bên Bán xuất hóa đơn GTGT điện tử hợp pháp và cung cấp Bản cam kết xuất xứ hàng hóa NSX phục vụ cấp C/O Form D.</li>
             </ol>
           </div>
 
           <table style="width:100%; border:none; text-align:center; font-size:12.5px; margin-top:20px;" class="no-border">
             <tr>
               <td style="width:50%; vertical-align:top;">
-                <b>${supRepSign}</b><br><br><br><br>
-                <b>GIÁM ĐỐC / ĐẠI DIỆN</b>
+                <b>ĐẠI DIỆN BÊN BÁN (NHÀ MÁY)</b><br>
+                ${supHeaderName}<br><br><br><br>
+                Đã xác nhận đơn hàng
               </td>
               <td style="width:50%; vertical-align:top;">
                 <b>ĐẠI DIỆN BÊN MUA</b><br>
                 CÔNG TY TNHH GLOBAL SOLUTION SERVICE<br><br><br><br>
-                <b>NGUYỄN VĂN TRUNG</b><br>Giám Đốc
+                <b>NGUYỄN VĂN TRUNG</b><br>Giám Đốc (Đã ký đóng dấu)
               </td>
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`ĐƠN ĐẶT HÀNG MUA HÀNG (${supName})`, html);
+        return { id: docId, title: `ĐƠN ĐẶT HÀNG XƯỞNG PL01 (${supObj.name || 'SUP'})`, html, isLandscape: false, filename: `03_SUP_PO_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-LOG-01') {
-        // Trucking Waybill (ẨN GIÁ VỐN THEO RULE BẢO VỆ TẦNG 2)
+      // =========================================================================
+      // 5. TRUCKING WAYBILL
+      // =========================================================================
+      if (docId === 'FRM-LOG-01') {
         let logTableRows = '';
         if (isMixed) {
           d.mixedSkuItems.forEach(it => {
@@ -13767,12 +13831,6 @@ ${amountSection}
             </tr>
           `;
         }
-
-        const logOrigin = isOriginal
-          ? 'Kho Nhà máy Thien Long, Phú Thọ, Việt Nam'
-          : (isMixed 
-              ? `Các điểm bốc hàng theo danh mục hàng ghép cont (${d.mixedSkuItems.map(it => it.skuCode).join(', ')})`
-              : `Kho Nhà máy ${supName}, Việt Nam`);
 
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
@@ -13829,10 +13887,13 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`TRUCKING WAYBILL (${carrierName})`, html);
+        return { id: docId, title: `TRUCKING WAYBILL (${carrierName})`, html, isLandscape: true, filename: `04_LOG_WAYBILL_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-TRD-05') {
-        // Official Payment Instruction MB Bank USD
+      // =========================================================================
+      // 6. OFFICIAL PAYMENT INSTRUCTION MB BANK
+      // =========================================================================
+      if (docId === 'FRM-TRD-05') {
         const html = `
           <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
@@ -13854,41 +13915,6 @@ ${amountSection}
             </div>
             <div style="font-size:12px; margin-top:4px;">
               Sales Contract Ref: <b>${contractCode}</b> | Commercial Invoice: <b>${invoiceNo}</b> | Date: <b>${executionDate}</b>
-            </div>
-          </div>
-
-          <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; padding:10px 14px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <div style="font-size:12px; color:#1e293b;">
-              💡 <b>Gửi khách hàng ngoại:</b> Copy nội dung điện chuyển tiền hoặc xuất ảnh thẻ MB Bank USD sắc nét gửi qua Zalo/WhatsApp/Email (${wireCount === 1 ? 'Phương án Chuyển 1 Lần 100%' : `Phương án Chuyển 2 Đợt: Cọc ${depPercentVal}% & Tất Toán ${100 - depPercentVal}%`}).
-            </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              ${wireCount === 1 ? `
-              <button class="btn btn-sm" onclick="copyPaymentInstructionText('full')" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép toàn bộ lệnh chuyển tiền 100%">
-                [📋 Sao Chép TT 100%]
-              </button>
-              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('full')" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 10px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng 100% Full Payment">
-                [🖼 Xuất Ảnh Thẻ 100% (PNG)]
-              </button>
-              ` : `
-              <button class="btn btn-sm" onclick="copyPaymentInstructionText('deposit')" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép lệnh chuyển tiền Đợt 1 Cọc ${depPercentVal}%">
-                [📋 Cọc Đợt 1 (${depPercentVal}%)]
-              </button>
-              <button class="btn btn-sm" onclick="copyPaymentInstructionText('balance')" style="background:#f59e0b; color:#000; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép lệnh chuyển tiền Đợt 2 Tất Toán ${100 - depPercentVal}%">
-                [📋 Tất Toán Đợt 2 (${100 - depPercentVal}%)]
-              </button>
-              <button class="btn btn-sm" onclick="copyPaymentInstructionText('all')" style="background:#d97706; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Sao chép điện chuyển tiền tổng hợp cả 2 đợt">
-                [📋 Cả 2 Đợt]
-              </button>
-              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('deposit')" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng Đợt 1">
-                [🖼 Thẻ Đợt 1]
-              </button>
-              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('balance')" style="background:#0284c7; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng Đợt 2">
-                [🖼 Thẻ Đợt 2]
-              </button>
-              <button class="btn btn-sm" onclick="generatePaymentInstructionCardImage('all')" style="background:#0369a1; color:#fff; font-weight:bold; border:none; padding:5px 9px; font-size:11px; border-radius:3px; cursor:pointer;" title="Xuất ảnh thẻ ngân hàng tổng hợp cả 2 đợt">
-                [🖼 Thẻ Cả 2 Đợt]
-              </button>
-              `}
             </div>
           </div>
 
@@ -13974,10 +14000,6 @@ ${amountSection}
                 </td>
               </tr>
               `}
-              <tr>
-                <td style="border:1px solid #000; padding:6px;"><b>Intermediary Bank (if required):</b></td>
-                <td style="border:1px solid #000; padding:6px;">CITIBANK N.A., NEW YORK (SWIFT: CITIUS33)</td>
-              </tr>
             </tbody>
           </table>
 
@@ -13999,10 +14021,13 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD (${invoiceNo})`, html);
+        return { id: docId, title: `CHỈ DẪN THANH TOÁN QUỐC TẾ MB BANK USD (${invoiceNo})`, html, isLandscape: false, filename: `01_BUY_PAYMENT_INSTR_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-CUS-01') {
-        // Customs Export Declaration B11
+      // =========================================================================
+      // 7. CUSTOMS EXPORT DECLARATION B11
+      // =========================================================================
+      if (docId === 'FRM-CUS-01') {
         let cusTableRows = '';
         if (isMixed) {
           d.mixedSkuItems.forEach((it, idx) => {
@@ -14134,15 +14159,18 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`TỜ KHAI HẢI QUAN XUẤT KHẨU B11 (${customsDeclNo})`, html);
+        return { id: docId, title: `TỜ KHAI HẢI QUAN XUẤT KHẨU B11 (${customsDeclNo})`, html, isLandscape: false, filename: `02_CUS_B11_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-TRD-01') {
-        // Sales Contract Framework
+      // =========================================================================
+      // 8. SALES FRAMEWORK AGREEMENT
+      // =========================================================================
+      if (docId === 'FRM-TRD-01') {
         const trd01Clause1 = isMixed
           ? `Hàng bách hóa bánh kẹo xuất khẩu đóng ghép đa mã sản phẩm (${d.mixedSkuItems.map(it => `[${it.skuCode}] ${it.product}`).join('; ')}), xuất xứ Việt Nam.`
           : `${escapeHtml(prodName)}, quy cách ${escapeHtml(prodSpec)}, xuất xứ Việt Nam.`;
         const trd01Clause2 = isMixed
-          ? `Tổng giá trị đơn hàng $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD (Giá bình quân gia quyền: $${quotePrice.toFixed(2)} USD/thùng) theo điều kiện ${curTerms}. Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.`
+          ? `Tổng giá trị đơn hàng $${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD (Giá bình quân: $${quotePrice.toFixed(2)} USD/thùng) theo điều kiện ${curTerms}. Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.`
           : `Giá bán $${quotePrice.toFixed(2)} USD/thùng theo điều kiện ${curTerms}.${!isOriginal ? ` Áp dụng cho lô hàng ${qty.toLocaleString('vi-VN')} thùng xuất ngày ${executionDate}.` : ''}`;
 
         const html = `
@@ -14193,10 +14221,281 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`HỢP ĐỒNG NGOẠI THƯƠNG KHUNG (${contractCode})`, html);
+        return { id: docId, title: `HỢP ĐỒNG NGOẠI THƯƠNG KHUNG (${contractCode})`, html, isLandscape: false, filename: `01_BUY_SALES_CONTRACT_${orderRef}.pdf` };
+      }
 
-      } else if (docId === 'FRM-FIN-01') {
-        // Financial Plan & Border Contingency
+      // =========================================================================
+      // 9. LỆNH ĐIỀU XE CONTAINER PL01
+      // =========================================================================
+      if (docId === 'FRM-LOG-02') {
+        let pl01Rows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            pl01Rows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${idx + 1}</td>
+                <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(it.product)}</b><br><small>Mã SKU: [${escapeHtml(it.skuCode)}]. Quy cách: ${escapeHtml(it.spec || 'Tiêu chuẩn')}</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right;">${Math.round(it.qty * (it.netWeight || 6.6)).toLocaleString('vi-VN')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right;">${Math.round(it.qty * (it.grossWeight || 7.8)).toLocaleString('vi-VN')} kg</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right;">${(it.qty * (it.cbm || 0)).toFixed(2)} CBM</td>
+              </tr>
+            `;
+          });
+        } else {
+          pl01Rows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+              <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(prodName)}</b><br><small>Quy cách: ${escapeHtml(prodSpec)}</small></td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right;">${netWeight} kg</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right;">${grossWeight} kg</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right;">${totalCbm} CBM</td>
+            </tr>
+          `;
+        }
+        const transportCostVal = (d.costTransport || (curTerms.includes('LAO BAO') ? 22000000 : 35000000));
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:17px; font-weight:bold;">CÔNG TY TNHH GLOBAL SOLUTION SERVICE</div>
+            <div style="font-size:11.5px;">Tòa nhà CEO Tower, Phạm Hùng, Phường Từ Liêm, Hà Nội | MST: 0109469047</div>
+            <div style="font-size:15px; font-weight:bold; margin-top:8px; text-decoration:underline;">LỆNH ĐIỀU XE CONTAINER & ĐƠN ĐẶT DỊCH VỤ VẬN TẢI (PL01)</div>
+            <div style="font-size:12px;">Số: PL01/${orderRef}-VT/GSS | Ngày lập: <b>${executionDate}</b></div>
+            <div style="font-size:11px; color:#475569;">Căn cứ HĐ Nguyên tắc Dịch vụ Vận tải số GSS-VT-2026 ký ngày ${masterContractDate}</div>
+          </div>
+          <div style="margin-bottom:12px; font-size:12px; line-height:1.5;">
+            <b>Bên thuê vận tải (Shipper):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE — Đại diện: Ông Nguyễn Văn Trung (Giám đốc)<br>
+            <b>Đơn vị vận tải (Carrier):</b> ${carrierName} — MST: ${carrierTax}<br>
+            <b>Phương tiện điều động:</b> <b>${vehLabel}</b> | Số lượng: <b>1 chuyến xe</b> | Điểm nhận: ${logOrigin}<br>
+            <b>Điểm trả hàng:</b> ${curTerms.includes('LAO BAO') ? 'Bãi kiểm hóa Cửa khẩu Quốc tế Lao Bảo, Quảng Trị' : 'Cảng cạn ICD Savannakhet / Mukdahan'}<br>
+            <b>Cước vận tải trọn gói:</b> <b style="color:#0369a1;">${formatVnd(transportCostVal)}</b> (Đã bao gồm chi phí nhiên liệu, phí cầu đường và tác nghiệp)
+          </div>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11.5px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:35px;">STT</th>
+                <th style="border:1px solid #000; padding:4px; text-align:left;">Tên Hàng Hóa & Quy Cách</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:80px;">Số Lượng</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:80px;">Trọng Lượng (NW)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:80px;">Trọng Lượng (GW)</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:80px;">Thể Tích</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${pl01Rows}
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:5px; text-align:right;">TỔNG CỘNG:</td>
+                <td style="border:1px solid #000; padding:5px; text-align:center;">${qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${netWeight} kg</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${grossWeight} kg</td>
+                <td style="border:1px solid #000; padding:5px; text-align:right;">${totalCbm} m³</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="border:1px solid #000; padding:8px; font-size:11.5px; margin-bottom:16px;">
+            <b>ĐIỀU KHOẢN VẬN HÀNH & CAM KẾT SLA:</b><br>
+            • Nhà xe cung cấp biển số xe, thông tin lái xe trước giờ bốc hàng tối thiểu 02 giờ.<br>
+            • Niêm phong kẹp chì nguyên đai nguyên kiện từ kho xưởng đến khi bàn giao tại đích đến.<br>
+            • Cam kết bảo mật 100% giá vốn mua hàng và quan hệ đối tác khách hàng ngoại của GSS.
+          </div>
+          <table style="width:100%; border:none; text-align:center; font-size:12px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:50%;"><b>ĐẠI DIỆN ĐIỀU VẬN GSS</b><br><br><br><br>Đã phê duyệt điều xe</td>
+              <td style="width:50%;"><b>ĐẠI DIỆN ĐƠN VỊ VẬN TẢI</b><br><br><br><br>${carrierName}</td>
+            </tr>
+          </table>
+        `;
+        return { id: docId, title: `LỆNH ĐIỀU XE CONTAINER PL01 (${orderRef})`, html, isLandscape: false, filename: `04_LOG_PL01_${orderRef}.pdf` };
+      }
+
+      // =========================================================================
+      // 10. C/O FORM D 13 BOX ATIGA ECOSYS
+      // =========================================================================
+      if (docId === 'FRM-COD-01') {
+        let codRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            codRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${idx + 1}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">GSS / DUANGMANEE</td>
+                <td style="border:1px solid #000; padding:4px;">
+                  <b>${escapeHtml(it.product)}</b> (${escapeHtml(it.spec || 'Standard')})<br>
+                  <small>HS Code: <b>${escapeHtml(it.hsCode || '1905.90.80')}</b></small>
+                </td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">WO</td>
+                <td style="border:1px solid #000; padding:4px; text-align:right;">${Math.round(it.qty * (it.grossWeight || 7.8)).toLocaleString('vi-VN')} kg<br><small>$${it.revUsd.toLocaleString('en-US', {minimumFractionDigits:2})} USD</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${invoiceNo}<br><small>${executionDate}</small></td>
+              </tr>
+            `;
+          });
+        } else {
+          codRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">GSS / DUANGMANEE</td>
+              <td style="border:1px solid #000; padding:4px;">
+                <b>${escapeHtml(prodName)}</b> (${escapeHtml(prodSpec)})<br>
+                <small>HS Code: <b>${supObj.hsCode || '1905.90.80'}</b></small>
+              </td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">WO</td>
+              <td style="border:1px solid #000; padding:4px; text-align:right;">${grossWeight} kg<br><small>$${totalAmount.toLocaleString('en-US', {minimumFractionDigits:2})} USD</small></td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">${invoiceNo}<br><small>${executionDate}</small></td>
+            </tr>
+          `;
+        }
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; text-align:center;">
+            <div style="font-size:15px; font-weight:bold; letter-spacing:1px;">ORIGINAL</div>
+            <div style="font-size:16px; font-weight:bold; text-transform:uppercase;">CERTIFICATE OF ORIGIN (FORM D)</div>
+            <div style="font-size:12px; font-weight:bold;">ASEAN TRADE IN GOODS AGREEMENT (ATIGA)</div>
+            <div style="font-size:11px;">Issued in VIETNAM | Reference No: <b>VN-TH ${executionDateCompact.slice(2, 6)}/01/${orderRef}</b></div>
+          </div>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px; font-size:11.5px;">
+            <tr>
+              <td style="width:50%; border:1px solid #000; padding:5px; vertical-align:top;">
+                <b>1. Goods consigned from (Exporter's name, address, country):</b><br>
+                <b>GLOBAL SOLUTION SERVICE CO., LTD</b><br>
+                CEO Tower, Pham Hung Str., Tu Liem Ward, Hanoi, Vietnam<br>
+                Tax ID: 0109469047
+              </td>
+              <td style="width:50%; border:1px solid #000; padding:5px; vertical-align:top;">
+                <b>2. Goods consigned to (Importer's / Consignee's name, address, country):</b><br>
+                <b>DUANGMANEE IMPORT-EXPORT CO., LTD</b><br>
+                Mukdahan, Thailand | Tax ID: 0495562000281
+              </td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:5px; vertical-align:top;">
+                <b>3. Means of transport and route (as far as known):</b><br>
+                Departure Date: ${executionDate}<br>
+                Vessel's name / Aircraft / Truck: By Truck (${vehLabel})<br>
+                Port of Discharge: Lao Bao Border Gate to Thailand
+              </td>
+              <td style="border:1px solid #000; padding:5px; vertical-align:top;">
+                <b>4. For Official Use:</b><br>
+                Preferential Treatment Given Under ATIGA<br>
+                Signature of Authorised Signatory: <i>eCoSys Electronic Verified</i>
+              </td>
+            </tr>
+          </table>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px; font-size:11px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:30px;">5. Item</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:90px;">6. Marks & Numbers</th>
+                <th style="border:1px solid #000; padding:4px; text-align:left;">7. Packages, Description of Goods</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:65px;">8. Origin Criterion</th>
+                <th style="border:1px solid #000; padding:4px; text-align:right; width:95px;">9. Gross Weight / Value</th>
+                <th style="border:1px solid #000; padding:4px; text-align:center; width:95px;">10. Invoice No. & Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${codRows}
+            </tbody>
+          </table>
+          <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+            <tr>
+              <td style="width:50%; border:1px solid #000; padding:6px; vertical-align:top;">
+                <b>11. Declaration by the exporter:</b><br>
+                The undersigned hereby declares that the above details and statement are correct; that all the goods were produced in VIETNAM.<br><br>
+                Hanoi, Date: ${executionDate}<br>
+                <b>NGUYEN VAN TRUNG</b> — Director (Signed & Stamped)
+              </td>
+              <td style="width:50%; border:1px solid #000; padding:6px; vertical-align:top;">
+                <b>12. Certification:</b><br>
+                It is hereby certified, on the basis of control carried out, that the declaration by the exporter is correct.<br><br>
+                VCCI / Ministry of Industry and Trade Vietnam<br>
+                <i>(eCoSys Electronic Verification)</i>
+              </td>
+            </tr>
+          </table>
+          <div style="border:1px solid #000; border-top:none; padding:5px; font-size:10.5px;">
+            <b>13. Special Checkboxes:</b> [ ] Third Country Invoicing &nbsp;&nbsp; [ ] Exhibitions &nbsp;&nbsp; [ ] Back-to-Back CO &nbsp;&nbsp; [ ] De Minimis &nbsp;&nbsp; [ ] Accumulation
+          </div>
+        `;
+        return { id: docId, title: `C/O FORM D ATIGA ECOSYS (${orderRef})`, html, isLandscape: false, filename: `05_COD_FORM_D_${orderRef}.pdf` };
+      }
+
+      // =========================================================================
+      // 11. BIÊN BẢN NGHIỆM THU VÀ BÀN GIAO CỬA KHO XƯỞNG
+      // =========================================================================
+      if (docId === 'FRM-PRO-03') {
+        let bbRows = '';
+        if (isMixed) {
+          d.mixedSkuItems.forEach((it, idx) => {
+            bbRows += `
+              <tr>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${idx + 1}</td>
+                <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(it.product)}</b><br><small>Nhà máy: ${escapeHtml(it.supplierName)} | Quy cách: ${escapeHtml(it.spec || 'Chuẩn')}</small></td>
+                <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${it.qty.toLocaleString('vi-VN')} Thùng</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Bao bì mới 100%, khô ráo</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">Đạt chuẩn xuất khẩu</td>
+              </tr>
+            `;
+          });
+        } else {
+          bbRows = `
+            <tr>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+              <td style="border:1px solid #000; padding:4px;"><b>${escapeHtml(prodName)}</b><br><small>Quy cách: ${escapeHtml(prodSpec)}</small></td>
+              <td style="border:1px solid #000; padding:4px; text-align:center; font-weight:bold;">${qty.toLocaleString('vi-VN')} Thùng</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">Bao bì mới 100%, khô ráo</td>
+              <td style="border:1px solid #000; padding:4px; text-align:center;">Đạt chuẩn xuất khẩu</td>
+            </tr>
+          `;
+        }
+        const html = `
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; text-align:center;">
+            <div style="font-size:16px; font-weight:bold;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div style="font-size:13px; font-weight:bold;">Độc lập - Tự do - Hạnh phúc</div>
+            <div style="margin: 6px 0;">***</div>
+            <div style="font-size:16px; font-weight:bold; text-decoration:underline;">BIÊN BẢN NGHIỆM THU VÀ BÀN GIAO HÀNG HÓA TẠI CỬA KHO XƯỞNG</div>
+            <div style="font-size:12px;">Số: BB-BG/${orderRef}-TL/GSS | Ngày: <b>${executionDate}</b></div>
+          </div>
+          <div style="margin-bottom:12px; font-size:12.5px; line-height:1.5;">
+            <b>1. BÊN GIAO (BÊN BÁN):</b> ${supHeaderName}<br>
+            <b>2. BÊN NHẬN (BÊN MUA):</b> CÔNG TY TNHH GLOBAL SOLUTION SERVICE (GSS) — Đại diện: Ông Nguyễn Văn Trung<br>
+            <b>3. ĐƠN VỊ VẬN CHUYỂN:</b> ${carrierName} (Lái xe tiếp nhận vận chuyển lên xe)
+          </div>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px; font-size:12px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:35px;">STT</th>
+                <th style="border:1px solid #000; padding:5px; text-align:left;">Tên Hàng Hóa & Quy Cách</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:90px;">Số Lượng</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:120px;">Tình Trạng Hàng</th>
+                <th style="border:1px solid #000; padding:5px; text-align:center; width:110px;">Kết Quả Nghiệm Thu</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${bbRows}
+              <tr style="font-weight:bold; background:#f8fafc;">
+                <td colspan="2" style="border:1px solid #000; padding:6px; text-align:right;">TỔNG SỐ LƯỢNG BÀN GIAO:</td>
+                <td style="border:1px solid #000; padding:6px; text-align:center;">${qty.toLocaleString('vi-VN')} Thùng</td>
+                <td colspan="2" style="border:1px solid #000; padding:6px; text-align:center; color:#15803d;">ĐỦ SỐ LƯỢNG — ĐẠT CHẤT LƯỢNG</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:12px; line-height:1.5; border:1px solid #000; padding:8px; margin-bottom:18px;">
+            <b>KẾT LUẬN NGHIỆM THU:</b><br>
+            Hai bên xác nhận số lượng hàng hóa bàn giao thực tế đúng với Đơn đặt hàng PL01. Hàng hóa được bốc xếp cẩn thận lên phương tiện vận tải ${vehLabel}, đóng niêm phong kẹp chì đảm bảo an toàn. Biên bản lập thành 03 bản có giá trị pháp lý như nhau.
+          </div>
+          <table style="width:100%; border:none; text-align:center; font-size:12px; margin-top:20px;" class="no-border">
+            <tr>
+              <td style="width:33%;"><b>ĐẠI DIỆN BÊN GIAO (XƯỞNG)</b><br><br><br><br>Đã giao hàng đủ</td>
+              <td style="width:33%;"><b>LÁI XE TIẾP NHẬN</b><br><br><br><br>Đã nhận đủ hàng lên xe</td>
+              <td style="width:33%;"><b>ĐẠI DIỆN BÊN MUA (GSS)</b><br><br><br><br><b>NGUYỄN VĂN TRUNG</b></td>
+            </tr>
+          </table>
+        `;
+        return { id: docId, title: `BIÊN BẢN NGHIỆM THU BÀN GIAO (${orderRef})`, html, isLandscape: false, filename: `03_SUP_BIEN_BAN_BAN_GIAO_${orderRef}.pdf` };
+      }
+
+      // =========================================================================
+      // 12. PHƯƠNG ÁN TÀI CHÍNH THU CHI & HOÀN THUẾ GTGT 0%
+      // =========================================================================
+      if (docId === 'FRM-FIN-01') {
         const fx = d.fxRate || 25790;
         const totalVndRevenue = totalAmount * fx;
         const grossProfit = totalVndRevenue - cogsTotal;
@@ -14267,11 +14566,287 @@ ${amountSection}
             </tr>
           </table>
         `;
-        openDossierDocPreviewModal(`PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN (${contractCode})`, html);
-
-      } else {
-        showToastNotification("Chứng từ này sẵn sàng tải trực tiếp dưới dạng file .DOCX và .PDF.");
+        return { id: docId, title: `PHƯƠNG ÁN TÀI CHÍNH THU CHI & QUYẾT TOÁN (${contractCode})`, html, isLandscape: false, filename: `06_FIN_PLAN_${orderRef}.pdf` };
       }
+
+      // Default fallback for any other registered doc
+      return {
+        id: docId,
+        title: `CHỨNG TỪ XUẤT KHẨU ${docId}`,
+        html: `<div style="text-align:center; padding:30px;"><h3>${escapeHtml(docId)}</h3><p>Tài liệu đã được đăng ký trong hệ sinh thái SSOT.</p></div>`,
+        isLandscape: false,
+        filename: `${docId}_${orderRef}.pdf`
+      };
+    }
+
+    function previewDossierDoc(docId) {
+      _currentPreviewDocId = docId;
+      const docData = getDossierDocHtmlData(docId);
+      if (!docData) {
+        showToastNotification("Tài liệu này không hỗ trợ xem trực tiếp.");
+        return;
+      }
+      openDossierDocPreviewModal(docData.title, docData.html);
+    }
+
+    function printSingleDossierDoc(docId) {
+      const docData = getDossierDocHtmlData(docId);
+      if (!docData) {
+        showToastNotification("Tài liệu này không hỗ trợ in trực tiếp.");
+        return;
+      }
+      const isLandscape = !!docData.isLandscape;
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showToastNotification("⚠️ Vui lòng cho phép popup để mở bản in!");
+        return;
+      }
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>${escapeHtml(docData.title)}</title>
+          <style>
+            @page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 12mm 15mm; }
+            body { font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.45; color: #000000; background: #ffffff; margin: 0; padding: 0; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000000; padding: 4px 6px; }
+            th { background: #f8fafc; font-weight: bold; }
+            .no-border, .no-border td { border: none !important; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            @media screen {
+              body { background: #334155; padding: 20px 10px; }
+              .single-toolbar { position: sticky; top: 10px; max-width: 920px; margin: 0 auto 15px auto; background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+              .single-container { max-width: 920px; margin: 0 auto; background: #fff; padding: 35px 40px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+            }
+            @media print {
+              .no-print, .single-toolbar { display: none !important; }
+              body { background: #fff !important; padding: 0 !important; }
+              .single-container { width: 100% !important; max-width: 100% !important; padding: 0 !important; box-shadow: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="single-toolbar no-print">
+            <div style="font-weight:bold; font-size:14px; color:#38bdf8;">
+              📄 ${escapeHtml(docData.title)} (${isLandscape ? 'A4 Ngang' : 'A4 Dọc'})
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" onclick="window.print()" style="background:#16a34a; color:#fff; font-weight:bold; border:none; padding:6px 14px; border-radius:4px; cursor:pointer;">
+                🖨 Bấm In / Lưu PDF (Save as PDF)
+              </button>
+              <button type="button" onclick="window.close()" style="background:#475569; color:#fff; border:none; padding:6px 10px; border-radius:4px; cursor:pointer;">
+                Đóng
+              </button>
+            </div>
+          </div>
+          <div class="single-container">
+            ${docData.html}
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    function downloadSingleDocWord(docId, defaultName) {
+      const docData = getDossierDocHtmlData(docId);
+      if (!docData) {
+        showToastNotification("Tài liệu này không hỗ trợ xuất Word.");
+        return;
+      }
+      const cleanFileName = (defaultName || docData.title).replace(/[^a-zA-Z0-9_\-\u00C0-\u024F\u1EA0-\u1EF9]/g, '_') + '.doc';
+      const wordHtml = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>${escapeHtml(docData.title)}</title>
+          <style>
+            @page { size: ${docData.isLandscape ? 'A4 landscape' : 'A4 portrait'}; margin: 12mm 15mm; }
+            body { font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.45; color: #000000; background: #ffffff; margin: 0; padding: 0; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000000; padding: 4px 6px; font-family: 'Times New Roman', serif; font-size: 12px; }
+            th { background: #f1f5f9; font-weight: bold; }
+            .no-border, .no-border td { border: none !important; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          ${docData.html}
+        </body>
+        </html>
+      `;
+      const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = cleanFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToastNotification(`📄 Đã tải bản Word thành công: ${cleanFileName}`);
+    }
+
+    function mergeAndPrintSelectedDossierDocs(customDocIds) {
+      let docIds = customDocIds;
+      if (!docIds || !Array.isArray(docIds)) {
+        const checked = document.querySelectorAll('.chk-dossier-doc:checked');
+        docIds = Array.from(checked).map(cb => cb.value || cb.getAttribute('data-id')).filter(Boolean);
+      }
+      docIds = [...new Set(docIds)];
+
+      if (docIds.length === 0) {
+        showToastNotification("⚠️ Vui lòng tích chọn ít nhất 1 tài liệu trong bảng để ghép PDF!");
+        return;
+      }
+
+      recalculate();
+      const dateInfo = getDossierExecutionDateInfo();
+      const orderRef = dateInfo.orderRef || 'NEW';
+      
+      const docPages = [];
+      docIds.forEach(id => {
+        const data = getDossierDocHtmlData(id);
+        if (data && data.html) {
+          docPages.push(data);
+        }
+      });
+
+      if (docPages.length === 0) {
+        showToastNotification("⚠️ Không tìm thấy nội dung tài liệu hợp lệ để ghép!");
+        return;
+      }
+
+      showToastNotification(`📑 Đang ghép ${docPages.length} tài liệu thành 1 file PDF...`);
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showToastNotification("⚠️ Vui lòng cho phép popup để mở bản in ghép PDF!");
+        return;
+      }
+
+      let mergedBodyHtml = '';
+      docPages.forEach((dp, idx) => {
+        const isLandscape = !!dp.isLandscape;
+        const pageClass = isLandscape ? 'dossier-page-item is-landscape' : 'dossier-page-item';
+        mergedBodyHtml += `
+          <div class="${pageClass}">
+            <div class="no-print" style="margin-bottom:8px; padding:4px 8px; background:#f1f5f9; border-left:3px solid #0284c7; font-size:11px; font-weight:bold; color:#0369a1; display:flex; justify-content:space-between;">
+              <span>VĂN BẢN ${idx + 1}/${docPages.length}: ${escapeHtml(dp.title)}</span>
+              <span>Khổ: ${isLandscape ? 'A4 Ngang' : 'A4 Dọc'}</span>
+            </div>
+            ${dp.html}
+          </div>
+        `;
+      });
+
+      const fullPrintHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>CMH-TSC_HO_SO_NGOAI_THUONG_${orderRef}_${docPages.length}_DOCS</title>
+          <style>
+            @page { size: A4 portrait; margin: 12mm 15mm; }
+            @page landscape-section { size: A4 landscape; margin: 10mm 12mm; }
+            * { box-sizing: border-box; }
+            body { font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.45; color: #000000; background: #ffffff; margin: 0; padding: 0; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000000; padding: 4px 6px; }
+            th { background: #f8fafc; font-weight: bold; }
+            .no-border, .no-border td { border: none !important; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            
+            .dossier-page-item {
+              page-break-after: always;
+              break-after: page;
+            }
+            .dossier-page-item:last-child {
+              page-break-after: avoid;
+              break-after: avoid;
+            }
+            .is-landscape {
+              page: landscape-section;
+            }
+
+            @media screen {
+              body { background: #334155; padding: 20px 10px; }
+              .screen-floating-toolbar {
+                position: sticky; top: 10px; z-index: 99999;
+                max-width: 960px; margin: 0 auto 20px auto;
+                background: #0f172a; color: #fff; border: 1px solid #475569;
+                padding: 12px 18px; border-radius: 8px;
+                display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+              }
+              .dossier-merged-container {
+                max-width: 960px; margin: 0 auto;
+              }
+              .dossier-page-item {
+                background: #ffffff; padding: 35px 40px; margin-bottom: 30px;
+                border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+              }
+            }
+            @media print {
+              .no-print, .screen-floating-toolbar { display: none !important; }
+              body { background: #fff !important; padding: 0 !important; }
+              .dossier-merged-container { width: 100% !important; max-width: 100% !important; }
+              .dossier-page-item { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="screen-floating-toolbar no-print">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:16px; font-weight:bold; color:#38bdf8;">📑 BỘ HỒ SƠ GHÉP ${docPages.length} VĂN BẢN (ĐƠN #${orderRef})</span>
+              <span style="background:#059669; color:#fff; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:4px;">1 FILE PDF DUY NHẤT</span>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button type="button" onclick="window.print()" style="background:#16a34a; color:#fff; font-size:13px; font-weight:bold; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; box-shadow:0 2px 6px rgba(22,163,74,0.4); display:flex; align-items:center; gap:6px;">
+                <span>🖨 BẤM ĐỂ IN HOẶC LƯU 1 FILE PDF TRỌN BỘ</span>
+              </button>
+              <button type="button" onclick="window.close()" style="background:#475569; color:#fff; font-size:12px; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">
+                Đóng
+              </button>
+            </div>
+          </div>
+
+          <div class="dossier-merged-container">
+            ${mergedBodyHtml}
+          </div>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.open();
+      printWindow.document.write(fullPrintHtml);
+      printWindow.document.close();
+    }
+
+    function mergeAndPrintBuyDocs() {
+      mergeAndPrintSelectedDossierDocs(['FRM-TRD-01', 'FRM-TRD-02', 'FRM-TRD-03', 'FRM-TRD-04', 'FRM-TRD-05']);
+    }
+
+    function mergeAndPrintCustomsLogisticsDocs() {
+      mergeAndPrintSelectedDossierDocs(['FRM-CUS-01', 'FRM-LOG-01', 'FRM-LOG-02', 'FRM-COD-01']);
+    }
+
+    function mergeAndPrintAllCoreDocs() {
+      mergeAndPrintSelectedDossierDocs(['FRM-TRD-01', 'FRM-TRD-02', 'FRM-TRD-03', 'FRM-TRD-04', 'FRM-TRD-05', 'FRM-PRO-02', 'FRM-LOG-01', 'FRM-LOG-02', 'FRM-COD-01', 'FRM-CUS-01', 'FRM-FIN-01']);
+    }
+
+    function mergeAndPrintCurrentTabDocs(pillarKey) {
+      const docs = DOSSIER_PILLARS[pillarKey] || [];
+      const ids = docs.map(d => d.id).filter(id => id && id.startsWith('FRM-'));
+      mergeAndPrintSelectedDossierDocs(ids);
     }
 
     function previewMasterDoc(code) {
