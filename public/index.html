@@ -2158,7 +2158,7 @@
             <div style="font-size:8px; font-style:italic; color:#444; margin-bottom:3px;">COMPREHENSIVE PROFIT</div>
             <div style="font-size:16px; font-weight:bold; color:#000;" id="kpiTotalProfit">50.330.192 đ</div>
             <div style="font-size:10px; color:#111;"><span id="kpiTotalProfitUsd">$1,951.54 USD</span> | <b id="kpiTotalMargin">Biên: 11.83%</b></div>
-            <div style="font-size:8.5px; color:#555;" id="kpiTotalExtraSub">NPAT + Quỹ hoàn thuế GTGT</div>
+            <div style="font-size:8.5px; color:#555;" id="kpiTotalExtraSub">Lãi thực sau thuế (VAT hoàn không phải lãi)</div>
           </div>
         </div>
 
@@ -2223,6 +2223,82 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- BẢNG GIÁ CHI PHÍ GỬI KHÁCH (COST + 5%) — NẰM NGOÀI TỜ KẾ HOẠCH A4, KHÔNG IN (GSS-XNKD-QUOTE-001)
+           Hai vùng: (1) VÙNG CHỦ XEM (nền vàng) = giải thích + nút tạo ảnh, KHÔNG vào ảnh;
+                     (2) VÙNG GỬI KHÁCH (#cqCustomerView) = chỉ vùng này được chụp thành ảnh. -->
+      <div id="customerQuoteCard" class="card no-print" style="padding:14px 18px; background:#ffffff; color:#000000; font-family:'Times New Roman', serif; border:2px solid #000000; box-shadow:0 4px 16px rgba(0,0,0,0.06); border-radius:2px; margin-bottom:16px;">
+
+        <!-- VÙNG CHỦ XEM — KHÔNG VÀO ẢNH GỬI KHÁCH -->
+        <div id="cqOwnerPanel" style="background:#fefce8; border:1.5px solid #ca8a04; padding:8px 12px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:13.5px; font-weight:bold; text-transform:uppercase; color:#000;">BẢNG GIÁ CHI PHÍ GỬI KHÁCH (COST + <span id="cqRateLabel">5%</span>)</div>
+              <div style="font-size:11px; font-style:italic; color:#333; margin-top:1px;">CUSTOMER COST QUOTATION (COST PLUS <span id="cqRateLabelEn">5%</span>) — vùng vàng này chỉ chủ xem, không vào ảnh</div>
+            </div>
+            <button type="button" class="btn btn-sm" onclick="createCustomerQuoteImage()" style="background:#2563eb; color:#fff; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3);" data-tooltip="Tạo ảnh PNG chỉ gồm vùng gửi khách bên dưới, để gửi qua Zalo / Email">
+              <span>[📸 Tạo Ảnh Gửi Khách]</span>
+            </button>
+          </div>
+
+          <!-- Ba ô % cộng thêm RIÊNG từng nhóm (mặc định 5% mỗi nhóm) -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:7px;">
+            <span style="font-size:11px; font-weight:bold; color:#000;">Cộng thêm / Markup theo nhóm:</span>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:bold; color:#000; border:1.2px solid #000; padding:3px 8px; background:#fff;" title="Giá gốc sản phẩm (giá vốn mua hàng). Mặc định 5%.">
+              <span>Giá gốc sản phẩm</span>
+              <input type="number" id="cqMarkupCogs" value="5" min="0" max="100" step="0.5" oninput="onCustomerMarkupChange()" onchange="onCustomerMarkupChange()" style="width:54px; height:22px; font-size:12px; font-weight:bold; text-align:center; border:1px solid #000; background:#fff; color:#000;">
+              <span>%</span>
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:bold; color:#000; border:1.2px solid #000; padding:3px 8px; background:#fff;" title="Vận chuyển: cước vận tải, tiền lưu xe, cẩu bãi LOLO. Mặc định 5%.">
+              <span>Vận chuyển</span>
+              <input type="number" id="cqMarkupFreight" value="5" min="0" max="100" step="0.5" oninput="onCustomerMarkupChange()" onchange="onCustomerMarkupChange()" style="width:54px; height:22px; font-size:12px; font-weight:bold; text-align:center; border:1px solid #000; background:#fff; color:#000;">
+              <span>%</span>
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:bold; color:#000; border:1.2px solid #000; padding:3px 8px; background:#fff;" title="Thủ tục, bãi, khác: hải quan, C/O, biên phòng, quá cảnh, bến bãi, phí ngân hàng, bảo hiểm, chèn lót, các khoản phát sinh... Mặc định 5%.">
+              <span>Thủ tục, bãi, khác</span>
+              <input type="number" id="cqMarkupOther" value="5" min="0" max="100" step="0.5" oninput="onCustomerMarkupChange()" onchange="onCustomerMarkupChange()" style="width:54px; height:22px; font-size:12px; font-weight:bold; text-align:center; border:1px solid #000; background:#fff; color:#000;">
+              <span>%</span>
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:bold; color:#000; border:1.2px solid #000; padding:3px 8px; background:#fff;" title="Cách tính cost trước khi cộng %. 'Đã gồm VAT' = đúng số tiền thực trả (giá mua sản phẩm đã VAT + phí dịch vụ đã cộng VAT) — an toàn, không bao giờ thấp hơn giá sàn. 'Chưa VAT' = số chưa VAT, coi như đã được nhà nước hoàn VAT (có thể thấp hơn tiền đã trả).">
+              <span>Cost tính theo</span>
+              <select id="cqCogsBasis" onchange="onCustomerMarkupChange()" style="height:22px; font-size:11px; font-weight:bold; border:1px solid #000; background:#fff; color:#000;">
+                <option value="INC" selected>Đã gồm VAT (tiền thực trả)</option>
+                <option value="EXC">Chưa VAT (trước khi nhà nước hoàn)</option>
+              </select>
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:bold; color:#000; border:1.2px solid #000; padding:3px 8px; background:#fff;" title="VAT cộng thêm vào các khoản phí dịch vụ đang nhập chưa có VAT: cước vận tải, lưu xe, cẩu bãi, thủ tục hải quan, C/O, biên phòng, transit xe Lào, quá cảnh Lào, bến bãi, kiểm hóa. Mặc định 8%. Đặt 0 nếu các khoản này đã gồm VAT.">
+              <span>VAT phí dịch vụ</span>
+              <input type="number" id="cqSvcVat" value="8" min="0" max="100" step="0.5" oninput="onCustomerMarkupChange()" onchange="onCustomerMarkupChange()" style="width:54px; height:22px; font-size:12px; font-weight:bold; text-align:center; border:1px solid #000; background:#fff; color:#000;">
+              <span>%</span>
+            </label>
+          </div>
+
+          <!-- GIÁ SÀN: không được báo thấp hơn tiền thực chi (giá mua đã VAT + mọi chi phí khác) -->
+          <div id="cqOwnerFloor" style="margin-top:7px;"></div>
+
+          <div id="cqOwnerNotes" style="font-size:10.5px; color:#222; line-height:1.55; margin-top:6px;"></div>
+
+          <details style="margin-top:6px;">
+            <summary style="cursor:pointer; font-size:10.5px; font-weight:bold; color:#000;">Xem cost gốc và phần cộng thêm của từng khoản (chỉ chủ xem)</summary>
+            <table style="width:100%; border-collapse:collapse; margin-top:5px; font-size:10.5px; border:1px solid #000; background:#fff;">
+              <thead>
+                <tr style="background:#f1f5f9; font-weight:bold; color:#000;">
+                  <th style="width:32%; text-align:left; border:1px solid #000; padding:3px 6px;">Hạng mục chi phí</th>
+                  <th style="width:8%; text-align:center; border:1px solid #000; padding:3px 6px;">Cộng thêm (%)</th>
+                  <th style="width:15%; text-align:right; border:1px solid #000; padding:3px 6px;">Cost gốc (VNĐ)</th>
+                  <th style="width:15%; text-align:right; border:1px solid #000; padding:3px 6px;">Cộng thêm (VNĐ)</th>
+                  <th style="width:15%; text-align:right; border:1px solid #000; padding:3px 6px; background:#fefce8;">Giá gửi khách (VNĐ)</th>
+                  <th style="width:15%; text-align:right; border:1px solid #000; padding:3px 6px;">Giá sàn = thực chi (VNĐ)</th>
+                </tr>
+              </thead>
+              <tbody id="cqOwnerDetailBody"></tbody>
+            </table>
+          </details>
+        </div>
+
+        <!-- VÙNG GỬI KHÁCH — CHỈ VÙNG NÀY ĐƯỢC CHỤP THÀNH ẢNH -->
+        <div id="cqCustomerView"></div>
       </div>
 
     </div>
@@ -2527,6 +2603,37 @@
     </div>
   </div>
 
+  <!-- POPUP 3B: XEM TRƯỚC ẢNH BẢNG GIÁ GỬI KHÁCH (GSS-XNKD-QUOTE-001) -->
+  <div id="customerQuoteImgBackdrop" class="adaptive-modal-backdrop" style="display:none;">
+    <div class="adaptive-modal" style="width:88vw; max-width:1100px; max-height:92vh;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>🖼️ ẢNH BẢNG GIÁ GỬI KHÁCH</span>
+          <span class="brand-badge">CHỈ GỒM VÙNG GỬI KHÁCH</span>
+        </div>
+        <div class="modal-controls">
+          <button class="btn-icon-3d" onclick="closeCustomerQuoteImageModal()" data-tooltip="Đóng [x]"><span>[x]</span></button>
+        </div>
+      </div>
+      <div class="modal-body" style="text-align:center; padding:15px; background:var(--bg-app); overflow:auto;">
+        <img id="customerQuoteImgPreview" style="max-width:100%; border:1px solid var(--border-strong); border-radius:4px; box-shadow:0 8px 24px rgba(0,0,0,0.25); background:#fff;" alt="Ảnh bảng giá gửi khách">
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div style="font-size:12px; color:var(--text-muted);">
+          💡 Ảnh không có phần giải thích, cost gốc hay phần cộng thêm. Dán thẳng vào Zalo / Email gửi khách.
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <a id="btnDownloadCustomerQuote" download="BANG_GIA_GUI_KHACH.png" class="btn btn-sm" style="background:var(--accent-blue); color:#fff; text-decoration:none; font-weight:bold; border:none; box-shadow:0 1px 3px rgba(37,99,235,0.3);" data-tooltip="Tải file ảnh PNG độ nét cao">
+            <span>[💾 Tải Ảnh PNG]</span>
+          </a>
+          <button type="button" class="btn btn-sm" onclick="copyCustomerQuoteImage()" data-tooltip="Sao chép ảnh vào Clipboard để dán vào Zalo / Email">
+            <span>[📋 Sao Chép Ảnh]</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- POPUP 4: BẢN TÍNH BÓC TÁCH COST GỐC BAN ĐẦU TRÊN 1 THÙNG (COST SHEET BREAKDOWN / BOX) -->
   <div id="boxCostSheetModalBackdrop" class="adaptive-modal-backdrop" style="display:none;">
     <div class="adaptive-modal" id="boxCostSheetModal" style="width:90vw; max-width:1100px; max-height:92vh; display:flex; flex-direction:column;">
@@ -2790,7 +2897,7 @@
       <div class="modal-header">
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-weight:bold; font-size:14px;">📁 QUẢN LÝ HỒ SƠ & TẢI BIỂU MẪU XNK CHUẨN SSOT (ORDER DOSSIER & MASTER TEMPLATES)</span>
-          <span class="brand-badge" style="background:#059669; color:#fff; font-weight:bold;">KẾ THỪA 100% PHÔI GỐC</span>
+          <span id="dossierHeadBadge" class="brand-badge" style="background:#059669; color:#fff; font-weight:bold;">KẾ THỪA 100% PHÔI GỐC</span>
           <span class="brand-badge" style="background:#2563eb; color:#fff;">RULE R18/R19 LOCKED</span>
         </div>
         <div class="modal-controls">
@@ -2846,6 +2953,9 @@
               <div style="display:inline-flex; border:1px solid var(--border-strong); border-radius:4px; overflow:hidden; background:var(--bg-app);">
                 <button type="button" id="btnDossierModeOriginal" class="btn btn-sm dossier-mode-btn" onclick="setDossierSourceMode('ORIGINAL_269901')" style="padding:4px 10px; font-size:11px; border:none; border-radius:0; font-weight:bold; background:#1e3a8a; color:#fff;" data-tooltip="Khóa cứng hồ sơ đơn thực chiến #269901 (1,300 Thùng · $15.80 USD · FCA Lao Bảo) phục vụ thanh tra thuế và lưu trữ">
                   📜 Đơn Thực Chiến Gốc #269901 (1,300T - Cố Định)
+                </button>
+                <button type="button" id="btnDossierModeOrder" class="btn btn-sm dossier-mode-btn" onclick="setDossierSourceMode('ORDER_26103002')" style="padding:4px 10px; font-size:11px; border:none; border-radius:0; font-weight:bold; background:var(--bg-cockpit-panel); color:var(--text-muted);" data-tooltip="Bộ hồ sơ chuẩn mới của đơn GSSDIX_FCA_26103002 (FCA Lao Bảo, 1.450 thùng): chỉ liệt kê file thật đang có trong kho">
+                  ✅ Đơn 26103002 (Chuẩn Mới - FCA Lao Bảo)
                 </button>
                 <button type="button" id="btnDossierModeLive" class="btn btn-sm dossier-mode-btn" onclick="setDossierSourceMode('LIVE_SCENARIO')" style="padding:4px 10px; font-size:11px; border:none; border-radius:0; font-weight:bold; background:var(--bg-cockpit-panel); color:var(--text-muted);" data-tooltip="Tự động đồng bộ số lượng, đơn giá, xe vận tải, NCC theo kịch bản đang chọn ở bảng ngoài buồng lái">
                   ⚡ Kịch Bản Live BTS (<span id="dossierModeLiveQtyLabel">1,000T</span> - Đồng Bộ Động)
@@ -3072,7 +3182,7 @@
         <!-- TAB 7: PHÔI TRẮNG GỐC MASTER BLUEPRINTS (DÙNG CHO TẤT CẢ ĐƠN HÀNG MỚI) -->
         <div id="dossierTabMaster" class="dossier-tab-content" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-            <div style="background:rgba(234,179,8,0.08); border-left:3px solid #eab308; padding:6px 10px; font-size:11.5px; flex:1;">
+            <div id="lblTabMasterDesc" style="background:rgba(234,179,8,0.08); border-left:3px solid #eab308; padding:6px 10px; font-size:11.5px; flex:1;">
               <b>Kho Lưu Trữ Gốc (Master Blueprints SSOT):</b> Phôi trắng chứa placeholder tham số (`[BUYER_NAME]`, `[UNIT_PRICE]`, `[QUANTITY]`,...).
             </div>
             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
@@ -3278,7 +3388,7 @@
           spec: "300PCS/thùng", 
           unit: "thùng",
           dimL: 450, dimW: 328, dimH: 189, cbm: 0.0278964, dims: "450x328x189 mm", 
-          grossWeight: 8.18, netWeight: null, weightLabel: "~8.18Kg",
+          grossWeight: 8.18, netWeight: 7.2, netPerPackG: 24, shelfLifeMonths: 6, weightLabel: "~8.18Kg cả bì / ~7.20Kg tịnh",
           cont45Qty: 2300, cont40Qty: 1962, howoQty: 2795 
         },
         { 
@@ -3287,8 +3397,8 @@
           stt: 2,
           name: "Lợi Đạt (LỢI ĐẠT FOOD)", 
           taxId: "[CHỜ XÁC NHẬN]", 
-          product: "Snack Lợi Đạt Mỳ Cây Thơm Ngon", 
-          packagingLabel: "Snack Lợi Đạt Mỳ Cây Thơm Ngon (LỢI ĐẠT FOOD)",
+          product: "Snack Lợi Đạt Mỳ cây thơm ngon", 
+          packagingLabel: "Snack Lợi Đạt Mỳ cây thơm ngon (LỢI ĐẠT FOOD)",
           priceIncVat: 619999.92, 
           pricePreVat: 574074.00, 
           promoBuyBase: 100,
@@ -3299,7 +3409,7 @@
           spec: "500PCS/thùng", 
           unit: "thùng",
           dimL: 620, dimW: 430, dimH: 400, cbm: 0.10664, dims: "620x430x400 mm", 
-          grossWeight: 12.85, netWeight: null, weightLabel: "12.85Kg",
+          grossWeight: 12.85, netWeight: 11, netPerPackG: 22, shelfLifeMonths: 6, weightLabel: "12.85Kg cả bì / ~11.00Kg tịnh",
           cont45Qty: 602, cont40Qty: 514, howoQty: 731 
         },
         { 
@@ -3320,7 +3430,7 @@
           spec: "300PCS/thùng", 
           unit: "thùng",
           dimL: 530, dimW: 440, dimH: 310, cbm: 0.072292, dims: "530x440x310 mm", 
-          grossWeight: 8.85, netWeight: null, weightLabel: "~8.85Kg",
+          grossWeight: 8.85, netWeight: 6.6, netPerPackG: 22, shelfLifeMonths: 6, weightLabel: "~8.85Kg cả bì / ~6.60Kg tịnh",
           cont45Qty: 888, cont40Qty: 758, howoQty: 1079 
         },
         { 
@@ -3341,7 +3451,7 @@
           spec: "300PCS/thùng", 
           unit: "thùng",
           dimL: 530, dimW: 430, dimH: 340, cbm: 0.077486, dims: "530x430x340 mm", 
-          grossWeight: 8.95, netWeight: null, weightLabel: "~8.95Kg",
+          grossWeight: 8.95, netWeight: 6.6, netPerPackG: 22, shelfLifeMonths: 6, weightLabel: "~8.95Kg cả bì / ~6.60Kg tịnh",
           cont45Qty: 828, cont40Qty: 706, howoQty: 1006 
         }
       ],
@@ -4234,6 +4344,67 @@
         baselineOverrides: {},
         unforeseenExpenses: []
       }
+      // <SCN_26103002_BEGIN> — SINH TU DONG boi scripts/sync_cockpit_dossier.py, KHONG SUA TAY
+      ,{
+        "id": "SCN-FCA_LB-CONT45-MIX_1450T-VT-DIX-26103002",
+        "name": "FCA Lao Bảo · Cont 45HC [Ghép MDC(1.070)+MTH(148)+VXN(150) + tặng 82 = 1.450 thùng] - Vĩnh Thành | DIX #26103002 (tỷ giá tạm 25.790)",
+        "isDefault": false,
+        "packingMode": "MIXED",
+        "supplierId": "SUP_LOI_DAT_MY_DEO_CAY",
+        "carrierId": "CARRIER_VINH_THANH",
+        "agentVnId": "AGT_BINH_AN",
+        "agentLaoId": "AGT_NGAN_HUNG",
+        "agentYardId": "AGT_ANH_TAN",
+        "terms": "FCA_LB",
+        "vehicle": "CONT_45HC",
+        "tripCount": 1,
+        "boxQty": 1368,
+        "demurrageDays": 0,
+        "demHowoDomesticDays": 0,
+        "demHowoBorderDays": 0,
+        "bankWireCount": "2",
+        "quotePrice": 14.48,
+        "fxRate": 25790,
+        "mixedCargo": {
+          "SUP_LOI_DAT_MY_DEO_CAY": 1070,
+          "SUP_LOI_DAT_MY_TOM_HUM": 148,
+          "SUP_LOI_DAT_XIEN_NUONG": 150
+        },
+        "mixedPrices": {
+          "SUP_LOI_DAT_MY_DEO_CAY": 14.3,
+          "SUP_LOI_DAT_MY_TOM_HUM": 15.0,
+          "SUP_LOI_DAT_XIEN_NUONG": 15.3
+        },
+        "activeMixedSupplierIds": [
+          "SUP_LOI_DAT_MY_DEO_CAY",
+          "SUP_LOI_DAT_MY_TOM_HUM",
+          "SUP_LOI_DAT_XIEN_NUONG"
+        ],
+        "mixedBonus": {
+          "SUP_LOI_DAT_MY_DEO_CAY": 80,
+          "SUP_LOI_DAT_MY_TOM_HUM": 2,
+          "SUP_LOI_DAT_XIEN_NUONG": 0,
+          "SUP_LOI_DAT_MY_CAY": 0,
+          "SUP_THIEN_LONG": 0
+        },
+        "mixedBonusManual": {},
+        "chkBinhAnCustoms": true,
+        "chkBinhAnCO": true,
+        "chkBinhAnBorderGuard": true,
+        "chkBinhAnTransit": false,
+        "binhAnTransitTrucks": "1",
+        "chkBinhAnInspection": false,
+        "chkBinhAnInspOvertime": false,
+        "chkBinhAnCOExpress": false,
+        "chkInsurance": true,
+        "chkDunnage": false,
+        "chkCrossDock": false,
+        "chkWeighbridge": false,
+        "chkPhyto": false,
+        "baselineOverrides": {},
+        "unforeseenExpenses": []
+      }
+      // <SCN_26103002_END>
     ];
 
     let scenariosMaster = JSON.parse(JSON.stringify(DEFAULT_SCENARIOS_MASTER));
@@ -4448,7 +4619,7 @@
       const scnId = curScn ? curScn.id : activeScenarioId;
 
       // Trích xuất mã gốc đơn hàng 6 số YYMMNN nếu có, hoặc dùng chính scnId
-      const orderRefMatch = scnId.match(/\b(\d{6})\b/);
+      const orderRefMatch = scnId.match(/\b(\d{6,8})\b/);
       const derivedOrderId = orderRefMatch ? orderRefMatch[1] : scnId;
       const isCompleted = scnId.includes('269901') || (curScn && curScn.isCompletedOrder === true);
       const orderType = isCompleted ? 'COMPLETED' : 'SIMULATION';
@@ -4545,7 +4716,7 @@
       try {
         const curScn = scenariosMaster.find(s => s.id === activeScenarioId);
         const scnId = curScn ? curScn.id : activeScenarioId;
-        const orderRefMatch = scnId.match(/\b(\d{6})\b/);
+        const orderRefMatch = scnId.match(/\b(\d{6,8})\b/);
         derivedOrderId = orderRefMatch ? orderRefMatch[1] : scnId;
         dispatchTscToBscSync(false);
       } catch (e) {
@@ -5418,7 +5589,7 @@
     }
 
     function onSingleBoxQtyInput(val) {
-      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES' && _currentDossierMode !== 'ORDER_26103002') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
       clearOverrideKeys(['cogs']);
@@ -5532,7 +5703,7 @@
     }
 
     function onMixedBonusChange(supId, val) {
-      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES' && _currentDossierMode !== 'ORDER_26103002') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
       const b = Math.max(0, parseInt(val) || 0);
@@ -5577,7 +5748,7 @@
 
     function setPackingMode(mode) {
       packingMode = mode || 'SINGLE';
-      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES' && _currentDossierMode !== 'ORDER_26103002') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
       const btnSingle = document.getElementById('btnModeSingle');
@@ -5766,7 +5937,7 @@
     }
 
     function onMixedQtyChange(supId, val) {
-      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES' && _currentDossierMode !== 'ORDER_26103002') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
       const q = Math.max(0, parseInt(val) || 0);
@@ -5798,7 +5969,7 @@
     }
 
     function onMixedPriceChange(supId, val) {
-      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES' && _currentDossierMode !== 'ORDER_26103002') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
       const p = Math.max(0, parseFloat(val) || 0);
@@ -6848,7 +7019,7 @@
     }
 
     function onSupplierChange(keepCurrentQuote) {
-      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES') {
+      if (typeof _currentDossierMode !== 'undefined' && _currentDossierMode !== 'MASTER_TEMPLATES' && _currentDossierMode !== 'ORDER_26103002') {
         _currentDossierMode = 'LIVE_SCENARIO';
       }
       if (!keepCurrentQuote) {
@@ -8671,8 +8842,10 @@
       const netProfitAfterTax = cashProfit > 0 ? (cashProfit - citTax) : cashProfit;
       const netMargin = revenueVnd > 0 ? (netProfitAfterTax / revenueVnd) : 0;
 
-      // Tổng lợi nhuận toàn diện sau thuế (Lãi thực sau thuế + Quỹ hoàn thuế 1331)
-      const totalComprehensiveProfit = netProfitAfterTax + vatRefund;
+      // Tổng lợi nhuận toàn diện = lãi thực sau thuế.
+      // VAT đầu vào hoàn lại KHÔNG cộng vào lãi: giá vốn trong bảng đã tính CHƯA VAT; VAT đã trả nhà cung cấp chỉ là tiền ứng trước
+      // và được nhà nước hoàn đúng số đó, nên cộng thêm vào lãi sẽ tính VAT hai lần (owner chốt 2026-11-06, GSS-XNKD-QUOTE-001).
+      const totalComprehensiveProfit = netProfitAfterTax;
       const totalMargin = revenueVnd > 0 ? (totalComprehensiveProfit / revenueVnd) : 0;
 
       // Update KPI Scorecard (ƯU TIÊN HIỂN THỊ TO LÃI THỰC TẾ SAU THUẾ TNDN 20%)
@@ -8706,7 +8879,7 @@
         if (kpiVatExtra) kpiVatExtra.innerText = 'Nhà nước hoàn 100%';
         if (totalProfitEl) totalProfitEl.innerText = formatVnd(totalComprehensiveProfit);
         if (totalMarginEl) totalMarginEl.innerText = `Biên: ${(totalMargin * 100).toFixed(2)}%`;
-        if (kpiTotalExtra) kpiTotalExtra.innerText = 'Lãi thực + Hoàn thuế 1331';
+        if (kpiTotalExtra) kpiTotalExtra.innerText = 'Lãi thực sau thuế (VAT hoàn không phải lãi)';
       }
 
       // Cập nhật các trường Thông tin đơn hàng & Kế hoạch trực tiếp (Live Executive Sheet) với Mã Ký Tự Sản Phẩm, Tuyến Xe & Điểm Hồ Sơ (/cmh-namid V3.0)
@@ -8880,14 +9053,15 @@
       // ĐỒNG BỘ TAB 3 CỦA KHO HỒ SƠ 7 TRỤ CỘT (03_SUP)
       const btnTab03 = document.getElementById('btnTab03Sup');
       const lblTab03Desc = document.getElementById('lblTab03SupDesc');
-      if (btnTab03) {
+      const keepOrderLabels = (typeof _currentDossierMode !== 'undefined' && _currentDossierMode === 'ORDER_26103002');
+      if (btnTab03 && !keepOrderLabels) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
           btnTab03.innerText = `3. 🏭 03_SUP (Đa Nhà Cung Cấp - ${mixedSkuItems.length} SP)`;
         } else {
           btnTab03.innerText = `3. 🏭 03_SUP (${supplier.name})`;
         }
       }
-      if (lblTab03Desc) {
+      if (lblTab03Desc && !keepOrderLabels) {
         if (packingMode === 'MIXED' && mixedSkuItems.length > 0) {
           lblTab03Desc.innerHTML = `<b>Đối tượng thụ hưởng:</b> Đa Nhà cung cấp (${mixedSkuItems.map(it => it.skuCode).join(', ')}). Giá vốn bình quân sau KM: <b>${formatVnd(cogsPerBoxVnd)} đ/thùng</b>, cam kết bảo lãnh hoàn thuế 0%.`;
         } else {
@@ -9219,6 +9393,20 @@
         { key: "vat", name: "Thuế GTGT đầu vào hoàn lại (Tạm tính)", nameEn: "Refundable Input VAT (Estimated)", provider: "Nhà nước hoàn", providerEn: "State Budget Refund", amount: vatRefund, note: `Quỹ hoàn thuế TK 1331 (${(supplier.vatRate*100).toFixed(0)}% trên ${paidQty.toLocaleString('vi-VN')} th mua)`, noteEn: "Input VAT Refund Fund (Acc. 1331)" }
       ];
 
+      // Dòng GHI CHÚ DÒNG TIỀN (memo): tiền thực trả nhà cung cấp đã gồm VAT = giá vốn + VAT đầu vào.
+      // Không đánh số, không vào tổng chi phí, không sửa được; bảng giá gửi khách bỏ qua dòng này (r.memo).
+      if (vatRefund > 0) {
+        const paidUnitIncVat = paidQty > 0 ? ((cogsPreVat + vatRefund) / paidQty) : 0;
+        costRows.splice(1, 0, {
+          key: "cogsInc", memo: true,
+          name: "Tiền thực trả nhà cung cấp (đã VAT)", nameEn: "Actual Payment to Supplier (Incl. VAT)",
+          provider: cogsRowProvider, providerEn: "Factory Supplier",
+          amount: cogsPreVat + vatRefund,
+          note: `Ứng trước: ${paidQty.toLocaleString('vi-VN')} th mua × ${paidUnitIncVat.toLocaleString('vi-VN', { maximumFractionDigits: 2 })}đ (đã VAT). VAT được hoàn lại — không tính vào chi phí, không tính vào lãi`,
+          noteEn: "Cash advanced incl. input VAT; VAT refunded later — not a cost, not profit"
+        });
+      }
+
       // Khoản 3: Cước vận tải
       if (isFreightActive && freightBase > 0) {
         costRows.push({ key: "freight", name: (terms === 'FCA_LB' ? "Cước vận tải giao tại CK Lao Bảo (FCA)" : "Cước vận tải xe / cont"), nameEn: (terms === 'FCA_LB' ? "Domestic Freight to Lao Bao (FCA)" : "International Trucking & Freight Charge"), provider: carrier.name, providerEn: "Trucking Carrier", amount: freightBase, note: `Hóa đơn cước vận tải [x${tripCount} ${tripCountUnit}]`, noteEn: `Freight Bill [x${tripCount} units]` });
@@ -9314,9 +9502,46 @@
       }
 
       let tableHtml = '';
+      let rowSeq = 0;
       costRows.forEach((r, idx) => {
         const cleanName = r.name.replace(/^\d+\.\s*/, '');
-        const indexedName = `${idx + 1}. ${cleanName}`;
+
+        // Dòng ghi chú dòng tiền: không đánh số, bị che khi đang khóa thuế (vì trừ đi giá vốn sẽ lộ số VAT)
+        if (r.memo) {
+          if (!isTaxSecretUnlocked) {
+            tableHtml += `<tr style="background:#fafafa; opacity:0.85;">
+              <td style="border:1px solid #000; padding:4px 6px 4px 18px;">
+                <span style="color:#666; font-weight:bold; font-style:italic;">[🔒] ${cleanName}</span>
+                <div style="font-size:9.5px; color:#777; font-style:italic;">${r.nameEn}</div>
+              </td>
+              <td style="border:1px solid #000; padding:4px 6px;">${r.provider}</td>
+              <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; letter-spacing:2px; color:#666; font-size:12px;">•••••••• đ</td>
+              <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; letter-spacing:2px; color:#666; font-size:12px;">•••••••• $</td>
+              <td style="border:1px solid #000; padding:4px 6px; font-size:10.5px; color:#666;"><button class="btn-icon-3d" onclick="handleTaxSecretToggle()" style="padding:1px 6px; font-size:11px;" data-tooltip="Bấm để mở khóa xem chi tiết">[👁 Mở khóa]</button></td>
+            </tr>`;
+            return;
+          }
+          tableHtml += `<tr style="background:#fffbeb;">
+            <td style="border:1px solid #000; padding:4px 6px 4px 18px;">
+              <span style="font-style:italic; font-weight:bold;">↳ ${cleanName}</span>
+              <div style="font-size:9.5px; color:#444; font-style:italic;">${r.nameEn}</div>
+            </td>
+            <td style="border:1px solid #000; padding:4px 6px;">
+              ${r.provider}
+              <div style="font-size:9px; color:#666; font-style:italic;">${r.providerEn || ''}</div>
+            </td>
+            <td class="text-right" style="border:1px solid #000; padding:4px 6px; font-style:italic; font-weight:bold;">${formatVnd(r.amount)}</td>
+            <td class="text-right" style="border:1px solid #000; padding:4px 6px; font-style:italic;">$${(r.amount/fxRate).toFixed(2)}</td>
+            <td style="border:1px solid #000; padding:4px 6px; font-size:10.5px; color:#333;">
+              ${r.note}
+              <div style="font-size:9px; color:#666; font-style:italic;">${r.noteEn || ''}</div>
+            </td>
+          </tr>`;
+          return;
+        }
+
+        rowSeq++;
+        const indexedName = `${rowSeq}. ${cleanName}`;
 
         // Nếu dòng này là Quỹ hoàn thuế GTGT đầu vào và đang khóa bảo mật
         if (r.key === 'vat') {
@@ -9445,7 +9670,7 @@
           </td>
           <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px;">+ ${formatVnd(vatRefund)}</td>
           <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px;">+$${(vatRefund/fxRate).toFixed(2)}</td>
-          <td style="border:1px solid #000; padding:4px 6px; font-size:10px; color:#555;">Tài sản hoàn lại từ NSNN (Không tính thuế TNDN)</td>
+          <td style="border:1px solid #000; padding:4px 6px; font-size:10px; color:#555;">Tiền VAT đã ứng, nhà nước hoàn lại — không phải lãi, không cộng vào lợi nhuận</td>
         </tr>`;
       }
 
@@ -9468,12 +9693,19 @@
           </td>
           <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; color:#b45309; font-size:13.5px;">${formatVnd(totalComprehensiveProfit)}</td>
           <td class="text-right font-bold" style="border:1px solid #000; padding:4px 6px; color:#b45309; font-size:13px;">$${(totalComprehensiveProfit/fxRate).toFixed(2)}</td>
-          <td style="border:1px solid #000; padding:4px 6px; font-size:11px; font-weight:bold; color:#b45309;">Biên toàn diện: ${(totalMargin * 100).toFixed(2)}%</td>
+          <td style="border:1px solid #000; padding:4px 6px; font-size:11px; font-weight:bold; color:#b45309;">Biên: ${(totalMargin * 100).toFixed(2)}% = lãi thực sau thuế (VAT hoàn không cộng vào lãi)</td>
         </tr>`;
       }
 
       const costTbodyEl = document.getElementById('costTableBody');
       if (costTbodyEl) costTbodyEl.innerHTML = tableHtml;
+
+      // Bảng giá chi phí gửi khách (cost + 5%) nằm ngoài tờ kế hoạch — GSS-XNKD-QUOTE-001
+      // Tên sản phẩm cho dải "GIÁ / 1 THÙNG HÀNG" (cùng cách đặt tên như tiêu đề bản in: một mã hoặc ghép cont nhiều mã)
+      const cqProductLabel = (packingMode === 'MIXED' && mixedSkuItems && mixedSkuItems.length > 0)
+        ? `Hàng ghép cont ${mixedSkuItems.length} mã SP: ${mixedSkuItems.map(it => it.skuCode).join(', ')}`
+        : `[${singleSkuCode}] ${supplier.product}`;
+      updateCustomerQuoteTable({ costRows, qty, paidQty, bonusQty, fxRate, productLabel: cqProductLabel });
 
       // Populate Dynamic Pricing Table (BILINGUAL)
       const targetMargins = [
@@ -9610,6 +9842,479 @@
 
     function formatVnd(val) {
       return Math.round(val).toLocaleString('vi-VN') + ' đ';
+    }
+
+    // ==========================================
+    // BẢNG GIÁ CHI PHÍ GỬI KHÁCH (COST + 5%) — GSS-XNKD-QUOTE-001
+    // Nằm ngoài tờ kế hoạch A4. Mỗi khoản chi phí cost được cộng thêm đúng tỷ lệ % của chính khoản đó.
+    // Số lượng = thùng mua + thùng tặng (cùng biến `qty` mà Bảng I và dải KPI đang dùng).
+    // Dòng hoàn thuế GTGT đầu vào (key "vat") KHÔNG phải chi phí nên không đưa vào bảng gửi khách.
+    //
+    // Hai vùng:
+    //  • VÙNG CHỦ XEM (nền vàng): mọi lời giải thích — số lượng = mua + tặng, tổng cost gốc, phần cộng thêm,
+    //    làm tròn, tỷ giá, và chi tiết cost gốc + phần cộng thêm từng khoản.
+    //  • VÙNG GỬI KHÁCH (#cqCustomerView): chỉ hạng mục, số lượng (tổng), thành tiền, đơn giá/thùng, USD.
+    //    Tuyệt đối KHÔNG có chữ nói về tỷ lệ cộng thêm, cost gốc hay việc số thùng gồm hàng tặng.
+    //    Chỉ vùng này được chụp thành ảnh (createCustomerQuoteImage).
+    // ==========================================
+    // Dùng var (không dùng const/let) để lần tính đầu tiên dù chạy sớm cũng không vấp lỗi "chưa khai báo".
+    var CUSTOMER_MARKUP_DEFAULT_PCT = 5;
+    var CQ_FREIGHT_KEYS = ['freight', 'demurrage', 'lolo'];
+    var CQ_IMAGE_WIDTH = 960;
+    var CQ_IMAGE_SCALE = 2;
+    var _customerQuoteData = null;
+    var _customerQuoteViewHtml = '';
+    var _lastCustomerQuoteCanvas = null;
+
+    // % cộng thêm chỉnh RIÊNG ba nhóm — cùng cách chia với dải KPI "CHI PHÍ / 1 THÙNG" của tờ kế hoạch:
+    //   cogs    = giá gốc sản phẩm (giá vốn mua hàng)
+    //   freight = vận chuyển (cước vận tải, tiền lưu xe, cẩu bãi LOLO)
+    //   other   = thủ tục, bãi, khác (hải quan, C/O, biên phòng, quá cảnh, bến bãi, ngân hàng, bảo hiểm, chèn lót, phát sinh...)
+    var CQ_MARKUP_INPUT_IDS = { cogs: 'cqMarkupCogs', freight: 'cqMarkupFreight', other: 'cqMarkupOther' };
+    var CQ_MARKUP_STORAGE_KEY = 'CMH_TSC_CUSTOMER_MARKUP_V1';
+    var _cqMarkupRestored = false;
+
+    function getCustomerQuoteGroup(key) {
+      if (key === 'cogs') return 'cogs';
+      if (CQ_FREIGHT_KEYS.includes(key)) return 'freight';
+      return 'other';
+    }
+
+    // Nhớ lại ba ô % đã chỉnh lần trước (chỉ trong trình duyệt này, không đẩy lên kho dữ liệu của hệ thống)
+    function restoreCustomerMarkupOnce() {
+      if (_cqMarkupRestored) return;
+      _cqMarkupRestored = true;
+      try {
+        const raw = localStorage.getItem(CQ_MARKUP_STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        Object.keys(CQ_MARKUP_INPUT_IDS).forEach(g => {
+          const el = document.getElementById(CQ_MARKUP_INPUT_IDS[g]);
+          const v = parseFloat(saved && saved[g]);
+          if (el && isFinite(v) && v >= 0 && v <= 100) el.value = v;
+        });
+        const basisEl = document.getElementById('cqCogsBasis');
+        if (basisEl && saved && (saved.basis === 'INC' || saved.basis === 'EXC')) basisEl.value = saved.basis;
+        const svcVatEl = document.getElementById('cqSvcVat');
+        const sv = parseFloat(saved && saved.svcVat);
+        if (svcVatEl && isFinite(sv) && sv >= 0 && sv <= 100) svcVatEl.value = sv;
+      } catch (e) {
+        console.warn('[GSS-XNKD-QUOTE-001] Không đọc lại được % cộng thêm đã nhớ:', e);
+      }
+    }
+
+    // Cách tính giá mua sản phẩm: 'INC' = đã gồm VAT (đúng tiền thực trả nhà cung cấp, mặc định) | 'EXC' = chưa VAT
+    function getCustomerCogsBasis() {
+      restoreCustomerMarkupOnce();
+      const el = document.getElementById('cqCogsBasis');
+      return (el && el.value === 'EXC') ? 'EXC' : 'INC';
+    }
+
+    // VAT cộng vào các khoản PHÍ DỊCH VỤ đang nhập chưa có VAT (mặc định 8%, chỉnh được ở ô "VAT phí dịch vụ").
+    // Các khoản này: cước vận tải, lưu xe, cẩu bãi, thủ tục hải quan, C/O, biên phòng, transit xe Lào,
+    // kiểm hóa, duyệt C/O nhanh, quá cảnh Lào, bến bãi. Các khoản còn lại (ngân hàng, bảo hiểm, chèn lót,
+    // cân xe, kiểm dịch, phát sinh) giữ nguyên số đã nhập.
+    var CQ_VAT_SERVICE_KEYS = ['freight', 'demurrage', 'lolo', 'baCustoms', 'baCO', 'baBorder', 'baTransit', 'baInsp', 'baInspOt', 'baCoExpress', 'laoTransit', 'yard'];
+    var CUSTOMER_SERVICE_VAT_DEFAULT_PCT = 8;
+
+    function getCustomerServiceVatPct() {
+      restoreCustomerMarkupOnce();
+      const el = document.getElementById('cqSvcVat');
+      const pct = el ? parseFloat(el.value) : CUSTOMER_SERVICE_VAT_DEFAULT_PCT;
+      return (!isFinite(pct) || pct < 0) ? 0 : Math.min(pct, 100);
+    }
+
+    function getCustomerMarkupRates() {
+      restoreCustomerMarkupOnce();
+      const rates = {};
+      Object.keys(CQ_MARKUP_INPUT_IDS).forEach(g => {
+        const el = document.getElementById(CQ_MARKUP_INPUT_IDS[g]);
+        const pct = el ? parseFloat(el.value) : CUSTOMER_MARKUP_DEFAULT_PCT;
+        rates[g] = (!isFinite(pct) || pct < 0) ? 0 : Math.min(pct, 100);
+      });
+      return rates;
+    }
+
+    function onCustomerMarkupChange() {
+      renderCustomerQuoteTable();
+      try {
+        localStorage.setItem(CQ_MARKUP_STORAGE_KEY, JSON.stringify(Object.assign({}, getCustomerMarkupRates(), { basis: getCustomerCogsBasis(), svcVat: getCustomerServiceVatPct() })));
+      } catch (e) {
+        console.warn('[GSS-XNKD-QUOTE-001] Không nhớ được % cộng thêm trong trình duyệt:', e);
+      }
+    }
+
+    function updateCustomerQuoteTable(data) {
+      _customerQuoteData = data;
+      renderCustomerQuoteTable();
+    }
+
+    // Dựng HTML vùng gửi khách. Toàn bộ định dạng viết thẳng vào thẻ (không dựa vào lớp CSS của trang)
+    // để chụp thành ảnh ra đúng như đang thấy.
+    function buildCustomerQuoteViewHtml(m) {
+      const cell = 'border:1px solid #000; padding:4px 6px; color:#000;';
+      const numCell = cell + ' text-align:right;';
+      const head = cell + ' background:#f1f5f9; font-weight:bold;';
+      const mod = (flex, extra) => `flex:${flex}; border:1.2px solid #000; padding:6px 8px; background:#ffffff; line-height:1.35; ${extra || ''}`;
+
+      let rowsHtml = '';
+      m.rows.forEach((r, idx) => {
+        const cleanName = String(r.name || '').replace(/^\d+\.\s*/, '');
+        rowsHtml += `<tr>
+          <td style="${cell}"><b>${idx + 1}. ${escapeHtml(cleanName)}</b><div style="font-size:9.5px; color:#444; font-style:italic;">${escapeHtml(r.nameEn || '')}</div></td>
+          <td style="${numCell}">${m.qtyText}</td>
+          <td style="${numCell} background:#fefce8; font-weight:bold;">${formatVnd(r.quote)}${r.showOrig ? `<div style="font-size:9px; font-weight:normal; font-style:italic; color:#444; white-space:nowrap;">Giá gốc / Original: ${formatVnd(r.origExc)}</div><div style="font-size:8.5px; font-weight:normal; font-style:italic; color:#666; white-space:nowrap;">(chưa VAT / excl. VAT)</div>` : ''}</td>
+          <td style="${numCell}">${formatVnd(m.perBox(r.quote))}</td>
+          <td style="${numCell}">${m.usd(r.quote)}</td>
+        </tr>`;
+      });
+
+      if (m.rows.length === 0) {
+        rowsHtml = `<tr><td colspan="5" style="${cell} text-align:center; color:#666; font-style:italic;">Chưa có khoản chi phí nào để báo giá.</td></tr>`;
+      } else {
+        rowsHtml += `<tr style="font-weight:bold; background:#f1f5f9;">
+          <td style="${cell}">TỔNG CỘNG / TOTAL</td>
+          <td style="${numCell}">${m.qtyText}</td>
+          <td style="${numCell} background:#fefce8; font-size:13px;">${formatVnd(m.totalQuote)}</td>
+          <td style="${numCell}">${formatVnd(m.perBox(m.totalQuote))}</td>
+          <td style="${numCell}">${m.usd(m.totalQuote)}</td>
+        </tr>`;
+      }
+
+      // <style> cục bộ: trang có quy tắc chung (* { font-size; margin; padding }) mà ảnh dựng riêng thì không có.
+      // Ép mọi phần tử trong vùng này kế thừa cỡ chữ / dòng của vùng, để trên trang và trong ảnh giống hệt nhau.
+      return `<div class="cq-v" style="font-family:'Times New Roman', Times, serif; font-size:11px; line-height:1.35; color:#000; background:#ffffff;">
+        <style>.cq-v, .cq-v * { box-sizing:border-box; font-family:'Times New Roman', Times, serif; font-size:inherit; line-height:inherit; }</style>
+        <div style="display:flex; gap:6px; margin-bottom:10px; align-items:stretch;">
+          <div style="${mod(1.75, 'border-width:1.5px; display:flex; justify-content:space-between; align-items:stretch;')}">
+            <div style="flex:1; line-height:1.35;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+                <div style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#000; white-space:nowrap;">GIÁ / 1 THÙNG HÀNG</div>
+                <div style="font-size:10px; font-weight:bold; color:#000; text-align:right;">${escapeHtml(m.productLabel || '')}</div>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:3px;">
+                <div style="font-size:8px; font-style:italic; color:#444; white-space:nowrap;">PRICE PER BOX</div>
+                ${m.originalUnit > 0 ? `<div style="font-size:9.5px; color:#111; text-align:right;">Giá gốc / List price: <b>${m.usd(m.originalUnit)}</b> | <span>${m.originalUnitText} đ/thùng</span></div>` : ''}
+              </div>
+              <div style="font-size:9.5px; color:#111;">• Giá vốn / COGS: <b>${m.usd(m.perBox(m.cogsQuote))}</b> | <span>${formatVnd(m.perBox(m.cogsQuote))}</span>${m.discountText ? ` <span style="display:inline-block; margin-left:4px; padding:0 4px; border:1px solid #000; background:#fefce8; font-weight:bold; font-size:9px;">-${m.discountText}%</span>` : ''}</div>
+              <div style="font-size:9.5px; color:#111;">• Vận chuyển / Freight: <b>${m.usd(m.perBox(m.freightQuote))}</b> | <span>${formatVnd(m.perBox(m.freightQuote))}</span></div>
+              <div style="font-size:9.5px; color:#111;">• Thủ tục, bãi, khác / Customs &amp; Other: <b>${m.usd(m.perBox(m.otherQuote))}</b> | <span>${formatVnd(m.perBox(m.otherQuote))}</span></div>
+            </div>
+            <div style="border-left:1.2px solid #9ca3af; padding-left:8px; margin-left:8px; text-align:right; width:130px; display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:9.5px; font-weight:bold; text-transform:uppercase; color:#000;">TỔNG / THÙNG</div>
+              <div style="font-size:8px; font-style:italic; color:#444;">TOTAL PER BOX</div>
+              <div style="font-size:16px; font-weight:bold; color:#000;">${m.usd(m.perBox(m.totalQuote))}</div>
+              <div style="font-size:10.5px; font-weight:bold; color:#222;">${formatVnd(m.perBox(m.totalQuote))}/thùng</div>
+            </div>
+          </div>
+
+          <div style="${mod(1)}">
+            <div style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#000;">SỐ LƯỢNG THÙNG</div>
+            <div style="font-size:8px; font-style:italic; color:#444; margin-bottom:3px;">TOTAL BOXES</div>
+            <div style="font-size:16px; font-weight:bold; color:#000;">${m.qtyText}</div>
+          </div>
+
+          <div style="${mod(1, 'background:#fefce8; border-width:1.5px;')}">
+            <div style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#000;">TỔNG GIÁ TRỊ</div>
+            <div style="font-size:8px; font-style:italic; color:#444; margin-bottom:3px;">TOTAL AMOUNT</div>
+            <div style="font-size:16px; font-weight:bold; color:#000;">${formatVnd(m.totalQuote)}</div>
+            <div style="font-size:10px; color:#111;">${m.usd(m.totalQuote)} USD</div>
+          </div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:11px; border:1px solid #000; color:#000;">
+          <thead>
+            <tr>
+              <th style="${head} width:36%; text-align:left;">Hạng mục chi phí / Cost Item</th>
+              <th style="${head} width:11%; text-align:right;">Số lượng (thùng) / Qty</th>
+              <th style="${head} width:21%; text-align:right; background:#fefce8;">Thành tiền (VNĐ) / Amount</th>
+              <th style="${head} width:18%; text-align:right;">Đơn giá / thùng (VNĐ)</th>
+              <th style="${head} width:14%; text-align:right;">Quy đổi (USD)</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>`;
+    }
+
+    function renderCustomerQuoteTable() {
+      const viewEl = document.getElementById('cqCustomerView');
+      const notesEl = document.getElementById('cqOwnerNotes');
+      const detailEl = document.getElementById('cqOwnerDetailBody');
+      if (!viewEl || !_customerQuoteData) return;
+
+      try {
+        const { costRows, qty, paidQty, bonusQty, fxRate } = _customerQuoteData;
+        const rates = getCustomerMarkupRates();
+        const pctFmt = (p) => p.toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+        const allSame = rates.cogs === rates.freight && rates.freight === rates.other;
+        const titleRateText = allSame
+          ? `${pctFmt(rates.cogs)}%`
+          : `${pctFmt(rates.cogs)}% / ${pctFmt(rates.freight)}% / ${pctFmt(rates.other)}%`;
+        const boxes = qty > 0 ? qty : 0;
+        const fx = fxRate > 0 ? fxRate : 1;
+        const qtyText = boxes.toLocaleString('vi-VN');
+        const usd = (v) => '$' + (v / fx).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const perBox = (v) => (boxes > 0 ? v / boxes : 0);
+
+        ['cqRateLabel', 'cqRateLabelEn'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = titleRateText;
+        });
+
+        // GIÁ VỐN: giá chưa VAT (cogs) cộng thêm VAT đầu vào đã trả nhà cung cấp (dòng "vat" của Bảng I)
+        // = số tiền THỰC trả nhà cung cấp (ví dụ 359.999,64 đ/thùng × thùng mua). Hàng tặng không tốn tiền nên không có VAT.
+        // Dòng "vat" chỉ dùng để tính giá sàn/giá mua đã VAT, KHÔNG đưa thành một khoản gửi khách.
+        const basis = getCustomerCogsBasis();
+        const vatRow = costRows.find(r => r.key === 'vat');
+        const vatPaid = vatRow ? (parseFloat(vatRow.amount) || 0) : 0;
+        // Phí dịch vụ đang nhập chưa có VAT: tiền thực chi = số nhập × (1 + VAT dịch vụ)
+        const svcVatPct = getCustomerServiceVatPct();
+        const svcVatRate = svcVatPct / 100;
+
+        // Chỉ lấy khoản chi phí thật: bỏ dòng hoàn thuế GTGT, bỏ dòng không có số tiền.
+        // Mỗi khoản được cộng đúng % của nhóm nó thuộc về, trên giá mua theo cách tính đã chọn.
+        const rows = costRows
+          .filter(r => r.key !== 'vat' && !r.memo && (parseFloat(r.amount) || 0) > 0)
+          .map(r => {
+            const group = getCustomerQuoteGroup(r.key);
+            const pct = rates[group];
+            const amount = parseFloat(r.amount) || 0;
+            const isCogs = r.key === 'cogs';
+            const svcVatApplied = !isCogs && svcVatRate > 0 && CQ_VAT_SERVICE_KEYS.includes(r.key);
+            const rawExc = amount;                                // chưa VAT
+            // đã VAT = tiền thực trả: giá vốn + VAT đầu vào đã trả nhà cung cấp; phí dịch vụ + VAT dịch vụ; khoản khác giữ nguyên số nhập
+            const rawInc = isCogs ? amount + vatPaid : (svcVatApplied ? amount * (1 + svcVatRate) : amount);
+            const rawBase = (basis === 'INC') ? rawInc : rawExc;
+            const base = Math.round(rawBase);
+            const markup = Math.round(rawBase * (pct / 100));
+            const floor = Math.round(rawInc);                     // giá sàn của dòng = tiền thực chi
+            // Tên hiển thị cho khách: bỏ chữ "chưa VAT" / "(Excl. VAT)" khỏi dòng giá vốn
+            const custName = isCogs ? String(r.name || '').replace(/\s*chưa VAT/i, '') : r.name;
+            const custNameEn = isCogs ? String(r.nameEn || '').replace(/\s*\(Excl\.? VAT\)/i, '') : r.nameEn;
+            // Khoản dịch vụ đã cộng VAT vào giá bán (cost "đã gồm VAT"): vùng gửi khách ghi thêm dòng nhỏ GIÁ GỐC (chưa VAT) = số nhập ban đầu
+            const showOrig = svcVatApplied && basis === 'INC';
+            return { key: r.key, group, pct, name: custName, nameEn: custNameEn, ownerName: r.name, svcVatApplied, showOrig, origExc: Math.round(amount), base, markup, quote: base + markup, floor };
+          });
+
+        const sumBy = (list, field) => list.reduce((s, r) => s + r[field], 0);
+        const ofGroup = (g) => rows.filter(r => r.group === g);
+        const totalBase = sumBy(rows, 'base');
+        const totalMarkup = sumBy(rows, 'markup');
+        const totalQuote = totalBase + totalMarkup;
+        // GIÁ SÀN = tiền thực trả nhà cung cấp (đã VAT) + mọi chi phí khác. Không được báo khách thấp hơn mức này.
+        const totalFloor = sumBy(rows, 'floor');
+        const gapToFloor = totalQuote - totalFloor;
+
+        // Giá gửi khách theo nhóm (cho dải "GIÁ / 1 THÙNG HÀNG" ở vùng khách)
+        const cogsQuote = sumBy(ofGroup('cogs'), 'quote');
+        const freightQuote = sumBy(ofGroup('freight'), 'quote');
+        const otherQuote = sumBy(ofGroup('other'), 'quote');
+
+        // GIÁ GỐC mỗi thùng MUA (cùng cơ sở với cách tính giá mua đã chọn) và % GIẢM kiểu chiết khấu:
+        // giá gốc = (giá vốn [+ VAT nếu chọn "đã gồm VAT"]) ÷ số thùng mua, ví dụ 359.999,64 đ/thùng.
+        // % giảm = (giá gốc − giá vốn mỗi thùng báo khách) ÷ giá gốc. Hàng tặng được dàn đều nên giá vốn mỗi thùng thấp hơn giá gốc.
+        // Chỉ hiện thẻ khi thật sự thấp hơn giá gốc (từ 0,1% trở lên); cao hơn giá gốc thì không hiện % nào.
+        const cogsRowAmt = (costRows.find(r => r.key === 'cogs') || {}).amount;
+        const cogsAmtNum = parseFloat(cogsRowAmt) || 0;
+        const originalUnit = paidQty > 0 ? ((basis === 'INC' ? cogsAmtNum + vatPaid : cogsAmtNum) / paidQty) : 0;
+        const cogsPerBoxQuote = perBox(cogsQuote);
+        const discountPct = originalUnit > 0 ? ((originalUnit - cogsPerBoxQuote) / originalUnit * 100) : 0;
+        const originalUnitText = originalUnit.toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+        const discountText = discountPct >= 0.1 ? discountPct.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '';
+
+        // ----- VÙNG CHỦ XEM: khối GIÁ SÀN (xanh = đủ bù tiền thực chi, đỏ = đang báo thấp hơn) -----
+        const floorEl = document.getElementById('cqOwnerFloor');
+        if (floorEl) {
+          const ok = gapToFloor >= 0;
+          const pctOver = totalFloor > 0 ? (gapToFloor / totalFloor * 100) : 0;
+          const verdict = ok
+            ? `<b style="color:#15803d;">cao hơn giá sàn ${formatVnd(gapToFloor)} (+${pctFmt(pctOver)}%)</b> — đủ bù tiền thực chi.`
+            : `<b style="color:#b91c1c;">THẤP HƠN giá sàn ${formatVnd(-gapToFloor)}</b> — đang báo dưới tiền thực chi. Hãy chọn cost "Đã gồm VAT" hoặc tăng %.`;
+          floorEl.innerHTML = `<div style="border:1.5px solid ${ok ? '#15803d' : '#b91c1c'}; border-left-width:6px; background:${ok ? '#ecfdf5' : '#fef2f2'}; padding:6px 10px; font-size:11px; line-height:1.5; color:#000;">
+            <div><b>GIÁ SÀN (không được báo thấp hơn)</b> = tiền thực chi đã gồm VAT (mua hàng + phí dịch vụ đã cộng VAT ${pctFmt(svcVatPct)}%) + các chi phí khác: <b>${formatVnd(totalFloor)}</b> (${usd(totalFloor)}) · <b>${formatVnd(perBox(totalFloor))}/thùng</b></div>
+            <div>Báo khách: <b>${formatVnd(totalQuote)}</b> (${usd(totalQuote)}) · <b>${formatVnd(perBox(totalQuote))}/thùng</b> → ${verdict}</div>
+          </div>`;
+        }
+
+        // ----- VÙNG CHỦ XEM: mọi lời giải thích -----
+        const taxVisible = (typeof isTaxSecretUnlocked !== 'undefined') && isTaxSecretUnlocked;
+        const svcVatRows = rows.map((r, i) => (r.svcVatApplied ? (i + 1) : null)).filter(x => x !== null);
+        const svcVatList = svcVatRows.length > 0 ? `mục ${svcVatRows.join(', ')}` : 'không có khoản nào';
+        const basisNote = basis === 'INC'
+          ? `cost <b>đã gồm VAT</b> = đúng số tiền thực chi. Giá mua sản phẩm đã gồm VAT đầu vào trả nhà cung cấp${taxVisible ? ` (VAT ${formatVnd(vatPaid)}, nhà nước hoàn về sau, không nằm trong bảng này)` : ' (phần VAT nhà nước hoàn về sau không nằm trong bảng này)'}. Phí dịch vụ đang nhập chưa có VAT nên đã cộng VAT <b>${pctFmt(svcVatPct)}%</b> vào: <b>${svcVatList}</b> (vận chuyển, thủ tục, bãi). Các khoản còn lại (ngân hàng, bảo hiểm, chèn lót, phát sinh...) giữ nguyên số đã nhập. Cộng % trên giá này nên không thấp hơn giá sàn.`
+          : `cost <b>chưa VAT</b> (coi như đã được nhà nước hoàn VAT). Cách này có thể báo thấp hơn tiền đã chi — xem khối giá sàn phía trên (giá sàn vẫn tính đủ VAT mua hàng và VAT ${pctFmt(svcVatPct)}% phí dịch vụ).`;
+        if (notesEl) {
+          notesEl.innerHTML = `
+            <div>• <b>Số lượng:</b> ${qtyText} thùng = ${paidQty.toLocaleString('vi-VN')} thùng mua + ${bonusQty.toLocaleString('vi-VN')} thùng tặng (tính trọn cả hàng tặng; hàng tặng không tốn tiền mua). Ảnh gửi khách chỉ ghi tổng ${qtyText} thùng.</div>
+            <div>• <b>Cách tính giá mua:</b> ${basisNote}</div>
+            <div>• <b>Giá gốc và % giảm trong ảnh:</b> giá gốc = giá mua mỗi thùng mua = ${originalUnitText} đ (${usd(originalUnit)}); % giảm = (giá gốc − giá vốn mỗi thùng báo khách ${formatVnd(cogsPerBoxQuote)}) ÷ giá gốc = ${discountPct.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%. Hàng tặng được dàn đều cho cả ${qtyText} thùng nên giá vốn mỗi thùng thấp hơn giá gốc. ${discountText ? 'Thẻ % giảm đang hiện trong ảnh.' : 'Giá vốn mỗi thùng không thấp hơn giá gốc nên ảnh không hiện thẻ % giảm.'} Ảnh có ghi tên sản phẩm và giá gốc.</div>
+            <div>• <b>Tổng cost gốc:</b> ${formatVnd(totalBase)} (${usd(totalBase)}) &nbsp;+&nbsp; <b>cộng thêm:</b> ${formatVnd(totalMarkup)} (${usd(totalMarkup)}) &nbsp;=&nbsp; <b>tổng gửi khách:</b> ${formatVnd(totalQuote)} (${usd(totalQuote)}).</div>
+            <div>• <b>Cộng thêm theo nhóm:</b> giá gốc sản phẩm ${pctFmt(rates.cogs)}% (+${formatVnd(sumBy(ofGroup('cogs'), 'markup'))}) · vận chuyển ${pctFmt(rates.freight)}% (+${formatVnd(sumBy(ofGroup('freight'), 'markup'))}) · thủ tục, bãi, khác ${pctFmt(rates.other)}% (+${formatVnd(sumBy(ofGroup('other'), 'markup'))}). Mỗi khoản cost được cộng đúng % của nhóm nó thuộc về.</div>
+            <div>• <b>Cách tính:</b> mỗi khoản làm tròn đến đồng rồi mới cộng; đơn giá / thùng chia cho ${qtyText} thùng (đã gồm hàng tặng); USD theo tỷ giá ${fx.toLocaleString('vi-VN')} VND/USD; không gồm dòng hoàn thuế GTGT đầu vào.</div>
+            <div>• <b>Ảnh gửi khách</b> chỉ gồm phần bảng bên dưới: không có các dòng giải thích này, không lộ giá sàn và phần cộng thêm. ${basis === 'INC' && svcVatRows.length > 0 ? `Các khoản dịch vụ (${svcVatList}) ghi <b>giá bán đã gồm VAT</b>, kèm dòng nhỏ bên dưới <b>"Giá gốc (chưa VAT)"</b> = số nhập ban đầu.` : 'Cost đang chọn "Chưa VAT" nên không có dòng nhỏ giá gốc.'}</div>`;
+        }
+
+        if (detailEl) {
+          const c = 'border:1px solid #000; padding:3px 6px;';
+          let dHtml = '';
+          rows.forEach((r, idx) => {
+            const cleanName = String(r.ownerName || r.name || '').replace(/^\d+\.\s*/, '');
+            const below = r.quote < r.floor;
+            // Chú thích khoản nào đã cộng VAT vào cost (chỉ khi chọn cost đã gồm VAT)
+            const vatTag = (basis !== 'INC') ? ''
+              : (r.key === 'cogs' ? ' <small style="color:#92400e;">(giá mua đã gồm VAT)</small>'
+                : (r.svcVatApplied ? ` <small style="color:#92400e;">(đã cộng VAT ${pctFmt(svcVatPct)}%)</small>` : ''));
+            dHtml += `<tr>
+              <td style="${c}">${idx + 1}. ${escapeHtml(cleanName)}${vatTag}</td>
+              <td style="${c} text-align:center;">${pctFmt(r.pct)}%</td>
+              <td style="${c} text-align:right;">${formatVnd(r.base)}</td>
+              <td style="${c} text-align:right;">+ ${formatVnd(r.markup)}</td>
+              <td style="${c} text-align:right; font-weight:bold; background:#fefce8;${below ? ' color:#b91c1c;' : ''}">${formatVnd(r.quote)}</td>
+              <td style="${c} text-align:right;${below ? ' color:#b91c1c; font-weight:bold;' : ''}">${formatVnd(r.floor)}</td>
+            </tr>`;
+          });
+          if (rows.length > 0) {
+            dHtml += `<tr style="font-weight:bold; background:#f1f5f9;">
+              <td style="${c}">TỔNG CỘNG</td>
+              <td style="${c}"></td>
+              <td style="${c} text-align:right;">${formatVnd(totalBase)}</td>
+              <td style="${c} text-align:right;">+ ${formatVnd(totalMarkup)}</td>
+              <td style="${c} text-align:right; background:#fefce8;${gapToFloor < 0 ? ' color:#b91c1c;' : ''}">${formatVnd(totalQuote)}</td>
+              <td style="${c} text-align:right;">${formatVnd(totalFloor)}</td>
+            </tr>`;
+          }
+          detailEl.innerHTML = dHtml;
+        }
+
+        // ----- VÙNG GỬI KHÁCH: chỉ số liệu, không giải thích -----
+        _customerQuoteViewHtml = buildCustomerQuoteViewHtml({
+          rows, qtyText, usd, perBox, totalQuote, cogsQuote, freightQuote, otherQuote,
+          productLabel: _customerQuoteData.productLabel || '', originalUnit, originalUnitText, discountText
+        });
+        viewEl.innerHTML = _customerQuoteViewHtml;
+      } catch (err) {
+        console.error('[GSS-XNKD-QUOTE-001] Không dựng được bảng giá gửi khách:', err);
+        _customerQuoteViewHtml = '';
+        viewEl.innerHTML = `<div style="border:1px solid #000; padding:6px; color:#dc2626; font-weight:bold;">Không dựng được bảng giá gửi khách: ${escapeHtml(String(err && err.message ? err.message : err))}</div>`;
+      }
+    }
+
+    // ----- TẠO ẢNH GỬI KHÁCH: chụp đúng vùng #cqCustomerView (không có vùng chủ xem) thành PNG -----
+    function createCustomerQuoteImage() {
+      if (!_customerQuoteViewHtml) {
+        showToastNotification('Chưa có bảng để tạo ảnh. Hãy kiểm tra số thùng và chi phí trước.');
+        return;
+      }
+      const W = CQ_IMAGE_WIDTH;
+      const scale = CQ_IMAGE_SCALE;
+      const baseStyle = `box-sizing:border-box; width:${W}px; padding:16px; background:#ffffff; color:#000000; font-family:'Times New Roman', Times, serif; font-size:11px; line-height:1.35;`;
+
+      // Đặt tạm ngoài màn hình để đo chiều cao thật, rồi bỏ vị trí đó trước khi đóng gói
+      const host = document.createElement('div');
+      host.style.cssText = baseStyle + ' position:fixed; left:-20000px; top:0;';
+      host.innerHTML = _customerQuoteViewHtml;
+      document.body.appendChild(host);
+      // +40px dự phòng: phần trắng thừa (nếu có) được cắt bỏ sau khi vẽ, còn thiếu thì mất chữ
+      const H = Math.ceil(host.getBoundingClientRect().height) + 40;
+      host.style.cssText = baseStyle;
+      const xhtml = new XMLSerializer().serializeToString(host);
+      document.body.removeChild(host);
+
+      showToastNotification('📸 Đang tạo ảnh bảng gửi khách...');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * scale}" height="${H * scale}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}">${xhtml}</foreignObject></svg>`;
+
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = W * scale;
+          canvas.height = H * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const finalCanvas = trimCustomerQuoteCanvas(canvas, 16 * scale);
+          const dataUrl = finalCanvas.toDataURL('image/png');
+          _lastCustomerQuoteCanvas = finalCanvas;
+
+          const previewImg = document.getElementById('customerQuoteImgPreview');
+          if (previewImg) previewImg.src = dataUrl;
+
+          const dlBtn = document.getElementById('btnDownloadCustomerQuote');
+          if (dlBtn) {
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const timeStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+            dlBtn.href = dataUrl;
+            dlBtn.download = `BANG_GIA_GUI_KHACH_${timeStr}.png`;
+          }
+
+          const modal = document.getElementById('customerQuoteImgBackdrop');
+          if (modal) modal.style.display = 'flex';
+          showToastNotification('✅ Đã tạo ảnh bảng gửi khách. Bấm Tải Ảnh hoặc Sao Chép Ảnh.');
+        } catch (err) {
+          console.error('[GSS-XNKD-QUOTE-001] Không tạo được ảnh:', err);
+          showToastNotification('⚠️ Trình duyệt không cho tạo ảnh ở đây. Hãy dùng Windows + Shift + S để chụp vùng bảng bên dưới.');
+        }
+      };
+      img.onerror = () => {
+        console.error('[GSS-XNKD-QUOTE-001] Không nạp được ảnh dựng từ bảng gửi khách');
+        showToastNotification('⚠️ Không tạo được ảnh. Hãy dùng Windows + Shift + S để chụp vùng bảng bên dưới.');
+      };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    // Cắt phần trắng thừa ở đáy ảnh (giữ lại một dải lề `padPx` dưới viền bảng cuối cùng)
+    function trimCustomerQuoteCanvas(canvas, padPx) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const data = canvas.getContext('2d').getImageData(0, 0, w, h).data;
+      let last = h - 1;
+      outer: for (; last >= 0; last--) {
+        const rowStart = last * w * 4;
+        for (let x = 0; x < w; x++) {
+          const i = rowStart + x * 4;
+          if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) break outer;
+        }
+      }
+      const newH = Math.min(h, Math.max(1, last + 1 + padPx));
+      if (newH >= h) return canvas;
+      const out = document.createElement('canvas');
+      out.width = w;
+      out.height = newH;
+      const octx = out.getContext('2d');
+      octx.fillStyle = '#ffffff';
+      octx.fillRect(0, 0, w, newH);
+      octx.drawImage(canvas, 0, 0, w, newH, 0, 0, w, newH);
+      return out;
+    }
+
+    function closeCustomerQuoteImageModal() {
+      const modal = document.getElementById('customerQuoteImgBackdrop');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function copyCustomerQuoteImage() {
+      const canvas = _lastCustomerQuoteCanvas;
+      if (!canvas) {
+        showToastNotification('Chưa có ảnh trong bộ nhớ. Hãy bấm Tạo Ảnh Gửi Khách trước.');
+        return;
+      }
+      const fallbackMsg = '💡 Không sao chép được tự động. Hãy bấm [💾 Tải Ảnh PNG] hoặc bấm chuột phải vào ảnh chọn "Sao chép hình ảnh".';
+      try {
+        canvas.toBlob(blob => {
+          if (blob && navigator.clipboard && navigator.clipboard.write) {
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+              .then(() => showToastNotification('📋 Đã sao chép ảnh. Dán (Ctrl+V) vào Zalo / Email gửi khách.'))
+              .catch(() => showToastNotification(fallbackMsg));
+          } else {
+            showToastNotification(fallbackMsg);
+          }
+        }, 'image/png');
+      } catch (e) {
+        showToastNotification(fallbackMsg);
+      }
     }
 
     // ==========================================
@@ -10006,7 +10711,7 @@
       const currentName = (document.getElementById('scenarioName') ? document.getElementById('scenarioName').value : '') || '';
       
       let buyerTag = 'DIX';
-      const buyerSeedMatch = currentName.match(/-([A-Z0-9]{2,8})-(\d{6})\b/);
+      const buyerSeedMatch = currentName.match(/-([A-Z0-9]{2,8})-(\d{6,8})\b/);
       if (buyerSeedMatch && !['VT', 'HM', 'DL', 'HH', 'CAR'].includes(buyerSeedMatch[1])) {
         buyerTag = buyerSeedMatch[1];
       } else if (/BIGC/i.test(currentName)) buyerTag = 'BIGC';
@@ -10016,7 +10721,7 @@
 
       let orderRef = overrideOrderRef;
       if (!orderRef) {
-        const orderRefMatch = currentName.match(/\b(\d{6})\b/);
+        const orderRefMatch = currentName.match(/\b(\d{6,8})\b/);
         orderRef = orderRefMatch ? orderRefMatch[1] : '269901';
       }
 
@@ -10469,7 +11174,7 @@
       text('(TẠM TÍNH / PROVISIONAL)', x5 + 15, curY + 35, 'italic 10.5px "Times New Roman", serif', '#4b5563');
       text(formatVnd(d.totalComprehensiveProfit), x5 + 15, curY + 62, 'bold 21px "Times New Roman", serif', '#000000');
       text('$' + (d.totalComprehensiveProfit / fx).toFixed(2) + ' USD  |  Tỷ suất: ' + (d.totalMargin * 100).toFixed(2) + '%', x5 + 15, curY + 85, 'bold 12.5px "Times New Roman", serif', '#000000');
-      text('NPAT + Quỹ hoàn thuế GTGT', x5 + 15, curY + 104, '11.5px "Times New Roman", serif', '#4b5563');
+      text('Lãi thực sau thuế (VAT hoàn không phải lãi)', x5 + 15, curY + 104, '11.5px "Times New Roman", serif', '#4b5563');
 
       // 4. BẢNG BÓC TÁCH CHI PHÍ THỰC TẾ & KẾT QUẢ KINH DOANH (BILINGUAL COST BREAKDOWN)
       curY = 425;
@@ -10488,10 +11193,25 @@
 
       const rowH = 32;
 
+      let cvSeq = 0;
       d.costRows.forEach((r, idx) => {
         const bg = idx % 2 === 0 ? '#ffffff' : '#fcfcfc';
+
+        // Dòng ghi chú dòng tiền (tiền thực trả nhà cung cấp đã VAT): không đánh số, không vào tổng chi phí
+        if (r.memo) {
+          box(35, curY, W - 70, rowH, '#fffbeb', '#e5e7eb', 1);
+          text(r.name + ' / ' + r.nameEn, 105, curY + 21, 'italic 14px "Times New Roman", serif', '#000000');
+          text(r.provider, 760, curY + 21, 'italic 14px "Times New Roman", serif', '#374151');
+          text(formatVnd(r.amount), 1380, curY + 21, 'italic bold 14.5px "Times New Roman", serif', '#000000', 'right');
+          text('$' + (r.amount / d.fxRate).toFixed(2), 1610, curY + 21, 'italic 14.5px "Times New Roman", serif', '#000000', 'right');
+          text('Tiền ứng, VAT được hoàn lại — không tính vào chi phí/lãi / Cash advance, VAT refunded', 1650, curY + 21, '13px "Times New Roman", serif', '#4b5563');
+          curY += rowH;
+          return;
+        }
+
+        cvSeq++;
         box(35, curY, W - 70, rowH, bg, '#e5e7eb', 1);
-        text(String(idx + 1), 60, curY + 21, '14px "Times New Roman", serif', '#374151');
+        text(String(cvSeq), 60, curY + 21, '14px "Times New Roman", serif', '#374151');
 
         const cleanName = r.name.replace(/^\d+\.\s*/, '');
         const itemName = cleanName + (r.nameEn ? ' / ' + r.nameEn : '');
@@ -10566,7 +11286,7 @@
       text('4. Quỹ hoàn thuế GTGT đầu vào (TK 1331) / Input VAT Refund Fund (Tạm tính / Provisional)', 55, curY + 21, '14.5px "Times New Roman", serif', '#000000');
       text('+ ' + formatVnd(d.vatRefund), 1380, curY + 21, 'bold 15px "Times New Roman", serif', '#000000', 'right');
       text('+$' + (d.vatRefund / d.fxRate).toFixed(2), 1610, curY + 21, '15px "Times New Roman", serif', '#000000', 'right');
-      text('Thuế GTGT 8% hóa đơn mua vào hàng hóa xuất khẩu / 8% Input VAT of exported goods', 1650, curY + 21, '13px "Times New Roman", serif', '#4b5563');
+      text('VAT 8% đầu vào, được hoàn lại — không phải lãi / Refunded, not profit', 1650, curY + 21, '13px "Times New Roman", serif', '#4b5563');
       curY += rowH;
 
       // Dòng 5: Tổng LN toàn diện
@@ -10574,7 +11294,7 @@
       text('5. TỔNG LỢI NHUẬN TOÀN DIỆN DỰ KIẾN / TOTAL COMPREHENSIVE PROFIT (TẠM TÍNH / PROVISIONAL)', 55, curY + 23, 'bold 15px "Times New Roman", serif', '#000000');
       text(formatVnd(d.totalComprehensiveProfit), 1380, curY + 23, 'bold 16.5px "Times New Roman", serif', '#000000', 'right');
       text('$' + (d.totalComprehensiveProfit / d.fxRate).toFixed(2), 1610, curY + 23, 'bold 16px "Times New Roman", serif', '#000000', 'right');
-      text('Tỷ suất toàn diện / Comprehensive Margin: ' + (d.totalMargin * 100).toFixed(2) + '% (NPAT + VAT Refund)', 1650, curY + 23, 'bold 13.5px "Times New Roman", serif', '#000000');
+      text('Tỷ suất toàn diện / Comprehensive Margin: ' + (d.totalMargin * 100).toFixed(2) + '% (= NPAT, không cộng VAT hoàn)', 1650, curY + 23, 'bold 13.5px "Times New Roman", serif', '#000000');
       curY += 44;
 
       // 5. MA TRẬN ĐÁNH GIÁ HIỆU QUẢ THEO CÁC MỨC GIÁ CHÀO BÁN (BILINGUAL SENSITIVITY MATRIX)
@@ -10720,8 +11440,26 @@
       const totalBaseCostPerBoxUsd = totalBaseCostPerBoxVnd / fx;
 
       let rowsHtml = '';
+      let prSeq = 0;
       d.costRows.forEach((r, idx) => {
         const cleanName = r.name.replace(/^\d+\.\s*/, '');
+
+        // Dòng ghi chú dòng tiền (tiền thực trả nhà cung cấp đã VAT): không đánh số, không vào tổng chi phí
+        if (r.memo) {
+          rowsHtml += `
+            <tr style="background:#fffbeb;">
+              <td style="text-align:center; padding:1.5px 3px; border:1px solid #000;"></td>
+              <td style="padding:1.5px 4px; border:1px solid #000; font-style:italic;">${cleanName} <span style="font-size:7.5px; color:#444;">(${r.nameEn})</span></td>
+              <td style="padding:1.5px 4px; border:1px solid #000; font-style:italic;">${r.provider}</td>
+              <td style="text-align:right; font-weight:bold; font-style:italic; padding:1.5px 4px; border:1px solid #000;">${formatVnd(r.amount)}</td>
+              <td style="text-align:right; font-style:italic; padding:1.5px 4px; border:1px solid #000;">$${(r.amount / d.fxRate).toFixed(2)}</td>
+              <td style="padding:1.5px 4px; border:1px solid #000; font-size:7.5px;">Tiền ứng, VAT được hoàn lại — không tính vào chi phí/lãi / Cash advance, VAT refunded</td>
+            </tr>
+          `;
+          return;
+        }
+
+        prSeq++;
         const itemName = cleanName + (r.nameEn ? ` <span style="font-size:7.5px; color:#444;">(${r.nameEn})</span>` : '');
         const providerName = r.provider + (r.providerEn ? ` <span style="font-size:7.5px; color:#444;">(${r.providerEn})</span>` : '');
         const noteText = r.note + (r.noteEn ? ` <span style="font-size:7px; color:#555;">/ ${r.noteEn}</span>` : '');
@@ -10729,7 +11467,7 @@
         if (r.key === 'vat') {
           rowsHtml += `
             <tr>
-              <td style="text-align:center; padding:1.5px 3px; border:1px solid #000;">${idx + 1}</td>
+              <td style="text-align:center; padding:1.5px 3px; border:1px solid #000;">${prSeq}</td>
               <td style="padding:1.5px 4px; border:1px solid #000;">${cleanName} (Tạm tính) <span style="font-size:7.5px; color:#444;">(Input VAT Refund)</span></td>
               <td style="padding:1.5px 4px; border:1px solid #000;">${r.provider}</td>
               <td style="text-align:right; font-weight:bold; padding:1.5px 4px; border:1px solid #000;">+ ${formatVnd(r.amount)}</td>
@@ -10740,7 +11478,7 @@
         } else {
           rowsHtml += `
             <tr>
-              <td style="text-align:center; padding:1.5px 3px; border:1px solid #000;">${idx + 1}</td>
+              <td style="text-align:center; padding:1.5px 3px; border:1px solid #000;">${prSeq}</td>
               <td style="padding:1.5px 4px; border:1px solid #000;">${itemName}</td>
               <td style="padding:1.5px 4px; border:1px solid #000;">${providerName}</td>
               <td style="text-align:right; font-weight:bold; padding:1.5px 4px; border:1px solid #000;">${formatVnd(r.amount)}</td>
@@ -10887,7 +11625,7 @@
               <div style="font-size:7px; font-weight:bold; text-transform:uppercase;">LN TOÀN DIỆN / TOTAL PROFIT</div>
               <div style="font-size:10.5px; font-weight:bold;">${formatVnd(d.totalComprehensiveProfit)}</div>
               <div style="font-size:7px; color:#111;">$${(d.totalComprehensiveProfit / fx).toFixed(2)} USD | ${(d.totalMargin * 100).toFixed(2)}%</div>
-              <div style="font-size:6px; color:#555;">NPAT + VAT Refund</div>
+              <div style="font-size:6px; color:#555;">= NPAT (VAT refund excluded)</div>
             </div>
           </div>
 
@@ -10952,7 +11690,7 @@
                 <td colspan="3" style="border:1px solid #000; padding:1.5px 4px;">5. TỔNG LỢI NHUẬN TOÀN DIỆN DỰ KIẾN / TOTAL COMPREHENSIVE PROFIT (TẠM TÍNH / PROVISIONAL)</td>
                 <td style="border:1px solid #000; padding:1.5px 4px; text-align:right; font-size:9px;">${formatVnd(d.totalComprehensiveProfit)}</td>
                 <td style="border:1px solid #000; padding:1.5px 4px; text-align:right;">$${(d.totalComprehensiveProfit / d.fxRate).toFixed(2)}</td>
-                <td style="border:1px solid #000; padding:1.5px 4px; font-size:7.5px;">Tỷ suất toàn diện / Margin: ${(d.totalMargin * 100).toFixed(2)}% (NPAT + VAT Refund)</td>
+                <td style="border:1px solid #000; padding:1.5px 4px; font-size:7.5px;">Tỷ suất toàn diện / Margin: ${(d.totalMargin * 100).toFixed(2)}% (= NPAT; VAT hoàn không cộng vào lãi)</td>
               </tr>
             </tbody>
           </table>
@@ -11419,6 +12157,585 @@
       baseDir: "artifacts/HO_SO_XUAT_KHAU_THONG_QUAN_GSSDIX_FCA_269901",
       masterDir: "artifacts/CMH_MASTER_FORM_TEMPLATES"
     };
+
+    // <DOSSIER_26103002_BEGIN> — SINH TU DONG boi scripts/sync_cockpit_dossier.py, KHONG SUA TAY
+    const DOSSIER_PILLARS_26103002 = {
+  "01_BUY": [
+    {
+      "id": "FRM-TRD-02",
+      "code": "01_BUY_FRM-TRD-02",
+      "nameVi": "Phụ Lục 02 kiêm Đơn Đặt Hàng Khách Ngoại (FCA Lao Bảo)",
+      "nameEn": "Addendum 02 / Purchase Order",
+      "layout": "Portrait (A4 Dọc)",
+      "status": "BẢN KÝ — ĐÃ QUA MÁY KIỂM",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_ADDENDUM_PO_02_LAO_BAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-TRD-03",
+      "code": "01_BUY_FRM-TRD-03",
+      "nameVi": "Hóa Đơn Thương Mại Quốc Tế",
+      "nameEn": "Commercial Invoice (GSS-26103002/2026)",
+      "layout": "Portrait (A4 Dọc)",
+      "status": "BẢN KÝ — ĐÃ QUA MÁY KIỂM",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_COMMERCIAL_INVOICE_LAO_BAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-TRD-04",
+      "code": "01_BUY_FRM-TRD-04",
+      "nameVi": "Phiếu Đóng Gói Chi Tiết Lô Hàng",
+      "nameEn": "Packing List (GSS-26103002/PKL)",
+      "layout": "Portrait (A4 Dọc)",
+      "status": "BẢN KÝ — ĐÃ QUA MÁY KIỂM",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_PACKING_LIST_LAO_BAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-TRD-05",
+      "code": "01_BUY_FRM-TRD-05",
+      "nameVi": "Chỉ Dẫn Thanh Toán Quốc Tế MB Bank",
+      "nameEn": "Official Payment Instruction (USD Account)",
+      "layout": "Portrait (A4 Dọc)",
+      "status": "BẢN MÀU GỬI KHÁCH — KHÔNG IN",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_PAYMENT_INSTRUCTION_LAO_BAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-TRD-01",
+      "code": "01_BUY_FRM-TRD-01",
+      "nameVi": "Hợp Đồng Khung Mua Bán Ngoại Thương (MSA)",
+      "nameEn": "Sales Framework Agreement (GSSDIX_MSA_26103001)",
+      "layout": "Portrait (A4 Dọc) — Đa trang",
+      "status": "BẢN KÝ — ĐÃ QUA MÁY KIỂM",
+      "fileBase": "HOP_DONG_KHUNG_GSSDIX_MSA_26103001/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_MSA_26103001_SALES_CONTRACT_FRAMEWORK",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    }
+  ],
+  "02_CUS": [
+    {
+      "id": "FRM-CUS-01",
+      "code": "02_CUS_FRM-CUS-01",
+      "nameVi": "Bảng Dữ Liệu Khai Tờ Khai Xuất Khẩu B11 (gửi đại lý)",
+      "nameEn": "Customs Export Declaration B11 — Data Sheet",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — TỜ KHAI DO HẢI QUAN CẤP SỐ",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/02_HAI_QUAN/20261030_GSSDIX_FCA_26103002_B11_BANG_DU_LIEU_KHAI_BAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-CUS-02",
+      "code": "02_CUS_FRM-CUS-02",
+      "nameVi": "Phiếu Bổ Sung Thông Tin DN Hải Quan (21 Chỉ Tiêu)",
+      "nameEn": "Customs Enterprise Profile Supplement",
+      "layout": "—",
+      "status": "DÙNG LẠI BẢN ĐÃ NỘP — CHƯA CÓ TRONG KHO CHUNG",
+      "fileBase": "",
+      "formats": [],
+      "canPreview": false,
+      "kind": "standing"
+    },
+    {
+      "id": "FRM-CUS-03",
+      "code": "02_CUS_FRM-CUS-03",
+      "nameVi": "Bảng Định Mức Tiêu Hao BOM theo đơn",
+      "nameEn": "Bill of Materials (BOM)",
+      "layout": "—",
+      "status": "CHỜ LỢI ĐẠT CUNG CẤP ĐỊNH MỨC",
+      "fileBase": "",
+      "formats": [],
+      "canPreview": false,
+      "kind": "waiting"
+    },
+    {
+      "id": "FRM-CUS-04",
+      "code": "02_CUS_FRM-CUS-04",
+      "nameVi": "Giấy Giới Thiệu Nhân Sự Làm Việc Tại Cửa Khẩu",
+      "nameEn": "Introduction Letter for Border Staff",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — ĐIỀN TÊN NHÂN SỰ",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/02_HAI_QUAN/20261030_GSSDIX_FCA_26103002_GIAY_GIOI_THIEU_NHAN_SU_CUA_KHAU",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-BRO-01",
+      "code": "02_CUS_FRM-BRO-01",
+      "nameVi": "Hợp Đồng Nguyên Tắc Dịch Vụ Khai Thuê Hải Quan",
+      "nameEn": "Customs Brokerage Framework Agreement",
+      "layout": "—",
+      "status": "HỢP ĐỒNG DÀI HẠN ĐÃ KÝ — CHƯA CÓ TRONG KHO CHUNG",
+      "fileBase": "",
+      "formats": [],
+      "canPreview": false,
+      "kind": "standing"
+    },
+    {
+      "id": "FRM-BRO-02",
+      "code": "02_CUS_FRM-BRO-02",
+      "nameVi": "Giấy Ủy Quyền Làm Thủ Tục Hải Quan Theo Đơn",
+      "nameEn": "Customs Power of Attorney",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — ĐIỀN BÊN ĐƯỢC ỦY QUYỀN",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/02_HAI_QUAN/20261030_GSSDIX_FCA_26103002_GIAY_UY_QUYEN_LAM_THU_TUC_HAI_QUAN",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    }
+  ],
+  "03_SUP": [
+    {
+      "id": "FRM-PRO-01",
+      "code": "03_SUP_FRM-PRO-01",
+      "nameVi": "Hợp Đồng Nguyên Tắc Mua Bán Dài Hạn Lợi Đạt (26103001)",
+      "nameEn": "Purchase Framework Agreement — Lợi Đạt",
+      "layout": "Portrait (A4 Dọc) — Đa trang",
+      "status": "BẢN NHÁP — CÒN 4 Ô VÀNG",
+      "fileBase": "HOP_DONG_KHUNG_MUA_LOI_DAT_26103001/01_BAN_KY_LOI_DAT/20261030_GSSLD_HDNT_26103001_PURCHASE_FRAMEWORK_LOI_DAT_HDNT",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-PRO-02",
+      "code": "03_SUP_FRM-PRO-02",
+      "nameVi": "Phụ Lục Kiêm Đơn Đặt Hàng Mua Snack Lợi Đạt (PL01 — 1.450 thùng)",
+      "nameEn": "Purchase Order PL01 — Lợi Đạt",
+      "layout": "Portrait (A4 Dọc) — 2 Trang",
+      "status": "BẢN NHÁP — CÒN 4 Ô VÀNG",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/03_HO_SO_NCC_LOI_DAT/20261030_GSSDIX_FCA_26103002_PURCHASE_PO_LOI_DAT_PL01",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-PRO-03",
+      "code": "03_SUP_FRM-PRO-03",
+      "nameVi": "Biên Bản Bàn Giao & Nghiệm Thu Hàng Tại Xưởng Lợi Đạt",
+      "nameEn": "Factory Handover & Acceptance Minutes",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — ĐIỀN KHI BỐC HÀNG",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/03_HO_SO_NCC_LOI_DAT/20261030_GSSDIX_FCA_26103002_BIEN_BAN_BAN_GIAO_NGHIEM_THU_XUONG",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-PRO-04",
+      "code": "03_SUP_FRM-PRO-04",
+      "nameVi": "Bản Tự Công Bố & Phiếu Kiểm Nghiệm ATTP của Lợi Đạt",
+      "nameEn": "Product Declaration & Food Safety Test Report",
+      "layout": "—",
+      "status": "CHỜ LỢI ĐẠT CUNG CẤP",
+      "fileBase": "",
+      "formats": [],
+      "canPreview": false,
+      "kind": "waiting"
+    }
+  ],
+  "04_LOG": [
+    {
+      "id": "FRM-LOG-00",
+      "code": "04_LOG_FRM-LOG-00",
+      "nameVi": "Hợp Đồng Nguyên Tắc Dịch Vụ Vận Tải Đường Bộ (Vĩnh Thành)",
+      "nameEn": "Road Transport Framework Agreement",
+      "layout": "—",
+      "status": "HỢP ĐỒNG DÀI HẠN ĐÃ KÝ — CHƯA CÓ BẢN SCAN TRONG KHO",
+      "fileBase": "",
+      "formats": [],
+      "canPreview": false,
+      "kind": "standing"
+    },
+    {
+      "id": "FRM-LOG-01",
+      "code": "04_LOG_FRM-LOG-01",
+      "nameVi": "Vận Đơn Đường Bộ Nội Địa (Trucking Waybill)",
+      "nameEn": "Trucking Waybill",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — ĐIỀN KHI CÓ XE",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/04_VAN_TAI/20261030_GSSDIX_FCA_26103002_VAN_DON_DUONG_BO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-LOG-02",
+      "code": "04_LOG_FRM-LOG-02",
+      "nameVi": "Lệnh Điều Xe Container PL01 (Hải Phòng - Lao Bảo)",
+      "nameEn": "Container Dispatch Order PL01",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — XE, TÀI XẾ, CƯỚC",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/04_VAN_TAI/20261030_GSSDIX_FCA_26103002_LENH_DIEU_XE_CONTAINER_PL01",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-LOG-03",
+      "code": "04_LOG_FRM-LOG-03",
+      "nameVi": "Biên Bản Bàn Giao Hàng Tại Cửa Khẩu Lao Bảo",
+      "nameEn": "Handover Minutes at Lao Bao Border Checkpoint",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — ĐIỀN KHI GIAO HÀNG",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/04_VAN_TAI/20261030_GSSDIX_FCA_26103002_BIEN_BAN_BAN_GIAO_LAO_BAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    }
+  ],
+  "05_COD": [
+    {
+      "id": "FRM-COD-01",
+      "code": "05_COD_FRM-COD-01",
+      "nameVi": "Bảng Dữ Liệu Khai C/O Mẫu D (13 Ô) cho eCoSys",
+      "nameEn": "Certificate of Origin Form D — Data Sheet",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — C/O DO CƠ QUAN CÓ THẨM QUYỀN CẤP",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/05_CO_FORM_D/20261030_GSSDIX_FCA_26103002_CO_FORM_D_BANG_DU_LIEU_13_O",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-COD-02",
+      "code": "05_COD_FRM-COD-02",
+      "nameVi": "Bản Cam Kết Xuất Xứ Hàng Hóa của Nhà Sản Xuất (Lợi Đạt ký)",
+      "nameEn": "Manufacturer's Origin Declaration",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "PHÔI CHỜ LỢI ĐẠT KÝ",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/05_CO_FORM_D/20261030_GSSDIX_FCA_26103002_BAN_CAM_KET_XUAT_XU_NHA_SAN_XUAT",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-COD-03",
+      "code": "05_COD_FRM-COD-03",
+      "nameVi": "Thuyết Minh Quy Trình Công Nghệ Sản Xuất của Lợi Đạt",
+      "nameEn": "Production Process Description",
+      "layout": "—",
+      "status": "CHỜ LỢI ĐẠT CUNG CẤP",
+      "fileBase": "",
+      "formats": [],
+      "canPreview": false,
+      "kind": "waiting"
+    },
+    {
+      "id": "FRM-COD-04",
+      "code": "05_COD_FRM-COD-04",
+      "nameVi": "Bảng Kê Hóa Đơn Mua Nguyên Phụ Liệu Đầu Vào (Lợi Đạt điền)",
+      "nameEn": "Input Materials Invoice List",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "PHÔI CHỜ LỢI ĐẠT ĐIỀN",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/05_CO_FORM_D/20261030_GSSDIX_FCA_26103002_BANG_KE_HOA_DON_NGUYEN_LIEU_DAU_VAO",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    }
+  ],
+  "06_FIN": [
+    {
+      "id": "FRM-FIN-01",
+      "code": "06_FIN_FRM-FIN-01",
+      "nameVi": "Phương Án Tài Chính Thu Chi Đơn Hàng",
+      "nameEn": "Order Financial Plan",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — TỶ GIÁ, CƯỚC, PHÍ",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_PHUONG_AN_TAI_CHINH_THU_CHI",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-FIN-02",
+      "code": "06_FIN_FRM-FIN-02",
+      "nameVi": "Dữ Liệu Nhập Hóa Đơn GTGT Xuất Khẩu 0% (MISA)",
+      "nameEn": "Export VAT Invoice 0% — Input Data",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "CÒN Ô VÀNG — HÓA ĐƠN DO MISA PHÁT HÀNH",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_HOA_DON_GTGT_XUAT_KHAU_0PCT_DU_LIEU_NHAP",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-FIN-03",
+      "code": "06_FIN_FRM-FIN-03",
+      "nameVi": "Checklist Đối Soát 4 Chiều Hoàn Thuế GTGT 0%",
+      "nameEn": "4-Way Matching Checklist",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "PHÔI ĐỐI SOÁT — ĐIỀN KHI CÓ CHỨNG TỪ",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_CHECKLIST_4_WAY_MATCHING_HOAN_THUE_0PCT",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    },
+    {
+      "id": "FRM-FIN-04",
+      "code": "06_FIN_FRM-FIN-04",
+      "nameVi": "Bảng Quyết Toán Đơn Hàng",
+      "nameEn": "Order Settlement Sheet",
+      "layout": "Portrait (A4 Dọc) — 1 Trang",
+      "status": "PHÔI — LẬP SAU KHI ĐƠN HOÀN TẤT",
+      "fileBase": "HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_BANG_QUYET_TOAN_DON_HANG",
+      "formats": [
+        "DOCX"
+      ],
+      "canPreview": false,
+      "kind": "generated"
+    }
+  ]
+};
+    const DOSSIER_BASE_26103002 = "artifacts";
+    const DOSSIER_SUMMARY_26103002 = {
+  "orderId": "GSSDIX_FCA_26103002",
+  "orderNo": "26103002",
+  "issueDate": "30/10/2026",
+  "buyer": "DUANGMANEE IMPORT-EXPORT CO., LTD",
+  "qty": 1450,
+  "amountUsd": "20,990.00",
+  "incoterm": "FCA Lao Bảo",
+  "equipment": "1 × 45ft High-Cube container",
+  "supplierName": "Công ty TNHH Thương Mại Lợi Đạt",
+  "supplierTax": "0202220054",
+  "supplierPaid": 1368,
+  "supplierFree": 82,
+  "supplierVat": 8,
+  "frameworkId": "GSSDIX_MSA_26103001",
+  "frameworkDate": "30/10/2026"
+};
+    const DOSSIER_MASTER_26103002 = [
+  {
+    "code": "ORDER_SPEC_FORM",
+    "nameVi": "Form Đơn Hàng Trắng (điền số liệu một lần để sinh cả bộ)",
+    "pillar": "00_SPEC",
+    "builder": "build_order_pipeline.py",
+    "url": "artifacts/TEMPLATES/ORDER_SPEC_FORM.json",
+    "ext": "json"
+  },
+  {
+    "code": "FRM-TRD-02",
+    "nameVi": "Phụ Lục 02 kiêm Đơn Đặt Hàng Khách Ngoại (FCA Lao Bảo)",
+    "pillar": "01_BUY",
+    "builder": "build_order_set.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_ADDENDUM_PO_02_LAO_BAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-TRD-03",
+    "nameVi": "Hóa Đơn Thương Mại Quốc Tế",
+    "pillar": "01_BUY",
+    "builder": "build_order_set.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_COMMERCIAL_INVOICE_LAO_BAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-TRD-04",
+    "nameVi": "Phiếu Đóng Gói Chi Tiết Lô Hàng",
+    "pillar": "01_BUY",
+    "builder": "build_order_set.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_PACKING_LIST_LAO_BAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-TRD-05",
+    "nameVi": "Chỉ Dẫn Thanh Toán Quốc Tế MB Bank",
+    "pillar": "01_BUY",
+    "builder": "build_order_set.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_FCA_26103002_PAYMENT_INSTRUCTION_LAO_BAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-TRD-01",
+    "nameVi": "Hợp Đồng Khung Mua Bán Ngoại Thương (MSA)",
+    "pillar": "01_BUY",
+    "builder": "build_framework_agreement.py",
+    "url": "artifacts/HOP_DONG_KHUNG_GSSDIX_MSA_26103001/01_GUI_KHACH_HANG_THAILAND/20261030_GSSDIX_MSA_26103001_SALES_CONTRACT_FRAMEWORK.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-CUS-01",
+    "nameVi": "Bảng Dữ Liệu Khai Tờ Khai Xuất Khẩu B11 (gửi đại lý)",
+    "pillar": "02_CUS",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/02_HAI_QUAN/20261030_GSSDIX_FCA_26103002_B11_BANG_DU_LIEU_KHAI_BAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-CUS-04",
+    "nameVi": "Giấy Giới Thiệu Nhân Sự Làm Việc Tại Cửa Khẩu",
+    "pillar": "02_CUS",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/02_HAI_QUAN/20261030_GSSDIX_FCA_26103002_GIAY_GIOI_THIEU_NHAN_SU_CUA_KHAU.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-BRO-02",
+    "nameVi": "Giấy Ủy Quyền Làm Thủ Tục Hải Quan Theo Đơn",
+    "pillar": "02_CUS",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/02_HAI_QUAN/20261030_GSSDIX_FCA_26103002_GIAY_UY_QUYEN_LAM_THU_TUC_HAI_QUAN.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-PRO-01",
+    "nameVi": "Hợp Đồng Nguyên Tắc Mua Bán Dài Hạn Lợi Đạt (26103001)",
+    "pillar": "03_SUP",
+    "builder": "build_purchase_framework.py",
+    "url": "artifacts/HOP_DONG_KHUNG_MUA_LOI_DAT_26103001/01_BAN_KY_LOI_DAT/20261030_GSSLD_HDNT_26103001_PURCHASE_FRAMEWORK_LOI_DAT_HDNT.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-PRO-02",
+    "nameVi": "Phụ Lục Kiêm Đơn Đặt Hàng Mua Snack Lợi Đạt (PL01 — 1.450 thùng)",
+    "pillar": "03_SUP",
+    "builder": "build_purchase_contract.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/03_HO_SO_NCC_LOI_DAT/20261030_GSSDIX_FCA_26103002_PURCHASE_PO_LOI_DAT_PL01.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-PRO-03",
+    "nameVi": "Biên Bản Bàn Giao & Nghiệm Thu Hàng Tại Xưởng Lợi Đạt",
+    "pillar": "03_SUP",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/03_HO_SO_NCC_LOI_DAT/20261030_GSSDIX_FCA_26103002_BIEN_BAN_BAN_GIAO_NGHIEM_THU_XUONG.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-LOG-01",
+    "nameVi": "Vận Đơn Đường Bộ Nội Địa (Trucking Waybill)",
+    "pillar": "04_LOG",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/04_VAN_TAI/20261030_GSSDIX_FCA_26103002_VAN_DON_DUONG_BO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-LOG-02",
+    "nameVi": "Lệnh Điều Xe Container PL01 (Hải Phòng - Lao Bảo)",
+    "pillar": "04_LOG",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/04_VAN_TAI/20261030_GSSDIX_FCA_26103002_LENH_DIEU_XE_CONTAINER_PL01.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-LOG-03",
+    "nameVi": "Biên Bản Bàn Giao Hàng Tại Cửa Khẩu Lao Bảo",
+    "pillar": "04_LOG",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/04_VAN_TAI/20261030_GSSDIX_FCA_26103002_BIEN_BAN_BAN_GIAO_LAO_BAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-COD-01",
+    "nameVi": "Bảng Dữ Liệu Khai C/O Mẫu D (13 Ô) cho eCoSys",
+    "pillar": "05_COD",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/05_CO_FORM_D/20261030_GSSDIX_FCA_26103002_CO_FORM_D_BANG_DU_LIEU_13_O.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-COD-02",
+    "nameVi": "Bản Cam Kết Xuất Xứ Hàng Hóa của Nhà Sản Xuất (Lợi Đạt ký)",
+    "pillar": "05_COD",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/05_CO_FORM_D/20261030_GSSDIX_FCA_26103002_BAN_CAM_KET_XUAT_XU_NHA_SAN_XUAT.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-COD-04",
+    "nameVi": "Bảng Kê Hóa Đơn Mua Nguyên Phụ Liệu Đầu Vào (Lợi Đạt điền)",
+    "pillar": "05_COD",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/05_CO_FORM_D/20261030_GSSDIX_FCA_26103002_BANG_KE_HOA_DON_NGUYEN_LIEU_DAU_VAO.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-FIN-01",
+    "nameVi": "Phương Án Tài Chính Thu Chi Đơn Hàng",
+    "pillar": "06_FIN",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_PHUONG_AN_TAI_CHINH_THU_CHI.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-FIN-02",
+    "nameVi": "Dữ Liệu Nhập Hóa Đơn GTGT Xuất Khẩu 0% (MISA)",
+    "pillar": "06_FIN",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_HOA_DON_GTGT_XUAT_KHAU_0PCT_DU_LIEU_NHAP.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-FIN-03",
+    "nameVi": "Checklist Đối Soát 4 Chiều Hoàn Thuế GTGT 0%",
+    "pillar": "06_FIN",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_CHECKLIST_4_WAY_MATCHING_HOAN_THUE_0PCT.docx",
+    "ext": "docx"
+  },
+  {
+    "code": "FRM-FIN-04",
+    "nameVi": "Bảng Quyết Toán Đơn Hàng",
+    "pillar": "06_FIN",
+    "builder": "build_dossier_forms.py",
+    "url": "artifacts/HO_SO_XUAT_KHAU_GSSDIX_FCA_26103002/06_KE_TOAN_THUE/20261030_GSSDIX_FCA_26103002_BANG_QUYET_TOAN_DON_HANG.docx",
+    "ext": "docx"
+  }
+];
+    // <DOSSIER_26103002_END>
 
     const DOSSIER_PILLARS = {
       '01_BUY': [
@@ -11942,18 +13259,89 @@
       }
     }
 
+    // Danh sach + thu muc goc dang hien thi theo che do: don moi lay khoi sinh tu manifest, con lai la lo cu 269901.
+    function getActiveDossier() {
+      const isOrder = (_currentDossierMode === 'ORDER_26103002');
+      return {
+        isOrder,
+        pillars: isOrder ? DOSSIER_PILLARS_26103002 : DOSSIER_PILLARS,
+        base: isOrder ? DOSSIER_BASE_26103002 : DOSSIER_REGISTRY.baseDir
+      };
+    }
+
+    function dossierFileExt(d) {
+      if (d.formats && d.formats.includes('DOCX')) return 'docx';
+      if (d.formats && d.formats.includes('PDF')) return 'pdf';
+      if (d.formats && d.formats.includes('XLS')) return 'xls';
+      return 'docx';
+    }
+
+    // Chi gom nhung dong co file that (dong "cho ben khac" / "dung lai ban cu" khong co fileBase thi bo qua)
+    function collectActiveDossierFiles(pillarKeys) {
+      const act = getActiveDossier();
+      const files = [];
+      pillarKeys.forEach(pk => {
+        (act.pillars[pk] || []).forEach(d => {
+          if (!d.fileBase) return;
+          const ext = dossierFileExt(d);
+          files.push({ url: `${act.base}/${d.fileBase}.${ext}`, filename: `${d.code}.${ext}`, name: d.nameVi });
+        });
+      });
+      return files;
+    }
+
+    // Khau hieu, nut tai hang loat, tab 3 doi theo che do dang chon
+    function applyDossierModeLabels(mode) {
+      const isOrder = (mode === 'ORDER_26103002');
+      const badge = document.getElementById('dossierHeadBadge');
+      const lblBulk = document.getElementById('lblDossierBulk');
+      const btnZip = document.getElementById('btnDossierZip');
+      const lblZip = document.getElementById('lblDossierZip');
+      const btnTab03 = document.getElementById('btnTab03Sup');
+      const lblTab03 = document.getElementById('lblTab03SupDesc');
+      const lblMaster = document.getElementById('lblTabMasterDesc');
+      if (lblMaster && lblMaster.dataset.orig === undefined) lblMaster.dataset.orig = lblMaster.innerHTML;
+      if (isOrder) {
+        const S = DOSSIER_SUMMARY_26103002;
+        const all = Object.keys(DOSSIER_PILLARS_26103002).reduce((a, k) => a.concat(DOSSIER_PILLARS_26103002[k]), []);
+        const nFiles = all.filter(d => d.fileBase).length;
+        if (badge) { badge.textContent = 'CHUẨN MỚI — SINH TỪ SỐ LIỆU ĐƠN'; badge.style.background = '#047857'; }
+        if (lblBulk) lblBulk.textContent = `[📥 Tải Lần Lượt Từng File Rời (${nFiles} File)]`;
+        if (btnZip) {
+          btnZip.setAttribute('onclick', 'downloadAllIndividualFilesSequentially()');
+          btnZip.setAttribute('data-tooltip', `Đơn ${S.orderNo} chưa đóng gói ZIP: tải lần lượt ${nFiles} file hiện có của đơn`);
+        }
+        if (lblZip) lblZip.textContent = `[📦 Tải Trọn Bộ Đơn ${S.orderNo} (${nFiles} File Rời)]`;
+        if (lblMaster) lblMaster.innerHTML = '<b>Phôi master chuẩn mới = Form đơn hàng trắng + chương trình dựng.</b> Không còn là các file Word trắng: điền số liệu một lần vào form (dòng đầu), chạy <code>python scripts/build_order_pipeline.py --order HO_SO_XUAT_KHAU_&lt;mã đơn&gt;</code> là ra cả bộ rồi tự kiểm. Các dòng dưới là biểu mẫu mẫu lấy từ đơn ' + S.orderNo + ' và chương trình sinh ra từng biểu mẫu.';
+        if (btnTab03) btnTab03.innerText = '3. 🏭 03_SUP (Xưởng SX Lợi Đạt)';
+        if (lblTab03) lblTab03.innerHTML = `<b>Đối tượng thụ hưởng:</b> ${escapeHtml(S.supplierName)} (MST: ${escapeHtml(S.supplierTax)}). Mua <b>${S.supplierPaid.toLocaleString('vi-VN')} thùng</b> + tặng <b>${S.supplierFree.toLocaleString('vi-VN')} thùng</b>, hóa đơn GTGT ${S.supplierVat}%, xưởng Kim Sơn - Hải Phòng.`;
+      } else {
+        if (badge) { badge.textContent = 'KẾ THỪA 100% PHÔI GỐC'; badge.style.background = '#059669'; }
+        const nOld = ['01_BUY', '02_CUS', '03_SUP', '04_LOG', '05_COD', '06_FIN'].reduce((n, k) => n + (DOSSIER_PILLARS[k] || []).length, 0);
+        if (lblBulk) lblBulk.textContent = `[📥 Tải Lần Lượt Từng File Rời (${nOld} File)]`;
+        if (btnZip) {
+          btnZip.setAttribute('onclick', "downloadAllDossierZip('269901')");
+          btnZip.setAttribute('data-tooltip', 'Tải về tệp nén ZIP chứa toàn bộ 214 file hồ sơ đơn hàng theo chuẩn 6 nhánh thư mục');
+        }
+        if (lblZip) lblZip.textContent = '[📦 Tải Trọn Bộ ZIP Đơn 269901]';
+        if (lblMaster && lblMaster.dataset.orig !== undefined) lblMaster.innerHTML = lblMaster.dataset.orig;
+      }
+    }
+
     function setDossierSourceMode(mode) {
       _currentDossierMode = mode;
+      applyDossierModeLabels(mode);
       
       const btnOrig = document.getElementById('btnDossierModeOriginal');
       const btnLive = document.getElementById('btnDossierModeLive');
       const btnMaster = document.getElementById('btnDossierModeMaster');
+      const btnOrder = document.getElementById('btnDossierModeOrder');
       const statusBadge = document.getElementById('dossierModeStatusBadge');
       const dateInput = document.getElementById('dossierExecutionDateInput');
       const hintBadge = document.getElementById('dossierDateHintBadge');
 
       // Reset button styles
-      [btnOrig, btnLive, btnMaster].forEach(b => {
+      [btnOrig, btnLive, btnMaster, btnOrder].forEach(b => {
         if (b) {
           b.style.background = 'var(--bg-cockpit-panel)';
           b.style.color = 'var(--text-muted)';
@@ -12036,6 +13424,35 @@
           if (firstTabBtn) switchDossierTab('dossierTab01Buy', firstTabBtn);
         }
         showToastNotification(`⚡ Đã kích hoạt Chế độ: ĐỒNG BỘ THEO BIẾN LIVE BUỒNG LÁI (${q.toLocaleString('vi-VN')} Thùng · $${p.toFixed(2)} USD)`);
+      } else if (mode === 'ORDER_26103002') {
+        if (btnOrder) {
+          btnOrder.style.background = '#047857';
+          btnOrder.style.color = '#fff';
+        }
+        if (statusBadge) {
+          statusBadge.style.background = '#047857';
+          statusBadge.style.color = '#fff';
+          statusBadge.innerHTML = '✅ ĐANG CHỌN: Đơn GSSDIX_FCA_26103002 (chuẩn mới — chỉ file thật trong kho)';
+        }
+        if (dateInput) {
+          dateInput.value = '2026-10-30';
+          dateInput.disabled = true;
+          dateInput.style.cursor = 'not-allowed';
+          dateInput.style.opacity = '0.75';
+        }
+        if (hintBadge) {
+          hintBadge.style.background = '#047857';
+          hintBadge.style.color = '#fff';
+          hintBadge.textContent = 'HĐ Khung: 30/10/2026';
+        }
+        try { syncDossierWithActiveScenario(); } catch(e) { console.error(e); }
+        try { renderDossierPillarsTables(); } catch(e) { console.error(e); }
+        const activeTabN = document.querySelector('#orderDossierModal .tab-btn.active');
+        if (activeTabN && activeTabN.textContent.includes('MASTER')) {
+          const firstTabBtnN = document.querySelector('#orderDossierModal .tab-btn');
+          if (firstTabBtnN) switchDossierTab('dossierTab01Buy', firstTabBtnN);
+        }
+        showToastNotification("✅ Đã chọn bộ hồ sơ CHUẨN MỚI đơn GSSDIX_FCA_26103002 (FCA Lao Bảo · 1.450 thùng)");
       } else if (mode === 'MASTER_TEMPLATES') {
         if (btnMaster) {
           btnMaster.style.background = '#a16207';
@@ -12099,7 +13516,9 @@
           const scn = (typeof activeScenario !== 'undefined' && activeScenario) ? activeScenario : ((typeof scenariosMaster !== 'undefined' && Array.isArray(scenariosMaster)) ? (scenariosMaster.find(s => s.id === activeScenarioId) || scenariosMaster[0]) : null);
           const isLockedBaseline = scn && scn.id === 'SCN-FCA_LB-HOWO-1300T-VT-DIX-269901' && qty === 1300 && (d.packingMode !== 'MIXED') && (d.supplier && d.supplier.id === 'SUP_THIEN_LONG');
           
-          if (!isLockedBaseline) {
+          if (_currentDossierMode === 'ORDER_26103002') {
+            /* giu nguyen che do don 26103002 */
+          } else if (!isLockedBaseline) {
             _currentDossierMode = 'LIVE_SCENARIO';
           } else if (!_currentDossierMode) {
             _currentDossierMode = 'ORIGINAL_269901';
@@ -12144,7 +13563,8 @@
           const tbody = document.getElementById(info.tbodyId);
           if (!tbody || tbody.children.length === 0) {
             try {
-              renderPillarRows(info.tbodyId, DOSSIER_PILLARS[info.key] || []);
+              const act = getActiveDossier();
+              renderPillarRows(info.tbodyId, act.pillars[info.key] || [], act.isOrder ? act.base : null);
             } catch (err) {
               console.error(`Lỗi lazy render tab ${tabId}:`, err);
             }
@@ -12175,7 +13595,8 @@
       // Render từng trụ cột với try...catch độc lập - lỗi một trụ cột không làm sập các trụ cột khác
       pillars.forEach(p => {
         try {
-          renderPillarRows(p.id, DOSSIER_PILLARS[p.key] || []);
+          const isNew = (typeof _currentDossierMode !== 'undefined' && _currentDossierMode === 'ORDER_26103002');
+          renderPillarRows(p.id, (isNew ? DOSSIER_PILLARS_26103002 : DOSSIER_PILLARS)[p.key] || [], isNew ? DOSSIER_BASE_26103002 : null);
         } catch (err) {
           console.error(`Lỗi render trụ cột ${p.key}:`, err);
         }
@@ -12189,7 +13610,7 @@
       }
     }
 
-    function renderPillarRows(tbodyId, docs) {
+    function renderPillarRows(tbodyId, docs, baseDir) {
       const tbody = document.getElementById(tbodyId);
       if (!tbody) return;
       if (!docs || !Array.isArray(docs)) {
@@ -12198,9 +13619,9 @@
       }
       let html = '';
       docs.forEach((d, idx) => {
-        const fullDocx = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.docx';
-        const fullPdf = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.pdf';
-        const fullXls = DOSSIER_REGISTRY.baseDir + '/' + d.fileBase + '.xls';
+        const fullDocx = (baseDir || DOSSIER_REGISTRY.baseDir) + '/' + d.fileBase + '.docx';
+        const fullPdf = (baseDir || DOSSIER_REGISTRY.baseDir) + '/' + d.fileBase + '.pdf';
+        const fullXls = (baseDir || DOSSIER_REGISTRY.baseDir) + '/' + d.fileBase + '.xls';
 
         const formats = d.formats || ['DOCX'];
         let primaryUrl = fullDocx;
@@ -12312,9 +13733,29 @@
       updateSelectedCountBadge();
     }
 
+    function renderMasterRowsOrder(tbody) {
+      let html = '';
+      DOSSIER_MASTER_26103002.forEach((d, idx) => {
+        const fn = `${d.code}.${d.ext}`;
+        html += `
+          <tr>
+            <td class="text-center"><input type="checkbox" class="chk-dossier-doc" data-url="${d.url}" data-fn="${fn}" data-name="${d.nameVi}" onchange="updateSelectedCountBadge()"></td>
+            <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
+            <td><code style="font-size:11.5px; color:var(--alert-warning-text); font-weight:bold;">${d.code}</code></td>
+            <td><b style="color:var(--text-main); font-size:12.5px;">${d.nameVi}</b><br><small style="color:var(--text-muted);">${idx === 0 ? 'Điền xong rồi chạy chương trình dựng' : 'Mẫu tham chiếu lấy từ đơn ' + DOSSIER_SUMMARY_26103002.orderNo}</small></td>
+            <td><span class="brand-badge" style="font-size:10.5px;">${d.pillar}</span></td>
+            <td><span style="font-size:11px; color:var(--text-muted);">${d.builder}</span></td>
+            <td class="text-right" style="white-space:nowrap;"><button class="btn btn-sm" onclick="downloadDossierDoc('${d.url}', '${fn}')" style="padding:2px 6px; font-size:11px;">[⬇ .${d.ext.toUpperCase()}]</button></td>
+          </tr>`;
+      });
+      tbody.innerHTML = html;
+      updateSelectedCountBadge();
+    }
+
     function renderMasterRows(tbodyId, docs) {
       const tbody = document.getElementById(tbodyId);
       if (!tbody) return;
+      if (_currentDossierMode === 'ORDER_26103002') { renderMasterRowsOrder(tbody); return; }
       if (!docs || !Array.isArray(docs) || docs.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:16px; color:var(--text-muted);">Đang tải dữ liệu phôi Master Blueprints...</td></tr>';
         return;
@@ -12422,50 +13863,29 @@
     }
 
     function downloadCurrentTabSequentially(pillarKey) {
-      const docs = DOSSIER_PILLARS[pillarKey];
-      if (!docs || docs.length === 0) {
+      let files;
+      if (pillarKey === 'MASTER' && getActiveDossier().isOrder) {
+        files = DOSSIER_MASTER_26103002.map(d => ({ url: d.url, filename: `${d.code}.${d.ext}`, name: d.nameVi }));
+      } else if (pillarKey === 'MASTER') {
+        const docs = DOSSIER_PILLARS[pillarKey] || [];
+        files = docs.map(d => {
+          const ext = dossierFileExt(d);
+          return { url: `${DOSSIER_REGISTRY.masterDir}/${d.file}.${ext}`, filename: `${d.file}.${ext}`, name: d.nameVi };
+        });
+      } else {
+        files = collectActiveDossierFiles([pillarKey]);
+      }
+      if (files.length === 0) {
         showToastNotification(`Không tìm thấy tài liệu trong họ ${pillarKey}`);
         return;
       }
-
-      const files = [];
-      docs.forEach(d => {
-        let ext = 'docx';
-        if (d.formats && d.formats.includes('DOCX')) ext = 'docx';
-        else if (d.formats && d.formats.includes('PDF')) ext = 'pdf';
-        else if (d.formats && d.formats.includes('XLS')) ext = 'xls';
-
-        const base = (pillarKey === 'MASTER') ? DOSSIER_REGISTRY.masterDir + '/' + d.file : DOSSIER_REGISTRY.baseDir + '/' + d.fileBase;
-        files.push({
-          url: `${base}.${ext}`,
-          filename: (pillarKey === 'MASTER') ? `${d.file}.${ext}` : `${d.code}.${ext}`,
-          name: d.nameVi
-        });
-      });
-
       downloadFilesSequentially(files, `Họ Trụ Cột ${pillarKey}`);
     }
 
     function downloadAllIndividualFilesSequentially() {
-      const allFiles = [];
-      const pillarKeys = ['01_BUY', '02_CUS', '03_SUP', '04_LOG', '05_COD', '06_FIN'];
-      pillarKeys.forEach(pk => {
-        const list = DOSSIER_PILLARS[pk] || [];
-        list.forEach(d => {
-          let ext = 'docx';
-          if (d.formats && d.formats.includes('DOCX')) ext = 'docx';
-          else if (d.formats && d.formats.includes('PDF')) ext = 'pdf';
-          else if (d.formats && d.formats.includes('XLS')) ext = 'xls';
-
-          allFiles.push({
-            url: `${DOSSIER_REGISTRY.baseDir}/${d.fileBase}.${ext}`,
-            filename: `${d.code}.${ext}`,
-            name: d.nameVi
-          });
-        });
-      });
-
-      downloadFilesSequentially(allFiles, 'Toàn Bộ Hồ Sơ 6 Trụ Cột (25 Tài Liệu Rời)');
+      const allFiles = collectActiveDossierFiles(['01_BUY', '02_CUS', '03_SUP', '04_LOG', '05_COD', '06_FIN']);
+      const label = getActiveDossier().isOrder ? `Toàn Bộ Hồ Sơ Đơn ${DOSSIER_SUMMARY_26103002.orderNo}` : 'Toàn Bộ Hồ Sơ 6 Trụ Cột';
+      downloadFilesSequentially(allFiles, `${label} (${allFiles.length} Tài Liệu Rời)`);
     }
 
     function downloadSelectedDossierFiles() {
@@ -12492,7 +13912,7 @@
       if (!tbody) return;
       const cbs = tbody.querySelectorAll('.chk-dossier-doc');
       cbs.forEach(cb => {
-        cb.checked = chkAll.checked;
+        if (!cb.disabled) cb.checked = chkAll.checked;
       });
       updateSelectedCountBadge();
     }
@@ -13090,6 +14510,22 @@ ${amountSection}
           </div>
           <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
             ⚡ <b>Đồng bộ dữ liệu biến BTS:</b> Mọi tính năng <b>[👁 In/Xem]</b>, <b>[📄 Tải Bản Word .DOC]</b>, <b>[🖨 In Trực Tiếp]</b>, <b>[📋 Copy TT]</b> và <b>[🖼 Tạo Ảnh]</b> sinh chứng từ trực tiếp theo kịch bản <b>${qty.toLocaleString('vi-VN')} Thùng (${escapeHtml(prodSummaryText)} - $${quotePrice.toFixed(2)} USD)</b>. Các nút tải tĩnh [⬇ .DOCX]/[⬇ .PDF] trong danh sách là phôi tham chiếu từ đơn gốc #269901.
+          </div>
+        `;
+      } else if (_currentDossierMode === 'ORDER_26103002') {
+        const S = DOSSIER_SUMMARY_26103002;
+        const all = Object.keys(DOSSIER_PILLARS_26103002).reduce((a, k) => a.concat(DOSSIER_PILLARS_26103002[k]), []);
+        const nGen = all.filter(d => d.kind === 'generated').length;
+        const nWait = all.filter(d => d.kind !== 'generated').length;
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="brand-badge" style="background:#047857; color:#fff; font-weight:bold; font-size:11.5px;">✅ ĐƠN CHUẨN MỚI:</span>
+            <b id="dossierActiveOrderBadge" style="font-size:13.5px; color:var(--text-main);">#${escapeHtml(S.orderNo)} — ${escapeHtml(S.orderId)}</b>
+            <span id="dossierActiveOrderQtyBadge" class="brand-badge" style="background:#059669; color:#fff; font-weight:bold; font-size:11.5px;">${S.qty.toLocaleString('vi-VN')} Thùng · ${escapeHtml(S.equipment)}</span>
+            <span class="brand-badge" style="background:#d97706; color:#fff; font-weight:bold; font-size:11.5px;">${escapeHtml(S.incoterm)} · Tổng: $${S.amountUsd} USD</span>
+          </div>
+          <div id="dossierOrderHeaderSubtext" style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            Khách: <b>${escapeHtml(S.buyer)}</b> · Hợp đồng khung ${escapeHtml(S.frameworkId)} (${escapeHtml(S.frameworkDate)}) · Lập ngày ${escapeHtml(S.issueDate)}. Danh sách chỉ liệt kê file <b>thật có trong kho</b>: ${nGen} biểu mẫu đã sinh, ${nWait} mục chờ bên khác cấp hoặc dùng lại bản đã nộp. Số liệu lấy từ file số liệu của đơn, không phải kịch bản mô phỏng.
           </div>
         `;
       } else {
