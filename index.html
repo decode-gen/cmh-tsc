@@ -13715,7 +13715,7 @@
         html += `
           <tr>
             <td class="text-center">
-              <input type="checkbox" class="chk-dossier-doc" value="${d.id}" data-id="${d.id}" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${displayNameVi}" onchange="updateSelectedCountBadge()">
+              ${d.fileBase === '' ? '<input type="checkbox" class="chk-dossier-doc" disabled data-tooltip="Chưa có file để tải">' : `<input type="checkbox" class="chk-dossier-doc" value="${d.id}" data-id="${d.id}" data-url="${primaryUrl}" data-fn="${primaryFn}" data-name="${displayNameVi}" onchange="updateSelectedCountBadge()">`}
             </td>
             <td class="text-center font-bold" style="color:var(--text-muted);">${idx + 1}</td>
             <td><code style="font-size:11.5px; color:var(--text-main); font-weight:bold;">${d.code}</code></td>
