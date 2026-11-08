@@ -2122,6 +2122,8 @@
               <div style="font-size:16px; font-weight:bold; color:#000;" id="kpiTotalBaseCostUsd">$15.37 USD</div>
               <div style="font-size:10.5px; font-weight:bold; color:#222;" id="kpiTotalBaseCostVnd">396.322 đ/thùng</div>
               <div style="font-size:8.5px; color:#555;" id="kpiTotalBaseCostSub">(Giá vốn + Log / COGS + Log)</div>
+              <!-- Cùng mặt bằng với bảng giá gửi khách: tiền thực chi đã gồm VAT (GSS-XNKD-QUOTE-001 · T13) -->
+              <div id="kpiCashOutlay" style="font-size:8.5px; font-weight:bold; color:#92400e; border-top:1px dashed #9ca3af; margin-top:3px; padding-top:2px; line-height:1.3;" data-tooltip="Thực chi đã VAT = cost gốc + VAT tiền hàng + VAT phí dịch vụ. Bằng giá sàn của bảng gửi khách (khi cộng thêm 0%)"></div>
             </div>
           </div>
 
@@ -9924,6 +9926,58 @@
       return (!isFinite(pct) || pct < 0) ? 0 : Math.min(pct, 100);
     }
 
+    // TIỀN THỰC CHI ĐÃ VAT của MỘT dòng chi phí — MỘT công thức duy nhất cho cả hai bảng:
+    //   • bảng giá gửi khách: giá sàn của từng dòng;
+    //   • bảng nội bộ (dải KPI, ảnh A4, bản in, bảng bóc tách): dòng "Thực chi đã VAT" để đối chiếu cùng mặt bằng.
+    // giá vốn + VAT đầu vào đã trả nhà cung cấp | phí dịch vụ × (1 + VAT dịch vụ) | khoản khác giữ nguyên số nhập.
+    function cqRowCashInc(key, amount, vatPaid, svcVatRate) {
+      if (key === 'cogs') return amount + vatPaid;
+      return (svcVatRate > 0 && CQ_VAT_SERVICE_KEYS.includes(key)) ? amount * (1 + svcVatRate) : amount;
+    }
+
+    // Đối chiếu bảng nội bộ ↔ bảng gửi khách: cost gốc (chưa VAT) + VAT tiền hàng + VAT dịch vụ = thực chi đã VAT.
+    // Mỗi khoản làm tròn đến đồng rồi mới cộng (giống giá sàn của bảng gửi khách). Trả về null khi chưa có số liệu.
+    function getCashOutlayInfo() {
+      const data = _customerQuoteData;
+      if (!data || !Array.isArray(data.costRows)) return null;
+      const boxes = data.qty > 0 ? data.qty : 0;
+      const fx = data.fxRate > 0 ? data.fxRate : 1;
+      const svcVatPct = getCustomerServiceVatPct();
+      const svcVatRate = svcVatPct / 100;
+      const vatRow = data.costRows.find(r => r.key === 'vat');
+      const vatPaid = vatRow ? (parseFloat(vatRow.amount) || 0) : 0;
+      let costBase = 0, vatGoods = 0, vatSvc = 0, cashTotal = 0;
+      data.costRows.forEach(r => {
+        if (r.key === 'vat' || r.memo) return;
+        const amount = parseFloat(r.amount) || 0;
+        if (amount <= 0) return;
+        const exc = Math.round(amount);
+        const inc = Math.round(cqRowCashInc(r.key, amount, vatPaid, svcVatRate));
+        costBase += exc;
+        cashTotal += inc;
+        if (r.key === 'cogs') vatGoods += inc - exc;
+        else vatSvc += inc - exc;
+      });
+      const perBox = (v) => (boxes > 0 ? v / boxes : 0);
+      return { boxes, fx, svcVatPct, costBase, vatGoods, vatSvc, cashTotal, perBox };
+    }
+
+    // Dải KPI trên màn hình: dòng "Thực chi đã VAT" dưới "TỔNG COST GỐC". Khi đang khóa thuế thì che số
+    // (vì cost gốc trừ đi số này sẽ lộ tiền VAT hoàn). Ảnh A4 / bản in in đủ số, giống dòng hoàn thuế GTGT.
+    function refreshCashOutlayKpi() {
+      const el = document.getElementById('kpiCashOutlay');
+      if (!el) return;
+      const info = getCashOutlayInfo();
+      if (!info || info.boxes <= 0) { el.innerHTML = ''; return; }
+      const unlocked = (typeof isTaxSecretUnlocked !== 'undefined') && isTaxSecretUnlocked;
+      if (!unlocked) {
+        el.innerHTML = `Thực chi đã VAT / Cash incl. VAT:<div style="letter-spacing:2px; color:#666;">•••••••• đ/thùng</div>`;
+        return;
+      }
+      const perBox = info.perBox(info.cashTotal);
+      el.innerHTML = `Thực chi đã VAT / Cash incl. VAT:<div style="font-size:10.5px;">${formatVnd(perBox)}/thùng</div><div style="font-weight:normal; color:#555;">$${(perBox / info.fx).toFixed(2)} USD</div>`;
+    }
+
     function getCustomerMarkupRates() {
       restoreCustomerMarkupOnce();
       const rates = {};
@@ -10084,7 +10138,7 @@
             const svcVatApplied = !isCogs && svcVatRate > 0 && CQ_VAT_SERVICE_KEYS.includes(r.key);
             const rawExc = amount;                                // chưa VAT
             // đã VAT = tiền thực trả: giá vốn + VAT đầu vào đã trả nhà cung cấp; phí dịch vụ + VAT dịch vụ; khoản khác giữ nguyên số nhập
-            const rawInc = isCogs ? amount + vatPaid : (svcVatApplied ? amount * (1 + svcVatRate) : amount);
+            const rawInc = cqRowCashInc(r.key, amount, vatPaid, svcVatRate);
             const rawBase = (basis === 'INC') ? rawInc : rawExc;
             const base = Math.round(rawBase);
             const markup = Math.round(rawBase * (pct / 100));
@@ -10125,6 +10179,8 @@
 
         // ----- VÙNG CHỦ XEM: khối GIÁ SÀN (xanh = đủ bù tiền thực chi, đỏ = đang báo thấp hơn) -----
         const floorEl = document.getElementById('cqOwnerFloor');
+        const cashInfo = getCashOutlayInfo();
+        const cashUnlocked = (typeof isTaxSecretUnlocked !== 'undefined') && isTaxSecretUnlocked;
         if (floorEl) {
           const ok = gapToFloor >= 0;
           const pctOver = totalFloor > 0 ? (gapToFloor / totalFloor * 100) : 0;
@@ -10134,8 +10190,10 @@
           floorEl.innerHTML = `<div style="border:1.5px solid ${ok ? '#15803d' : '#b91c1c'}; border-left-width:6px; background:${ok ? '#ecfdf5' : '#fef2f2'}; padding:6px 10px; font-size:11px; line-height:1.5; color:#000;">
             <div><b>GIÁ SÀN (không được báo thấp hơn)</b> = tiền thực chi đã gồm VAT (mua hàng + phí dịch vụ đã cộng VAT ${pctFmt(svcVatPct)}%) + các chi phí khác: <b>${formatVnd(totalFloor)}</b> (${usd(totalFloor)}) · <b>${formatVnd(perBox(totalFloor))}/thùng</b></div>
             <div>Báo khách: <b>${formatVnd(totalQuote)}</b> (${usd(totalQuote)}) · <b>${formatVnd(perBox(totalQuote))}/thùng</b> → ${verdict}</div>
+            ${cashInfo ? `<div style="color:#444;">Đối chiếu với bảng nội bộ (mỗi thùng): cost gốc chưa VAT <b>${formatVnd(cashInfo.perBox(cashInfo.costBase))}</b> (${usd(cashInfo.perBox(cashInfo.costBase))})${cashUnlocked ? ` + VAT tiền hàng <b>${formatVnd(cashInfo.perBox(cashInfo.vatGoods))}</b> + VAT phí dịch vụ <b>${formatVnd(cashInfo.perBox(cashInfo.vatSvc))}</b>` : ' + VAT (đang khóa thuế)'} = thực chi đã VAT <b>${formatVnd(cashInfo.perBox(cashInfo.cashTotal))}</b> (${usd(cashInfo.perBox(cashInfo.cashTotal))}). Cộng thêm ${titleRateText} → báo khách ${formatVnd(perBox(totalQuote))} (${usd(perBox(totalQuote))}).</div>` : ''}
           </div>`;
         }
+        refreshCashOutlayKpi();
 
         // ----- VÙNG CHỦ XEM: mọi lời giải thích -----
         const taxVisible = (typeof isTaxSecretUnlocked !== 'undefined') && isTaxSecretUnlocked;
@@ -10499,6 +10557,49 @@
           <td style="font-size:11px; color:var(--alert-warning-text); font-weight:bold;">Tổng chi phí đầu vào thực chi</td>
         </tr>
       `;
+
+      // ĐỐI CHIẾU CÙNG MẶT BẰNG VỚI BẢNG GIÁ GỬI KHÁCH (GSS-XNKD-QUOTE-001 · T13):
+      // cost gốc (chưa VAT) + VAT tiền hàng + VAT phí dịch vụ = tiền thực chi đã VAT = giá sàn của bảng gửi khách.
+      const cashInfo = getCashOutlayInfo();
+      if (cashInfo && cashInfo.boxes > 0) {
+        const pbv = (v) => cashInfo.perBox(v);
+        const usdOf = (v) => '$' + (pbv(v) / fx).toFixed(2);
+        if (!d.isTaxSecretUnlocked) {
+          tbody.innerHTML += `
+            <tr style="background:rgba(120,120,120,0.08);">
+              <td colspan="3" class="font-bold" style="font-size:12px; color:var(--text-muted);">🔒 ★ THỰC CHI ĐÃ VAT / THÙNG (cùng mặt bằng bảng gửi khách)</td>
+              <td class="text-right font-bold" style="letter-spacing:2px; color:var(--text-muted);">•••••••• đ</td>
+              <td class="text-right font-bold" style="letter-spacing:2px; color:var(--text-muted);">••••••••</td>
+              <td class="text-center" style="color:var(--text-muted);">-</td>
+              <td style="font-size:11px; color:var(--text-dim);">Mở khóa thuế để xem phần VAT</td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML += `
+            <tr>
+              <td colspan="3" class="font-bold" style="font-size:12px;">• + VAT tiền hàng đã trả nhà cung cấp / thùng</td>
+              <td class="text-right font-bold">+ ${formatVnd(pbv(cashInfo.vatGoods))}</td>
+              <td class="text-right font-bold">+ ${usdOf(cashInfo.vatGoods)}</td>
+              <td class="text-center" style="color:var(--text-muted);">-</td>
+              <td style="font-size:11px; color:var(--text-dim);">VAT đầu vào, nhà nước hoàn lại sau (không phải lãi)</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="font-bold" style="font-size:12px;">• + VAT ${cashInfo.svcVatPct.toLocaleString('vi-VN', { maximumFractionDigits: 2 })}% phí dịch vụ / thùng</td>
+              <td class="text-right font-bold">+ ${formatVnd(pbv(cashInfo.vatSvc))}</td>
+              <td class="text-right font-bold">+ ${usdOf(cashInfo.vatSvc)}</td>
+              <td class="text-center" style="color:var(--text-muted);">-</td>
+              <td style="font-size:11px; color:var(--text-dim);">Cước, hải quan, C/O, biên phòng, transit, quá cảnh, bến bãi nhập chưa VAT</td>
+            </tr>
+            <tr style="background:rgba(180, 83, 9, 0.10); border-top:1px solid var(--border-strong); border-bottom:2px solid var(--border-strong);">
+              <td colspan="3" class="font-bold" style="font-size:13px; color:var(--alert-warning-text);">★ TỔNG THỰC CHI ĐÃ VAT / THÙNG (cùng mặt bằng bảng gửi khách)</td>
+              <td class="text-right font-bold" style="font-size:14px; color:var(--alert-warning-text);">${formatVnd(pbv(cashInfo.cashTotal))}</td>
+              <td class="text-right font-bold" style="font-size:14px; color:var(--alert-warning-text);">${usdOf(cashInfo.cashTotal)}</td>
+              <td class="text-center" style="color:var(--text-muted);">-</td>
+              <td style="font-size:11px; color:var(--alert-warning-text); font-weight:bold;">= giá sàn của bảng gửi khách khi cộng thêm 0%</td>
+            </tr>
+          `;
+        }
+      }
 
       // GIÁ CHÀO BÁN & LÃI GỘP / THÙNG
       const grossMarginPerBoxVnd = d.cashProfit / q;
@@ -11112,6 +11213,8 @@
       const customsPerBoxUsd = customsPerBoxVnd / fx;
       const totalBaseCostPerBoxVnd = (d.totalCostVnd || 0) / q;
       const totalBaseCostPerBoxUsd = totalBaseCostPerBoxVnd / fx;
+      const cashInfoCv = getCashOutlayInfo();
+      const cashPerBoxCv = (cashInfoCv && cashInfoCv.boxes > 0) ? cashInfoCv.perBox(cashInfoCv.cashTotal) : 0;
 
       const gap = 15;
       const w1 = 490;
@@ -11133,11 +11236,22 @@
       ctx.lineTo(x1 + 300, curY + 105);
       ctx.stroke();
 
-      text('TỔNG COST GỐC', x1 + 312, curY + 22, 'bold 12.5px "Times New Roman", serif', '#000000');
-      text('TOTAL BASE COST', x1 + 312, curY + 36, 'italic 10.5px "Times New Roman", serif', '#4b5563');
-      text('$' + totalBaseCostPerBoxUsd.toFixed(2) + ' USD', x1 + 312, curY + 64, 'bold 20px "Times New Roman", serif', '#000000');
-      text(formatVnd(totalBaseCostPerBoxVnd) + '/thùng', x1 + 312, curY + 86, 'bold 12.5px "Times New Roman", serif', '#374151');
-      text('(Giá vốn + Logistics / COGS + Log)', x1 + 312, curY + 103, '10px "Times New Roman", serif', '#6b7280');
+      if (cashPerBoxCv > 0) {
+        // Cùng mặt bằng với bảng giá gửi khách: tiền thực chi đã gồm VAT, ghi cả VNĐ và USD (GSS-XNKD-QUOTE-001 · T13)
+        text('TỔNG COST GỐC', x1 + 312, curY + 19, 'bold 12.5px "Times New Roman", serif', '#000000');
+        text('TOTAL BASE COST', x1 + 312, curY + 31, 'italic 10.5px "Times New Roman", serif', '#4b5563');
+        text('$' + totalBaseCostPerBoxUsd.toFixed(2) + ' USD', x1 + 312, curY + 52, 'bold 20px "Times New Roman", serif', '#000000');
+        text(formatVnd(totalBaseCostPerBoxVnd) + '/thùng', x1 + 312, curY + 68, 'bold 12.5px "Times New Roman", serif', '#374151');
+        text('(COGS + Log, chưa VAT)', x1 + 312, curY + 81, '10px "Times New Roman", serif', '#6b7280');
+        text('Thực chi đã VAT / incl. VAT:', x1 + 312, curY + 94, 'bold 10px "Times New Roman", serif', '#92400e');
+        text('$' + (cashPerBoxCv / fx).toFixed(2) + ' USD | ' + formatVnd(cashPerBoxCv), x1 + 312, curY + 108, 'bold 11px "Times New Roman", serif', '#92400e');
+      } else {
+        text('TỔNG COST GỐC', x1 + 312, curY + 22, 'bold 12.5px "Times New Roman", serif', '#000000');
+        text('TOTAL BASE COST', x1 + 312, curY + 36, 'italic 10.5px "Times New Roman", serif', '#4b5563');
+        text('$' + totalBaseCostPerBoxUsd.toFixed(2) + ' USD', x1 + 312, curY + 64, 'bold 20px "Times New Roman", serif', '#000000');
+        text(formatVnd(totalBaseCostPerBoxVnd) + '/thùng', x1 + 312, curY + 86, 'bold 12.5px "Times New Roman", serif', '#374151');
+        text('(Giá vốn + Logistics / COGS + Log)', x1 + 312, curY + 103, '10px "Times New Roman", serif', '#6b7280');
+      }
 
       // Module 2: Đơn giá chào bán xuất khẩu
       const x2 = x1 + w1 + gap;
@@ -11438,6 +11552,8 @@
       const customsPerBoxUsd = customsPerBoxVnd / fx;
       const totalBaseCostPerBoxVnd = (d.totalCostVnd || 0) / q;
       const totalBaseCostPerBoxUsd = totalBaseCostPerBoxVnd / fx;
+      const cashInfoPr = getCashOutlayInfo();
+      const cashPerBoxPr = (cashInfoPr && cashInfoPr.boxes > 0) ? cashInfoPr.perBox(cashInfoPr.cashTotal) : 0;
 
       let rowsHtml = '';
       let prSeq = 0;
@@ -11592,7 +11708,8 @@
                 <div style="font-size:5.5px; color:#555;">TOTAL BASE COST</div>
                 <div style="font-size:10.5px; font-weight:bold;">$${totalBaseCostPerBoxUsd.toFixed(2)} USD</div>
                 <div style="font-size:7px; font-weight:bold; color:#111;">${formatVnd(totalBaseCostPerBoxVnd)}</div>
-                <div style="font-size:6px; color:#555;">(COGS + Log)</div>
+                <div style="font-size:6px; color:#555;">(COGS + Log${cashPerBoxPr > 0 ? ', chưa VAT' : ''})</div>
+                ${cashPerBoxPr > 0 ? `<div style="font-size:5.5px; font-weight:bold; color:#92400e; border-top:0.5px dashed #9ca3af; margin-top:1px; padding-top:1px;">Thực chi đã VAT:</div><div style="font-size:7px; font-weight:bold; color:#92400e;">$${(cashPerBoxPr / fx).toFixed(2)} USD</div><div style="font-size:6.5px; font-weight:bold; color:#92400e;">${formatVnd(cashPerBoxPr)}/thùng</div>` : ''}
               </div>
             </div>
 
